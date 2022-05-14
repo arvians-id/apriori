@@ -1,28 +1,26 @@
 package model
 
-import "time"
-
 type CreateProductRequest struct {
-	Code        string
-	Name        string
-	Description string
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	Code        string `json:"code"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	CreatedAt   string `json:"created_at"`
+	UpdatedAt   string `json:"updated_at"`
 }
 
 type UpdateProductRequest struct {
-	IdProduct   uint64
-	Code        string
-	Name        string
-	Description string
-	UpdatedAt   time.Time
+	IdProduct   uint64 `json:"id_product"`
+	Code        string `json:"code"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	UpdatedAt   string `json:"updated_at"`
 }
 
 type GetProductResponse struct {
-	IdProduct   uint64
-	Code        string
-	Name        string
-	Description string
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	IdProduct   uint64 `json:"id_product"`
+	Code        string `json:"code"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	CreatedAt   string `json:"created_at"`
+	UpdatedAt   string `json:"updated_at"`
 }

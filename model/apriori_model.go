@@ -1,24 +1,22 @@
 package model
 
-import "time"
-
 type CreateAprioriRequest struct {
-	Item       string
-	Discount   int32
-	Support    int32
-	Confidence int32
-	RangeDate  string
-	Counter    uint64
-	CreatedAt  time.Time
+	Item       string `json:"item"`
+	Discount   int32  `json:"discount"`
+	Support    int32  `json:"support"`
+	Confidence int32  `json:"confidence"`
+	RangeDate  string `json:"range_date"`
+	Counter    uint64 `json:"counter"`
+	CreatedAt  string `json:"created_at"`
 }
 
 type GetAprioriResponse struct {
-	IdApriori  uint64
-	Item       string
-	Discount   int32
-	Support    int32
-	Confidence int32
-	RangeDate  string
-	Counter    uint64
-	CreatedAt  time.Time
+	IdApriori  uint64 `json:"id_apriori"`
+	Item       string `json:"item"`
+	Discount   int32  `json:"discount"`
+	Support    int32  `json:"support"`
+	Confidence int32  `json:"confidence"`
+	RangeDate  string `json:"range_date"`
+	Counter    uint64 `json:"counter"`
+	CreatedAt  string `json:"created_at"`
 }
