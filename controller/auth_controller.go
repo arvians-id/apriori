@@ -24,17 +24,22 @@ func NewAuthController(authService service.AuthService, userService service.User
 }
 
 func (controller *AuthController) Route(router *gin.Engine) *gin.Engine {
-	router.POST("/api/login", controller.login)
-	router.POST("/api/register", controller.register)
+	authorized := router.Group("/api/auth")
+	{
+		authorized.POST("/login", controller.login)
+		authorized.POST("/register", controller.register)
+		authorized.DELETE("/logout", controller.logout)
+	}
 
 	return router
 }
+
 func (controller *AuthController) login(c *gin.Context) {
 	var request model.GetUserCredentialRequest
 	err := c.BindJSON(&request)
 	if err != nil {
-		c.JSON(500, model.WebResponse{
-			Code:   500,
+		c.JSON(http.StatusInternalServerError, model.WebResponse{
+			Code:   http.StatusInternalServerError,
 			Status: err.Error(),
 			Data:   nil,
 		})
@@ -43,8 +48,8 @@ func (controller *AuthController) login(c *gin.Context) {
 
 	user, err := controller.AuthService.VerifyCredential(c.Request.Context(), request)
 	if err != nil {
-		c.JSON(500, model.WebResponse{
-			Code:   500,
+		c.JSON(http.StatusInternalServerError, model.WebResponse{
+			Code:   http.StatusInternalServerError,
 			Status: err.Error(),
 			Data:   nil,
 		})
@@ -53,8 +58,8 @@ func (controller *AuthController) login(c *gin.Context) {
 
 	token, err := controller.JwtService.GenerateToken(user.IdUser)
 	if err != nil {
-		c.JSON(500, model.WebResponse{
-			Code:   500,
+		c.JSON(http.StatusInternalServerError, model.WebResponse{
+			Code:   http.StatusInternalServerError,
 			Status: err.Error(),
 			Data:   nil,
 		})
@@ -66,13 +71,17 @@ func (controller *AuthController) login(c *gin.Context) {
 		Name:     "token",
 		Value:    url.QueryEscape(token),
 		Expires:  expirationTime,
+		Path:     "/api",
 		HttpOnly: true,
 	})
 
-	c.JSON(200, model.WebResponse{
-		Code:   200,
+	c.JSON(http.StatusOK, model.WebResponse{
+		Code:   http.StatusOK,
 		Status: "OK",
-		Data:   token,
+		Data: gin.H{
+			"token":     token,
+			"expiresAt": expirationTime,
+		},
 	})
 }
 
@@ -80,8 +89,8 @@ func (controller *AuthController) register(c *gin.Context) {
 	var request model.CreateUserRequest
 	err := c.BindJSON(&request)
 	if err != nil {
-		c.JSON(500, model.WebResponse{
-			Code:   500,
+		c.JSON(http.StatusInternalServerError, model.WebResponse{
+			Code:   http.StatusInternalServerError,
 			Status: err.Error(),
 			Data:   nil,
 		})
@@ -90,17 +99,33 @@ func (controller *AuthController) register(c *gin.Context) {
 
 	user, err := controller.UserService.Create(c.Request.Context(), request)
 	if err != nil {
-		c.JSON(500, model.WebResponse{
-			Code:   500,
+		c.JSON(http.StatusInternalServerError, model.WebResponse{
+			Code:   http.StatusInternalServerError,
 			Status: err.Error(),
 			Data:   nil,
 		})
 		return
 	}
 
-	c.JSON(200, model.WebResponse{
-		Code:   200,
+	c.JSON(http.StatusOK, model.WebResponse{
+		Code:   http.StatusOK,
 		Status: "OK",
 		Data:   user,
+	})
+}
+
+func (controller *AuthController) logout(c *gin.Context) {
+	http.SetCookie(c.Writer, &http.Cookie{
+		Name:     "token",
+		Value:    "",
+		Path:     "/api",
+		Expires:  time.Unix(0, 0),
+		HttpOnly: true,
+	})
+
+	c.JSON(http.StatusOK, model.WebResponse{
+		Code:   http.StatusOK,
+		Status: "OK",
+		Data:   nil,
 	})
 }
