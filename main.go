@@ -15,6 +15,12 @@ func main() {
 	userService := service.NewUserService(userRepository, db)
 	userController := controller.NewUserController(userService)
 
+	authRepository := repository.NewAuthRepository()
+	authService := service.NewAuthService(userRepository, authRepository, db)
+	jwtService := service.NewJwtService()
+	authController := controller.NewAuthController(authService, userService, jwtService)
+
+	authController.Route(router)
 	userController.Route(router)
 
 	router.GET("/", func(c *gin.Context) {

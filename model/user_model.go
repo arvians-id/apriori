@@ -16,6 +16,11 @@ type UpdateUserRequest struct {
 	UpdatedAt string `json:"updated_at"`
 }
 
+type GetUserCredentialRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
 type GetUserResponse struct {
 	IdUser    uint64 `json:"id_user"`
 	Name      string `json:"name"`
