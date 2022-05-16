@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt"
+	"os"
 	"time"
 )
 
@@ -32,7 +33,7 @@ func NewJwtService() JwtService {
 }
 
 func getSecretKey() string {
-	return "asu"
+	return os.Getenv("JWT_SECRET_KEY")
 }
 
 func (service *jwtService) GenerateToken(IdUser uint64) (string, error) {

@@ -6,10 +6,18 @@ import (
 	"apriori/helper"
 	"apriori/repository"
 	"apriori/service"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
+	"os"
 )
 
 func main() {
+	err := godotenv.Load()
+	if err != nil {
+		helper.PanicIfError(err)
+	}
+
 	router := gin.New()
 	db := app.NewDB()
 	userRepository := repository.NewUserRepository()
@@ -21,7 +29,7 @@ func main() {
 	jwtService := service.NewJwtService()
 	authController := controller.NewAuthController(authService, userService, jwtService)
 
-	err := router.SetTrustedProxies([]string{"127.0.0.1"})
+	err = router.SetTrustedProxies([]string{os.Getenv("APP_URL")})
 	if err != nil {
 		helper.PanicIfError(err)
 	}
@@ -35,7 +43,8 @@ func main() {
 		c.String(200, "asus")
 	})
 
-	err = router.Run(":8080")
+	addr := fmt.Sprintf(":%v", os.Getenv("APP_PORT"))
+	err = router.Run(addr)
 	if err != nil {
 		panic(err)
 	}

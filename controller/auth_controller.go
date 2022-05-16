@@ -27,7 +27,6 @@ func (controller *AuthController) Route(router *gin.Engine) *gin.Engine {
 	authorized := router.Group("/api/auth")
 	{
 		authorized.POST("/login", controller.login)
-		authorized.POST("/register", controller.register)
 		authorized.DELETE("/logout", controller.logout)
 	}
 
@@ -82,35 +81,6 @@ func (controller *AuthController) login(c *gin.Context) {
 			"token":     token,
 			"expiresAt": expirationTime,
 		},
-	})
-}
-
-func (controller *AuthController) register(c *gin.Context) {
-	var request model.CreateUserRequest
-	err := c.BindJSON(&request)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, model.WebResponse{
-			Code:   http.StatusInternalServerError,
-			Status: err.Error(),
-			Data:   nil,
-		})
-		return
-	}
-
-	user, err := controller.UserService.Create(c.Request.Context(), request)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, model.WebResponse{
-			Code:   http.StatusInternalServerError,
-			Status: err.Error(),
-			Data:   nil,
-		})
-		return
-	}
-
-	c.JSON(http.StatusOK, model.WebResponse{
-		Code:   http.StatusOK,
-		Status: "OK",
-		Data:   user,
 	})
 }
 
