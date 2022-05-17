@@ -21,13 +21,16 @@ func main() {
 	router := gin.New()
 	db := app.NewDB()
 	userRepository := repository.NewUserRepository()
+	passwordRepository := repository.NewPasswordResetRepository()
 	userService := service.NewUserService(userRepository, db)
 	userController := controller.NewUserController(userService)
 
 	authRepository := repository.NewAuthRepository()
 	authService := service.NewAuthService(userRepository, authRepository, db)
 	jwtService := service.NewJwtService()
-	authController := controller.NewAuthController(authService, userService, jwtService)
+	emailService := service.NewEmailService()
+	passwordResetService := service.NewPasswordResetService(passwordRepository, db)
+	authController := controller.NewAuthController(authService, userService, jwtService, emailService, passwordResetService)
 
 	err = router.SetTrustedProxies([]string{os.Getenv("APP_URL")})
 	if err != nil {

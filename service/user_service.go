@@ -14,6 +14,7 @@ import (
 type UserService interface {
 	FindAll(ctx context.Context) ([]model.GetUserResponse, error)
 	FindById(ctx context.Context, userId uint64) (model.GetUserResponse, error)
+	FindByEmail(ctx context.Context, email string) (model.GetUserResponse, error)
 	Create(ctx context.Context, request model.CreateUserRequest) (model.GetUserResponse, error)
 	Update(ctx context.Context, request model.UpdateUserRequest) (model.GetUserResponse, error)
 	Delete(ctx context.Context, userId uint64) error
@@ -63,6 +64,21 @@ func (service *userService) FindById(ctx context.Context, userId uint64) (model.
 	defer helper.CommitOrRollback(tx)
 
 	user, err := service.UserRepository.FindById(ctx, tx, userId)
+	if err != nil {
+		return model.GetUserResponse{}, err
+	}
+
+	return helper.ToUserResponse(user), nil
+}
+
+func (service *userService) FindByEmail(ctx context.Context, email string) (model.GetUserResponse, error) {
+	tx, err := service.DB.Begin()
+	if err != nil {
+		return model.GetUserResponse{}, err
+	}
+	defer helper.CommitOrRollback(tx)
+
+	user, err := service.UserRepository.FindByEmail(ctx, tx, email)
 	if err != nil {
 		return model.GetUserResponse{}, err
 	}

@@ -14,3 +14,11 @@ func ToUserResponse(user entity.User) model.GetUserResponse {
 		UpdatedAt: user.UpdatedAt.String(),
 	}
 }
+
+func ToPasswordResetResponse(reset entity.PasswordReset) model.GetPasswordResetResponse {
+	return model.GetPasswordResetResponse{
+		Email:   reset.Email,
+		Token:   reset.Token,
+		Expired: reset.Expired,
+	}
+}
