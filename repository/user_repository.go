@@ -13,6 +13,7 @@ type UserRepository interface {
 	FindByEmail(ctx context.Context, tx *sql.Tx, email string) (entity.User, error)
 	Create(ctx context.Context, tx *sql.Tx, user entity.User) (entity.User, error)
 	Update(ctx context.Context, tx *sql.Tx, user entity.User) (entity.User, error)
+	UpdatePassword(ctx context.Context, tx *sql.Tx, user entity.User) (entity.User, error)
 	Delete(ctx context.Context, tx *sql.Tx, user entity.User) error
 }
 
@@ -121,6 +122,16 @@ func (repository *userRepository) Create(ctx context.Context, tx *sql.Tx, user e
 func (repository *userRepository) Update(ctx context.Context, tx *sql.Tx, user entity.User) (entity.User, error) {
 	query := "UPDATE users SET name = ?, email = ?, password = ?, updated_at = ? WHERE id_user = ?"
 	_, err := tx.ExecContext(ctx, query, user.Name, user.Email, user.Password, user.UpdatedAt, user.IdUser)
+	if err != nil {
+		return entity.User{}, err
+	}
+
+	return user, nil
+}
+
+func (repository *userRepository) UpdatePassword(ctx context.Context, tx *sql.Tx, user entity.User) (entity.User, error) {
+	query := "UPDATE users SET password = ?, updated_at = ? WHERE email = ?"
+	_, err := tx.ExecContext(ctx, query, user.Password, user.UpdatedAt, user.Email)
 	if err != nil {
 		return entity.User{}, err
 	}

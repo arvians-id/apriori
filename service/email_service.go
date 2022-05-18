@@ -1,8 +1,6 @@
 package service
 
 import (
-	"crypto/md5"
-	"fmt"
 	"gopkg.in/gomail.v2"
 	"os"
 	"strconv"
@@ -10,7 +8,6 @@ import (
 
 type EmailService interface {
 	SendEmailWithText(toEmail string, message string) error
-	MakeTokenVerificationEmail(email string, timestamp string) string
 }
 
 type emailService struct {
@@ -45,11 +42,4 @@ func (service *emailService) SendEmailWithText(toEmail string, message string) e
 	}
 
 	return nil
-}
-
-func (service *emailService) MakeTokenVerificationEmail(email string, timestamp string) string {
-	tokenString := md5.Sum([]byte(email + timestamp))
-	token := fmt.Sprintf("%x", tokenString)
-
-	return token
 }

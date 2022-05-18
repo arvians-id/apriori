@@ -29,7 +29,7 @@ func main() {
 	authService := service.NewAuthService(userRepository, authRepository, db)
 	jwtService := service.NewJwtService()
 	emailService := service.NewEmailService()
-	passwordResetService := service.NewPasswordResetService(passwordRepository, db)
+	passwordResetService := service.NewPasswordResetService(passwordRepository, userRepository, db)
 	authController := controller.NewAuthController(authService, userService, jwtService, emailService, passwordResetService)
 
 	err = router.SetTrustedProxies([]string{os.Getenv("APP_URL")})

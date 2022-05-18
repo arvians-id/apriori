@@ -3,10 +3,10 @@ package controller
 import (
 	"apriori/model"
 	"apriori/service"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
 	"net/url"
-	"strconv"
 	"time"
 )
 
@@ -33,6 +33,7 @@ func (controller *AuthController) Route(router *gin.Engine) *gin.Engine {
 	{
 		authorized.POST("/login", controller.login)
 		authorized.POST("/forgot-password", controller.forgotPassword)
+		authorized.POST("/verify", controller.verifyResetPassword)
 		authorized.DELETE("/logout", controller.logout)
 	}
 
@@ -103,24 +104,8 @@ func (controller *AuthController) forgotPassword(c *gin.Context) {
 		return
 	}
 
-	user, err := controller.UserService.FindByEmail(c.Request.Context(), request.Email)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, model.WebResponse{
-			Code:   http.StatusInternalServerError,
-			Status: err.Error(),
-			Data:   nil,
-		})
-		return
-	}
-
-	// Insert data token to database
-	times := time.Now()
-	timestamp := times.Unix()
-
-	timestampString := strconv.Itoa(int(timestamp))
-	token := controller.EmailService.MakeTokenVerificationEmail(user.Email, timestampString)
-
-	result, err := controller.PasswordResetService.Create(c.Request.Context(), request, token, int32(timestamp))
+	// Insert or update data token into database
+	result, err := controller.PasswordResetService.CreateOrUpdate(c.Request.Context(), request.Email)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.WebResponse{
 			Code:   http.StatusInternalServerError,
@@ -131,8 +116,8 @@ func (controller *AuthController) forgotPassword(c *gin.Context) {
 	}
 
 	// Send email to user
-	message := "http://localhost:8080/verify?signature=" + token + "&expired=" + timestampString + ""
-	err = controller.EmailService.SendEmailWithText(user.Email, message)
+	message := fmt.Sprintf("http://localhost:8080/verify?signature=%v", result.Token)
+	err = controller.EmailService.SendEmailWithText(result.Email, message)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, model.WebResponse{
 			Code:   http.StatusInternalServerError,
@@ -144,12 +129,39 @@ func (controller *AuthController) forgotPassword(c *gin.Context) {
 
 	c.JSON(http.StatusOK, model.WebResponse{
 		Code:   http.StatusOK,
-		Status: "Mail Success sent!",
-		Data: gin.H{
-			"email":   user.Email,
-			"token":   result.Token,
-			"expired": result.Expired,
-		},
+		Status: "mail sent successfully",
+		Data:   result,
+	})
+}
+
+func (controller *AuthController) verifyResetPassword(c *gin.Context) {
+	// Check email if exists
+	var request model.UpdateResetPasswordUserRequest
+	err := c.BindJSON(&request)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.WebResponse{
+			Code:   http.StatusInternalServerError,
+			Status: err.Error(),
+			Data:   nil,
+		})
+		return
+	}
+
+	request.Token = c.Query("signature")
+	user, err := controller.PasswordResetService.Verify(c.Request.Context(), request)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, model.WebResponse{
+			Code:   http.StatusInternalServerError,
+			Status: err.Error(),
+			Data:   nil,
+		})
+		return
+	}
+
+	c.JSON(http.StatusOK, model.WebResponse{
+		Code:   http.StatusOK,
+		Status: "successfully updated",
+		Data:   user,
 	})
 }
 

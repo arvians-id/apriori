@@ -25,6 +25,12 @@ func (repository *authRepository) VerifyCredential(ctx context.Context, tx *sql.
 	if err != nil {
 		return entity.User{}, err
 	}
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			return
+		}
+	}(rows)
 
 	var user entity.User
 	if rows.Next() {

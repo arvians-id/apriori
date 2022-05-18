@@ -133,7 +133,7 @@ func (controller *UserController) Create(c *gin.Context) {
 
 	c.JSON(http.StatusOK, model.WebResponse{
 		Code:   http.StatusOK,
-		Status: "OK",
+		Status: "successfully created",
 		Data:   user,
 	})
 }
@@ -175,7 +175,7 @@ func (controller *UserController) Update(c *gin.Context) {
 
 	c.JSON(http.StatusOK, model.WebResponse{
 		Code:   http.StatusOK,
-		Status: "OK",
+		Status: "successfully updated",
 		Data:   user,
 	})
 }
@@ -204,7 +204,7 @@ func (controller *UserController) Delete(c *gin.Context) {
 
 	c.JSON(http.StatusOK, model.WebResponse{
 		Code:   http.StatusOK,
-		Status: "OK",
+		Status: "successfully deleted",
 		Data:   nil,
 	})
 }
