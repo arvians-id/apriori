@@ -18,10 +18,10 @@ type authService struct {
 	DB             *sql.DB
 }
 
-func NewAuthService(userRepository repository.UserRepository, authRepository repository.AuthRepository, db *sql.DB) AuthService {
+func NewAuthService(userRepository *repository.UserRepository, authRepository *repository.AuthRepository, db *sql.DB) AuthService {
 	return &authService{
-		UserRepository: userRepository,
-		AuthRepository: authRepository,
+		UserRepository: *userRepository,
+		AuthRepository: *authRepository,
 		DB:             db,
 	}
 }

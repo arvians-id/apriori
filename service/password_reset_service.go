@@ -26,10 +26,10 @@ type passwordResetService struct {
 	DB                      *sql.DB
 }
 
-func NewPasswordResetService(resetRepository repository.PasswordResetRepository, userRepository repository.UserRepository, db *sql.DB) PasswordResetService {
+func NewPasswordResetService(resetRepository *repository.PasswordResetRepository, userRepository *repository.UserRepository, db *sql.DB) PasswordResetService {
 	return &passwordResetService{
-		PasswordResetRepository: resetRepository,
-		UserRepository:          userRepository,
+		PasswordResetRepository: *resetRepository,
+		UserRepository:          *userRepository,
 		DB:                      db,
 	}
 }

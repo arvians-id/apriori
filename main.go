@@ -13,39 +13,41 @@ import (
 )
 
 func main() {
+	// Setup Configuration
 	err := godotenv.Load()
 	if err != nil {
 		helper.PanicIfError(err)
 	}
-
-	router := gin.New()
+	router := gin.Default()
 	db := app.NewDB()
+
+	// Setup Repository
 	userRepository := repository.NewUserRepository()
 	passwordRepository := repository.NewPasswordResetRepository()
-	userService := service.NewUserService(userRepository, db)
-	userController := controller.NewUserController(userService)
-
 	authRepository := repository.NewAuthRepository()
-	authService := service.NewAuthService(userRepository, authRepository, db)
+
+	// Setup Service
+	userService := service.NewUserService(&userRepository, db)
+	authService := service.NewAuthService(&userRepository, &authRepository, db)
 	jwtService := service.NewJwtService()
 	emailService := service.NewEmailService()
-	passwordResetService := service.NewPasswordResetService(passwordRepository, userRepository, db)
-	authController := controller.NewAuthController(authService, userService, jwtService, emailService, passwordResetService)
+	passwordResetService := service.NewPasswordResetService(&passwordRepository, &userRepository, db)
 
+	// Setup Controller
+	userController := controller.NewUserController(&userService)
+	authController := controller.NewAuthController(&authService, &userService, jwtService, emailService, &passwordResetService)
+
+	// Setup Proxies
 	err = router.SetTrustedProxies([]string{os.Getenv("APP_URL")})
 	if err != nil {
 		helper.PanicIfError(err)
 	}
-	router.Use(gin.Logger())
-	router.Use(gin.Recovery())
 
+	// Setup Router
 	authController.Route(router)
 	userController.Route(router)
 
-	router.GET("/", func(c *gin.Context) {
-		c.String(200, "asus")
-	})
-
+	// Start App
 	addr := fmt.Sprintf(":%v", os.Getenv("APP_PORT"))
 	err = router.Run(addr)
 	if err != nil {
