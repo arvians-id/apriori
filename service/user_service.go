@@ -19,19 +19,17 @@ type UserService interface {
 	Delete(ctx context.Context, userId uint64) error
 }
 
-var (
-	date = "2006-01-02 15:04:05"
-)
-
 type userService struct {
 	UserRepository repository.UserRepository
 	DB             *sql.DB
+	date           string
 }
 
 func NewUserService(userRepository *repository.UserRepository, db *sql.DB) UserService {
 	return &userService{
 		UserRepository: *userRepository,
 		DB:             db,
+		date:           "2006-01-02 15:04:05",
 	}
 }
 
@@ -82,11 +80,11 @@ func (service *userService) Create(ctx context.Context, request model.CreateUser
 		return model.GetUserResponse{}, err
 	}
 
-	createdAt, err := time.Parse(date, time.Now().Format(date))
+	createdAt, err := time.Parse(service.date, time.Now().Format(service.date))
 	if err != nil {
 		return model.GetUserResponse{}, err
 	}
-	updatedAt, err := time.Parse(date, time.Now().Format(date))
+	updatedAt, err := time.Parse(service.date, time.Now().Format(service.date))
 	if err != nil {
 		return model.GetUserResponse{}, err
 	}
@@ -129,7 +127,7 @@ func (service *userService) Update(ctx context.Context, request model.UpdateUser
 		newPassword = string(password)
 	}
 
-	updatedAt, err := time.Parse(date, time.Now().Format(date))
+	updatedAt, err := time.Parse(service.date, time.Now().Format(service.date))
 	if err != nil {
 		return model.GetUserResponse{}, err
 	}

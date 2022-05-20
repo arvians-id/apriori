@@ -22,3 +22,14 @@ func ToPasswordResetResponse(reset entity.PasswordReset) model.GetPasswordResetR
 		Expired: reset.Expired,
 	}
 }
+
+func ToProductResponse(user entity.Product) model.GetProductResponse {
+	return model.GetProductResponse{
+		IdProduct:   user.IdProduct,
+		Code:        user.Code,
+		Name:        user.Name,
+		Description: user.Description,
+		CreatedAt:   user.CreatedAt.String(),
+		UpdatedAt:   user.UpdatedAt.String(),
+	}
+}
