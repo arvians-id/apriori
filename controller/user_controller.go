@@ -80,9 +80,9 @@ func (controller *UserController) FindById(c *gin.Context) {
 
 func (controller *UserController) Create(c *gin.Context) {
 	var request model.CreateUserRequest
-	err := c.BindJSON(&request)
+	err := c.ShouldBindJSON(&request)
 	if err != nil {
-		helper.ReturnErrorInternalServerError(c, err, nil)
+		helper.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
@@ -96,15 +96,15 @@ func (controller *UserController) Create(c *gin.Context) {
 }
 
 func (controller *UserController) Update(c *gin.Context) {
-	params := c.Param("userId")
-	id, err := strconv.Atoi(params)
+	var request model.UpdateUserRequest
+	err := c.ShouldBindJSON(&request)
 	if err != nil {
-		helper.ReturnErrorInternalServerError(c, err, nil)
+		helper.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
-	var request model.UpdateUserRequest
-	err = c.BindJSON(&request)
+	params := c.Param("userId")
+	id, err := strconv.Atoi(params)
 	if err != nil {
 		helper.ReturnErrorInternalServerError(c, err, nil)
 		return

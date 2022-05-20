@@ -14,6 +14,14 @@ func ReturnErrorInternalServerError(c *gin.Context, err error, data interface{})
 	})
 }
 
+func ReturnErrorBadRequest(c *gin.Context, err error, data interface{}) {
+	c.JSON(http.StatusBadRequest, model.WebResponse{
+		Code:   http.StatusBadRequest,
+		Status: err.Error(),
+		Data:   data,
+	})
+}
+
 func ReturnErrorUnauthorized(c *gin.Context, err error, data interface{}) {
 	c.JSON(http.StatusUnauthorized, model.WebResponse{
 		Code:   http.StatusUnauthorized,

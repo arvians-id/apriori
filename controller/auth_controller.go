@@ -43,9 +43,9 @@ func (controller *AuthController) Route(router *gin.Engine) *gin.Engine {
 
 func (controller *AuthController) login(c *gin.Context) {
 	var request model.GetUserCredentialRequest
-	err := c.BindJSON(&request)
+	err := c.ShouldBindJSON(&request)
 	if err != nil {
-		helper.ReturnErrorInternalServerError(c, err, nil)
+		helper.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
@@ -79,9 +79,9 @@ func (controller *AuthController) login(c *gin.Context) {
 func (controller *AuthController) forgotPassword(c *gin.Context) {
 	// Check email if exists
 	var request model.CreatePasswordResetRequest
-	err := c.BindJSON(&request)
+	err := c.ShouldBindJSON(&request)
 	if err != nil {
-		helper.ReturnErrorInternalServerError(c, err, nil)
+		helper.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
@@ -106,9 +106,9 @@ func (controller *AuthController) forgotPassword(c *gin.Context) {
 func (controller *AuthController) verifyResetPassword(c *gin.Context) {
 	// Check email if exists
 	var request model.UpdateResetPasswordUserRequest
-	err := c.BindJSON(&request)
+	err := c.ShouldBindJSON(&request)
 	if err != nil {
-		helper.ReturnErrorInternalServerError(c, err, nil)
+		helper.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
