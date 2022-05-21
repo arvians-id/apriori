@@ -141,7 +141,7 @@ func (service *productService) Delete(ctx context.Context, code string) error {
 		return err
 	}
 
-	err = service.ProductRepository.Delete(ctx, tx, getProduct)
+	err = service.ProductRepository.Delete(ctx, tx, getProduct.Code)
 	if err != nil {
 		return err
 	}

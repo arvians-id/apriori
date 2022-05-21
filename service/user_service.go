@@ -157,7 +157,7 @@ func (service *userService) Delete(ctx context.Context, userId uint64) error {
 		return err
 	}
 
-	err = service.UserRepository.Delete(ctx, tx, getUser)
+	err = service.UserRepository.Delete(ctx, tx, getUser.IdUser)
 	if err != nil {
 		return err
 	}

@@ -9,10 +9,11 @@ import (
 
 type ProductRepository interface {
 	FindAll(ctx context.Context, tx *sql.Tx) ([]entity.Product, error)
+	FindById(ctx context.Context, tx *sql.Tx, productId uint64) (entity.Product, error)
 	FindByCode(ctx context.Context, tx *sql.Tx, code string) (entity.Product, error)
 	Create(ctx context.Context, tx *sql.Tx, product entity.Product) (entity.Product, error)
 	Update(ctx context.Context, tx *sql.Tx, product entity.Product) (entity.Product, error)
-	Delete(ctx context.Context, tx *sql.Tx, product entity.Product) error
+	Delete(ctx context.Context, tx *sql.Tx, code string) error
 }
 
 type productRepository struct {
@@ -46,6 +47,32 @@ func (repository *productRepository) FindAll(ctx context.Context, tx *sql.Tx) ([
 	}
 
 	return products, nil
+}
+
+func (repository *productRepository) FindById(ctx context.Context, tx *sql.Tx, productId uint64) (entity.Product, error) {
+	query := "SELECT * FROM products WHERE id_product = ?"
+	queryContext, err := tx.QueryContext(ctx, query, productId)
+	if err != nil {
+		return entity.Product{}, err
+	}
+	defer func(queryContext *sql.Rows) {
+		err := queryContext.Close()
+		if err != nil {
+			return
+		}
+	}(queryContext)
+
+	var product entity.Product
+	if queryContext.Next() {
+		err := queryContext.Scan(&product.IdProduct, &product.Code, &product.Name, &product.Description, &product.CreatedAt, &product.UpdatedAt)
+		if err != nil {
+			return entity.Product{}, err
+		}
+
+		return product, nil
+	}
+
+	return product, errors.New("product not found")
 }
 
 func (repository *productRepository) FindByCode(ctx context.Context, tx *sql.Tx, code string) (entity.Product, error) {
@@ -101,9 +128,9 @@ func (repository *productRepository) Update(ctx context.Context, tx *sql.Tx, pro
 	return product, nil
 }
 
-func (repository *productRepository) Delete(ctx context.Context, tx *sql.Tx, product entity.Product) error {
+func (repository *productRepository) Delete(ctx context.Context, tx *sql.Tx, code string) error {
 	query := "DELETE FROM products WHERE code = ?"
-	_, err := tx.ExecContext(ctx, query, product.Code)
+	_, err := tx.ExecContext(ctx, query, code)
 	if err != nil {
 		return err
 	}

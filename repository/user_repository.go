@@ -14,7 +14,7 @@ type UserRepository interface {
 	Create(ctx context.Context, tx *sql.Tx, user entity.User) (entity.User, error)
 	Update(ctx context.Context, tx *sql.Tx, user entity.User) (entity.User, error)
 	UpdatePassword(ctx context.Context, tx *sql.Tx, user entity.User) (entity.User, error)
-	Delete(ctx context.Context, tx *sql.Tx, user entity.User) error
+	Delete(ctx context.Context, tx *sql.Tx, userId uint64) error
 }
 
 type userRepository struct {
@@ -139,9 +139,9 @@ func (repository *userRepository) UpdatePassword(ctx context.Context, tx *sql.Tx
 	return user, nil
 }
 
-func (repository *userRepository) Delete(ctx context.Context, tx *sql.Tx, user entity.User) error {
+func (repository *userRepository) Delete(ctx context.Context, tx *sql.Tx, userId uint64) error {
 	query := "DELETE FROM users WHERE id_user = ?"
-	_, err := tx.ExecContext(ctx, query, user.IdUser)
+	_, err := tx.ExecContext(ctx, query, userId)
 	if err != nil {
 		return err
 	}

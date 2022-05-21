@@ -26,6 +26,7 @@ func main() {
 	passwordRepository := repository.NewPasswordResetRepository()
 	authRepository := repository.NewAuthRepository()
 	productRepository := repository.NewProductRepository()
+	transactionRepository := repository.NewTransactionRepository()
 
 	// Setup Service
 	userService := service.NewUserService(&userRepository, db)
@@ -34,11 +35,13 @@ func main() {
 	emailService := service.NewEmailService()
 	passwordResetService := service.NewPasswordResetService(&passwordRepository, &userRepository, db)
 	productService := service.NewProductService(&productRepository, db)
+	transactionService := service.NewTransactionService(&transactionRepository, &productRepository, db)
 
 	// Setup Controller
 	userController := controller.NewUserController(&userService)
 	authController := controller.NewAuthController(&authService, &userService, jwtService, emailService, &passwordResetService)
 	productController := controller.NewProductController(&productService)
+	transactionController := controller.NewTransactionController(&transactionService)
 
 	// Setup Proxies
 	err = router.SetTrustedProxies([]string{os.Getenv("APP_URL")})
@@ -50,6 +53,7 @@ func main() {
 	authController.Route(router)
 	userController.Route(router)
 	productController.Route(router)
+	transactionController.Route(router)
 
 	// Start App
 	addr := fmt.Sprintf(":%v", os.Getenv("APP_PORT"))

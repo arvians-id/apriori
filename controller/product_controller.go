@@ -78,6 +78,9 @@ func (controller *ProductController) Update(c *gin.Context) {
 		return
 	}
 
+	params := c.Param("code")
+
+	request.Code = params
 	product, err := controller.ProductService.Update(c.Request.Context(), request)
 	if err != nil {
 		helper.ReturnErrorInternalServerError(c, err, nil)
