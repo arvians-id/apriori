@@ -6,6 +6,8 @@ import (
 	"apriori/model"
 	"apriori/service"
 	"github.com/gin-gonic/gin"
+	"os"
+	"path/filepath"
 )
 
 type TransactionController struct {
@@ -24,6 +26,7 @@ func (controller *TransactionController) Route(router *gin.Engine) *gin.Engine {
 		authorized.GET("/transactions", controller.FindAll)
 		authorized.GET("/transactions/:code", controller.FindByTransaction)
 		authorized.POST("/transactions", controller.Create)
+		authorized.POST("/transactions/csv", controller.CreateFromCsv)
 		authorized.PATCH("/transactions/:code", controller.Update)
 		authorized.DELETE("/transactions/:code", controller.Delete)
 	}
@@ -67,6 +70,42 @@ func (controller *TransactionController) Create(c *gin.Context) {
 	}
 
 	helper.ReturnSuccessOK(c, "OK", transactions)
+}
+
+func (controller *TransactionController) CreateFromCsv(c *gin.Context) {
+	file, err := c.FormFile("file")
+	if err != nil {
+		helper.ReturnErrorBadRequest(c, err, nil)
+		return
+	}
+
+	dir, err := os.Getwd()
+	if err != nil {
+		helper.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	path := "/assets/" + file.Filename
+	path = filepath.Join(dir, path)
+	err = c.SaveUploadedFile(file, path)
+	if err != nil {
+		helper.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	data, err := helper.OpenCsvFile(path)
+	if err != nil {
+		helper.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	err = controller.TransactionService.CreateFromCsv(c.Request.Context(), data)
+	if err != nil {
+		helper.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	helper.ReturnSuccessOK(c, "OK", nil)
 }
 
 func (controller *TransactionController) Update(c *gin.Context) {

@@ -7,6 +7,7 @@ import (
 	"apriori/repository"
 	"context"
 	"database/sql"
+	"strconv"
 	"time"
 )
 
@@ -14,6 +15,7 @@ type TransactionService interface {
 	FindAll(ctx context.Context) ([]model.GetTransactionProductResponse, error)
 	FindByTransaction(ctx context.Context, noTransaction string) (model.GetTransactionProductResponse, error)
 	Create(ctx context.Context, request model.CreateTransactionRequest) (model.GetTransactionResponse, error)
+	CreateFromCsv(ctx context.Context, data [][]string) error
 	Update(ctx context.Context, request model.UpdateTransactionRequest) (model.GetTransactionResponse, error)
 	Delete(ctx context.Context, noTransaction string) error
 }
@@ -95,6 +97,39 @@ func (service *transactionService) Create(ctx context.Context, request model.Cre
 	}
 
 	return helper.ToTransactionResponse(row), nil
+}
+
+func (service *transactionService) CreateFromCsv(ctx context.Context, data [][]string) error {
+	tx, err := service.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer helper.CommitOrRollback(tx)
+
+	var transactions []entity.Transaction
+
+	for _, transaction := range data {
+		idProduct, _ := strconv.Atoi(transaction[0])
+		quantity, _ := strconv.Atoi(transaction[3])
+		createdAt, _ := time.Parse(service.date, transaction[4]+" 00:00:00")
+		createdAt.Add(time.Hour*time.Duration(1) +
+			time.Minute*time.Duration(1) +
+			time.Second*time.Duration(1))
+		transactions = append(transactions, entity.Transaction{
+			IdProduct:     uint64(idProduct),
+			CustomerName:  transaction[1],
+			NoTransaction: transaction[2],
+			Quantity:      int32(quantity),
+			CreatedAt:     createdAt,
+		})
+	}
+
+	err = service.TransactionRepository.CreateFromCsv(ctx, tx, transactions)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (service *transactionService) Update(ctx context.Context, request model.UpdateTransactionRequest) (model.GetTransactionResponse, error) {
