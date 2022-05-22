@@ -34,17 +34,6 @@ func ToProductResponse(user entity.Product) model.GetProductResponse {
 	}
 }
 
-func ToTransactionResponse(transaction entity.Transaction) model.GetTransactionResponse {
-	return model.GetTransactionResponse{
-		IdTransaction: transaction.IdTransaction,
-		IdProduct:     transaction.IdProduct,
-		CustomerName:  transaction.CustomerName,
-		NoTransaction: transaction.NoTransaction,
-		Quantity:      transaction.Quantity,
-		CreatedAt:     transaction.CreatedAt.String(),
-	}
-}
-
 func ToTransactionProductResponse(transaction entity.TransactionProduct) model.GetTransactionProductResponse {
 	return model.GetTransactionProductResponse{
 		TransactionId:           transaction.TransactionId,

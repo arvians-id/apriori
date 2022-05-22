@@ -18,15 +18,6 @@ type UpdateTransactionRequest struct {
 	Quantity      int32  `json:"quantity" binding:"required,numeric"`
 }
 
-type GetTransactionResponse struct {
-	IdTransaction uint64 `json:"id_transaction"`
-	IdProduct     uint64 `json:"id_product"`
-	CustomerName  string `json:"customer_name"`
-	NoTransaction string `json:"no_transaction"`
-	Quantity      int32  `json:"quantity"`
-	CreatedAt     string `json:"created_at"`
-}
-
 type GetTransactionProductResponse struct {
 	TransactionId           uint64 `json:"transaction_id"`
 	TransactionCustomerName string `json:"transaction_customer_name"`

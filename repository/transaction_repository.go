@@ -10,9 +10,9 @@ import (
 type TransactionRepository interface {
 	FindAll(ctx context.Context, tx *sql.Tx) ([]entity.TransactionProduct, error)
 	FindByTransaction(ctx context.Context, tx *sql.Tx, noTransaction string) (entity.TransactionProduct, error)
-	Create(ctx context.Context, tx *sql.Tx, transaction entity.Transaction) (entity.Transaction, error)
+	Create(ctx context.Context, tx *sql.Tx, transaction entity.Transaction) error
 	CreateFromCsv(ctx context.Context, tx *sql.Tx, transaction []entity.Transaction) error
-	Update(ctx context.Context, tx *sql.Tx, transaction entity.Transaction) (entity.Transaction, error)
+	Update(ctx context.Context, tx *sql.Tx, transaction entity.Transaction) error
 	Delete(ctx context.Context, tx *sql.Tx, noTransaction string) error
 }
 
@@ -124,10 +124,10 @@ func (repository *transactionRepository) FindByTransaction(ctx context.Context, 
 	return entity.TransactionProduct{}, errors.New("transaction not found")
 }
 
-func (repository *transactionRepository) Create(ctx context.Context, tx *sql.Tx, transaction entity.Transaction) (entity.Transaction, error) {
+func (repository *transactionRepository) Create(ctx context.Context, tx *sql.Tx, transaction entity.Transaction) error {
 	query := `INSERT INTO transactions(product_id,customer_name,no_transaction,quantity,created_at) VALUES(?,?,?,?,?)`
 
-	rows, err := tx.ExecContext(
+	_, err := tx.ExecContext(
 		ctx,
 		query,
 		transaction.IdProduct,
@@ -137,24 +137,17 @@ func (repository *transactionRepository) Create(ctx context.Context, tx *sql.Tx,
 		transaction.CreatedAt,
 	)
 	if err != nil {
-		return entity.Transaction{}, err
+		return err
 	}
 
-	id, err := rows.LastInsertId()
-	if err != nil {
-		return entity.Transaction{}, err
-	}
-
-	transaction.IdTransaction = uint64(id)
-
-	return transaction, nil
+	return nil
 }
 
-func (repository *transactionRepository) CreateFromCsv(ctx context.Context, tx *sql.Tx, transaction []entity.Transaction) error {
+func (repository *transactionRepository) CreateFromCsv(ctx context.Context, tx *sql.Tx, transactions []entity.Transaction) error {
 	query := `INSERT INTO transactions(product_id,customer_name,no_transaction,quantity,created_at) VALUES `
 	var values []interface{}
 
-	for _, row := range transaction {
+	for _, row := range transactions {
 		query += "(?,?,?,?,?),"
 		values = append(values, row.IdProduct, row.CustomerName, row.NoTransaction, row.Quantity, row.CreatedAt)
 	}
@@ -172,7 +165,7 @@ func (repository *transactionRepository) CreateFromCsv(ctx context.Context, tx *
 	return nil
 }
 
-func (repository *transactionRepository) Update(ctx context.Context, tx *sql.Tx, transaction entity.Transaction) (entity.Transaction, error) {
+func (repository *transactionRepository) Update(ctx context.Context, tx *sql.Tx, transaction entity.Transaction) error {
 	query := `UPDATE transactions SET product_id = ?, customer_name = ?, quantity = ? WHERE no_transaction = ?`
 
 	_, err := tx.ExecContext(
@@ -184,10 +177,10 @@ func (repository *transactionRepository) Update(ctx context.Context, tx *sql.Tx,
 		transaction.NoTransaction,
 	)
 	if err != nil {
-		return entity.Transaction{}, err
+		return err
 	}
 
-	return transaction, nil
+	return nil
 }
 
 func (repository *transactionRepository) Delete(ctx context.Context, tx *sql.Tx, noTransaction string) error {

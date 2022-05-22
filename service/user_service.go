@@ -14,8 +14,8 @@ import (
 type UserService interface {
 	FindAll(ctx context.Context) ([]model.GetUserResponse, error)
 	FindById(ctx context.Context, userId uint64) (model.GetUserResponse, error)
-	Create(ctx context.Context, request model.CreateUserRequest) (model.GetUserResponse, error)
-	Update(ctx context.Context, request model.UpdateUserRequest) (model.GetUserResponse, error)
+	Create(ctx context.Context, request model.CreateUserRequest) error
+	Update(ctx context.Context, request model.UpdateUserRequest) error
 	Delete(ctx context.Context, userId uint64) error
 }
 
@@ -68,25 +68,25 @@ func (service *userService) FindById(ctx context.Context, userId uint64) (model.
 	return helper.ToUserResponse(user), nil
 }
 
-func (service *userService) Create(ctx context.Context, request model.CreateUserRequest) (model.GetUserResponse, error) {
+func (service *userService) Create(ctx context.Context, request model.CreateUserRequest) error {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return model.GetUserResponse{}, err
+		return err
 	}
 	defer helper.CommitOrRollback(tx)
 
 	password, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return model.GetUserResponse{}, err
+		return err
 	}
 
 	createdAt, err := time.Parse(service.date, time.Now().Format(service.date))
 	if err != nil {
-		return model.GetUserResponse{}, err
+		return err
 	}
 	updatedAt, err := time.Parse(service.date, time.Now().Format(service.date))
 	if err != nil {
-		return model.GetUserResponse{}, err
+		return err
 	}
 
 	createUser := entity.User{
@@ -97,31 +97,31 @@ func (service *userService) Create(ctx context.Context, request model.CreateUser
 		UpdatedAt: updatedAt,
 	}
 
-	user, err := service.UserRepository.Create(ctx, tx, createUser)
+	err = service.UserRepository.Create(ctx, tx, createUser)
 	if err != nil {
-		return model.GetUserResponse{}, err
+		return err
 	}
 
-	return helper.ToUserResponse(user), nil
+	return nil
 }
 
-func (service *userService) Update(ctx context.Context, request model.UpdateUserRequest) (model.GetUserResponse, error) {
+func (service *userService) Update(ctx context.Context, request model.UpdateUserRequest) error {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return model.GetUserResponse{}, err
+		return err
 	}
 	defer helper.CommitOrRollback(tx)
 
 	getUser, err := service.UserRepository.FindById(ctx, tx, request.IdUser)
 	if err != nil {
-		return model.GetUserResponse{}, err
+		return err
 	}
 
 	newPassword := getUser.Password
 	if request.Password != "" {
 		password, _ := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
 		if err != nil {
-			return model.GetUserResponse{}, err
+			return err
 		}
 
 		newPassword = string(password)
@@ -129,7 +129,7 @@ func (service *userService) Update(ctx context.Context, request model.UpdateUser
 
 	updatedAt, err := time.Parse(service.date, time.Now().Format(service.date))
 	if err != nil {
-		return model.GetUserResponse{}, err
+		return err
 	}
 
 	getUser.Name = request.Name
@@ -137,12 +137,12 @@ func (service *userService) Update(ctx context.Context, request model.UpdateUser
 	getUser.Password = newPassword
 	getUser.UpdatedAt = updatedAt
 
-	user, err := service.UserRepository.Update(ctx, tx, getUser)
+	err = service.UserRepository.Update(ctx, tx, getUser)
 	if err != nil {
-		return model.GetUserResponse{}, err
+		return err
 	}
 
-	return helper.ToUserResponse(user), nil
+	return nil
 }
 
 func (service *userService) Delete(ctx context.Context, userId uint64) error {

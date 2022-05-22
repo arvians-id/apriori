@@ -15,9 +15,8 @@ import (
 func main() {
 	// Setup Configuration
 	err := godotenv.Load()
-	if err != nil {
-		helper.PanicIfError(err)
-	}
+	helper.PanicIfError(err)
+
 	router := gin.Default()
 	db := app.NewDB()
 
@@ -45,9 +44,7 @@ func main() {
 
 	// Setup Proxies
 	err = router.SetTrustedProxies([]string{os.Getenv("APP_URL")})
-	if err != nil {
-		helper.PanicIfError(err)
-	}
+	helper.PanicIfError(err)
 
 	// Setup Router
 	authController.Route(router)
@@ -58,7 +55,5 @@ func main() {
 	// Start App
 	addr := fmt.Sprintf(":%v", os.Getenv("APP_PORT"))
 	err = router.Run(addr)
-	if err != nil {
-		panic(err)
-	}
+	helper.PanicIfError(err)
 }

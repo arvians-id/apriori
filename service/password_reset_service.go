@@ -17,7 +17,7 @@ import (
 
 type PasswordResetService interface {
 	CreateOrUpdate(ctx context.Context, email string) (model.GetPasswordResetResponse, error)
-	Verify(ctx context.Context, request model.UpdateResetPasswordUserRequest) (model.GetUserResponse, error)
+	Verify(ctx context.Context, request model.UpdateResetPasswordUserRequest) error
 }
 
 type passwordResetService struct {
@@ -85,10 +85,10 @@ func (service *passwordResetService) CreateOrUpdate(ctx context.Context, email s
 	return helper.ToPasswordResetResponse(result), nil
 }
 
-func (service *passwordResetService) Verify(ctx context.Context, request model.UpdateResetPasswordUserRequest) (model.GetUserResponse, error) {
+func (service *passwordResetService) Verify(ctx context.Context, request model.UpdateResetPasswordUserRequest) error {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return model.GetUserResponse{}, err
+		return err
 	}
 	defer helper.CommitOrRollback(tx)
 
@@ -100,7 +100,7 @@ func (service *passwordResetService) Verify(ctx context.Context, request model.U
 
 	reset, err := service.PasswordResetRepository.FindByEmailAndToken(ctx, tx, passwordReset)
 	if err != nil {
-		return model.GetUserResponse{}, err
+		return err
 	}
 
 	// Check token expired
@@ -110,43 +110,43 @@ func (service *passwordResetService) Verify(ctx context.Context, request model.U
 	if now.Unix() > int64(reset.Expired) {
 		err := service.PasswordResetRepository.Delete(ctx, tx, reset.Email)
 		if err != nil {
-			return model.GetUserResponse{}, err
+			return err
 		}
 
-		return model.GetUserResponse{}, errors.New("reset password verification is expired")
+		return errors.New("reset password verification is expired")
 	}
 
 	// if not
 	// Check if email is exists in table users
 	user, err := service.UserRepository.FindByEmail(ctx, tx, reset.Email)
 	if err != nil {
-		return model.GetUserResponse{}, err
+		return err
 	}
 
 	// Update the password
 	updatedAt, err := time.Parse(service.date, now.Format(service.date))
 	if err != nil {
-		return model.GetUserResponse{}, err
+		return err
 	}
 
 	password, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
 	if err != nil {
-		return model.GetUserResponse{}, err
+		return err
 	}
 
 	user.Password = string(password)
 	user.UpdatedAt = updatedAt
 
-	updatePassword, err := service.UserRepository.UpdatePassword(ctx, tx, user)
+	err = service.UserRepository.UpdatePassword(ctx, tx, user)
 	if err != nil {
-		return model.GetUserResponse{}, err
+		return err
 	}
 
 	// Delete data from table password_reset
 	err = service.PasswordResetRepository.Delete(ctx, tx, user.Email)
 	if err != nil {
-		return model.GetUserResponse{}, err
+		return err
 	}
 
-	return helper.ToUserResponse(updatePassword), nil
+	return nil
 }

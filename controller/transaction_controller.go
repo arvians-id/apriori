@@ -5,6 +5,7 @@ import (
 	"apriori/middleware"
 	"apriori/model"
 	"apriori/service"
+	"errors"
 	"github.com/gin-gonic/gin"
 	"os"
 	"path/filepath"
@@ -63,19 +64,23 @@ func (controller *TransactionController) Create(c *gin.Context) {
 		return
 	}
 
-	transactions, err := controller.TransactionService.Create(c.Request.Context(), request)
+	err = controller.TransactionService.Create(c.Request.Context(), request)
 	if err != nil {
 		helper.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	helper.ReturnSuccessOK(c, "OK", transactions)
+	helper.ReturnSuccessOK(c, "created", nil)
 }
 
 func (controller *TransactionController) CreateFromCsv(c *gin.Context) {
 	file, err := c.FormFile("file")
 	if err != nil {
 		helper.ReturnErrorBadRequest(c, err, nil)
+		return
+	}
+	if file.Header.Get("Content-Type") != "text/csv" {
+		helper.ReturnErrorInternalServerError(c, errors.New("file not allowed"), nil)
 		return
 	}
 
@@ -105,7 +110,7 @@ func (controller *TransactionController) CreateFromCsv(c *gin.Context) {
 		return
 	}
 
-	helper.ReturnSuccessOK(c, "OK", nil)
+	helper.ReturnSuccessOK(c, "created", nil)
 }
 
 func (controller *TransactionController) Update(c *gin.Context) {
@@ -119,13 +124,13 @@ func (controller *TransactionController) Update(c *gin.Context) {
 	noTransaction := c.Param("code")
 
 	request.NoTransaction = noTransaction
-	transactions, err := controller.TransactionService.Update(c.Request.Context(), request)
+	err = controller.TransactionService.Update(c.Request.Context(), request)
 	if err != nil {
 		helper.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	helper.ReturnSuccessOK(c, "OK", transactions)
+	helper.ReturnSuccessOK(c, "updated", nil)
 }
 
 func (controller *TransactionController) Delete(c *gin.Context) {
@@ -136,5 +141,5 @@ func (controller *TransactionController) Delete(c *gin.Context) {
 		return
 	}
 
-	helper.ReturnSuccessOK(c, "OK", nil)
+	helper.ReturnSuccessOK(c, "deleted", nil)
 }

@@ -61,13 +61,13 @@ func (controller *ProductController) Create(c *gin.Context) {
 		return
 	}
 
-	product, err := controller.ProductService.Create(c.Request.Context(), request)
+	err = controller.ProductService.Create(c.Request.Context(), request)
 	if err != nil {
 		helper.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	helper.ReturnSuccessOK(c, "successfully created", product)
+	helper.ReturnSuccessOK(c, "created", nil)
 }
 
 func (controller *ProductController) Update(c *gin.Context) {
@@ -81,13 +81,13 @@ func (controller *ProductController) Update(c *gin.Context) {
 	params := c.Param("code")
 
 	request.Code = params
-	product, err := controller.ProductService.Update(c.Request.Context(), request)
+	err = controller.ProductService.Update(c.Request.Context(), request)
 	if err != nil {
 		helper.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	helper.ReturnSuccessOK(c, "successfully updated", product)
+	helper.ReturnSuccessOK(c, "updated", nil)
 }
 
 func (controller *ProductController) Delete(c *gin.Context) {
@@ -99,5 +99,5 @@ func (controller *ProductController) Delete(c *gin.Context) {
 		return
 	}
 
-	helper.ReturnSuccessOK(c, "successfully deleted", nil)
+	helper.ReturnSuccessOK(c, "deleted", nil)
 }

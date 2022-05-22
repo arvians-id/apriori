@@ -86,13 +86,13 @@ func (controller *UserController) Create(c *gin.Context) {
 		return
 	}
 
-	user, err := controller.UserService.Create(c.Request.Context(), request)
+	err = controller.UserService.Create(c.Request.Context(), request)
 	if err != nil {
 		helper.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	helper.ReturnSuccessOK(c, "successfully created", user)
+	helper.ReturnSuccessOK(c, "created", nil)
 }
 
 func (controller *UserController) Update(c *gin.Context) {
@@ -112,13 +112,13 @@ func (controller *UserController) Update(c *gin.Context) {
 
 	request.IdUser = uint64(id)
 
-	user, err := controller.UserService.Update(c.Request.Context(), request)
+	err = controller.UserService.Update(c.Request.Context(), request)
 	if err != nil {
 		helper.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	helper.ReturnSuccessOK(c, "successfully updated", user)
+	helper.ReturnSuccessOK(c, "updated", nil)
 }
 
 func (controller *UserController) Delete(c *gin.Context) {
@@ -135,5 +135,5 @@ func (controller *UserController) Delete(c *gin.Context) {
 		return
 	}
 
-	helper.ReturnSuccessOK(c, "successfully deleted", nil)
+	helper.ReturnSuccessOK(c, "deleted", nil)
 }

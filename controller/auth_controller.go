@@ -100,7 +100,7 @@ func (controller *AuthController) forgotPassword(c *gin.Context) {
 		return
 	}
 
-	helper.ReturnSuccessOK(c, "mail sent successfully", result)
+	helper.ReturnSuccessOK(c, "mail sent successfully", nil)
 }
 
 func (controller *AuthController) verifyResetPassword(c *gin.Context) {
@@ -113,13 +113,13 @@ func (controller *AuthController) verifyResetPassword(c *gin.Context) {
 	}
 
 	request.Token = c.Query("signature")
-	user, err := controller.PasswordResetService.Verify(c.Request.Context(), request)
+	err = controller.PasswordResetService.Verify(c.Request.Context(), request)
 	if err != nil {
 		helper.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	helper.ReturnSuccessOK(c, "successfully updated", user)
+	helper.ReturnSuccessOK(c, "updated", nil)
 }
 
 func (controller *AuthController) logout(c *gin.Context) {

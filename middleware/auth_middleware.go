@@ -15,7 +15,7 @@ func AuthJwtMiddleware() gin.HandlerFunc {
 			if err == http.ErrNoCookie {
 				c.JSON(http.StatusUnauthorized, model.WebResponse{
 					Code:   http.StatusUnauthorized,
-					Status: err.Error(),
+					Status: "you don't have permission",
 					Data:   nil,
 				})
 				c.Abort()

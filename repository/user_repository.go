@@ -11,9 +11,9 @@ type UserRepository interface {
 	FindAll(ctx context.Context, tx *sql.Tx) ([]entity.User, error)
 	FindById(ctx context.Context, tx *sql.Tx, userId uint64) (entity.User, error)
 	FindByEmail(ctx context.Context, tx *sql.Tx, email string) (entity.User, error)
-	Create(ctx context.Context, tx *sql.Tx, user entity.User) (entity.User, error)
-	Update(ctx context.Context, tx *sql.Tx, user entity.User) (entity.User, error)
-	UpdatePassword(ctx context.Context, tx *sql.Tx, user entity.User) (entity.User, error)
+	Create(ctx context.Context, tx *sql.Tx, user entity.User) error
+	Update(ctx context.Context, tx *sql.Tx, user entity.User) error
+	UpdatePassword(ctx context.Context, tx *sql.Tx, user entity.User) error
 	Delete(ctx context.Context, tx *sql.Tx, userId uint64) error
 }
 
@@ -102,41 +102,34 @@ func (repository *userRepository) FindByEmail(ctx context.Context, tx *sql.Tx, e
 	return user, errors.New("email not found")
 }
 
-func (repository *userRepository) Create(ctx context.Context, tx *sql.Tx, user entity.User) (entity.User, error) {
+func (repository *userRepository) Create(ctx context.Context, tx *sql.Tx, user entity.User) error {
 	query := "INSERT INTO users (name,email,password,created_at,updated_at) VALUES(?,?,?,?,?)"
-	execContext, err := tx.ExecContext(ctx, query, user.Name, user.Email, user.Password, user.CreatedAt, user.UpdatedAt)
+	_, err := tx.ExecContext(ctx, query, user.Name, user.Email, user.Password, user.CreatedAt, user.UpdatedAt)
 	if err != nil {
-		return entity.User{}, err
+		return err
 	}
 
-	id, err := execContext.LastInsertId()
-	if err != nil {
-		return entity.User{}, err
-	}
-
-	user.IdUser = uint64(id)
-
-	return user, nil
+	return nil
 }
 
-func (repository *userRepository) Update(ctx context.Context, tx *sql.Tx, user entity.User) (entity.User, error) {
+func (repository *userRepository) Update(ctx context.Context, tx *sql.Tx, user entity.User) error {
 	query := "UPDATE users SET name = ?, email = ?, password = ?, updated_at = ? WHERE id_user = ?"
 	_, err := tx.ExecContext(ctx, query, user.Name, user.Email, user.Password, user.UpdatedAt, user.IdUser)
 	if err != nil {
-		return entity.User{}, err
+		return err
 	}
 
-	return user, nil
+	return nil
 }
 
-func (repository *userRepository) UpdatePassword(ctx context.Context, tx *sql.Tx, user entity.User) (entity.User, error) {
+func (repository *userRepository) UpdatePassword(ctx context.Context, tx *sql.Tx, user entity.User) error {
 	query := "UPDATE users SET password = ?, updated_at = ? WHERE email = ?"
 	_, err := tx.ExecContext(ctx, query, user.Password, user.UpdatedAt, user.Email)
 	if err != nil {
-		return entity.User{}, err
+		return err
 	}
 
-	return user, nil
+	return nil
 }
 
 func (repository *userRepository) Delete(ctx context.Context, tx *sql.Tx, userId uint64) error {
