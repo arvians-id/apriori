@@ -14,7 +14,7 @@ type jwtCustomClaim struct {
 }
 
 type JwtService interface {
-	GenerateToken(IdUser uint64) (string, error)
+	GenerateToken(IdUser uint64, expirationTime time.Time) (string, error)
 	ValidateToken(token string) (*jwt.Token, error)
 }
 
@@ -36,9 +36,7 @@ func getSecretKey() string {
 	return os.Getenv("JWT_SECRET_KEY")
 }
 
-func (service *jwtService) GenerateToken(IdUser uint64) (string, error) {
-	expirationTime := time.Now().Add(5 * time.Minute)
-
+func (service *jwtService) GenerateToken(IdUser uint64, expirationTime time.Time) (string, error) {
 	claims := jwtCustomClaim{
 		IdUser: IdUser,
 		StandardClaims: jwt.StandardClaims{

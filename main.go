@@ -35,12 +35,14 @@ func main() {
 	passwordResetService := service.NewPasswordResetService(&passwordRepository, &userRepository, db)
 	productService := service.NewProductService(&productRepository, db)
 	transactionService := service.NewTransactionService(&transactionRepository, &productRepository, db)
+	aprioriService := service.NewAprioriService(&productRepository, db)
 
 	// Setup Controller
 	userController := controller.NewUserController(&userService)
 	authController := controller.NewAuthController(&authService, &userService, jwtService, emailService, &passwordResetService)
 	productController := controller.NewProductController(&productService)
 	transactionController := controller.NewTransactionController(&transactionService)
+	aprioriController := controller.NewAprioriController(aprioriService)
 
 	// Setup Proxies
 	err = router.SetTrustedProxies([]string{os.Getenv("APP_URL")})
@@ -51,6 +53,7 @@ func main() {
 	userController.Route(router)
 	productController.Route(router)
 	transactionController.Route(router)
+	aprioriController.Route(router)
 
 	// Start App
 	addr := fmt.Sprintf(":%v", os.Getenv("APP_PORT"))

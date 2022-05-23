@@ -55,13 +55,13 @@ func (controller *AuthController) login(c *gin.Context) {
 		return
 	}
 
-	token, err := controller.JwtService.GenerateToken(user.IdUser)
+	expirationTime := time.Now().Add(15 * time.Minute)
+	token, err := controller.JwtService.GenerateToken(user.IdUser, expirationTime)
 	if err != nil {
 		helper.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	expirationTime := time.Now().Add(5 * time.Minute)
 	http.SetCookie(c.Writer, &http.Cookie{
 		Name:     "token",
 		Value:    url.QueryEscape(token),

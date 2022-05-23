@@ -21,3 +21,10 @@ type GetProductResponse struct {
 	CreatedAt   string `json:"created_at"`
 	UpdatedAt   string `json:"updated_at"`
 }
+
+type GetProductTransactionResponse struct {
+	Code        string  `json:"code"`
+	ProductName string  `json:"product_name"`
+	Transaction int32   `json:"transaction"`
+	Support     float32 `json:"support"`
+}

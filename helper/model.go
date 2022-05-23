@@ -47,3 +47,12 @@ func ToTransactionProductResponse(transaction entity.TransactionProduct) model.G
 		ProductDescription:      transaction.ProductDescription,
 	}
 }
+
+func ToProductTransactionResponse(product entity.ProductTransaction) model.GetProductTransactionResponse {
+	return model.GetProductTransactionResponse{
+		Code:        product.Code,
+		ProductName: product.ProductName,
+		Transaction: product.Transaction,
+		Support:     product.Support,
+	}
+}
