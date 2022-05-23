@@ -13,14 +13,8 @@ type Apriori struct {
 	CreatedAt  time.Time
 }
 
-type RuleAssociation struct {
-	ItemSets   []ProductTransaction
-	Confidence int32
-}
-
 type ProductTransaction struct {
-	Code        string
 	ProductName string
-	Transaction int32
-	Support     float32
+	Count       int32
+	Support     int32
 }

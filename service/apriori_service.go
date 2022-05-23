@@ -6,6 +6,7 @@ import (
 	"apriori/repository"
 	"context"
 	"database/sql"
+	"strings"
 )
 
 type AprioriService interface {
@@ -36,9 +37,24 @@ func (service aprioriService) Generate(ctx context.Context) ([]model.GetTransact
 		return []model.GetTransactionResponse{}, err
 	}
 
+	minimumSupport := 70
 	var transactions []model.GetTransactionResponse
-	for _, _ = range transactionsSet {
-		//transactions = append(transactions, helper.ToTransactionResponse(transaction))
+	productName := make(map[string]float32)
+	for _, transaction := range transactionsSet {
+		transactions = append(transactions, helper.ToTransactionResponse(transaction))
+		texts := strings.Split(transaction.ProductName, ", ")
+		for _, text := range texts {
+			text = strings.ToLower(text)
+			productName[text] = productName[text] + 1
+		}
+	}
+
+	temp := make(map[string]float32)
+	for key, d := range productName {
+		result := d / float32(len(transactionsSet)) * 100
+		if result >= float32(minimumSupport) {
+			temp[key] = result
+		}
 	}
 
 	return transactions, nil

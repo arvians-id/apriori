@@ -8,7 +8,7 @@ import (
 )
 
 type TransactionRepository interface {
-	FindItemSet(ctx context.Context, tx *sql.Tx) ([]entity.ProductTransaction, error)
+	FindItemSet(ctx context.Context, tx *sql.Tx) ([]entity.Transaction, error)
 	FindAll(ctx context.Context, tx *sql.Tx) ([]entity.Transaction, error)
 	FindByTransaction(ctx context.Context, tx *sql.Tx, noTransaction string) (entity.Transaction, error)
 	Create(ctx context.Context, tx *sql.Tx, transaction entity.Transaction) error
@@ -24,25 +24,12 @@ func NewTransactionRepository() TransactionRepository {
 	return &transactionRepository{}
 }
 
-func (repository *transactionRepository) FindItemSet(ctx context.Context, tx *sql.Tx) ([]entity.ProductTransaction, error) {
-	query := `SELECT 
-						p.code,
-						p.name,
-       					COUNT(t.product_id) as transaction,
-						ROUND((COUNT(t.product_id) / (SELECT COUNT(*) 
-							FROM transactions t 
-							WHERE DATE(t.created_at) >= "2022-05-20" 
-							AND DATE(t.created_at) <= "2022-05-21") * 100),2) as support
-					FROM products p
-					INNER JOIN transactions t ON t.product_id = p.id_product
-					WHERE DATE(t.created_at) >= "2022-05-20" 
-					AND DATE(t.created_at) <= "2022-05-21"
-					GROUP BY t.product_id
-					HAVING support >= 20`
+func (repository *transactionRepository) FindItemSet(ctx context.Context, tx *sql.Tx) ([]entity.Transaction, error) {
+	query := `SELECT * FROM transactions`
 
 	rows, err := tx.QueryContext(ctx, query)
 	if err != nil {
-		return []entity.ProductTransaction{}, err
+		return []entity.Transaction{}, err
 	}
 
 	defer func(rows *sql.Rows) {
@@ -52,14 +39,21 @@ func (repository *transactionRepository) FindItemSet(ctx context.Context, tx *sq
 		}
 	}(rows)
 
-	var transactions []entity.ProductTransaction
+	var transactions []entity.Transaction
 
 	for rows.Next() {
-		var transaction entity.ProductTransaction
-		err := rows.Scan(&transaction.Code, &transaction.ProductName, &transaction.Transaction, &transaction.Support)
+		var transaction entity.Transaction
+		err := rows.Scan(
+			&transaction.IdTransaction,
+			&transaction.ProductName,
+			&transaction.CustomerName,
+			&transaction.NoTransaction,
+			&transaction.CreatedAt,
+			&transaction.UpdatedAt,
+		)
 
 		if err != nil {
-			return []entity.ProductTransaction{}, err
+			return []entity.Transaction{}, err
 		}
 
 		transactions = append(transactions, transaction)
