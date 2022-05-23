@@ -8,7 +8,6 @@ import (
 )
 
 type ProductRepository interface {
-	FindItemSet(ctx context.Context, tx *sql.Tx) ([]entity.ProductTransaction, error)
 	FindAll(ctx context.Context, tx *sql.Tx) ([]entity.Product, error)
 	FindById(ctx context.Context, tx *sql.Tx, productId uint64) (entity.Product, error)
 	FindByCode(ctx context.Context, tx *sql.Tx, code string) (entity.Product, error)
@@ -22,50 +21,6 @@ type productRepository struct {
 
 func NewProductRepository() ProductRepository {
 	return &productRepository{}
-}
-
-func (repository *productRepository) FindItemSet(ctx context.Context, tx *sql.Tx) ([]entity.ProductTransaction, error) {
-	query := `SELECT 
-						p.code,
-						p.name,
-       					COUNT(t.product_id) as transaction,
-						ROUND((COUNT(t.product_id) / (SELECT COUNT(*) 
-							FROM transactions t 
-							WHERE DATE(t.created_at) >= "2022-05-20" 
-							AND DATE(t.created_at) <= "2022-05-21") * 100),2) as support
-					FROM products p
-					INNER JOIN transactions t ON t.product_id = p.id_product
-					WHERE DATE(t.created_at) >= "2022-05-20" 
-					AND DATE(t.created_at) <= "2022-05-21"
-					GROUP BY t.product_id
-					HAVING support >= 20`
-
-	rows, err := tx.QueryContext(ctx, query)
-	if err != nil {
-		return []entity.ProductTransaction{}, err
-	}
-
-	defer func(rows *sql.Rows) {
-		err := rows.Close()
-		if err != nil {
-			return
-		}
-	}(rows)
-
-	var transactions []entity.ProductTransaction
-
-	for rows.Next() {
-		var transaction entity.ProductTransaction
-		err := rows.Scan(&transaction.Code, &transaction.ProductName, &transaction.Transaction, &transaction.Support)
-
-		if err != nil {
-			return []entity.ProductTransaction{}, err
-		}
-
-		transactions = append(transactions, transaction)
-	}
-
-	return transactions, nil
 }
 
 func (repository *productRepository) FindAll(ctx context.Context, tx *sql.Tx) ([]entity.Product, error) {

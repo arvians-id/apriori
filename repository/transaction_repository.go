@@ -8,8 +8,9 @@ import (
 )
 
 type TransactionRepository interface {
-	FindAll(ctx context.Context, tx *sql.Tx) ([]entity.TransactionProduct, error)
-	FindByTransaction(ctx context.Context, tx *sql.Tx, noTransaction string) (entity.TransactionProduct, error)
+	FindItemSet(ctx context.Context, tx *sql.Tx) ([]entity.ProductTransaction, error)
+	FindAll(ctx context.Context, tx *sql.Tx) ([]entity.Transaction, error)
+	FindByTransaction(ctx context.Context, tx *sql.Tx, noTransaction string) (entity.Transaction, error)
 	Create(ctx context.Context, tx *sql.Tx, transaction entity.Transaction) error
 	CreateFromCsv(ctx context.Context, tx *sql.Tx, transaction []entity.Transaction) error
 	Update(ctx context.Context, tx *sql.Tx, transaction entity.Transaction) error
@@ -23,25 +24,27 @@ func NewTransactionRepository() TransactionRepository {
 	return &transactionRepository{}
 }
 
-func (repository *transactionRepository) FindAll(ctx context.Context, tx *sql.Tx) ([]entity.TransactionProduct, error) {
+func (repository *transactionRepository) FindItemSet(ctx context.Context, tx *sql.Tx) ([]entity.ProductTransaction, error) {
 	query := `SELECT 
-						t.id_transaction,
-						t.customer_name,
-						t.no_transaction,
-						t.quantity,
-						t.created_at,
-						p.id_product,
-						p.code as product_code,
-						p.name as product_name,
-						p.description as product_description
-					FROM transactions t
-					LEFT JOIN products p ON p.id_product = t.product_id
-					ORDER BY t.id_transaction`
+						p.code,
+						p.name,
+       					COUNT(t.product_id) as transaction,
+						ROUND((COUNT(t.product_id) / (SELECT COUNT(*) 
+							FROM transactions t 
+							WHERE DATE(t.created_at) >= "2022-05-20" 
+							AND DATE(t.created_at) <= "2022-05-21") * 100),2) as support
+					FROM products p
+					INNER JOIN transactions t ON t.product_id = p.id_product
+					WHERE DATE(t.created_at) >= "2022-05-20" 
+					AND DATE(t.created_at) <= "2022-05-21"
+					GROUP BY t.product_id
+					HAVING support >= 20`
 
 	rows, err := tx.QueryContext(ctx, query)
 	if err != nil {
-		return []entity.TransactionProduct{}, err
+		return []entity.ProductTransaction{}, err
 	}
+
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
 		if err != nil {
@@ -49,22 +52,14 @@ func (repository *transactionRepository) FindAll(ctx context.Context, tx *sql.Tx
 		}
 	}(rows)
 
-	var transactions []entity.TransactionProduct
+	var transactions []entity.ProductTransaction
+
 	for rows.Next() {
-		var transaction entity.TransactionProduct
-		err := rows.Scan(
-			&transaction.TransactionId,
-			&transaction.TransactionCustomerName,
-			&transaction.TransactionNo,
-			&transaction.TransactionQuantity,
-			&transaction.TransactionCreatedAt,
-			&transaction.ProductId,
-			&transaction.ProductCode,
-			&transaction.ProductName,
-			&transaction.ProductDescription,
-		)
+		var transaction entity.ProductTransaction
+		err := rows.Scan(&transaction.Code, &transaction.ProductName, &transaction.Transaction, &transaction.Support)
+
 		if err != nil {
-			return []entity.TransactionProduct{}, err
+			return []entity.ProductTransaction{}, err
 		}
 
 		transactions = append(transactions, transaction)
@@ -73,25 +68,47 @@ func (repository *transactionRepository) FindAll(ctx context.Context, tx *sql.Tx
 	return transactions, nil
 }
 
-func (repository *transactionRepository) FindByTransaction(ctx context.Context, tx *sql.Tx, noTransaction string) (entity.TransactionProduct, error) {
-	query := `SELECT 
-						t.id_transaction,
-						t.customer_name,
-						t.no_transaction,
-						t.quantity,
-						t.created_at,
-						p.id_product,
-						p.code as product_code,
-						p.name as product_name,
-						p.description as product_description
-					FROM transactions t
-					LEFT JOIN products p ON p.id_product = t.product_id
-					WHERE t.no_transaction = ?
-					LIMIT 1`
+func (repository *transactionRepository) FindAll(ctx context.Context, tx *sql.Tx) ([]entity.Transaction, error) {
+	query := `SELECT * FROM transactions t ORDER BY t.id_transaction`
+
+	rows, err := tx.QueryContext(ctx, query)
+	if err != nil {
+		return []entity.Transaction{}, err
+	}
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			return
+		}
+	}(rows)
+
+	var transactions []entity.Transaction
+	for rows.Next() {
+		var transaction entity.Transaction
+		err := rows.Scan(
+			&transaction.IdTransaction,
+			&transaction.ProductName,
+			&transaction.CustomerName,
+			&transaction.NoTransaction,
+			&transaction.CreatedAt,
+			&transaction.UpdatedAt,
+		)
+		if err != nil {
+			return []entity.Transaction{}, err
+		}
+
+		transactions = append(transactions, transaction)
+	}
+
+	return transactions, nil
+}
+
+func (repository *transactionRepository) FindByTransaction(ctx context.Context, tx *sql.Tx, noTransaction string) (entity.Transaction, error) {
+	query := `SELECT * FROM transactions WHERE no_transaction = ? LIMIT 1`
 
 	rows, err := tx.QueryContext(ctx, query, noTransaction)
 	if err != nil {
-		return entity.TransactionProduct{}, err
+		return entity.Transaction{}, err
 	}
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
@@ -101,40 +118,37 @@ func (repository *transactionRepository) FindByTransaction(ctx context.Context, 
 	}(rows)
 
 	if rows.Next() {
-		var transaction entity.TransactionProduct
+		var transaction entity.Transaction
 		err := rows.Scan(
-			&transaction.TransactionId,
-			&transaction.TransactionCustomerName,
-			&transaction.TransactionNo,
-			&transaction.TransactionQuantity,
-			&transaction.TransactionCreatedAt,
-			&transaction.ProductId,
-			&transaction.ProductCode,
+			&transaction.IdTransaction,
 			&transaction.ProductName,
-			&transaction.ProductDescription,
+			&transaction.CustomerName,
+			&transaction.NoTransaction,
+			&transaction.CreatedAt,
+			&transaction.UpdatedAt,
 		)
 
 		if err != nil {
-			return entity.TransactionProduct{}, err
+			return entity.Transaction{}, err
 		}
 
 		return transaction, nil
 	}
 
-	return entity.TransactionProduct{}, errors.New("transaction not found")
+	return entity.Transaction{}, errors.New("transaction not found")
 }
 
 func (repository *transactionRepository) Create(ctx context.Context, tx *sql.Tx, transaction entity.Transaction) error {
-	query := `INSERT INTO transactions(product_id,customer_name,no_transaction,quantity,created_at) VALUES(?,?,?,?,?)`
+	query := "INSERT INTO transactions(product_name,customer_name,no_transaction,created_at,updated_at) VALUES(?,?,?,?,?)"
 
 	_, err := tx.ExecContext(
 		ctx,
 		query,
-		transaction.IdProduct,
+		transaction.ProductName,
 		transaction.CustomerName,
 		transaction.NoTransaction,
-		transaction.Quantity,
 		transaction.CreatedAt,
+		transaction.UpdatedAt,
 	)
 	if err != nil {
 		return err
@@ -144,12 +158,12 @@ func (repository *transactionRepository) Create(ctx context.Context, tx *sql.Tx,
 }
 
 func (repository *transactionRepository) CreateFromCsv(ctx context.Context, tx *sql.Tx, transactions []entity.Transaction) error {
-	query := `INSERT INTO transactions(product_id,customer_name,no_transaction,quantity,created_at) VALUES `
+	query := `INSERT INTO transactions(product_name,customer_name,no_transaction,created_at,updated_at) VALUES `
 	var values []interface{}
 
 	for _, row := range transactions {
 		query += "(?,?,?,?,?),"
-		values = append(values, row.IdProduct, row.CustomerName, row.NoTransaction, row.Quantity, row.CreatedAt)
+		values = append(values, row.ProductName, row.CustomerName, row.NoTransaction, row.CreatedAt, row.UpdatedAt)
 	}
 
 	query = query[0 : len(query)-1]
@@ -166,14 +180,14 @@ func (repository *transactionRepository) CreateFromCsv(ctx context.Context, tx *
 }
 
 func (repository *transactionRepository) Update(ctx context.Context, tx *sql.Tx, transaction entity.Transaction) error {
-	query := `UPDATE transactions SET product_id = ?, customer_name = ?, quantity = ? WHERE no_transaction = ?`
+	query := `UPDATE transactions SET product_name = ?, customer_name = ?, updated_at = ? WHERE no_transaction = ?`
 
 	_, err := tx.ExecContext(
 		ctx,
 		query,
-		transaction.IdProduct,
+		transaction.ProductName,
 		transaction.CustomerName,
-		transaction.Quantity,
+		transaction.UpdatedAt,
 		transaction.NoTransaction,
 	)
 	if err != nil {

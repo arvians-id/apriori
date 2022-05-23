@@ -80,11 +80,7 @@ func (service *userService) Create(ctx context.Context, request model.CreateUser
 		return err
 	}
 
-	createdAt, err := time.Parse(service.date, time.Now().Format(service.date))
-	if err != nil {
-		return err
-	}
-	updatedAt, err := time.Parse(service.date, time.Now().Format(service.date))
+	timeNow, err := time.Parse(service.date, time.Now().Format(service.date))
 	if err != nil {
 		return err
 	}
@@ -93,8 +89,8 @@ func (service *userService) Create(ctx context.Context, request model.CreateUser
 		Name:      request.Name,
 		Email:     request.Email,
 		Password:  string(password),
-		CreatedAt: createdAt,
-		UpdatedAt: updatedAt,
+		CreatedAt: timeNow,
+		UpdatedAt: timeNow,
 	}
 
 	err = service.UserRepository.Create(ctx, tx, createUser)

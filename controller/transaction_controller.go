@@ -28,8 +28,8 @@ func (controller *TransactionController) Route(router *gin.Engine) *gin.Engine {
 		authorized.GET("/transactions/:code", controller.FindByTransaction)
 		authorized.POST("/transactions", controller.Create)
 		authorized.POST("/transactions/csv", controller.CreateFromCsv)
-		authorized.PATCH("/transactions/:code", controller.Update)
-		authorized.DELETE("/transactions/:code", controller.Delete)
+		authorized.PATCH("/transactions/:numberTransaction", controller.Update)
+		authorized.DELETE("/transactions/:numberTransaction", controller.Delete)
 	}
 
 	return router
@@ -121,7 +121,7 @@ func (controller *TransactionController) Update(c *gin.Context) {
 		return
 	}
 
-	noTransaction := c.Param("code")
+	noTransaction := c.Param("numberTransaction")
 
 	request.NoTransaction = noTransaction
 	err = controller.TransactionService.Update(c.Request.Context(), request)
@@ -134,7 +134,7 @@ func (controller *TransactionController) Update(c *gin.Context) {
 }
 
 func (controller *TransactionController) Delete(c *gin.Context) {
-	noTransaction := c.Param("code")
+	noTransaction := c.Param("numberTransaction")
 	err := controller.TransactionService.Delete(c.Request.Context(), noTransaction)
 	if err != nil {
 		helper.ReturnErrorInternalServerError(c, err, nil)

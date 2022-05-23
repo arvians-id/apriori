@@ -9,36 +9,36 @@ import (
 )
 
 type AprioriService interface {
-	Generate(ctx context.Context) ([]model.GetProductTransactionResponse, error)
+	Generate(ctx context.Context) ([]model.GetTransactionResponse, error)
 }
 
 type aprioriService struct {
-	ProductRepository repository.ProductRepository
-	DB                *sql.DB
+	TransactionRepository repository.TransactionRepository
+	DB                    *sql.DB
 }
 
-func NewAprioriService(productRepository *repository.ProductRepository, db *sql.DB) AprioriService {
+func NewAprioriService(transactionRepository *repository.TransactionRepository, db *sql.DB) AprioriService {
 	return &aprioriService{
-		ProductRepository: *productRepository,
-		DB:                db,
+		TransactionRepository: *transactionRepository,
+		DB:                    db,
 	}
 }
 
-func (service aprioriService) Generate(ctx context.Context) ([]model.GetProductTransactionResponse, error) {
+func (service aprioriService) Generate(ctx context.Context) ([]model.GetTransactionResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return []model.GetProductTransactionResponse{}, err
+		return []model.GetTransactionResponse{}, err
 	}
 	defer helper.CommitOrRollback(tx)
 
-	transactionsSet, err := service.ProductRepository.FindItemSet(ctx, tx)
+	transactionsSet, err := service.TransactionRepository.FindItemSet(ctx, tx)
 	if err != nil {
-		return []model.GetProductTransactionResponse{}, err
+		return []model.GetTransactionResponse{}, err
 	}
 
-	var transactions []model.GetProductTransactionResponse
-	for _, transaction := range transactionsSet {
-		transactions = append(transactions, helper.ToProductTransactionResponse(transaction))
+	var transactions []model.GetTransactionResponse
+	for _, _ = range transactionsSet {
+		//transactions = append(transactions, helper.ToTransactionResponse(transaction))
 	}
 
 	return transactions, nil
