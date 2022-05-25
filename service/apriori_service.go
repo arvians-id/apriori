@@ -6,6 +6,8 @@ import (
 	"apriori/repository"
 	"context"
 	"database/sql"
+	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -24,74 +26,6 @@ func NewAprioriService(transactionRepository *repository.TransactionRepository, 
 		DB:                    db,
 	}
 }
-
-//func (service aprioriService) Generate(ctx context.Context) ([]model.GetAprioriResponses, error) {
-//	tx, err := service.DB.Begin()
-//	if err != nil {
-//		return nil, err
-//	}
-//	defer helper.CommitOrRollback(tx)
-//
-//	transactionsSet, err := service.TransactionRepository.FindItemSet(ctx, tx)
-//	if err != nil {
-//		return nil, err
-//	}
-//
-//	// Generate all product
-//	var transactions []model.GetTransactionResponses
-//	for _, transaction := range transactionsSet {
-//		texts := strings.Split(transaction.ProductName, ", ")
-//		transactions = append(transactions, model.GetTransactionResponses{
-//			ProductName: texts,
-//		})
-//	}
-//
-//	// Count all every product
-//	productName := make(map[string]float32)
-//	for _, value := range transactions {
-//		for _, text := range value.ProductName {
-//			text = strings.ToLower(text)
-//			productName[text] = productName[text] + 1
-//		}
-//	}
-//
-//	// Count Minimum Support
-//	// One item set
-//	var apriori []model.GetAprioriResponses
-//	for key, value := range productName {
-//		result := value / float32(len(transactionsSet)) * 100
-//		if result >= float32(70) {
-//			apriori = append(apriori, model.GetAprioriResponses{
-//				ItemSet: []string{key},
-//				Support: result,
-//				Number:  1,
-//			})
-//		}
-//	}
-//
-//	// Two item set
-//	var twoSet [][]string
-//	for i := 0; i < len(apriori); i++ {
-//		for j := 0; j < len(apriori); j++ {
-//			if i != j && j > i {
-//				twoSet = append(twoSet, []string{apriori[i].ItemSet[0], apriori[j].ItemSet[0]})
-//			}
-//		}
-//	}
-//
-//	for i := 0; i < len(twoSet); i++ {
-//		test := FindCandidate(twoSet[i], transactions)
-//		result := float32(test) / float32(len(transactionsSet)) * 100
-//		if result >= float32(70) {
-//			apriori = append(apriori, model.GetAprioriResponses{
-//				ItemSet: twoSet[i],
-//				Support: result,
-//				Number:  2,
-//			})
-//		}
-//	}
-//	return apriori, nil
-//}
 
 func (service aprioriService) Generate(ctx context.Context) ([]model.GetAprioriResponses, error) {
 	tx, err := service.DB.Begin()
@@ -115,7 +49,7 @@ func (service aprioriService) Generate(ctx context.Context) ([]model.GetAprioriR
 	}
 
 	// Count all every product
-	productName := make(map[string]float32)
+	var productName = make(map[string]float64)
 	for _, value := range transactions {
 		for _, text := range value.ProductName {
 			text = strings.ToLower(text)
@@ -123,27 +57,43 @@ func (service aprioriService) Generate(ctx context.Context) ([]model.GetAprioriR
 		}
 	}
 
-	// Count Minimum Support
-	// One item set
+	// Finding one item set
+	minimumSupport := 40
 	var apriori []model.GetAprioriResponses
-	var oneSet []string
+	var tes []string
 	for key, value := range productName {
-		result := value / float32(len(transactionsSet)) * 100
-		if result >= float32(70) {
-			oneSet = append(oneSet, key)
-			apriori = append(apriori, model.GetAprioriResponses{
-				ItemSet: []string{key},
-				Support: result,
-				Number:  1,
-			})
+		result := value / float64(len(transactionsSet)) * 100
+		if result >= float64(minimumSupport) {
+			str := strconv.Itoa(int(result))
+			tes = append(tes, key+":"+str)
 		}
 	}
 
+	// Handle random map problem
+	sort.Strings(tes)
+
+	var oneSet []string
+	var val []float64
+	for i := 0; i < len(tes); i++ {
+		str := strings.Split(tes[i], ":")
+		number, _ := strconv.Atoi(str[1])
+		oneSet = append(oneSet, str[0])
+		val = append(val, float64(number))
+	}
+
+	for i := 0; i < len(oneSet); i++ {
+		apriori = append(apriori, model.GetAprioriResponses{
+			ItemSet: []string{oneSet[i]},
+			Support: val[i],
+			Number:  1,
+		})
+	}
+
+	// Finding a more than one item set
 	var inc int
 	var isEnded = true
 	var dataTemp [][]string
 	for isEnded {
-		// Finding candidate
 		for i := 0; i < len(oneSet)-inc; i++ {
 			for j := 0; j < len(oneSet); j++ {
 				if j > i {
@@ -153,16 +103,49 @@ func (service aprioriService) Generate(ctx context.Context) ([]model.GetAprioriR
 						if oneSet[i] != oneSet[i+1] && oneSet[i] != oneSet[j] && oneSet[i+1] != oneSet[j] {
 							dataTemp = append(dataTemp, []string{oneSet[i], oneSet[i+1], oneSet[j]})
 						}
+					} else if inc == 2 {
+						if oneSet[i] != oneSet[i+1] &&
+							oneSet[i] != oneSet[j] &&
+							oneSet[i+1] != oneSet[j] &&
+							oneSet[i] != oneSet[i+2] &&
+							oneSet[i+1] != oneSet[i+2] &&
+							oneSet[j] != oneSet[i+2] {
+							dataTemp = append(dataTemp, []string{oneSet[i], oneSet[i+1], oneSet[i+2], oneSet[j]})
+						}
 					}
 				}
 			}
 		}
 
+		// Filter Candidate
+		var sets [][]string
+		for i := 0; i < len(dataTemp)-1; i++ {
+			var bol = false
+			if i == 0 {
+				sets = append(sets, dataTemp[0])
+			}
+			for j := 0; j < len(dataTemp); j++ {
+				if j > i {
+					filter := FilterCandidate(dataTemp[i], dataTemp[j])
+					if !filter {
+						bol = true
+					} else {
+						dataTemp = append(dataTemp[:i], dataTemp[j+1:]...)
+					}
+				}
+			}
+			if bol {
+				sets = append(sets, dataTemp[i+1])
+			}
+			bol = false
+		}
+		dataTemp = sets
+
 		// Item Set Operation
 		for i := 0; i < len(dataTemp); i++ {
 			tests := FindCandidate(dataTemp[i], transactions)
-			result := float32(tests) / float32(len(transactionsSet)) * 100
-			if result >= float32(1) {
+			result := float64(tests) / float64(len(transactionsSet)) * 100
+			if result >= float64(minimumSupport) {
 				apriori = append(apriori, model.GetAprioriResponses{
 					ItemSet: dataTemp[i],
 					Support: result,
@@ -180,8 +163,7 @@ func (service aprioriService) Generate(ctx context.Context) ([]model.GetAprioriR
 
 		// After finish operation clear array before
 		dataTemp = [][]string{}
-
-		if inc == 1 {
+		if int32(inc+2) > apriori[len(apriori)-1].Number {
 			isEnded = false
 		}
 		inc++
@@ -201,6 +183,7 @@ func FilterCandidate(first, second []string) bool {
 		}
 	}
 
+	exists = make(map[string]bool)
 	return true
 }
 
