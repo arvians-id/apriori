@@ -16,6 +16,16 @@ type UpdateTransactionRequest struct {
 	NoTransaction string `json:"no_transaction" binding:"required,max=100"`
 }
 
+type GetAprioriResponses struct {
+	ItemSet []string `json:"item_set"`
+	Support float32  `json:"support"`
+	Number  int32    `json:"number"`
+}
+
+type GetTransactionResponses struct {
+	ProductName []string `json:"product_name"`
+}
+
 type GetTransactionResponse struct {
 	IdTransaction uint64 `json:"id_transaction"`
 	ProductName   string `json:"product_name"`
