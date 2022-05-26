@@ -58,7 +58,7 @@ func (service aprioriService) Generate(ctx context.Context) ([]model.GetAprioriR
 	}
 
 	// Finding one item set
-	minimumSupport := 40
+	minimumSupport := 30
 	var apriori []model.GetAprioriResponses
 	var tes []string
 	for key, value := range productName {
@@ -100,22 +100,22 @@ func (service aprioriService) Generate(ctx context.Context) ([]model.GetAprioriR
 					if inc == 0 {
 						dataTemp = append(dataTemp, []string{oneSet[i], oneSet[j]})
 					} else if inc == 1 {
-						if oneSet[i] != oneSet[i+1] && oneSet[i] != oneSet[j] && oneSet[i+1] != oneSet[j] {
-							dataTemp = append(dataTemp, []string{oneSet[i], oneSet[i+1], oneSet[j]})
-						}
+						dataTemp = append(dataTemp, []string{oneSet[i], oneSet[i+1], oneSet[j]})
 					} else if inc == 2 {
-						if oneSet[i] != oneSet[i+1] &&
-							oneSet[i] != oneSet[j] &&
-							oneSet[i+1] != oneSet[j] &&
-							oneSet[i] != oneSet[i+2] &&
-							oneSet[i+1] != oneSet[i+2] &&
-							oneSet[j] != oneSet[i+2] {
-							dataTemp = append(dataTemp, []string{oneSet[i], oneSet[i+1], oneSet[i+2], oneSet[j]})
-						}
+						dataTemp = append(dataTemp, []string{oneSet[i], oneSet[i+1], oneSet[i+2], oneSet[j]})
 					}
 				}
 			}
 		}
+		// Filter Duplicate
+		var temp [][]string
+		for i := 0; i < len(dataTemp); i++ {
+			isDuplicate := IsDuplicate(dataTemp[i])
+			if !isDuplicate {
+				temp = append(temp, dataTemp[i])
+			}
+		}
+		dataTemp = temp
 
 		// Filter Candidate
 		var sets [][]string
@@ -141,6 +141,29 @@ func (service aprioriService) Generate(ctx context.Context) ([]model.GetAprioriR
 		}
 		dataTemp = sets
 
+		var el [][]string
+		for i := 0; i < len(dataTemp)-1; i++ {
+			var bol = false
+			if i == 0 {
+				el = append(el, dataTemp[0])
+			}
+			for j := 0; j < len(dataTemp); j++ {
+				if j > i {
+					filter := FilterCandidate(dataTemp[i], dataTemp[j])
+					if !filter {
+						bol = true
+					} else {
+						dataTemp = append(dataTemp[:i], dataTemp[j+1:]...)
+					}
+				}
+			}
+			if bol {
+				el = append(el, dataTemp[i+1])
+			}
+			bol = false
+		}
+		dataTemp = el
+
 		// Item Set Operation
 		for i := 0; i < len(dataTemp); i++ {
 			tests := FindCandidate(dataTemp[i], transactions)
@@ -163,13 +186,39 @@ func (service aprioriService) Generate(ctx context.Context) ([]model.GetAprioriR
 
 		// After finish operation clear array before
 		dataTemp = [][]string{}
-		if int32(inc+2) > apriori[len(apriori)-1].Number {
+		if int32(inc+2) >= apriori[len(apriori)-1].Number {
 			isEnded = false
 		}
 		inc++
 	}
 
 	return apriori, nil
+}
+
+func IsDuplicateSlice(first, second []string) bool {
+	sort.Strings(first)
+	sort.Strings(second)
+
+	//log.Println(first, second)
+	for i := 0; i < len(first); i++ {
+		if first[i] != second[i] {
+			return false
+		}
+	}
+
+	return true
+}
+
+func IsDuplicate(array []string) bool {
+	visited := make(map[string]bool, 0)
+	for i := 0; i < len(array); i++ {
+		if visited[array[i]] == true {
+			return true
+		} else {
+			visited[array[i]] = true
+		}
+	}
+	return false
 }
 
 func FilterCandidate(first, second []string) bool {
@@ -183,7 +232,6 @@ func FilterCandidate(first, second []string) bool {
 		}
 	}
 
-	exists = make(map[string]bool)
 	return true
 }
 

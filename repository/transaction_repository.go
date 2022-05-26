@@ -5,6 +5,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+	"strings"
 )
 
 type TransactionRepository interface {
@@ -191,8 +192,9 @@ func (repository *transactionRepository) CreateFromCsv(ctx context.Context, tx *
 	var values []interface{}
 
 	for _, row := range transactions {
+		productName := strings.ToLower(row.ProductName)
 		query += "(?,?,?,?,?),"
-		values = append(values, row.ProductName, row.CustomerName, row.NoTransaction, row.CreatedAt, row.UpdatedAt)
+		values = append(values, productName, row.CustomerName, row.NoTransaction, row.CreatedAt, row.UpdatedAt)
 	}
 
 	query = query[0 : len(query)-1]
