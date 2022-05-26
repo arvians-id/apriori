@@ -58,7 +58,7 @@ func (service aprioriService) Generate(ctx context.Context) ([]model.GetAprioriR
 	}
 
 	// Finding one item set
-	minimumSupport := 30
+	minimumSupport := 20
 	var apriori []model.GetAprioriResponses
 	var tes []string
 	for key, value := range productName {
@@ -91,9 +91,8 @@ func (service aprioriService) Generate(ctx context.Context) ([]model.GetAprioriR
 
 	// Finding a more than one item set
 	var inc int
-	var isEnded = true
 	var dataTemp [][]string
-	for isEnded {
+	for {
 		for i := 0; i < len(oneSet)-inc; i++ {
 			for j := 0; j < len(oneSet); j++ {
 				if j > i {
@@ -103,6 +102,8 @@ func (service aprioriService) Generate(ctx context.Context) ([]model.GetAprioriR
 						dataTemp = append(dataTemp, []string{oneSet[i], oneSet[i+1], oneSet[j]})
 					} else if inc == 2 {
 						dataTemp = append(dataTemp, []string{oneSet[i], oneSet[i+1], oneSet[i+2], oneSet[j]})
+					} else if inc == 3 {
+						dataTemp = append(dataTemp, []string{oneSet[i], oneSet[i+1], oneSet[i+2], oneSet[i+3], oneSet[j]})
 					}
 				}
 			}
@@ -121,9 +122,6 @@ func (service aprioriService) Generate(ctx context.Context) ([]model.GetAprioriR
 		var sets [][]string
 		for i := 0; i < len(dataTemp)-1; i++ {
 			var bol = false
-			if i == 0 {
-				sets = append(sets, dataTemp[0])
-			}
 			for j := 0; j < len(dataTemp); j++ {
 				if j > i {
 					filter := FilterCandidate(dataTemp[i], dataTemp[j])
@@ -186,27 +184,15 @@ func (service aprioriService) Generate(ctx context.Context) ([]model.GetAprioriR
 
 		// After finish operation clear array before
 		dataTemp = [][]string{}
-		if int32(inc+2) >= apriori[len(apriori)-1].Number {
-			isEnded = false
+
+		//int32(inc) +2 > apriori[len(apriori)-1].Number
+		if int32(inc)+2 > apriori[len(apriori)-1].Number {
+			break
 		}
 		inc++
 	}
 
 	return apriori, nil
-}
-
-func IsDuplicateSlice(first, second []string) bool {
-	sort.Strings(first)
-	sort.Strings(second)
-
-	//log.Println(first, second)
-	for i := 0; i < len(first); i++ {
-		if first[i] != second[i] {
-			return false
-		}
-	}
-
-	return true
 }
 
 func IsDuplicate(array []string) bool {
