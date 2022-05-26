@@ -26,7 +26,16 @@ func (controller *AprioriController) Route(router *gin.Engine) *gin.Engine {
 	return router
 }
 func (controller *AprioriController) Generate(c *gin.Context) {
-	transactions, err := controller.AprioriService.Generate(c.Request.Context())
+	var property struct {
+		Support int `json:"support"`
+	}
+	err := c.ShouldBindJSON(&property)
+	if err != nil {
+		helper.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	transactions, err := controller.AprioriService.Generate(c.Request.Context(), property.Support)
 	if err != nil {
 		helper.ReturnErrorInternalServerError(c, err, nil)
 		return

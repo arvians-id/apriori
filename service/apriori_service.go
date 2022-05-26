@@ -12,7 +12,7 @@ import (
 )
 
 type AprioriService interface {
-	Generate(ctx context.Context) ([]model.GetAprioriResponses, error)
+	Generate(ctx context.Context, support int) ([]model.GetAprioriResponses, error)
 }
 
 type aprioriService struct {
@@ -27,7 +27,7 @@ func NewAprioriService(transactionRepository *repository.TransactionRepository, 
 	}
 }
 
-func (service aprioriService) Generate(ctx context.Context) ([]model.GetAprioriResponses, error) {
+func (service aprioriService) Generate(ctx context.Context, support int) ([]model.GetAprioriResponses, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -48,7 +48,7 @@ func (service aprioriService) Generate(ctx context.Context) ([]model.GetAprioriR
 		})
 	}
 
-	// Count all every product
+	// Count all every product name
 	var productName = make(map[string]float64)
 	for _, value := range transactions {
 		for _, text := range value.ProductName {
@@ -58,7 +58,7 @@ func (service aprioriService) Generate(ctx context.Context) ([]model.GetAprioriR
 	}
 
 	// Finding one item set
-	minimumSupport := 20
+	minimumSupport := support
 	var apriori []model.GetAprioriResponses
 	var tes []string
 	for key, value := range productName {
@@ -69,7 +69,7 @@ func (service aprioriService) Generate(ctx context.Context) ([]model.GetAprioriR
 		}
 	}
 
-	// Handle random map problem
+	// Handle random maps problem
 	sort.Strings(tes)
 
 	var oneSet []string
@@ -81,6 +81,7 @@ func (service aprioriService) Generate(ctx context.Context) ([]model.GetAprioriR
 		val = append(val, float64(number))
 	}
 
+	// Get one item set
 	for i := 0; i < len(oneSet); i++ {
 		apriori = append(apriori, model.GetAprioriResponses{
 			ItemSet: []string{oneSet[i]},
@@ -96,19 +97,19 @@ func (service aprioriService) Generate(ctx context.Context) ([]model.GetAprioriR
 		for i := 0; i < len(oneSet)-inc; i++ {
 			for j := 0; j < len(oneSet); j++ {
 				if j > i {
-					if inc == 0 {
-						dataTemp = append(dataTemp, []string{oneSet[i], oneSet[j]})
-					} else if inc == 1 {
-						dataTemp = append(dataTemp, []string{oneSet[i], oneSet[i+1], oneSet[j]})
-					} else if inc == 2 {
-						dataTemp = append(dataTemp, []string{oneSet[i], oneSet[i+1], oneSet[i+2], oneSet[j]})
-					} else if inc == 3 {
-						dataTemp = append(dataTemp, []string{oneSet[i], oneSet[i+1], oneSet[i+2], oneSet[i+3], oneSet[j]})
+					var v []string
+
+					v = append(v, oneSet[i])
+					for z := 1; z <= inc; z++ {
+						v = append(v, oneSet[i+z])
 					}
+					v = append(v, oneSet[j])
+
+					dataTemp = append(dataTemp, v)
 				}
 			}
 		}
-		// Filter Duplicate
+		// Filter when the slice has duplicate values
 		var temp [][]string
 		for i := 0; i < len(dataTemp); i++ {
 			isDuplicate := IsDuplicate(dataTemp[i])
@@ -118,7 +119,7 @@ func (service aprioriService) Generate(ctx context.Context) ([]model.GetAprioriR
 		}
 		dataTemp = temp
 
-		// Filter Candidate
+		// Filter candidates by comparing slice to slice
 		var sets [][]string
 		for i := 0; i < len(dataTemp)-1; i++ {
 			var bol = false
@@ -139,6 +140,7 @@ func (service aprioriService) Generate(ctx context.Context) ([]model.GetAprioriR
 		}
 		dataTemp = sets
 
+		// Filter candidates again to make sure the data is clear
 		var el [][]string
 		for i := 0; i < len(dataTemp)-1; i++ {
 			var bol = false
@@ -162,7 +164,7 @@ func (service aprioriService) Generate(ctx context.Context) ([]model.GetAprioriR
 		}
 		dataTemp = el
 
-		// Item Set Operation
+		// Find item set by minimum support
 		for i := 0; i < len(dataTemp); i++ {
 			tests := FindCandidate(dataTemp[i], transactions)
 			result := float64(tests) / float64(len(transactionsSet)) * 100
@@ -185,7 +187,6 @@ func (service aprioriService) Generate(ctx context.Context) ([]model.GetAprioriR
 		// After finish operation clear array before
 		dataTemp = [][]string{}
 
-		//int32(inc) +2 > apriori[len(apriori)-1].Number
 		if int32(inc)+2 > apriori[len(apriori)-1].Number {
 			break
 		}
@@ -224,7 +225,7 @@ func FilterCandidate(first, second []string) bool {
 func FindCandidate(data []string, transactions []model.GetTransactionResponses) int {
 	var counter int
 	for _, j := range transactions {
-		results := make([]string, 0) // slice tostore the result
+		results := make([]string, 0) // slice to store the result
 
 		for i := 0; i < len(data); i++ {
 			for k := 0; k < len(j.ProductName); k++ {
