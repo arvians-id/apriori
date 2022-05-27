@@ -71,7 +71,6 @@ func (service aprioriService) Generate(ctx context.Context, support int) ([]mode
 
 	// Handle random maps problem
 	sort.Strings(tes)
-
 	var oneSet []string
 	var val []float64
 	for i := 0; i < len(tes); i++ {
@@ -90,23 +89,21 @@ func (service aprioriService) Generate(ctx context.Context, support int) ([]mode
 		})
 	}
 
-	// Finding a more than one item set
+	// Looking for more than one item set
 	var inc int
 	var dataTemp [][]string
 	for {
 		for i := 0; i < len(oneSet)-inc; i++ {
-			for j := 0; j < len(oneSet); j++ {
-				if j > i {
-					var v []string
+			for j := i + 1; j < len(oneSet); j++ {
+				var v []string
 
-					v = append(v, oneSet[i])
-					for z := 1; z <= inc; z++ {
-						v = append(v, oneSet[i+z])
-					}
-					v = append(v, oneSet[j])
-
-					dataTemp = append(dataTemp, v)
+				v = append(v, oneSet[i])
+				for z := 1; z <= inc; z++ {
+					v = append(v, oneSet[i+z])
 				}
+				v = append(v, oneSet[j])
+
+				dataTemp = append(dataTemp, v)
 			}
 		}
 		// Filter when the slice has duplicate values
@@ -120,49 +117,16 @@ func (service aprioriService) Generate(ctx context.Context, support int) ([]mode
 		dataTemp = temp
 
 		// Filter candidates by comparing slice to slice
-		var sets [][]string
-		for i := 0; i < len(dataTemp)-1; i++ {
-			var bol = false
-			for j := 0; j < len(dataTemp); j++ {
-				if j > i {
+		for k := 0; k < 2; k++ {
+			for i := 0; i < len(dataTemp)-1; i++ {
+				for j := i + 1; j < len(dataTemp); j++ {
 					filter := FilterCandidate(dataTemp[i], dataTemp[j])
-					if !filter {
-						bol = true
-					} else {
+					if filter {
 						dataTemp = append(dataTemp[:i], dataTemp[j+1:]...)
 					}
 				}
 			}
-			if bol {
-				sets = append(sets, dataTemp[i+1])
-			}
-			bol = false
 		}
-		dataTemp = sets
-
-		// Filter candidates again to make sure the data is clear
-		var el [][]string
-		for i := 0; i < len(dataTemp)-1; i++ {
-			var bol = false
-			if i == 0 {
-				el = append(el, dataTemp[0])
-			}
-			for j := 0; j < len(dataTemp); j++ {
-				if j > i {
-					filter := FilterCandidate(dataTemp[i], dataTemp[j])
-					if !filter {
-						bol = true
-					} else {
-						dataTemp = append(dataTemp[:i], dataTemp[j+1:]...)
-					}
-				}
-			}
-			if bol {
-				el = append(el, dataTemp[i+1])
-			}
-			bol = false
-		}
-		dataTemp = el
 
 		// Find item set by minimum support
 		for i := 0; i < len(dataTemp); i++ {
@@ -209,6 +173,9 @@ func IsDuplicate(array []string) bool {
 }
 
 func FilterCandidate(first, second []string) bool {
+	sort.Strings(first)
+	sort.Strings(second)
+
 	exists := make(map[string]bool)
 	for _, value := range first {
 		exists[value] = true
