@@ -17,9 +17,12 @@ type UpdateTransactionRequest struct {
 }
 
 type GetAprioriResponses struct {
-	ItemSet []string `json:"item_set"`
-	Support float64  `json:"support"`
-	Number  int32    `json:"number"`
+	ItemSet     []string `json:"item_set"`
+	Support     float64  `json:"support"`
+	Iterate     int32    `json:"iterate"`
+	Transaction int32    `json:"transaction"`
+	Confidence  float64  `json:"confidence,omitempty"`
+	Discount    float64  `json:"discount,omitempty"`
 }
 
 type GetTransactionResponses struct {
