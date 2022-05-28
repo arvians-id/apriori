@@ -9,7 +9,7 @@ import (
 )
 
 type AprioriService interface {
-	Generate(ctx context.Context, support int) ([]model.GetAprioriResponses, error)
+	Generate(ctx context.Context, request model.GenerateAprioriRequest) ([]model.GetAprioriResponses, error)
 }
 
 type aprioriService struct {
@@ -24,7 +24,7 @@ func NewAprioriService(transactionRepository *repository.TransactionRepository, 
 	}
 }
 
-func (service aprioriService) Generate(ctx context.Context, minimumSupport int) ([]model.GetAprioriResponses, error) {
+func (service aprioriService) Generate(ctx context.Context, request model.GenerateAprioriRequest) ([]model.GetAprioriResponses, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -34,13 +34,13 @@ func (service aprioriService) Generate(ctx context.Context, minimumSupport int) 
 	var apriori []model.GetAprioriResponses
 
 	// Get all transaction from database
-	transactionsSet, err := service.TransactionRepository.FindItemSet(ctx, tx)
+	transactionsSet, err := service.TransactionRepository.FindItemSet(ctx, tx, request.StartDate, request.EndDate)
 	if err != nil {
 		return nil, err
 	}
 
 	// Find first item set
-	transactions, productName, propertyProduct := helper.FindFirstItemSet(transactionsSet, minimumSupport)
+	transactions, productName, propertyProduct := helper.FindFirstItemSet(transactionsSet, int(request.MinimumSupport))
 
 	// Handle random maps problem
 	oneSet, support, totalTransaction := helper.HandleMapsProblem(propertyProduct)
@@ -80,7 +80,6 @@ func (service aprioriService) Generate(ctx context.Context, minimumSupport int) 
 			}
 		}
 		dataTemp = cleanValues
-
 		// Filter candidates by comparing slice to slice
 		dataTemp = helper.FilterCandidateInSlice(dataTemp)
 
@@ -88,7 +87,7 @@ func (service aprioriService) Generate(ctx context.Context, minimumSupport int) 
 		for i := 0; i < len(dataTemp); i++ {
 			countCandidates := helper.FindCandidate(dataTemp[i], transactions)
 			result := float64(countCandidates) / float64(len(transactionsSet)) * 100
-			if result >= float64(minimumSupport) {
+			if result >= float64(request.MinimumSupport) {
 				apriori = append(apriori, model.GetAprioriResponses{
 					ItemSet:     dataTemp[i],
 					Support:     result,
@@ -122,26 +121,35 @@ func (service aprioriService) Generate(ctx context.Context, minimumSupport int) 
 	confidence := helper.FindConfidence(apriori, productName)
 
 	// Set discount
-	discount, err := helper.FindDiscount(confidence, 10, 15)
-	if err != nil {
-		return nil, err
-	}
+	discount := helper.FindDiscount(confidence, float64(request.MinimumDiscount), float64(request.MaximumDiscount))
 
 	// Remove last element in apriori as many association rules
 	for i := 0; i < len(discount); i++ {
 		apriori = apriori[:len(apriori)-1]
 	}
 
-	// Insert new apriori with discount and confidence
+	// Replace the last item set and add discount and confidence
 	for i := 0; i < len(discount); i++ {
-		apriori = append(apriori, model.GetAprioriResponses{
-			ItemSet:     discount[i].ItemSet,
-			Support:     discount[i].Support,
-			Iterate:     discount[i].Iterate,
-			Transaction: discount[i].Transaction,
-			Confidence:  discount[i].Confidence,
-			Discount:    discount[i].Discount,
-		})
+		if discount[i].Confidence >= float64(request.MinimumConfidence) {
+			apriori = append(apriori, model.GetAprioriResponses{
+				ItemSet:     discount[i].ItemSet,
+				Support:     discount[i].Support,
+				Iterate:     discount[i].Iterate,
+				Transaction: discount[i].Transaction,
+				Confidence:  discount[i].Confidence,
+				Discount:    discount[i].Discount,
+				Description: "Eligible",
+			})
+		} else {
+			apriori = append(apriori, model.GetAprioriResponses{
+				ItemSet:     discount[i].ItemSet,
+				Support:     discount[i].Support,
+				Iterate:     discount[i].Iterate,
+				Transaction: discount[i].Transaction,
+				Confidence:  discount[i].Confidence,
+				Description: "Not Eligible",
+			})
+		}
 	}
 
 	return apriori, nil

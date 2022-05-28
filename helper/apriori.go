@@ -3,7 +3,7 @@ package helper
 import (
 	"apriori/entity"
 	"apriori/model"
-	"errors"
+	"reflect"
 	"sort"
 	"strconv"
 	"strings"
@@ -96,6 +96,7 @@ func IsDuplicate(array []string) bool {
 		} else {
 			visited[array[i]] = true
 		}
+
 	}
 	return false
 }
@@ -108,13 +109,19 @@ func FilterCandidate(first, second []string) bool {
 	for _, value := range first {
 		exists[value] = true
 	}
+
+	var counter int
 	for _, value := range second {
-		if !exists[value] {
-			return false
+		if _, ok := exists[value]; ok {
+			counter++
 		}
 	}
 
-	return true
+	if counter == len(second) {
+		return true
+	}
+
+	return false
 }
 
 func FindCandidate(data []string, transactions []model.GetTransactionResponses) int {
@@ -139,10 +146,7 @@ func FindCandidate(data []string, transactions []model.GetTransactionResponses) 
 	return counter
 }
 
-func FindDiscount(apriori []model.GetAprioriResponses, minDiscount float64, maxDiscount float64) ([]model.GetAprioriResponses, error) {
-	if maxDiscount < minDiscount {
-		return []model.GetAprioriResponses{}, errors.New("the maximum discount cannot be less than the minimum discount")
-	}
+func FindDiscount(apriori []model.GetAprioriResponses, minDiscount float64, maxDiscount float64) []model.GetAprioriResponses {
 	var discounts []model.GetAprioriResponses
 	var calculateDiscount = (maxDiscount - minDiscount) / float64(len(apriori))
 
@@ -163,17 +167,19 @@ func FindDiscount(apriori []model.GetAprioriResponses, minDiscount float64, maxD
 		})
 	}
 
-	return discounts, nil
+	return discounts
 }
 
 func FilterCandidateInSlice(dataTemp [][]string) [][]string {
-	for k := 0; k < 2; k++ {
-		for i := 0; i < len(dataTemp)-1; i++ {
-			for j := i + 1; j < len(dataTemp); j++ {
-				filter := FilterCandidate(dataTemp[i], dataTemp[j])
-				if filter {
-					dataTemp = append(dataTemp[:i], dataTemp[j+1:]...)
-				}
+	for i := 0; i < len(dataTemp); i++ {
+		for j := i + 1; j < len(dataTemp); j++ {
+			sort.Strings(dataTemp[i])
+			sort.Strings(dataTemp[j])
+			//filter := FilterCandidate(dataTemp[i], dataTemp[j])
+			filter := reflect.DeepEqual(dataTemp[i], dataTemp[j])
+			if filter {
+				dataTemp = append(dataTemp[:j], dataTemp[j+1:]...)
+				j--
 			}
 		}
 	}

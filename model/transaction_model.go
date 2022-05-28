@@ -23,6 +23,7 @@ type GetAprioriResponses struct {
 	Transaction int32    `json:"transaction"`
 	Confidence  float64  `json:"confidence,omitempty"`
 	Discount    float64  `json:"discount,omitempty"`
+	Description string   `json:"description,omitempty"`
 }
 
 type GetTransactionResponses struct {

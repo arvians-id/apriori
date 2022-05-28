@@ -9,8 +9,7 @@ import (
 )
 
 type TransactionRepository interface {
-	FindCandidate(ctx context.Context, tx *sql.Tx, data []string) ([]Test, error)
-	FindItemSet(ctx context.Context, tx *sql.Tx) ([]entity.Transaction, error)
+	FindItemSet(ctx context.Context, tx *sql.Tx, startDate string, endDate string) ([]entity.Transaction, error)
 	FindAll(ctx context.Context, tx *sql.Tx) ([]entity.Transaction, error)
 	FindByTransaction(ctx context.Context, tx *sql.Tx, noTransaction string) (entity.Transaction, error)
 	Create(ctx context.Context, tx *sql.Tx, transaction entity.Transaction) error
@@ -30,40 +29,10 @@ type Test struct {
 	productName string
 }
 
-func (repository *transactionRepository) FindCandidate(ctx context.Context, tx *sql.Tx, data []string) ([]Test, error) {
-	query := `SELECT product_name FROM transactions WHERE CONTAINS(product_name, '"bantal cinta"')`
+func (repository *transactionRepository) FindItemSet(ctx context.Context, tx *sql.Tx, startDate string, endDate string) ([]entity.Transaction, error) {
+	query := `SELECT * FROM transactions WHERE DATE(created_at) >= ? AND DATE(created_at) <= ?`
 
-	rows, err := tx.QueryContext(ctx, query)
-	if err != nil {
-		return []Test{}, err
-	}
-	defer func(rows *sql.Rows) {
-		err := rows.Close()
-		if err != nil {
-			return
-		}
-	}(rows)
-
-	var test []Test
-	for rows.Next() {
-		var tes Test
-		err := rows.Scan(
-			&tes.productName,
-		)
-
-		if err != nil {
-			return []Test{}, err
-		}
-
-		test = append(test, tes)
-	}
-
-	return test, nil
-}
-func (repository *transactionRepository) FindItemSet(ctx context.Context, tx *sql.Tx) ([]entity.Transaction, error) {
-	query := `SELECT * FROM transactions`
-
-	rows, err := tx.QueryContext(ctx, query)
+	rows, err := tx.QueryContext(ctx, query, startDate, endDate)
 	if err != nil {
 		return []entity.Transaction{}, err
 	}
