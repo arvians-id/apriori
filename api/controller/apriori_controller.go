@@ -6,6 +6,7 @@ import (
 	"apriori/model"
 	"apriori/service"
 	"github.com/gin-gonic/gin"
+	"strings"
 )
 
 type AprioriController struct {
@@ -21,12 +22,79 @@ func NewAprioriController(aprioriService service.AprioriService) *AprioriControl
 func (controller *AprioriController) Route(router *gin.Engine) *gin.Engine {
 	authorized := router.Group("/api", middleware.AuthJwtMiddleware())
 	{
-		authorized.POST("/apriori", controller.Generate)
+		authorized.GET("/apriori", controller.FindAll)
+		authorized.GET("/apriori/:code", controller.FindByCode)
+		authorized.POST("/apriori", controller.Create)
+		authorized.DELETE("/apriori/:code", controller.Delete)
+		authorized.POST("/apriori/generate", controller.Generate)
 	}
 
 	return router
 }
 
+func (controller *AprioriController) FindAll(c *gin.Context) {
+	apriories, err := controller.AprioriService.FindAll(c.Request.Context())
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	response.ReturnSuccessOK(c, "OK", apriories)
+}
+
+func (controller *AprioriController) FindByCode(c *gin.Context) {
+	code := c.Param("code")
+	apriori, err := controller.AprioriService.FindByCode(c.Request.Context(), code)
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	response.ReturnSuccessOK(c, "OK", apriori)
+
+}
+func (controller *AprioriController) Create(c *gin.Context) {
+	var requestGenerate []model.GetGenerateAprioriResponse
+	err := c.ShouldBindJSON(&requestGenerate)
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	var request []model.CreateAprioriRequest
+	for _, property := range requestGenerate {
+		if property.Description == "Eligible" {
+			ItemSet := strings.Join(property.ItemSet, ", ")
+
+			request = append(request, model.CreateAprioriRequest{
+				Item:       ItemSet,
+				Discount:   property.Discount,
+				Support:    property.Support,
+				Confidence: property.Confidence,
+				RangeDate:  property.RangeDate,
+			})
+		}
+	}
+
+	err = controller.AprioriService.Create(c.Request.Context(), request)
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	response.ReturnSuccessOK(c, "OK", nil)
+}
+func (controller *AprioriController) Delete(c *gin.Context) {
+	code := c.Param("code")
+	err := controller.AprioriService.Delete(c.Request.Context(), code)
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	response.ReturnSuccessOK(c, "OK", nil)
+
+}
 func (controller *AprioriController) Generate(c *gin.Context) {
 	var request model.GenerateAprioriRequest
 	err := c.ShouldBindJSON(&request)

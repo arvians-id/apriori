@@ -4,17 +4,12 @@ import "time"
 
 type Apriori struct {
 	IdApriori  uint64
+	Code       string
 	Item       string
-	Discount   int32
-	Support    int32
-	Confidence int32
+	Discount   float64
+	Support    float64
+	Confidence float64
 	RangeDate  string
-	Counter    uint64
+	IsActive   bool
 	CreatedAt  time.Time
-}
-
-type AprioriSet struct {
-	ItemSet []string
-	Support float32
-	Number  int32
 }

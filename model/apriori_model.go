@@ -1,13 +1,24 @@
 package model
 
 type CreateAprioriRequest struct {
-	Item       string `json:"item"`
-	Discount   int32  `json:"discount"`
-	Support    int32  `json:"support"`
-	Confidence int32  `json:"confidence"`
-	RangeDate  string `json:"range_date"`
-	Counter    uint64 `json:"counter"`
-	CreatedAt  string `json:"created_at"`
+	Item       string  `json:"item"`
+	Discount   float64 `json:"discount"`
+	Support    float64 `json:"support"`
+	Confidence float64 `json:"confidence"`
+	RangeDate  string  `json:"range_date"`
+	CreatedAt  string  `json:"created_at"`
+}
+
+type GetAprioriResponse struct {
+	IdApriori  uint64  `json:"id_apriori"`
+	Code       string  `json:"code"`
+	Item       string  `json:"item"`
+	Discount   float64 `json:"discount"`
+	Support    float64 `json:"support"`
+	Confidence float64 `json:"confidence"`
+	RangeDate  string  `json:"range_date"`
+	IsActive   bool    `json:"is_active"`
+	CreatedAt  string  `json:"created_at"`
 }
 
 type GenerateAprioriRequest struct {
@@ -19,13 +30,13 @@ type GenerateAprioriRequest struct {
 	EndDate           string `json:"end_date" binding:"required"`
 }
 
-type GetAprioriResponse struct {
-	IdApriori  uint64 `json:"id_apriori"`
-	Item       string `json:"item"`
-	Discount   int32  `json:"discount"`
-	Support    int32  `json:"support"`
-	Confidence int32  `json:"confidence"`
-	RangeDate  string `json:"range_date"`
-	Counter    uint64 `json:"counter"`
-	CreatedAt  string `json:"created_at"`
+type GetGenerateAprioriResponse struct {
+	ItemSet     []string `json:"item_set"`
+	Support     float64  `json:"support"`
+	Iterate     int32    `json:"iterate"`
+	Transaction int32    `json:"transaction"`
+	Confidence  float64  `json:"confidence,omitempty"`
+	Discount    float64  `json:"discount,omitempty"`
+	Description string   `json:"description,omitempty"`
+	RangeDate   string   `json:"range_date"`
 }

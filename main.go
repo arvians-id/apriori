@@ -26,6 +26,7 @@ func main() {
 	authRepository := repository.NewAuthRepository()
 	productRepository := repository.NewProductRepository()
 	transactionRepository := repository.NewTransactionRepository()
+	aprioriRepository := repository.NewAprioriRepository()
 
 	// Setup Service
 	userService := service.NewUserService(&userRepository, db)
@@ -35,7 +36,7 @@ func main() {
 	passwordResetService := service.NewPasswordResetService(&passwordRepository, &userRepository, db)
 	productService := service.NewProductService(&productRepository, db)
 	transactionService := service.NewTransactionService(&transactionRepository, &productRepository, db)
-	aprioriService := service.NewAprioriService(&transactionRepository, db)
+	aprioriService := service.NewAprioriService(&transactionRepository, &aprioriRepository, db)
 
 	// Setup Controller
 	userController := controller.NewUserController(&userService)

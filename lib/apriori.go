@@ -9,12 +9,12 @@ import (
 	"strings"
 )
 
-func FindFirstItemSet(transactionsSet []entity.Transaction, minimumSupport int) ([]model.GetTransactionResponses, map[string]float64, []string) {
+func FindFirstItemSet(transactionsSet []entity.Transaction, minimumSupport int) ([]model.GetProductNameTransactionResponse, map[string]float64, []string) {
 	// Generate all product
-	var transactions []model.GetTransactionResponses
+	var transactions []model.GetProductNameTransactionResponse
 	for _, transaction := range transactionsSet {
 		productName := strings.Split(transaction.ProductName, ", ")
-		transactions = append(transactions, model.GetTransactionResponses{
+		transactions = append(transactions, model.GetProductNameTransactionResponse{
 			ProductName: productName,
 		})
 	}
@@ -69,12 +69,12 @@ func HandleMapsProblem(propertyProduct []string) ([]string, []float64, []int32) 
 	return oneSet, support, totalTransaction
 }
 
-func FindConfidence(apriori []model.GetAprioriResponses, productName map[string]float64) []model.GetAprioriResponses {
-	var confidence []model.GetAprioriResponses
+func FindConfidence(apriori []model.GetGenerateAprioriResponse, productName map[string]float64) []model.GetGenerateAprioriResponse {
+	var confidence []model.GetGenerateAprioriResponse
 	for _, value := range apriori {
 		if value.Iterate == apriori[len(apriori)-1].Iterate {
 			if val, ok := productName[value.ItemSet[0]]; ok {
-				confidence = append(confidence, model.GetAprioriResponses{
+				confidence = append(confidence, model.GetGenerateAprioriResponse{
 					ItemSet:     value.ItemSet,
 					Support:     value.Support,
 					Iterate:     value.Iterate,
@@ -101,7 +101,7 @@ func IsDuplicate(array []string) bool {
 	return false
 }
 
-func FindCandidate(data []string, transactions []model.GetTransactionResponses) int {
+func FindCandidate(data []string, transactions []model.GetProductNameTransactionResponse) int {
 	var counter int
 	for _, j := range transactions {
 		results := make([]string, 0) // slice to store the result
@@ -123,8 +123,8 @@ func FindCandidate(data []string, transactions []model.GetTransactionResponses) 
 	return counter
 }
 
-func FindDiscount(apriori []model.GetAprioriResponses, minDiscount float64, maxDiscount float64) []model.GetAprioriResponses {
-	var discounts []model.GetAprioriResponses
+func FindDiscount(apriori []model.GetGenerateAprioriResponse, minDiscount float64, maxDiscount float64) []model.GetGenerateAprioriResponse {
+	var discounts []model.GetGenerateAprioriResponse
 	var calculateDiscount = (maxDiscount - minDiscount) / float64(len(apriori))
 
 	// Sorting if the value is greater, then the discount given will be large
@@ -134,7 +134,7 @@ func FindDiscount(apriori []model.GetAprioriResponses, minDiscount float64, maxD
 
 	for _, value := range apriori {
 		minDiscount += calculateDiscount
-		discounts = append(discounts, model.GetAprioriResponses{
+		discounts = append(discounts, model.GetGenerateAprioriResponse{
 			ItemSet:     value.ItemSet,
 			Support:     value.Support,
 			Iterate:     value.Iterate,
