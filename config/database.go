@@ -1,7 +1,7 @@
-package app
+package config
 
 import (
-	"apriori/helper"
+	"apriori/utils"
 	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
@@ -18,7 +18,7 @@ func NewDB() *sql.DB {
 
 	dsn := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?parseTime=true", username, password, host, port, database)
 	db, err := sql.Open(os.Getenv("DB_CONNECTION"), dsn)
-	helper.PanicIfError(err)
+	utils.PanicIfError(err)
 
 	db.SetMaxIdleConns(5)
 	db.SetMaxOpenConns(20)

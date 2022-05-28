@@ -1,4 +1,4 @@
-package helper
+package lib
 
 import (
 	"apriori/entity"
@@ -101,29 +101,6 @@ func IsDuplicate(array []string) bool {
 	return false
 }
 
-func FilterCandidate(first, second []string) bool {
-	sort.Strings(first)
-	sort.Strings(second)
-
-	exists := make(map[string]bool)
-	for _, value := range first {
-		exists[value] = true
-	}
-
-	var counter int
-	for _, value := range second {
-		if _, ok := exists[value]; ok {
-			counter++
-		}
-	}
-
-	if counter == len(second) {
-		return true
-	}
-
-	return false
-}
-
 func FindCandidate(data []string, transactions []model.GetTransactionResponses) int {
 	var counter int
 	for _, j := range transactions {
@@ -175,7 +152,7 @@ func FilterCandidateInSlice(dataTemp [][]string) [][]string {
 		for j := i + 1; j < len(dataTemp); j++ {
 			sort.Strings(dataTemp[i])
 			sort.Strings(dataTemp[j])
-			//filter := FilterCandidate(dataTemp[i], dataTemp[j])
+
 			filter := reflect.DeepEqual(dataTemp[i], dataTemp[j])
 			if filter {
 				dataTemp = append(dataTemp[:j], dataTemp[j+1:]...)

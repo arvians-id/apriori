@@ -2,9 +2,9 @@ package service
 
 import (
 	"apriori/entity"
-	"apriori/helper"
 	"apriori/model"
 	"apriori/repository"
+	"apriori/utils"
 	"context"
 	"database/sql"
 	"time"
@@ -37,7 +37,7 @@ func (service *productService) FindAll(ctx context.Context) ([]model.GetProductR
 	if err != nil {
 		return []model.GetProductResponse{}, err
 	}
-	defer helper.CommitOrRollback(tx)
+	defer utils.CommitOrRollback(tx)
 
 	products, err := service.ProductRepository.FindAll(ctx, tx)
 	if err != nil {
@@ -46,7 +46,7 @@ func (service *productService) FindAll(ctx context.Context) ([]model.GetProductR
 
 	var productResponse []model.GetProductResponse
 	for _, product := range products {
-		productResponse = append(productResponse, helper.ToProductResponse(product))
+		productResponse = append(productResponse, utils.ToProductResponse(product))
 	}
 
 	return productResponse, nil
@@ -57,14 +57,14 @@ func (service *productService) FindByCode(ctx context.Context, code string) (mod
 	if err != nil {
 		return model.GetProductResponse{}, err
 	}
-	defer helper.CommitOrRollback(tx)
+	defer utils.CommitOrRollback(tx)
 
 	product, err := service.ProductRepository.FindByCode(ctx, tx, code)
 	if err != nil {
 		return model.GetProductResponse{}, err
 	}
 
-	return helper.ToProductResponse(product), nil
+	return utils.ToProductResponse(product), nil
 }
 
 func (service *productService) Create(ctx context.Context, request model.CreateProductRequest) error {
@@ -72,7 +72,7 @@ func (service *productService) Create(ctx context.Context, request model.CreateP
 	if err != nil {
 		return err
 	}
-	defer helper.CommitOrRollback(tx)
+	defer utils.CommitOrRollback(tx)
 
 	createdAt, err := time.Parse(service.date, time.Now().Format(service.date))
 	if err != nil {
@@ -104,7 +104,7 @@ func (service *productService) Update(ctx context.Context, request model.UpdateP
 	if err != nil {
 		return err
 	}
-	defer helper.CommitOrRollback(tx)
+	defer utils.CommitOrRollback(tx)
 
 	getProduct, err := service.ProductRepository.FindByCode(ctx, tx, request.Code)
 	if err != nil {
@@ -134,7 +134,7 @@ func (service *productService) Delete(ctx context.Context, code string) error {
 	if err != nil {
 		return err
 	}
-	defer helper.CommitOrRollback(tx)
+	defer utils.CommitOrRollback(tx)
 
 	getProduct, err := service.ProductRepository.FindByCode(ctx, tx, code)
 	if err != nil {

@@ -2,9 +2,9 @@ package service
 
 import (
 	"apriori/entity"
-	"apriori/helper"
 	"apriori/model"
 	"apriori/repository"
+	"apriori/utils"
 	"context"
 	"database/sql"
 	"time"
@@ -40,7 +40,7 @@ func (service *transactionService) FindAll(ctx context.Context) ([]model.GetTran
 	if err != nil {
 		return []model.GetTransactionResponse{}, err
 	}
-	defer helper.CommitOrRollback(tx)
+	defer utils.CommitOrRollback(tx)
 
 	transaction, err := service.TransactionRepository.FindAll(ctx, tx)
 	if err != nil {
@@ -49,7 +49,7 @@ func (service *transactionService) FindAll(ctx context.Context) ([]model.GetTran
 
 	var transactions []model.GetTransactionResponse
 	for _, rows := range transaction {
-		transactions = append(transactions, helper.ToTransactionResponse(rows))
+		transactions = append(transactions, utils.ToTransactionResponse(rows))
 	}
 
 	return transactions, nil
@@ -60,14 +60,14 @@ func (service *transactionService) FindByTransaction(ctx context.Context, noTran
 	if err != nil {
 		return model.GetTransactionResponse{}, err
 	}
-	defer helper.CommitOrRollback(tx)
+	defer utils.CommitOrRollback(tx)
 
 	rows, err := service.TransactionRepository.FindByTransaction(ctx, tx, noTransaction)
 	if err != nil {
 		return model.GetTransactionResponse{}, err
 	}
 
-	return helper.ToTransactionResponse(rows), nil
+	return utils.ToTransactionResponse(rows), nil
 }
 
 func (service *transactionService) Create(ctx context.Context, request model.CreateTransactionRequest) error {
@@ -75,7 +75,7 @@ func (service *transactionService) Create(ctx context.Context, request model.Cre
 	if err != nil {
 		return err
 	}
-	defer helper.CommitOrRollback(tx)
+	defer utils.CommitOrRollback(tx)
 
 	timeNow, err := time.Parse(service.date, time.Now().Format(service.date))
 	if err != nil {
@@ -103,7 +103,7 @@ func (service *transactionService) CreateFromCsv(ctx context.Context, data [][]s
 	if err != nil {
 		return err
 	}
-	defer helper.CommitOrRollback(tx)
+	defer utils.CommitOrRollback(tx)
 
 	var transactions []entity.Transaction
 
@@ -132,7 +132,7 @@ func (service *transactionService) Update(ctx context.Context, request model.Upd
 	if err != nil {
 		return err
 	}
-	defer helper.CommitOrRollback(tx)
+	defer utils.CommitOrRollback(tx)
 
 	// Find Transaction by number transaction
 	transaction, err := service.TransactionRepository.FindByTransaction(ctx, tx, request.NoTransaction)
@@ -170,7 +170,7 @@ func (service *transactionService) Delete(ctx context.Context, noTransaction str
 	if err != nil {
 		return err
 	}
-	defer helper.CommitOrRollback(tx)
+	defer utils.CommitOrRollback(tx)
 
 	rows, err := service.TransactionRepository.FindByTransaction(ctx, tx, noTransaction)
 	if err != nil {

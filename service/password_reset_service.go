@@ -2,9 +2,9 @@ package service
 
 import (
 	"apriori/entity"
-	"apriori/helper"
 	"apriori/model"
 	"apriori/repository"
+	"apriori/utils"
 	"context"
 	"crypto/md5"
 	"database/sql"
@@ -41,7 +41,7 @@ func (service *passwordResetService) CreateOrUpdate(ctx context.Context, email s
 	if err != nil {
 		return model.GetPasswordResetResponse{}, err
 	}
-	defer helper.CommitOrRollback(tx)
+	defer utils.CommitOrRollback(tx)
 
 	timestamp := time.Now().Add(1 * time.Hour).Unix()
 	timestampString := strconv.Itoa(int(timestamp))
@@ -73,7 +73,7 @@ func (service *passwordResetService) CreateOrUpdate(ctx context.Context, email s
 			return model.GetPasswordResetResponse{}, err
 		}
 
-		return helper.ToPasswordResetResponse(result), nil
+		return utils.ToPasswordResetResponse(result), nil
 	}
 
 	// Update data if exists
@@ -82,7 +82,7 @@ func (service *passwordResetService) CreateOrUpdate(ctx context.Context, email s
 		return model.GetPasswordResetResponse{}, err
 	}
 
-	return helper.ToPasswordResetResponse(result), nil
+	return utils.ToPasswordResetResponse(result), nil
 }
 
 func (service *passwordResetService) Verify(ctx context.Context, request model.UpdateResetPasswordUserRequest) error {
@@ -90,7 +90,7 @@ func (service *passwordResetService) Verify(ctx context.Context, request model.U
 	if err != nil {
 		return err
 	}
-	defer helper.CommitOrRollback(tx)
+	defer utils.CommitOrRollback(tx)
 
 	// Check if email and token is exists in table password_resets
 	passwordReset := entity.PasswordReset{

@@ -1,9 +1,10 @@
 package service
 
 import (
-	"apriori/helper"
+	"apriori/lib"
 	"apriori/model"
 	"apriori/repository"
+	"apriori/utils"
 	"context"
 	"database/sql"
 )
@@ -29,7 +30,7 @@ func (service aprioriService) Generate(ctx context.Context, request model.Genera
 	if err != nil {
 		return nil, err
 	}
-	defer helper.CommitOrRollback(tx)
+	defer utils.CommitOrRollback(tx)
 
 	var apriori []model.GetAprioriResponses
 
@@ -40,10 +41,10 @@ func (service aprioriService) Generate(ctx context.Context, request model.Genera
 	}
 
 	// Find first item set
-	transactions, productName, propertyProduct := helper.FindFirstItemSet(transactionsSet, int(request.MinimumSupport))
+	transactions, productName, propertyProduct := lib.FindFirstItemSet(transactionsSet, int(request.MinimumSupport))
 
 	// Handle random maps problem
-	oneSet, support, totalTransaction := helper.HandleMapsProblem(propertyProduct)
+	oneSet, support, totalTransaction := lib.HandleMapsProblem(propertyProduct)
 
 	// Get one item set
 	for i := 0; i < len(oneSet); i++ {
@@ -75,17 +76,17 @@ func (service aprioriService) Generate(ctx context.Context, request model.Genera
 		// Filter when the slice has duplicate values
 		var cleanValues [][]string
 		for i := 0; i < len(dataTemp); i++ {
-			if isDuplicate := helper.IsDuplicate(dataTemp[i]); !isDuplicate {
+			if isDuplicate := lib.IsDuplicate(dataTemp[i]); !isDuplicate {
 				cleanValues = append(cleanValues, dataTemp[i])
 			}
 		}
 		dataTemp = cleanValues
 		// Filter candidates by comparing slice to slice
-		dataTemp = helper.FilterCandidateInSlice(dataTemp)
+		dataTemp = lib.FilterCandidateInSlice(dataTemp)
 
 		// Find item set by minimum support
 		for i := 0; i < len(dataTemp); i++ {
-			countCandidates := helper.FindCandidate(dataTemp[i], transactions)
+			countCandidates := lib.FindCandidate(dataTemp[i], transactions)
 			result := float64(countCandidates) / float64(len(transactionsSet)) * 100
 			if result >= float64(request.MinimumSupport) {
 				apriori = append(apriori, model.GetAprioriResponses{
@@ -118,10 +119,10 @@ func (service aprioriService) Generate(ctx context.Context, request model.Genera
 
 	// Find Association rules
 	// Set confidence
-	confidence := helper.FindConfidence(apriori, productName)
+	confidence := lib.FindConfidence(apriori, productName)
 
 	// Set discount
-	discount := helper.FindDiscount(confidence, float64(request.MinimumDiscount), float64(request.MaximumDiscount))
+	discount := lib.FindDiscount(confidence, float64(request.MinimumDiscount), float64(request.MaximumDiscount))
 
 	// Remove last element in apriori as many association rules
 	for i := 0; i < len(discount); i++ {

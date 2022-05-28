@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"apriori/helper"
+	"apriori/api/response"
 	"apriori/model"
 	"apriori/service"
 	"fmt"
@@ -45,20 +45,20 @@ func (controller *AuthController) login(c *gin.Context) {
 	var request model.GetUserCredentialRequest
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
-		helper.ReturnErrorBadRequest(c, err, nil)
+		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
 	user, err := controller.AuthService.VerifyCredential(c.Request.Context(), request)
 	if err != nil {
-		helper.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
 	expirationTime := time.Now().Add(15 * time.Minute)
 	token, err := controller.JwtService.GenerateToken(user.IdUser, expirationTime)
 	if err != nil {
-		helper.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
@@ -70,7 +70,7 @@ func (controller *AuthController) login(c *gin.Context) {
 		HttpOnly: true,
 	})
 
-	helper.ReturnSuccessOK(c, "OK", gin.H{
+	response.ReturnSuccessOK(c, "OK", gin.H{
 		"token":     token,
 		"expiresAt": expirationTime,
 	})
@@ -81,14 +81,14 @@ func (controller *AuthController) forgotPassword(c *gin.Context) {
 	var request model.CreatePasswordResetRequest
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
-		helper.ReturnErrorBadRequest(c, err, nil)
+		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
 	// Insert or update data token into database
 	result, err := controller.PasswordResetService.CreateOrUpdate(c.Request.Context(), request.Email)
 	if err != nil {
-		helper.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
@@ -96,11 +96,11 @@ func (controller *AuthController) forgotPassword(c *gin.Context) {
 	message := fmt.Sprintf("http://localhost:8080/verify?signature=%v", result.Token)
 	err = controller.EmailService.SendEmailWithText(result.Email, message)
 	if err != nil {
-		helper.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	helper.ReturnSuccessOK(c, "mail sent successfully", nil)
+	response.ReturnSuccessOK(c, "mail sent successfully", nil)
 }
 
 func (controller *AuthController) verifyResetPassword(c *gin.Context) {
@@ -108,18 +108,18 @@ func (controller *AuthController) verifyResetPassword(c *gin.Context) {
 	var request model.UpdateResetPasswordUserRequest
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
-		helper.ReturnErrorBadRequest(c, err, nil)
+		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
 	request.Token = c.Query("signature")
 	err = controller.PasswordResetService.Verify(c.Request.Context(), request)
 	if err != nil {
-		helper.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	helper.ReturnSuccessOK(c, "updated", nil)
+	response.ReturnSuccessOK(c, "updated", nil)
 }
 
 func (controller *AuthController) logout(c *gin.Context) {
@@ -131,5 +131,5 @@ func (controller *AuthController) logout(c *gin.Context) {
 		HttpOnly: true,
 	})
 
-	helper.ReturnSuccessOK(c, "OK", nil)
+	response.ReturnSuccessOK(c, "OK", nil)
 }

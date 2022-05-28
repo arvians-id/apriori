@@ -1,10 +1,11 @@
 package controller
 
 import (
-	"apriori/helper"
-	"apriori/middleware"
+	"apriori/api/middleware"
+	"apriori/api/response"
 	"apriori/model"
 	"apriori/service"
+	"apriori/utils"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"os"
@@ -38,55 +39,55 @@ func (controller *TransactionController) Route(router *gin.Engine) *gin.Engine {
 func (controller *TransactionController) FindAll(c *gin.Context) {
 	transactions, err := controller.TransactionService.FindAll(c.Request.Context())
 	if err != nil {
-		helper.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	helper.ReturnSuccessOK(c, "OK", transactions)
+	response.ReturnSuccessOK(c, "OK", transactions)
 }
 
 func (controller *TransactionController) FindByTransaction(c *gin.Context) {
 	noTransaction := c.Param("code")
 	transactions, err := controller.TransactionService.FindByTransaction(c.Request.Context(), noTransaction)
 	if err != nil {
-		helper.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	helper.ReturnSuccessOK(c, "OK", transactions)
+	response.ReturnSuccessOK(c, "OK", transactions)
 }
 
 func (controller *TransactionController) Create(c *gin.Context) {
 	var request model.CreateTransactionRequest
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
-		helper.ReturnErrorBadRequest(c, err, nil)
+		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
 	err = controller.TransactionService.Create(c.Request.Context(), request)
 	if err != nil {
-		helper.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	helper.ReturnSuccessOK(c, "created", nil)
+	response.ReturnSuccessOK(c, "created", nil)
 }
 
 func (controller *TransactionController) CreateFromCsv(c *gin.Context) {
 	file, err := c.FormFile("file")
 	if err != nil {
-		helper.ReturnErrorBadRequest(c, err, nil)
+		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 	if file.Header.Get("Content-Type") != "text/csv" {
-		helper.ReturnErrorInternalServerError(c, errors.New("file not allowed"), nil)
+		response.ReturnErrorInternalServerError(c, errors.New("file not allowed"), nil)
 		return
 	}
 
 	dir, err := os.Getwd()
 	if err != nil {
-		helper.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
@@ -94,30 +95,30 @@ func (controller *TransactionController) CreateFromCsv(c *gin.Context) {
 	path = filepath.Join(dir, path)
 	err = c.SaveUploadedFile(file, path)
 	if err != nil {
-		helper.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	data, err := helper.OpenCsvFile(path)
+	data, err := utils.OpenCsvFile(path)
 	if err != nil {
-		helper.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
 	err = controller.TransactionService.CreateFromCsv(c.Request.Context(), data)
 	if err != nil {
-		helper.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	helper.ReturnSuccessOK(c, "created", nil)
+	response.ReturnSuccessOK(c, "created", nil)
 }
 
 func (controller *TransactionController) Update(c *gin.Context) {
 	var request model.UpdateTransactionRequest
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
-		helper.ReturnErrorBadRequest(c, err, nil)
+		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
@@ -126,20 +127,20 @@ func (controller *TransactionController) Update(c *gin.Context) {
 	request.NoTransaction = noTransaction
 	err = controller.TransactionService.Update(c.Request.Context(), request)
 	if err != nil {
-		helper.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	helper.ReturnSuccessOK(c, "updated", nil)
+	response.ReturnSuccessOK(c, "updated", nil)
 }
 
 func (controller *TransactionController) Delete(c *gin.Context) {
 	noTransaction := c.Param("numberTransaction")
 	err := controller.TransactionService.Delete(c.Request.Context(), noTransaction)
 	if err != nil {
-		helper.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	helper.ReturnSuccessOK(c, "deleted", nil)
+	response.ReturnSuccessOK(c, "deleted", nil)
 }

@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"apriori/helper"
-	"apriori/middleware"
+	"apriori/api/middleware"
+	"apriori/api/response"
 	"apriori/model"
 	"apriori/service"
 	"github.com/gin-gonic/gin"
@@ -34,11 +34,11 @@ func (controller *ProductController) Route(router *gin.Engine) *gin.Engine {
 func (controller *ProductController) FindAll(c *gin.Context) {
 	products, err := controller.ProductService.FindAll(c.Request.Context())
 	if err != nil {
-		helper.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	helper.ReturnSuccessOK(c, "OK", products)
+	response.ReturnSuccessOK(c, "OK", products)
 }
 
 func (controller *ProductController) FindById(c *gin.Context) {
@@ -46,35 +46,35 @@ func (controller *ProductController) FindById(c *gin.Context) {
 
 	product, err := controller.ProductService.FindByCode(c.Request.Context(), params)
 	if err != nil {
-		helper.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	helper.ReturnSuccessOK(c, "OK", product)
+	response.ReturnSuccessOK(c, "OK", product)
 }
 
 func (controller *ProductController) Create(c *gin.Context) {
 	var request model.CreateProductRequest
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
-		helper.ReturnErrorBadRequest(c, err, nil)
+		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
 	err = controller.ProductService.Create(c.Request.Context(), request)
 	if err != nil {
-		helper.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	helper.ReturnSuccessOK(c, "created", nil)
+	response.ReturnSuccessOK(c, "created", nil)
 }
 
 func (controller *ProductController) Update(c *gin.Context) {
 	var request model.UpdateProductRequest
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
-		helper.ReturnErrorBadRequest(c, err, nil)
+		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
@@ -83,11 +83,11 @@ func (controller *ProductController) Update(c *gin.Context) {
 	request.Code = params
 	err = controller.ProductService.Update(c.Request.Context(), request)
 	if err != nil {
-		helper.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	helper.ReturnSuccessOK(c, "updated", nil)
+	response.ReturnSuccessOK(c, "updated", nil)
 }
 
 func (controller *ProductController) Delete(c *gin.Context) {
@@ -95,9 +95,9 @@ func (controller *ProductController) Delete(c *gin.Context) {
 
 	err := controller.ProductService.Delete(c.Request.Context(), params)
 	if err != nil {
-		helper.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	helper.ReturnSuccessOK(c, "deleted", nil)
+	response.ReturnSuccessOK(c, "deleted", nil)
 }

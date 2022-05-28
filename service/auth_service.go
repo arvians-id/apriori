@@ -1,9 +1,9 @@
 package service
 
 import (
-	"apriori/helper"
 	"apriori/model"
 	"apriori/repository"
+	"apriori/utils"
 	"context"
 	"database/sql"
 )
@@ -37,5 +37,5 @@ func (service *authService) VerifyCredential(ctx context.Context, request model.
 		return model.GetUserResponse{}, err
 	}
 
-	return helper.ToUserResponse(user), nil
+	return utils.ToUserResponse(user), nil
 }

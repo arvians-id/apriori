@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"apriori/helper"
-	"apriori/middleware"
+	"apriori/api/middleware"
+	"apriori/api/response"
 	"apriori/model"
 	"apriori/service"
 	"errors"
@@ -38,75 +38,75 @@ func (controller *UserController) Route(router *gin.Engine) *gin.Engine {
 func (controller *UserController) Profile(c *gin.Context) {
 	id, isExist := c.Get("id_user")
 	if !isExist {
-		helper.ReturnErrorUnauthorized(c, errors.New("unauthorized"), nil)
+		response.ReturnErrorUnauthorized(c, errors.New("unauthorized"), nil)
 		return
 	}
 
 	user, err := controller.UserService.FindById(c.Request.Context(), uint64(id.(float64)))
 	if err != nil {
-		helper.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	helper.ReturnSuccessOK(c, "OK", user)
+	response.ReturnSuccessOK(c, "OK", user)
 }
 
 func (controller *UserController) FindAll(c *gin.Context) {
 	users, err := controller.UserService.FindAll(c.Request.Context())
 	if err != nil {
-		helper.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	helper.ReturnSuccessOK(c, "OK", users)
+	response.ReturnSuccessOK(c, "OK", users)
 }
 
 func (controller *UserController) FindById(c *gin.Context) {
 	params := c.Param("userId")
 	id, err := strconv.Atoi(params)
 	if err != nil {
-		helper.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
 	user, err := controller.UserService.FindById(c.Request.Context(), uint64(id))
 	if err != nil {
-		helper.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	helper.ReturnSuccessOK(c, "OK", user)
+	response.ReturnSuccessOK(c, "OK", user)
 }
 
 func (controller *UserController) Create(c *gin.Context) {
 	var request model.CreateUserRequest
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
-		helper.ReturnErrorBadRequest(c, err, nil)
+		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
 	err = controller.UserService.Create(c.Request.Context(), request)
 	if err != nil {
-		helper.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	helper.ReturnSuccessOK(c, "created", nil)
+	response.ReturnSuccessOK(c, "created", nil)
 }
 
 func (controller *UserController) Update(c *gin.Context) {
 	var request model.UpdateUserRequest
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
-		helper.ReturnErrorBadRequest(c, err, nil)
+		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
 	params := c.Param("userId")
 	id, err := strconv.Atoi(params)
 	if err != nil {
-		helper.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
@@ -114,26 +114,26 @@ func (controller *UserController) Update(c *gin.Context) {
 
 	err = controller.UserService.Update(c.Request.Context(), request)
 	if err != nil {
-		helper.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	helper.ReturnSuccessOK(c, "updated", nil)
+	response.ReturnSuccessOK(c, "updated", nil)
 }
 
 func (controller *UserController) Delete(c *gin.Context) {
 	params := c.Param("userId")
 	id, err := strconv.Atoi(params)
 	if err != nil {
-		helper.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
 	err = controller.UserService.Delete(c.Request.Context(), uint64(id))
 	if err != nil {
-		helper.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	helper.ReturnSuccessOK(c, "deleted", nil)
+	response.ReturnSuccessOK(c, "deleted", nil)
 }

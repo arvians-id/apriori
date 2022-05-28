@@ -2,9 +2,9 @@ package service
 
 import (
 	"apriori/entity"
-	"apriori/helper"
 	"apriori/model"
 	"apriori/repository"
+	"apriori/utils"
 	"context"
 	"database/sql"
 	"golang.org/x/crypto/bcrypt"
@@ -38,7 +38,7 @@ func (service *userService) FindAll(ctx context.Context) ([]model.GetUserRespons
 	if err != nil {
 		return []model.GetUserResponse{}, err
 	}
-	defer helper.CommitOrRollback(tx)
+	defer utils.CommitOrRollback(tx)
 
 	users, err := service.UserRepository.FindAll(ctx, tx)
 	if err != nil {
@@ -47,7 +47,7 @@ func (service *userService) FindAll(ctx context.Context) ([]model.GetUserRespons
 
 	var userResponse []model.GetUserResponse
 	for _, user := range users {
-		userResponse = append(userResponse, helper.ToUserResponse(user))
+		userResponse = append(userResponse, utils.ToUserResponse(user))
 	}
 
 	return userResponse, nil
@@ -58,14 +58,14 @@ func (service *userService) FindById(ctx context.Context, userId uint64) (model.
 	if err != nil {
 		return model.GetUserResponse{}, err
 	}
-	defer helper.CommitOrRollback(tx)
+	defer utils.CommitOrRollback(tx)
 
 	user, err := service.UserRepository.FindById(ctx, tx, userId)
 	if err != nil {
 		return model.GetUserResponse{}, err
 	}
 
-	return helper.ToUserResponse(user), nil
+	return utils.ToUserResponse(user), nil
 }
 
 func (service *userService) Create(ctx context.Context, request model.CreateUserRequest) error {
@@ -73,7 +73,7 @@ func (service *userService) Create(ctx context.Context, request model.CreateUser
 	if err != nil {
 		return err
 	}
-	defer helper.CommitOrRollback(tx)
+	defer utils.CommitOrRollback(tx)
 
 	password, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
 	if err != nil {
@@ -106,7 +106,7 @@ func (service *userService) Update(ctx context.Context, request model.UpdateUser
 	if err != nil {
 		return err
 	}
-	defer helper.CommitOrRollback(tx)
+	defer utils.CommitOrRollback(tx)
 
 	getUser, err := service.UserRepository.FindById(ctx, tx, request.IdUser)
 	if err != nil {
@@ -146,7 +146,7 @@ func (service *userService) Delete(ctx context.Context, userId uint64) error {
 	if err != nil {
 		return err
 	}
-	defer helper.CommitOrRollback(tx)
+	defer utils.CommitOrRollback(tx)
 
 	getUser, err := service.UserRepository.FindById(ctx, tx, userId)
 	if err != nil {
