@@ -27,6 +27,7 @@ func (controller *AprioriController) Route(router *gin.Engine) *gin.Engine {
 		authorized.PATCH("/apriori/:code", controller.ChangeActive)
 		authorized.POST("/apriori", controller.Create)
 		authorized.DELETE("/apriori/:code", controller.Delete)
+		authorized.GET("/apriori/actives", controller.FindByActive)
 		authorized.POST("/apriori/generate", controller.Generate)
 	}
 
@@ -35,6 +36,16 @@ func (controller *AprioriController) Route(router *gin.Engine) *gin.Engine {
 
 func (controller *AprioriController) FindAll(c *gin.Context) {
 	apriories, err := controller.AprioriService.FindAll(c.Request.Context())
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	response.ReturnSuccessOK(c, "OK", apriories)
+}
+
+func (controller *AprioriController) FindByActive(c *gin.Context) {
+	apriories, err := controller.AprioriService.FindByActive(c.Request.Context())
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return

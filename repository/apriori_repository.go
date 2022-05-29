@@ -9,6 +9,7 @@ import (
 
 type AprioriRepository interface {
 	FindAll(ctx context.Context, tx *sql.Tx) ([]entity.Apriori, error)
+	FindByActive(ctx context.Context, tx *sql.Tx) ([]entity.Apriori, error)
 	FindByCode(ctx context.Context, tx *sql.Tx, code string) ([]entity.Apriori, error)
 	ChangeAllStatus(ctx context.Context, tx *sql.Tx, status bool) error
 	ChangeStatusByCode(ctx context.Context, tx *sql.Tx, code string, status bool) error
@@ -46,6 +47,47 @@ func (repository *aprioriRepository) FindAll(ctx context.Context, tx *sql.Tx) ([
 		}
 
 		apriories = append(apriories, apriori)
+	}
+
+	return apriories, nil
+}
+
+func (repository *aprioriRepository) FindByActive(ctx context.Context, tx *sql.Tx) ([]entity.Apriori, error) {
+	query := `SELECT * FROM apriories WHERE is_active = 1`
+
+	rows, err := tx.QueryContext(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			return
+		}
+	}(rows)
+
+	var apriories []entity.Apriori
+	for rows.Next() {
+		var apriori entity.Apriori
+		err := rows.Scan(
+			&apriori.IdApriori,
+			&apriori.Code,
+			&apriori.Item,
+			&apriori.Discount,
+			&apriori.Support,
+			&apriori.Confidence,
+			&apriori.RangeDate,
+			&apriori.IsActive,
+			&apriori.CreatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		apriories = append(apriories, apriori)
+	}
+	if apriories == nil {
+		return nil, errors.New("data not found")
 	}
 
 	return apriories, nil

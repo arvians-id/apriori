@@ -13,6 +13,7 @@ import (
 
 type AprioriService interface {
 	FindAll(ctx context.Context) ([]model.GetAprioriResponse, error)
+	FindByActive(ctx context.Context) ([]model.GetAprioriResponse, error)
 	FindByCode(ctx context.Context, code string) ([]model.GetAprioriResponse, error)
 	ChangeActive(ctx context.Context, code string) error
 	Create(ctx context.Context, requests []model.CreateAprioriRequest) error
@@ -44,6 +45,26 @@ func (service *aprioriService) FindAll(ctx context.Context) ([]model.GetAprioriR
 	defer utils.CommitOrRollback(tx)
 
 	rows, err := service.AprioriRepository.FindAll(ctx, tx)
+	if err != nil {
+		return []model.GetAprioriResponse{}, err
+	}
+
+	var apriories []model.GetAprioriResponse
+	for _, apriori := range rows {
+		apriories = append(apriories, utils.ToAprioriResponse(apriori))
+	}
+
+	return apriories, nil
+}
+
+func (service *aprioriService) FindByActive(ctx context.Context) ([]model.GetAprioriResponse, error) {
+	tx, err := service.DB.Begin()
+	if err != nil {
+		return []model.GetAprioriResponse{}, err
+	}
+	defer utils.CommitOrRollback(tx)
+
+	rows, err := service.AprioriRepository.FindByActive(ctx, tx)
 	if err != nil {
 		return []model.GetAprioriResponse{}, err
 	}
