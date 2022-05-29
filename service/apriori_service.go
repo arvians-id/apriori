@@ -14,6 +14,7 @@ import (
 type AprioriService interface {
 	FindAll(ctx context.Context) ([]model.GetAprioriResponse, error)
 	FindByCode(ctx context.Context, code string) ([]model.GetAprioriResponse, error)
+	ChangeActive(ctx context.Context, code string) error
 	Create(ctx context.Context, requests []model.CreateAprioriRequest) error
 	Delete(ctx context.Context, code string) error
 	Generate(ctx context.Context, request model.GenerateAprioriRequest) ([]model.GetGenerateAprioriResponse, error)
@@ -35,7 +36,7 @@ func NewAprioriService(transactionRepository *repository.TransactionRepository, 
 	}
 }
 
-func (service aprioriService) FindAll(ctx context.Context) ([]model.GetAprioriResponse, error) {
+func (service *aprioriService) FindAll(ctx context.Context) ([]model.GetAprioriResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return []model.GetAprioriResponse{}, err
@@ -73,6 +74,31 @@ func (service *aprioriService) FindByCode(ctx context.Context, code string) ([]m
 	}
 
 	return apriories, nil
+}
+
+func (service *aprioriService) ChangeActive(ctx context.Context, code string) error {
+	tx, err := service.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer utils.CommitOrRollback(tx)
+
+	rows, err := service.AprioriRepository.FindByCode(ctx, tx, code)
+	if err != nil {
+		return err
+	}
+
+	err = service.AprioriRepository.ChangeAllStatus(ctx, tx, false)
+	if err != nil {
+		return err
+	}
+
+	err = service.AprioriRepository.ChangeStatusByCode(ctx, tx, rows[0].Code, true)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (service *aprioriService) Create(ctx context.Context, requests []model.CreateAprioriRequest) error {

@@ -10,12 +10,12 @@ type CreateAprioriRequest struct {
 }
 
 type GetAprioriResponse struct {
-	IdApriori  uint64  `json:"id_apriori"`
+	IdApriori  uint64  `json:"id_apriori,omitempty"`
 	Code       string  `json:"code"`
-	Item       string  `json:"item"`
-	Discount   float64 `json:"discount"`
-	Support    float64 `json:"support"`
-	Confidence float64 `json:"confidence"`
+	Item       string  `json:"item,omitempty"`
+	Discount   float64 `json:"discount,omitempty"`
+	Support    float64 `json:"support,omitempty"`
+	Confidence float64 `json:"confidence,omitempty"`
 	RangeDate  string  `json:"range_date"`
 	IsActive   bool    `json:"is_active"`
 	CreatedAt  string  `json:"created_at"`

@@ -24,6 +24,7 @@ func (controller *AprioriController) Route(router *gin.Engine) *gin.Engine {
 	{
 		authorized.GET("/apriori", controller.FindAll)
 		authorized.GET("/apriori/:code", controller.FindByCode)
+		authorized.PATCH("/apriori/:code", controller.ChangeActive)
 		authorized.POST("/apriori", controller.Create)
 		authorized.DELETE("/apriori/:code", controller.Delete)
 		authorized.POST("/apriori/generate", controller.Generate)
@@ -51,8 +52,19 @@ func (controller *AprioriController) FindByCode(c *gin.Context) {
 	}
 
 	response.ReturnSuccessOK(c, "OK", apriori)
-
 }
+
+func (controller *AprioriController) ChangeActive(c *gin.Context) {
+	code := c.Param("code")
+	err := controller.AprioriService.ChangeActive(c.Request.Context(), code)
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	response.ReturnSuccessOK(c, "OK", nil)
+}
+
 func (controller *AprioriController) Create(c *gin.Context) {
 	var requestGenerate []model.GetGenerateAprioriResponse
 	err := c.ShouldBindJSON(&requestGenerate)

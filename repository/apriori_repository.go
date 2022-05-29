@@ -10,7 +10,8 @@ import (
 type AprioriRepository interface {
 	FindAll(ctx context.Context, tx *sql.Tx) ([]entity.Apriori, error)
 	FindByCode(ctx context.Context, tx *sql.Tx, code string) ([]entity.Apriori, error)
-	ChangeActive(ctx context.Context, tx *sql.Tx, code string, status int) error
+	ChangeAllStatus(ctx context.Context, tx *sql.Tx, status bool) error
+	ChangeStatusByCode(ctx context.Context, tx *sql.Tx, code string, status bool) error
 	Create(ctx context.Context, tx *sql.Tx, apriories []entity.Apriori) error
 	Delete(ctx context.Context, tx *sql.Tx, code string) error
 }
@@ -91,7 +92,18 @@ func (repository *aprioriRepository) FindByCode(ctx context.Context, tx *sql.Tx,
 	return apriories, nil
 }
 
-func (repository *aprioriRepository) ChangeActive(ctx context.Context, tx *sql.Tx, code string, status int) error {
+func (repository *aprioriRepository) ChangeAllStatus(ctx context.Context, tx *sql.Tx, status bool) error {
+	query := `UPDATE apriories SET is_active = ?`
+
+	_, err := tx.ExecContext(ctx, query, status)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repository *aprioriRepository) ChangeStatusByCode(ctx context.Context, tx *sql.Tx, code string, status bool) error {
 	query := `UPDATE apriories SET is_active = ? WHERE code = ?`
 
 	_, err := tx.ExecContext(ctx, query, status, code)
