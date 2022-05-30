@@ -33,6 +33,7 @@ func (controller *AuthController) Route(router *gin.Engine) *gin.Engine {
 	authorized := router.Group("/api/auth")
 	{
 		authorized.POST("/login", controller.login)
+		authorized.POST("/refresh", controller.refresh)
 		authorized.POST("/forgot-password", controller.forgotPassword)
 		authorized.POST("/verify", controller.verifyResetPassword)
 		authorized.DELETE("/logout", controller.logout)
@@ -55,7 +56,7 @@ func (controller *AuthController) login(c *gin.Context) {
 		return
 	}
 
-	expirationTime := time.Now().Add(15 * time.Minute)
+	expirationTime := time.Now().Add(5 * time.Minute)
 	token, err := controller.JwtService.GenerateToken(user.IdUser, expirationTime)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
@@ -64,15 +65,45 @@ func (controller *AuthController) login(c *gin.Context) {
 
 	http.SetCookie(c.Writer, &http.Cookie{
 		Name:     "token",
-		Value:    url.QueryEscape(token),
+		Value:    url.QueryEscape(token.AccessToken),
 		Expires:  expirationTime,
 		Path:     "/api",
 		HttpOnly: true,
 	})
 
 	response.ReturnSuccessOK(c, "OK", gin.H{
-		"token":     token,
-		"expiresAt": expirationTime,
+		"access_token":  token.AccessToken,
+		"refresh_token": token.RefreshToken,
+	})
+}
+
+func (controller *AuthController) refresh(c *gin.Context) {
+	var request struct {
+		RefreshToken string `json:"refresh_token"`
+	}
+	err := c.ShouldBindJSON(&request)
+	if err != nil {
+		response.ReturnErrorBadRequest(c, err, nil)
+		return
+	}
+
+	token, err := controller.JwtService.RefreshToken(request.RefreshToken)
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	http.SetCookie(c.Writer, &http.Cookie{
+		Name:     "token",
+		Value:    url.QueryEscape(token.AccessToken),
+		Expires:  time.Now().Add(5 * time.Minute),
+		Path:     "/api",
+		HttpOnly: true,
+	})
+
+	response.ReturnSuccessOK(c, "OK", gin.H{
+		"access_token":  token.AccessToken,
+		"refresh_token": token.RefreshToken,
 	})
 }
 
