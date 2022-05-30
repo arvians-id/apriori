@@ -22,5 +22,5 @@ at the same time giving discounts on large datasets using an Apriori Algorithm.
 ## Contribute
 Support saya agar lebih banyak berkontribusi dalam membuat sebuah project aplikasi berbasis website sederhana
 
-- Saweria : https://www.github.com/arvians-id
+- Saweria : https://saweria.co/widdyarfian
 
