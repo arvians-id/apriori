@@ -1,13 +1,22 @@
 package utils
 
-import "database/sql"
+import (
+	"database/sql"
+	log "github.com/sirupsen/logrus"
+)
 
 func CommitOrRollback(tx *sql.Tx) {
 	if err := recover(); err != nil {
 		errRollback := tx.Rollback()
-		PanicIfError(errRollback)
+		if errRollback != nil {
+			log.Fatal("cannot rollback ", err)
+			return
+		}
 	} else {
 		errCommit := tx.Commit()
-		PanicIfError(errCommit)
+		if errCommit != nil {
+			log.Fatal("cannot commit ", err)
+			return
+		}
 	}
 }
