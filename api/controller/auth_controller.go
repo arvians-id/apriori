@@ -149,7 +149,9 @@ func (controller *AuthController) ForgotPassword(c *gin.Context) {
 		return
 	}
 
-	response.ReturnSuccessOK(c, "mail sent successfully", nil)
+	response.ReturnSuccessOK(c, "mail sent successfully", gin.H{
+		"signature": result.Token,
+	})
 }
 
 func (controller *AuthController) VerifyResetPassword(c *gin.Context) {

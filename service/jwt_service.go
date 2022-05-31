@@ -30,7 +30,6 @@ type jwtService struct {
 	accessSecretKey  string
 	refreshSecretKey string
 	jwtSigningMethod jwt.SigningMethod
-	issuer           string
 }
 
 func NewJwtService() JwtService {
@@ -38,7 +37,6 @@ func NewJwtService() JwtService {
 		accessSecretKey:  getAccessSecretKey(),
 		refreshSecretKey: getRefreshSecretKey(),
 		jwtSigningMethod: jwt.SigningMethodHS256,
-		issuer:           "wids",
 	}
 }
 

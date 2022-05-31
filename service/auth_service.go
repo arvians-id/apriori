@@ -31,6 +31,7 @@ func (service *authService) VerifyCredential(ctx context.Context, request model.
 	if err != nil {
 		return model.GetUserResponse{}, err
 	}
+	defer utils.CommitOrRollback(tx)
 
 	user, err := service.AuthRepository.VerifyCredential(ctx, tx, request.Email, request.Password)
 	if err != nil {
