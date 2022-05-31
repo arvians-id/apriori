@@ -2,6 +2,7 @@ package main
 
 import (
 	"apriori/api/controller"
+	"apriori/api/middleware"
 	"apriori/config"
 	"apriori/repository"
 	"apriori/service"
@@ -59,8 +60,14 @@ func main() {
 		return
 	}
 
+	// CORS Middleware
+	router.Use(middleware.SetupCorsMiddleware())
+
 	// Setup Router
 	authController.Route(router)
+	// Authentication Middleware
+
+	router.Use(middleware.AuthJwtMiddleware())
 	userController.Route(router)
 	productController.Route(router)
 	transactionController.Route(router)

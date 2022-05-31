@@ -32,17 +32,18 @@ func NewAuthController(authService *service.AuthService, userService *service.Us
 func (controller *AuthController) Route(router *gin.Engine) *gin.Engine {
 	authorized := router.Group("/api/auth")
 	{
-		authorized.POST("/login", controller.login)
-		authorized.POST("/refresh", controller.refresh)
-		authorized.POST("/forgot-password", controller.forgotPassword)
-		authorized.POST("/verify", controller.verifyResetPassword)
-		authorized.DELETE("/logout", controller.logout)
+		authorized.POST("/login", controller.Login)
+		authorized.POST("/refresh", controller.Refresh)
+		authorized.POST("/forgot-password", controller.ForgotPassword)
+		authorized.POST("/verify", controller.VerifyResetPassword)
+		authorized.POST("/register", controller.Register)
+		authorized.DELETE("/logout", controller.Logout)
 	}
 
 	return router
 }
 
-func (controller *AuthController) login(c *gin.Context) {
+func (controller *AuthController) Login(c *gin.Context) {
 	var request model.GetUserCredentialRequest
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
@@ -77,7 +78,7 @@ func (controller *AuthController) login(c *gin.Context) {
 	})
 }
 
-func (controller *AuthController) refresh(c *gin.Context) {
+func (controller *AuthController) Refresh(c *gin.Context) {
 	var request struct {
 		RefreshToken string `json:"refresh_token"`
 	}
@@ -107,7 +108,24 @@ func (controller *AuthController) refresh(c *gin.Context) {
 	})
 }
 
-func (controller *AuthController) forgotPassword(c *gin.Context) {
+func (controller *AuthController) Register(c *gin.Context) {
+	var request model.CreateUserRequest
+	err := c.ShouldBindJSON(&request)
+	if err != nil {
+		response.ReturnErrorBadRequest(c, err, nil)
+		return
+	}
+
+	err = controller.UserService.Create(c.Request.Context(), request)
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	response.ReturnSuccessOK(c, "created", nil)
+}
+
+func (controller *AuthController) ForgotPassword(c *gin.Context) {
 	// Check email if exists
 	var request model.CreatePasswordResetRequest
 	err := c.ShouldBindJSON(&request)
@@ -134,7 +152,7 @@ func (controller *AuthController) forgotPassword(c *gin.Context) {
 	response.ReturnSuccessOK(c, "mail sent successfully", nil)
 }
 
-func (controller *AuthController) verifyResetPassword(c *gin.Context) {
+func (controller *AuthController) VerifyResetPassword(c *gin.Context) {
 	// Check email if exists
 	var request model.UpdateResetPasswordUserRequest
 	err := c.ShouldBindJSON(&request)
@@ -153,7 +171,7 @@ func (controller *AuthController) verifyResetPassword(c *gin.Context) {
 	response.ReturnSuccessOK(c, "updated", nil)
 }
 
-func (controller *AuthController) logout(c *gin.Context) {
+func (controller *AuthController) Logout(c *gin.Context) {
 	http.SetCookie(c.Writer, &http.Cookie{
 		Name:     "token",
 		Value:    "",

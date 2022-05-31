@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"apriori/api/middleware"
 	"apriori/api/response"
 	"apriori/model"
 	"apriori/service"
@@ -20,7 +19,7 @@ func NewAprioriController(aprioriService service.AprioriService) *AprioriControl
 }
 
 func (controller *AprioriController) Route(router *gin.Engine) *gin.Engine {
-	authorized := router.Group("/api", middleware.AuthJwtMiddleware())
+	authorized := router.Group("/api")
 	{
 		authorized.GET("/apriori", controller.FindAll)
 		authorized.GET("/apriori/:code", controller.FindByCode)

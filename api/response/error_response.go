@@ -29,11 +29,3 @@ func ReturnErrorUnauthorized(c *gin.Context, err error, data interface{}) {
 		Data:   data,
 	})
 }
-
-func ReturnSuccessOK(c *gin.Context, status string, data interface{}) {
-	c.JSON(http.StatusOK, model.WebResponse{
-		Code:   http.StatusOK,
-		Status: status,
-		Data:   data,
-	})
-}
