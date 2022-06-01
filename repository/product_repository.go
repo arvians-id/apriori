@@ -11,8 +11,8 @@ type ProductRepository interface {
 	FindAll(ctx context.Context, tx *sql.Tx) ([]entity.Product, error)
 	FindById(ctx context.Context, tx *sql.Tx, productId uint64) (entity.Product, error)
 	FindByCode(ctx context.Context, tx *sql.Tx, code string) (entity.Product, error)
-	Create(ctx context.Context, tx *sql.Tx, product entity.Product) error
-	Update(ctx context.Context, tx *sql.Tx, product entity.Product) error
+	Create(ctx context.Context, tx *sql.Tx, product entity.Product) (entity.Product, error)
+	Update(ctx context.Context, tx *sql.Tx, product entity.Product) (entity.Product, error)
 	Delete(ctx context.Context, tx *sql.Tx, code string) error
 }
 
@@ -101,24 +101,31 @@ func (repository *productRepository) FindByCode(ctx context.Context, tx *sql.Tx,
 	return product, errors.New("product not found")
 }
 
-func (repository *productRepository) Create(ctx context.Context, tx *sql.Tx, product entity.Product) error {
+func (repository *productRepository) Create(ctx context.Context, tx *sql.Tx, product entity.Product) (entity.Product, error) {
 	query := "INSERT INTO products (code,name,description,created_at,updated_at) VALUES(?,?,?,?,?)"
-	_, err := tx.ExecContext(ctx, query, product.Code, product.Name, product.Description, product.CreatedAt, product.UpdatedAt)
+	row, err := tx.ExecContext(ctx, query, product.Code, product.Name, product.Description, product.CreatedAt, product.UpdatedAt)
 	if err != nil {
-		return err
+		return entity.Product{}, err
 	}
 
-	return nil
+	id, err := row.LastInsertId()
+	if err != nil {
+		return entity.Product{}, err
+	}
+
+	product.IdProduct = uint64(id)
+
+	return product, nil
 }
 
-func (repository *productRepository) Update(ctx context.Context, tx *sql.Tx, product entity.Product) error {
+func (repository *productRepository) Update(ctx context.Context, tx *sql.Tx, product entity.Product) (entity.Product, error) {
 	query := "UPDATE products SET code = ?, name = ?, description = ?, updated_at = ? WHERE code = ?"
 	_, err := tx.ExecContext(ctx, query, product.Code, product.Name, product.Description, product.UpdatedAt, product.Code)
 	if err != nil {
-		return err
+		return entity.Product{}, err
 	}
 
-	return nil
+	return product, nil
 }
 
 func (repository *productRepository) Delete(ctx context.Context, tx *sql.Tx, code string) error {

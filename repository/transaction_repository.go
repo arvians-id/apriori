@@ -12,9 +12,9 @@ type TransactionRepository interface {
 	FindItemSet(ctx context.Context, tx *sql.Tx, startDate string, endDate string) ([]entity.Transaction, error)
 	FindAll(ctx context.Context, tx *sql.Tx) ([]entity.Transaction, error)
 	FindByTransaction(ctx context.Context, tx *sql.Tx, noTransaction string) (entity.Transaction, error)
-	Create(ctx context.Context, tx *sql.Tx, transaction entity.Transaction) error
+	Create(ctx context.Context, tx *sql.Tx, transaction entity.Transaction) (entity.Transaction, error)
 	CreateFromCsv(ctx context.Context, tx *sql.Tx, transaction []entity.Transaction) error
-	Update(ctx context.Context, tx *sql.Tx, transaction entity.Transaction) error
+	Update(ctx context.Context, tx *sql.Tx, transaction entity.Transaction) (entity.Transaction, error)
 	Delete(ctx context.Context, tx *sql.Tx, noTransaction string) error
 }
 
@@ -137,10 +137,10 @@ func (repository *transactionRepository) FindByTransaction(ctx context.Context, 
 	return entity.Transaction{}, errors.New("transaction not found")
 }
 
-func (repository *transactionRepository) Create(ctx context.Context, tx *sql.Tx, transaction entity.Transaction) error {
+func (repository *transactionRepository) Create(ctx context.Context, tx *sql.Tx, transaction entity.Transaction) (entity.Transaction, error) {
 	query := "INSERT INTO transactions(product_name,customer_name,no_transaction,created_at,updated_at) VALUES(?,?,?,?,?)"
 
-	_, err := tx.ExecContext(
+	row, err := tx.ExecContext(
 		ctx,
 		query,
 		transaction.ProductName,
@@ -149,11 +149,15 @@ func (repository *transactionRepository) Create(ctx context.Context, tx *sql.Tx,
 		transaction.CreatedAt,
 		transaction.UpdatedAt,
 	)
+
+	id, err := row.LastInsertId()
 	if err != nil {
-		return err
+		return entity.Transaction{}, err
 	}
 
-	return nil
+	transaction.IdTransaction = uint64(id)
+
+	return transaction, nil
 }
 
 func (repository *transactionRepository) CreateFromCsv(ctx context.Context, tx *sql.Tx, transactions []entity.Transaction) error {
@@ -179,7 +183,7 @@ func (repository *transactionRepository) CreateFromCsv(ctx context.Context, tx *
 	return nil
 }
 
-func (repository *transactionRepository) Update(ctx context.Context, tx *sql.Tx, transaction entity.Transaction) error {
+func (repository *transactionRepository) Update(ctx context.Context, tx *sql.Tx, transaction entity.Transaction) (entity.Transaction, error) {
 	query := `UPDATE transactions SET product_name = ?, customer_name = ?, updated_at = ? WHERE no_transaction = ?`
 
 	_, err := tx.ExecContext(
@@ -191,10 +195,10 @@ func (repository *transactionRepository) Update(ctx context.Context, tx *sql.Tx,
 		transaction.NoTransaction,
 	)
 	if err != nil {
-		return err
+		return entity.Transaction{}, err
 	}
 
-	return nil
+	return transaction, nil
 }
 
 func (repository *transactionRepository) Delete(ctx context.Context, tx *sql.Tx, noTransaction string) error {

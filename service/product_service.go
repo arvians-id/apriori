@@ -13,8 +13,8 @@ import (
 type ProductService interface {
 	FindAll(ctx context.Context) ([]model.GetProductResponse, error)
 	FindByCode(ctx context.Context, code string) (model.GetProductResponse, error)
-	Create(ctx context.Context, request model.CreateProductRequest) error
-	Update(ctx context.Context, request model.UpdateProductRequest) error
+	Create(ctx context.Context, request model.CreateProductRequest) (model.GetProductResponse, error)
+	Update(ctx context.Context, request model.UpdateProductRequest) (model.GetProductResponse, error)
 	Delete(ctx context.Context, code string) error
 }
 
@@ -67,20 +67,20 @@ func (service *productService) FindByCode(ctx context.Context, code string) (mod
 	return utils.ToProductResponse(product), nil
 }
 
-func (service *productService) Create(ctx context.Context, request model.CreateProductRequest) error {
+func (service *productService) Create(ctx context.Context, request model.CreateProductRequest) (model.GetProductResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return err
+		return model.GetProductResponse{}, err
 	}
 	defer utils.CommitOrRollback(tx)
 
 	createdAt, err := time.Parse(service.date, time.Now().Format(service.date))
 	if err != nil {
-		return err
+		return model.GetProductResponse{}, err
 	}
 	updatedAt, err := time.Parse(service.date, time.Now().Format(service.date))
 	if err != nil {
-		return err
+		return model.GetProductResponse{}, err
 	}
 
 	createProduct := entity.Product{
@@ -91,29 +91,29 @@ func (service *productService) Create(ctx context.Context, request model.CreateP
 		UpdatedAt:   updatedAt,
 	}
 
-	err = service.ProductRepository.Create(ctx, tx, createProduct)
+	product, err := service.ProductRepository.Create(ctx, tx, createProduct)
 	if err != nil {
-		return err
+		return model.GetProductResponse{}, err
 	}
 
-	return nil
+	return utils.ToProductResponse(product), nil
 }
 
-func (service *productService) Update(ctx context.Context, request model.UpdateProductRequest) error {
+func (service *productService) Update(ctx context.Context, request model.UpdateProductRequest) (model.GetProductResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return err
+		return model.GetProductResponse{}, err
 	}
 	defer utils.CommitOrRollback(tx)
 
 	getProduct, err := service.ProductRepository.FindByCode(ctx, tx, request.Code)
 	if err != nil {
-		return err
+		return model.GetProductResponse{}, err
 	}
 
 	updatedAt, err := time.Parse(service.date, time.Now().Format(service.date))
 	if err != nil {
-		return err
+		return model.GetProductResponse{}, err
 	}
 
 	getProduct.Code = request.Code
@@ -121,12 +121,12 @@ func (service *productService) Update(ctx context.Context, request model.UpdateP
 	getProduct.Description = request.Description
 	getProduct.UpdatedAt = updatedAt
 
-	err = service.ProductRepository.Update(ctx, tx, getProduct)
+	product, err := service.ProductRepository.Update(ctx, tx, getProduct)
 	if err != nil {
-		return err
+		return model.GetProductResponse{}, err
 	}
 
-	return nil
+	return utils.ToProductResponse(product), nil
 }
 
 func (service *productService) Delete(ctx context.Context, code string) error {

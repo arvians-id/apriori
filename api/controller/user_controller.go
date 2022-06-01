@@ -85,13 +85,13 @@ func (controller *UserController) Create(c *gin.Context) {
 		return
 	}
 
-	err = controller.UserService.Create(c.Request.Context(), request)
+	user, err := controller.UserService.Create(c.Request.Context(), request)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response.ReturnSuccessOK(c, "created", nil)
+	response.ReturnSuccessOK(c, "created", user)
 }
 
 func (controller *UserController) Update(c *gin.Context) {
@@ -111,13 +111,13 @@ func (controller *UserController) Update(c *gin.Context) {
 
 	request.IdUser = uint64(id)
 
-	err = controller.UserService.Update(c.Request.Context(), request)
+	user, err := controller.UserService.Update(c.Request.Context(), request)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response.ReturnSuccessOK(c, "updated", nil)
+	response.ReturnSuccessOK(c, "updated", user)
 }
 
 func (controller *UserController) Delete(c *gin.Context) {

@@ -60,13 +60,13 @@ func (controller *ProductController) Create(c *gin.Context) {
 		return
 	}
 
-	err = controller.ProductService.Create(c.Request.Context(), request)
+	product, err := controller.ProductService.Create(c.Request.Context(), request)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response.ReturnSuccessOK(c, "created", nil)
+	response.ReturnSuccessOK(c, "created", product)
 }
 
 func (controller *ProductController) Update(c *gin.Context) {
@@ -80,13 +80,13 @@ func (controller *ProductController) Update(c *gin.Context) {
 	params := c.Param("code")
 
 	request.Code = params
-	err = controller.ProductService.Update(c.Request.Context(), request)
+	product, err := controller.ProductService.Update(c.Request.Context(), request)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response.ReturnSuccessOK(c, "updated", nil)
+	response.ReturnSuccessOK(c, "updated", product)
 }
 
 func (controller *ProductController) Delete(c *gin.Context) {

@@ -64,13 +64,13 @@ func (controller *TransactionController) Create(c *gin.Context) {
 		return
 	}
 
-	err = controller.TransactionService.Create(c.Request.Context(), request)
+	transaction, err := controller.TransactionService.Create(c.Request.Context(), request)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response.ReturnSuccessOK(c, "created", nil)
+	response.ReturnSuccessOK(c, "created", transaction)
 }
 
 func (controller *TransactionController) CreateFromCsv(c *gin.Context) {
@@ -124,13 +124,13 @@ func (controller *TransactionController) Update(c *gin.Context) {
 	noTransaction := c.Param("numberTransaction")
 
 	request.NoTransaction = noTransaction
-	err = controller.TransactionService.Update(c.Request.Context(), request)
+	transaction, err := controller.TransactionService.Update(c.Request.Context(), request)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response.ReturnSuccessOK(c, "updated", nil)
+	response.ReturnSuccessOK(c, "updated", transaction)
 }
 
 func (controller *TransactionController) Delete(c *gin.Context) {

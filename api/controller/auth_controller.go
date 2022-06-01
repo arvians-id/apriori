@@ -116,13 +116,13 @@ func (controller *AuthController) Register(c *gin.Context) {
 		return
 	}
 
-	err = controller.UserService.Create(c.Request.Context(), request)
+	user, err := controller.UserService.Create(c.Request.Context(), request)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response.ReturnSuccessOK(c, "created", nil)
+	response.ReturnSuccessOK(c, "created", user)
 }
 
 func (controller *AuthController) ForgotPassword(c *gin.Context) {

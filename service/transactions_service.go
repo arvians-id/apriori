@@ -13,9 +13,9 @@ import (
 type TransactionService interface {
 	FindAll(ctx context.Context) ([]model.GetTransactionResponse, error)
 	FindByTransaction(ctx context.Context, noTransaction string) (model.GetTransactionResponse, error)
-	Create(ctx context.Context, request model.CreateTransactionRequest) error
+	Create(ctx context.Context, request model.CreateTransactionRequest) (model.GetTransactionResponse, error)
 	CreateFromCsv(ctx context.Context, data [][]string) error
-	Update(ctx context.Context, request model.UpdateTransactionRequest) error
+	Update(ctx context.Context, request model.UpdateTransactionRequest) (model.GetTransactionResponse, error)
 	Delete(ctx context.Context, noTransaction string) error
 }
 
@@ -70,16 +70,16 @@ func (service *transactionService) FindByTransaction(ctx context.Context, noTran
 	return utils.ToTransactionResponse(rows), nil
 }
 
-func (service *transactionService) Create(ctx context.Context, request model.CreateTransactionRequest) error {
+func (service *transactionService) Create(ctx context.Context, request model.CreateTransactionRequest) (model.GetTransactionResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return err
+		return model.GetTransactionResponse{}, err
 	}
 	defer utils.CommitOrRollback(tx)
 
 	timeNow, err := time.Parse(service.date, time.Now().Format(service.date))
 	if err != nil {
-		return err
+		return model.GetTransactionResponse{}, err
 	}
 
 	transaction := entity.Transaction{
@@ -90,12 +90,12 @@ func (service *transactionService) Create(ctx context.Context, request model.Cre
 		UpdatedAt:     timeNow,
 	}
 
-	err = service.TransactionRepository.Create(ctx, tx, transaction)
+	row, err := service.TransactionRepository.Create(ctx, tx, transaction)
 	if err != nil {
-		return err
+		return model.GetTransactionResponse{}, err
 	}
 
-	return nil
+	return utils.ToTransactionResponse(row), nil
 }
 
 func (service *transactionService) CreateFromCsv(ctx context.Context, data [][]string) error {
@@ -127,22 +127,22 @@ func (service *transactionService) CreateFromCsv(ctx context.Context, data [][]s
 	return nil
 }
 
-func (service *transactionService) Update(ctx context.Context, request model.UpdateTransactionRequest) error {
+func (service *transactionService) Update(ctx context.Context, request model.UpdateTransactionRequest) (model.GetTransactionResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return err
+		return model.GetTransactionResponse{}, err
 	}
 	defer utils.CommitOrRollback(tx)
 
 	// Find Transaction by number transaction
 	transaction, err := service.TransactionRepository.FindByTransaction(ctx, tx, request.NoTransaction)
 	if err != nil {
-		return err
+		return model.GetTransactionResponse{}, err
 	}
 
 	updatedAt, err := time.Parse(service.date, time.Now().Format(service.date))
 	if err != nil {
-		return err
+		return model.GetTransactionResponse{}, err
 	}
 
 	transaction.ProductName = request.ProductName
@@ -151,18 +151,19 @@ func (service *transactionService) Update(ctx context.Context, request model.Upd
 	transaction.UpdatedAt = updatedAt
 
 	entityTransaction := entity.Transaction{
+		IdTransaction: transaction.IdTransaction,
 		ProductName:   transaction.ProductName,
 		CustomerName:  transaction.CustomerName,
 		NoTransaction: transaction.NoTransaction,
 		UpdatedAt:     transaction.UpdatedAt,
 	}
 
-	err = service.TransactionRepository.Update(ctx, tx, entityTransaction)
+	row, err := service.TransactionRepository.Update(ctx, tx, entityTransaction)
 	if err != nil {
-		return err
+		return model.GetTransactionResponse{}, err
 	}
 
-	return nil
+	return utils.ToTransactionResponse(row), nil
 }
 
 func (service *transactionService) Delete(ctx context.Context, noTransaction string) error {
