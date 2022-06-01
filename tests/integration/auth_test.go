@@ -1,22 +1,20 @@
 package integration_test
 
 import (
-	"apriori/api/controller"
 	"apriori/entity"
 	"apriori/repository"
-	"apriori/service"
+	"apriori/tests/setup"
 	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	gin "github.com/gin-gonic/gin"
-	"github.com/joho/godotenv"
-	"golang.org/x/crypto/bcrypt"
 	"io"
 	"log"
 	"strings"
-	"testing"
 	"time"
+
+	gin "github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 
 	_ "github.com/go-sql-driver/mysql"
 	. "github.com/onsi/ginkgo/v2"
@@ -26,62 +24,35 @@ import (
 	"net/http/httptest"
 )
 
-func TestUserController(t *testing.T) {
-	RegisterFailHandler(Fail)
-	RunSpecs(t, "Auth controller test")
-}
-
-var _ = Describe("Auth Controller", func() {
+var _ = Describe("Auth API", func() {
 
 	var server *gin.Engine
 	var database *sql.DB
 
 	BeforeEach(func() {
-		db, err := sql.Open("mysql", "root@tcp(localhost:3306)/apriori_test?parseTime=true")
+		err := setup.TestEnv()
 		if err != nil {
 			panic(err)
 		}
 
-		db.SetMaxIdleConns(5)
-		db.SetMaxOpenConns(20)
-		db.SetConnMaxLifetime(60 * time.Minute)
-		db.SetConnMaxIdleTime(10 * time.Minute)
+		db, err := setup.SuiteSetup()
+		if err != nil {
+			panic(err)
+		}
+
+		router := setup.ModuleSetup(db)
 
 		database = db
-
-		err = godotenv.Load("../../.env")
-		if err != nil {
-			panic(err)
-		}
-
-		router := gin.New()
-
-		userRepository := repository.NewUserRepository()
-		authRepository := repository.NewAuthRepository()
-		passwordRepository := repository.NewPasswordResetRepository()
-
-		userService := service.NewUserService(&userRepository, db)
-		authService := service.NewAuthService(&userRepository, &authRepository, db)
-		jwtService := service.NewJwtService()
-		emailService := service.NewEmailService()
-		passwordResetService := service.NewPasswordResetService(&passwordRepository, &userRepository, db)
-
-		authController := controller.NewAuthController(&authService, &userService, jwtService, emailService, &passwordResetService)
-
-		authController.Route(router)
-
 		server = router
 	})
 
 	AfterEach(func() {
-		db, err := sql.Open("mysql", "root@tcp(localhost:3306)/apriori_test?parseTime=true")
+		db, err := setup.SuiteSetup()
 		if err != nil {
 			panic(err)
 		}
 
-		_, err = db.Exec(`TRUNCATE TABLE users;`)
-		_, err = db.Exec(`TRUNCATE TABLE password_resets;`)
-
+		err = setup.TearDownTest(db)
 		if err != nil {
 			panic(err)
 		}
@@ -92,7 +63,7 @@ var _ = Describe("Auth Controller", func() {
 			When("the email field is incorrect", func() {
 				It("should return error required", func() {
 					requestBody := strings.NewReader(`{"password":"Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/login", requestBody)
+					request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 
 					writer := httptest.NewRecorder()
@@ -109,8 +80,8 @@ var _ = Describe("Auth Controller", func() {
 					Expect(responseBody["data"]).To(BeNil())
 				})
 				It("should return error the email must be valid email", func() {
-					requestBody := strings.NewReader(`{"email":"agungs","password":"Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/login", requestBody)
+					requestBody := strings.NewReader(`{"email":"Widdys","password":"Rahasia123"}`)
+					request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 
 					writer := httptest.NewRecorder()
@@ -129,8 +100,8 @@ var _ = Describe("Auth Controller", func() {
 			})
 			When("the email is not found", func() {
 				It("should return error not found", func() {
-					requestBody := strings.NewReader(`{"email": "agungs@gmail.com","password":"Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/login", requestBody)
+					requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
+					request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 
 					writer := httptest.NewRecorder()
@@ -149,8 +120,8 @@ var _ = Describe("Auth Controller", func() {
 			})
 			When("the password field is incorrect", func() {
 				It("should return error required", func() {
-					requestBody := strings.NewReader(`{"email": "agungs@gmail.com"}`)
-					request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/login", requestBody)
+					requestBody := strings.NewReader(`{"email": "widdy@gmail.com"}`)
+					request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 
 					writer := httptest.NewRecorder()
@@ -174,8 +145,8 @@ var _ = Describe("Auth Controller", func() {
 					userRepository := repository.NewUserRepository()
 					password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
 					_, _ = userRepository.Create(context.Background(), tx, entity.User{
-						Name:      "Agung",
-						Email:     "agungs@gmail.com",
+						Name:      "Widdy",
+						Email:     "widdy@gmail.com",
 						Password:  string(password),
 						CreatedAt: time.Now(),
 						UpdatedAt: time.Now(),
@@ -183,8 +154,8 @@ var _ = Describe("Auth Controller", func() {
 					_ = tx.Commit()
 
 					// Login
-					requestBody := strings.NewReader(`{"email": "agungs@gmail.com","password":"Raha123"}`)
-					request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/login", requestBody)
+					requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Raha123"}`)
+					request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 
 					writer := httptest.NewRecorder()
@@ -210,8 +181,8 @@ var _ = Describe("Auth Controller", func() {
 				userRepository := repository.NewUserRepository()
 				password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
 				_, _ = userRepository.Create(context.Background(), tx, entity.User{
-					Name:      "Agung",
-					Email:     "agungs@gmail.com",
+					Name:      "Widdy",
+					Email:     "widdy@gmail.com",
 					Password:  string(password),
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
@@ -219,8 +190,8 @@ var _ = Describe("Auth Controller", func() {
 				_ = tx.Commit()
 
 				// Login
-				requestBody := strings.NewReader(`{"email": "agungs@gmail.com","password":"Rahasia123"}`)
-				request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/login", requestBody)
+				requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
+				request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
 				request.Header.Add("Content-Type", "application/json")
 
 				writer := httptest.NewRecorder()
@@ -249,7 +220,7 @@ var _ = Describe("Auth Controller", func() {
 		When("the refresh token is incorrect", func() {
 			It("should return error invalid token", func() {
 				requestBody := strings.NewReader(`{"refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoxLCJleHAiOjE2NTM5MjI1MTJ9.6xJ4ZQdem4ZoWPBuZctJTMKNOkqE93Ea0ncKovpqN44"}`)
-				request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/refresh", requestBody)
+				request := httptest.NewRequest(http.MethodPost, "/api/auth/refresh", requestBody)
 				request.Header.Add("Content-Type", "application/json")
 
 				writer := httptest.NewRecorder()
@@ -272,8 +243,8 @@ var _ = Describe("Auth Controller", func() {
 				userRepository := repository.NewUserRepository()
 				password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
 				_, _ = userRepository.Create(context.Background(), tx, entity.User{
-					Name:      "Agung",
-					Email:     "agungs@gmail.com",
+					Name:      "Widdy",
+					Email:     "widdy@gmail.com",
 					Password:  string(password),
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
@@ -281,8 +252,8 @@ var _ = Describe("Auth Controller", func() {
 				_ = tx.Commit()
 
 				// Login
-				requestBody := strings.NewReader(`{"email": "agungs@gmail.com","password":"Rahasia123"}`)
-				request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/login", requestBody)
+				requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
+				request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
 				request.Header.Add("Content-Type", "application/json")
 
 				writer := httptest.NewRecorder()
@@ -298,7 +269,7 @@ var _ = Describe("Auth Controller", func() {
 				signature := responseBody["data"].(map[string]interface{})["refresh_token"].(string)
 				sign := fmt.Sprintf(`{"refresh_token": "%s"}`, signature)
 				requestBody = strings.NewReader(sign)
-				request = httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/refresh", requestBody)
+				request = httptest.NewRequest(http.MethodPost, "/api/auth/refresh", requestBody)
 				request.Header.Add("Content-Type", "application/json")
 
 				writer = httptest.NewRecorder()
@@ -325,8 +296,8 @@ var _ = Describe("Auth Controller", func() {
 				userRepository := repository.NewUserRepository()
 				password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
 				_, _ = userRepository.Create(context.Background(), tx, entity.User{
-					Name:      "Agung",
-					Email:     "agungs@gmail.com",
+					Name:      "Widdy",
+					Email:     "widdy@gmail.com",
 					Password:  string(password),
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
@@ -334,8 +305,8 @@ var _ = Describe("Auth Controller", func() {
 				_ = tx.Commit()
 
 				// Login
-				requestBody := strings.NewReader(`{"email": "agungs@gmail.com","password":"Rahasia123"}`)
-				request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/login", requestBody)
+				requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
+				request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
 				request.Header.Add("Content-Type", "application/json")
 
 				writer := httptest.NewRecorder()
@@ -347,7 +318,7 @@ var _ = Describe("Auth Controller", func() {
 				Expect(cookies[0].Value).ShouldNot(BeNil())
 
 				// Logout
-				request = httptest.NewRequest(http.MethodDelete, "http://localhost:3000/api/auth/logout", nil)
+				request = httptest.NewRequest(http.MethodDelete, "/api/auth/logout", nil)
 				request.Header.Add("Content-Type", "application/json")
 
 				writer = httptest.NewRecorder()
@@ -373,7 +344,7 @@ var _ = Describe("Auth Controller", func() {
 		When("the email field is incorrect", func() {
 			It("should return error required", func() {
 				requestBody := strings.NewReader(`{}`)
-				request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/forgot-password", requestBody)
+				request := httptest.NewRequest(http.MethodPost, "/api/auth/forgot-password", requestBody)
 				request.Header.Add("Content-Type", "application/json")
 
 				writer := httptest.NewRecorder()
@@ -391,8 +362,8 @@ var _ = Describe("Auth Controller", func() {
 			})
 
 			It("should return error the email must be valid email", func() {
-				requestBody := strings.NewReader(`{"email": "agungs"}`)
-				request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/forgot-password", requestBody)
+				requestBody := strings.NewReader(`{"email": "Widdys"}`)
+				request := httptest.NewRequest(http.MethodPost, "/api/auth/forgot-password", requestBody)
 				request.Header.Add("Content-Type", "application/json")
 
 				writer := httptest.NewRecorder()
@@ -417,8 +388,8 @@ var _ = Describe("Auth Controller", func() {
 				userRepository := repository.NewUserRepository()
 				password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
 				_, _ = userRepository.Create(context.Background(), tx, entity.User{
-					Name:      "Agung",
-					Email:     "agungs@gmail.com",
+					Name:      "Widdy",
+					Email:     "widdy@gmail.com",
 					Password:  string(password),
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
@@ -426,8 +397,8 @@ var _ = Describe("Auth Controller", func() {
 				_ = tx.Commit()
 
 				// Send forgot password
-				requestBody := strings.NewReader(`{"email": "agungs@gmail.com"}`)
-				request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/forgot-password", requestBody)
+				requestBody := strings.NewReader(`{"email": "widdy@gmail.com"}`)
+				request := httptest.NewRequest(http.MethodPost, "/api/auth/forgot-password", requestBody)
 				request.Header.Add("Content-Type", "application/json")
 
 				writer := httptest.NewRecorder()
@@ -451,7 +422,7 @@ var _ = Describe("Auth Controller", func() {
 			When("the email field is incorrect", func() {
 				It("should return error required", func() {
 					requestBody := strings.NewReader(`{"password": "Widdy123"}`)
-					request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/verify", requestBody)
+					request := httptest.NewRequest(http.MethodPost, "/api/auth/verify", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 
 					writer := httptest.NewRecorder()
@@ -470,7 +441,7 @@ var _ = Describe("Auth Controller", func() {
 
 				It("should return error the email must be valid email", func() {
 					requestBody := strings.NewReader(`{"email": "widdyarfiansyah","password": "Widdy123"}`)
-					request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/verify", requestBody)
+					request := httptest.NewRequest(http.MethodPost, "/api/auth/verify", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 
 					writer := httptest.NewRecorder()
@@ -491,7 +462,7 @@ var _ = Describe("Auth Controller", func() {
 			When("the password field is incorrect", func() {
 				It("should return error required", func() {
 					requestBody := strings.NewReader(`{"email": "widdyarfiansyah@ummi.ac.id"}`)
-					request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/verify", requestBody)
+					request := httptest.NewRequest(http.MethodPost, "/api/auth/verify", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 
 					writer := httptest.NewRecorder()
@@ -510,7 +481,7 @@ var _ = Describe("Auth Controller", func() {
 
 				It("should return error less character of length", func() {
 					requestBody := strings.NewReader(`{"email": "widdyarfiansyah@ummi.ac.id","password": "Wi"}`)
-					request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/verify", requestBody)
+					request := httptest.NewRequest(http.MethodPost, "/api/auth/verify", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 
 					writer := httptest.NewRecorder()
@@ -531,24 +502,24 @@ var _ = Describe("Auth Controller", func() {
 			When("giving the incorrect signature", func() {
 				It("should return error invalid credentials", func() {
 					// Create user first
-					requestBody := strings.NewReader(`{"name": "Agung","email": "agungs@gmail.com","password": "Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/verify", requestBody)
+					requestBody := strings.NewReader(`{"name": "Widdy","email": "widdy@gmail.com","password": "Rahasia123"}`)
+					request := httptest.NewRequest(http.MethodPost, "/api/auth/verify", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
 					// Send forgot password
-					requestBody = strings.NewReader(`{"email": "agungs@gmail.com"}`)
-					request = httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/forgot-password", requestBody)
+					requestBody = strings.NewReader(`{"email": "widdy@gmail.com"}`)
+					request = httptest.NewRequest(http.MethodPost, "/api/auth/forgot-password", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 
 					writer = httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
 					// Verify password
-					requestBody = strings.NewReader(`{"email": "agungs@gmail.com","password": "Widdy123"}`)
-					request = httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/verify?signature=asdsa23sda", requestBody)
+					requestBody = strings.NewReader(`{"email": "widdy@gmail.com","password": "Widdy123"}`)
+					request = httptest.NewRequest(http.MethodPost, "/api/auth/verify?signature=asdsa23sda", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 
 					writer = httptest.NewRecorder()
@@ -574,8 +545,8 @@ var _ = Describe("Auth Controller", func() {
 				userRepository := repository.NewUserRepository()
 				password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
 				_, _ = userRepository.Create(context.Background(), tx, entity.User{
-					Name:      "Agung",
-					Email:     "agungs@gmail.com",
+					Name:      "Widdy",
+					Email:     "widdy@gmail.com",
 					Password:  string(password),
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
@@ -583,8 +554,8 @@ var _ = Describe("Auth Controller", func() {
 				_ = tx.Commit()
 
 				// Send forgot password
-				requestBody := strings.NewReader(`{"email": "agungs@gmail.com"}`)
-				request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/forgot-password", requestBody)
+				requestBody := strings.NewReader(`{"email": "widdy@gmail.com"}`)
+				request := httptest.NewRequest(http.MethodPost, "/api/auth/forgot-password", requestBody)
 				request.Header.Add("Content-Type", "application/json")
 
 				writer := httptest.NewRecorder()
@@ -597,8 +568,8 @@ var _ = Describe("Auth Controller", func() {
 
 				// Verify password
 				signature := responseBody["data"].(map[string]interface{})["signature"].(string)
-				requestBody = strings.NewReader(`{"email": "agungs@gmail.com","password": "Widdy123"}`)
-				request = httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/verify?signature="+signature, requestBody)
+				requestBody = strings.NewReader(`{"email": "widdy@gmail.com","password": "Widdy123"}`)
+				request = httptest.NewRequest(http.MethodPost, "/api/auth/verify?signature="+signature, requestBody)
 				request.Header.Add("Content-Type", "application/json")
 
 				writer = httptest.NewRecorder()
@@ -619,8 +590,8 @@ var _ = Describe("Auth Controller", func() {
 		When("the fields is incorrect", func() {
 			When("the name field is incorrect", func() {
 				It("should return error required", func() {
-					requestBody := strings.NewReader(`{"email": "agungs@gmail.com","password": "Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/register", requestBody)
+					requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password": "Rahasia123"}`)
+					request := httptest.NewRequest(http.MethodPost, "/api/auth/register", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 
 					writer := httptest.NewRecorder()
@@ -638,8 +609,8 @@ var _ = Describe("Auth Controller", func() {
 				})
 
 				It("should return error exceeds the limit character", func() {
-					requestBody := strings.NewReader(`{"name":"asdasdsdsasdsfsdsassssssssssd", "email": "agungs@gmail.com","password": "Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/register", requestBody)
+					requestBody := strings.NewReader(`{"name":"asdasdsdsasdsfsdsassssssssssd", "email": "widdy@gmail.com","password": "Rahasia123"}`)
+					request := httptest.NewRequest(http.MethodPost, "/api/auth/register", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 
 					writer := httptest.NewRecorder()
@@ -659,8 +630,8 @@ var _ = Describe("Auth Controller", func() {
 
 			When("the email field is incorrect", func() {
 				It("should return error required", func() {
-					requestBody := strings.NewReader(`{"name": "Agung","password": "Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/register", requestBody)
+					requestBody := strings.NewReader(`{"name": "Widdy","password": "Rahasia123"}`)
+					request := httptest.NewRequest(http.MethodPost, "/api/auth/register", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 
 					writer := httptest.NewRecorder()
@@ -678,8 +649,8 @@ var _ = Describe("Auth Controller", func() {
 				})
 
 				It("should return error the email must be valid email", func() {
-					requestBody := strings.NewReader(`{"name": "Agung","email": "agungs","password": "Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/register", requestBody)
+					requestBody := strings.NewReader(`{"name": "Widdy","email": "Widdys","password": "Rahasia123"}`)
+					request := httptest.NewRequest(http.MethodPost, "/api/auth/register", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 
 					writer := httptest.NewRecorder()
@@ -698,16 +669,16 @@ var _ = Describe("Auth Controller", func() {
 
 				It("should return error duplicate email", func() {
 					// First register
-					requestBody := strings.NewReader(`{"name": "Agung","email": "agungs@gmail.com","password": "Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/register", requestBody)
+					requestBody := strings.NewReader(`{"name": "Widdy","email": "widdy@gmail.com","password": "Rahasia123"}`)
+					request := httptest.NewRequest(http.MethodPost, "/api/auth/register", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
 					// Second register with the same email
-					requestBody = strings.NewReader(`{"name": "Agung","email": "agungs@gmail.com","password": "Rahasia123"}`)
-					request = httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/register", requestBody)
+					requestBody = strings.NewReader(`{"name": "Widdy","email": "widdy@gmail.com","password": "Rahasia123"}`)
+					request = httptest.NewRequest(http.MethodPost, "/api/auth/register", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 
 					writer = httptest.NewRecorder()
@@ -719,13 +690,13 @@ var _ = Describe("Auth Controller", func() {
 					_ = json.Unmarshal(body, &responseBody)
 
 					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusInternalServerError))
-					Expect(responseBody["status"]).To(Equal("Error 1062: Duplicate entry 'agungs@gmail.com' for key 'email'"))
+					Expect(responseBody["status"]).To(Equal("Error 1062: Duplicate entry 'widdy@gmail.com' for key 'email'"))
 					Expect(responseBody["data"]).To(BeNil())
 				})
 
 				It("should return error exceeds the limit character", func() {
-					requestBody := strings.NewReader(`{"name":"wids","email": "agungsdsdasdddddddsadasdasdss@gmail.com","password": "Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/register", requestBody)
+					requestBody := strings.NewReader(`{"name":"wids","email": "Widdysdsdasdddddddsadasdasdss@gmail.com","password": "Rahasia123"}`)
+					request := httptest.NewRequest(http.MethodPost, "/api/auth/register", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 
 					writer := httptest.NewRecorder()
@@ -745,8 +716,8 @@ var _ = Describe("Auth Controller", func() {
 
 			When("the password field is incorrect", func() {
 				It("should return error required", func() {
-					requestBody := strings.NewReader(`{"name": "Agung","email": "agungs@gmail.com"}`)
-					request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/register", requestBody)
+					requestBody := strings.NewReader(`{"name": "Widdy","email": "widdy@gmail.com"}`)
+					request := httptest.NewRequest(http.MethodPost, "/api/auth/register", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 
 					writer := httptest.NewRecorder()
@@ -764,8 +735,8 @@ var _ = Describe("Auth Controller", func() {
 				})
 
 				It("should return error less character of length", func() {
-					requestBody := strings.NewReader(`{"name": "Agung","email": "agungs@gmail.com","password": "as"}`)
-					request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/register", requestBody)
+					requestBody := strings.NewReader(`{"name": "Widdy","email": "widdy@gmail.com","password": "as"}`)
+					request := httptest.NewRequest(http.MethodPost, "/api/auth/register", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 
 					writer := httptest.NewRecorder()
@@ -785,9 +756,9 @@ var _ = Describe("Auth Controller", func() {
 		})
 
 		When("the fields are correct", func() {
-			It("Should return a successful register response", func() {
-				requestBody := strings.NewReader(`{"name": "Agung","email": "agungs@gmail.com","password": "Rahasia123"}`)
-				request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/register", requestBody)
+			It("should return a successful register response", func() {
+				requestBody := strings.NewReader(`{"name": "Widdy","email": "widdy@gmail.com","password": "Rahasia123"}`)
+				request := httptest.NewRequest(http.MethodPost, "/api/auth/register", requestBody)
 				request.Header.Add("Content-Type", "application/json")
 
 				writer := httptest.NewRecorder()
@@ -801,8 +772,8 @@ var _ = Describe("Auth Controller", func() {
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("created"))
-				Expect(responseBody["data"].(map[string]interface{})["name"]).To(Equal("Agung"))
-				Expect(responseBody["data"].(map[string]interface{})["email"]).To(Equal("agungs@gmail.com"))
+				Expect(responseBody["data"].(map[string]interface{})["name"]).To(Equal("Widdy"))
+				Expect(responseBody["data"].(map[string]interface{})["email"]).To(Equal("widdy@gmail.com"))
 			})
 		})
 	})
