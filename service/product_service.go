@@ -116,7 +116,6 @@ func (service *productService) Update(ctx context.Context, request model.UpdateP
 		return model.GetProductResponse{}, err
 	}
 
-	getProduct.Code = request.Code
 	getProduct.Name = request.Name
 	getProduct.Description = request.Description
 	getProduct.UpdatedAt = updatedAt

@@ -7,23 +7,26 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	gin "github.com/gin-gonic/gin"
-	_ "github.com/go-sql-driver/mysql"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-	"golang.org/x/crypto/bcrypt"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
 	"strings"
 	"time"
+
+	gin "github.com/gin-gonic/gin"
+	_ "github.com/go-sql-driver/mysql"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var _ = Describe("User API", func() {
 
 	var server *gin.Engine
 	var database *sql.DB
+	var cookie *http.Cookie
+	var row entity.User
 
 	BeforeEach(func() {
 		err := setup.TestEnv()
@@ -40,6 +43,36 @@ var _ = Describe("User API", func() {
 
 		database = db
 		server = router
+
+		// User Authentication
+		// Create user
+		tx, _ := database.Begin()
+		userRepository := repository.NewUserRepository()
+		password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
+		user, _ := userRepository.Create(context.Background(), tx, entity.User{
+			Name:      "Widdy",
+			Email:     "widdy@gmail.com",
+			Password:  string(password),
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+		})
+		_ = tx.Commit()
+
+		// Login
+		requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
+		request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
+		request.Header.Add("Content-Type", "application/json")
+
+		writer := httptest.NewRecorder()
+		server.ServeHTTP(writer, request)
+
+		for _, c := range writer.Result().Cookies() {
+			if c.Name == "token" {
+				cookie = c
+			}
+		}
+
+		row = user
 	})
 
 	AfterEach(func() {
@@ -58,41 +91,13 @@ var _ = Describe("User API", func() {
 		When("the fields are incorrect", func() {
 			When("the name field is incorrect", func() {
 				It("should return error required", func() {
-					// Create user
-					tx, _ := database.Begin()
-					userRepository := repository.NewUserRepository()
-					password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-					_, _ = userRepository.Create(context.Background(), tx, entity.User{
-						Name:      "Widdy",
-						Email:     "widdy@gmail.com",
-						Password:  string(password),
-						CreatedAt: time.Now(),
-						UpdatedAt: time.Now(),
-					})
-					_ = tx.Commit()
-
-					// Login
-					requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
-					request.Header.Add("Content-Type", "application/json")
-
-					writer := httptest.NewRecorder()
-					server.ServeHTTP(writer, request)
-
-					var cookie *http.Cookie
-					for _, c := range writer.Result().Cookies() {
-						if c.Name == "token" {
-							cookie = c
-						}
-					}
-
 					// Create User When logged In
-					requestBody = strings.NewReader(`{"email": "widdy@gmail.com","password": "Rahasia123"}`)
-					request = httptest.NewRequest(http.MethodPost, "/api/users", requestBody)
+					requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password": "Rahasia123"}`)
+					request := httptest.NewRequest(http.MethodPost, "/api/users", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.AddCookie(cookie)
 
-					writer = httptest.NewRecorder()
+					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
 					response := writer.Result()
@@ -107,41 +112,13 @@ var _ = Describe("User API", func() {
 				})
 
 				It("should return error exceeds the limit character", func() {
-					// Create user
-					tx, _ := database.Begin()
-					userRepository := repository.NewUserRepository()
-					password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-					_, _ = userRepository.Create(context.Background(), tx, entity.User{
-						Name:      "Widdy",
-						Email:     "widdy@gmail.com",
-						Password:  string(password),
-						CreatedAt: time.Now(),
-						UpdatedAt: time.Now(),
-					})
-					_ = tx.Commit()
-
-					// Login
-					requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
-					request.Header.Add("Content-Type", "application/json")
-
-					writer := httptest.NewRecorder()
-					server.ServeHTTP(writer, request)
-
-					var cookie *http.Cookie
-					for _, c := range writer.Result().Cookies() {
-						if c.Name == "token" {
-							cookie = c
-						}
-					}
-
 					// Create User When logged In
-					requestBody = strings.NewReader(`{"name":"asdasdsdsasdsfsdsassssssssssd", "email": "widdy@gmail.com","password": "Rahasia123"}`)
-					request = httptest.NewRequest(http.MethodPost, "/api/users", requestBody)
+					requestBody := strings.NewReader(`{"name":"asdasdsdsasdsfsdsassssssssssd", "email": "widdy@gmail.com","password": "Rahasia123"}`)
+					request := httptest.NewRequest(http.MethodPost, "/api/users", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.AddCookie(cookie)
 
-					writer = httptest.NewRecorder()
+					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
 					response := writer.Result()
@@ -158,41 +135,13 @@ var _ = Describe("User API", func() {
 
 			When("the email field is incorrect", func() {
 				It("should return error required", func() {
-					// Create user
-					tx, _ := database.Begin()
-					userRepository := repository.NewUserRepository()
-					password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-					_, _ = userRepository.Create(context.Background(), tx, entity.User{
-						Name:      "Widdy",
-						Email:     "widdy@gmail.com",
-						Password:  string(password),
-						CreatedAt: time.Now(),
-						UpdatedAt: time.Now(),
-					})
-					_ = tx.Commit()
-
-					// Login
-					requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
-					request.Header.Add("Content-Type", "application/json")
-
-					writer := httptest.NewRecorder()
-					server.ServeHTTP(writer, request)
-
-					var cookie *http.Cookie
-					for _, c := range writer.Result().Cookies() {
-						if c.Name == "token" {
-							cookie = c
-						}
-					}
-
 					// Create User When logged In
-					requestBody = strings.NewReader(`{"name": "Widdy","password": "Rahasia123"}`)
-					request = httptest.NewRequest(http.MethodPost, "/api/users", requestBody)
+					requestBody := strings.NewReader(`{"name": "Widdy","password": "Rahasia123"}`)
+					request := httptest.NewRequest(http.MethodPost, "/api/users", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.AddCookie(cookie)
 
-					writer = httptest.NewRecorder()
+					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
 					response := writer.Result()
@@ -207,41 +156,13 @@ var _ = Describe("User API", func() {
 				})
 
 				It("should return error the email must be valid email", func() {
-					// Create user
-					tx, _ := database.Begin()
-					userRepository := repository.NewUserRepository()
-					password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-					_, _ = userRepository.Create(context.Background(), tx, entity.User{
-						Name:      "Widdy",
-						Email:     "widdy@gmail.com",
-						Password:  string(password),
-						CreatedAt: time.Now(),
-						UpdatedAt: time.Now(),
-					})
-					_ = tx.Commit()
-
-					// Login
-					requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
-					request.Header.Add("Content-Type", "application/json")
-
-					writer := httptest.NewRecorder()
-					server.ServeHTTP(writer, request)
-
-					var cookie *http.Cookie
-					for _, c := range writer.Result().Cookies() {
-						if c.Name == "token" {
-							cookie = c
-						}
-					}
-
 					// Create User When logged In
-					requestBody = strings.NewReader(`{"name": "Widdy","email": "Widdys","password": "Rahasia123"}`)
-					request = httptest.NewRequest(http.MethodPost, "/api/users", requestBody)
+					requestBody := strings.NewReader(`{"name": "Widdy","email": "Widdys","password": "Rahasia123"}`)
+					request := httptest.NewRequest(http.MethodPost, "/api/users", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.AddCookie(cookie)
 
-					writer = httptest.NewRecorder()
+					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
 					response := writer.Result()
@@ -256,41 +177,13 @@ var _ = Describe("User API", func() {
 				})
 
 				It("should return error duplicate email", func() {
-					// Create user
-					tx, _ := database.Begin()
-					userRepository := repository.NewUserRepository()
-					password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-					_, _ = userRepository.Create(context.Background(), tx, entity.User{
-						Name:      "Widdy",
-						Email:     "widdy@gmail.com",
-						Password:  string(password),
-						CreatedAt: time.Now(),
-						UpdatedAt: time.Now(),
-					})
-					_ = tx.Commit()
-
-					// Login
-					requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
-					request.Header.Add("Content-Type", "application/json")
-
-					writer := httptest.NewRecorder()
-					server.ServeHTTP(writer, request)
-
-					var cookie *http.Cookie
-					for _, c := range writer.Result().Cookies() {
-						if c.Name == "token" {
-							cookie = c
-						}
-					}
-
 					// First register
-					requestBody = strings.NewReader(`{"name": "Widdy","email": "widdy@gmail.com","password": "Rahasia123"}`)
-					request = httptest.NewRequest(http.MethodPost, "/api/users", requestBody)
+					requestBody := strings.NewReader(`{"name": "Widdy","email": "widdy@gmail.com","password": "Rahasia123"}`)
+					request := httptest.NewRequest(http.MethodPost, "/api/users", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.AddCookie(cookie)
 
-					writer = httptest.NewRecorder()
+					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
 					// Second register with the same email
@@ -313,41 +206,13 @@ var _ = Describe("User API", func() {
 				})
 
 				It("should return error exceeds the limit character", func() {
-					// Create user
-					tx, _ := database.Begin()
-					userRepository := repository.NewUserRepository()
-					password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-					_, _ = userRepository.Create(context.Background(), tx, entity.User{
-						Name:      "Widdy",
-						Email:     "widdy@gmail.com",
-						Password:  string(password),
-						CreatedAt: time.Now(),
-						UpdatedAt: time.Now(),
-					})
-					_ = tx.Commit()
-
-					// Login
-					requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
-					request.Header.Add("Content-Type", "application/json")
-
-					writer := httptest.NewRecorder()
-					server.ServeHTTP(writer, request)
-
-					var cookie *http.Cookie
-					for _, c := range writer.Result().Cookies() {
-						if c.Name == "token" {
-							cookie = c
-						}
-					}
-
 					// Create User When logged In
-					requestBody = strings.NewReader(`{"name":"wids","email": "Widdysdsdasdddddddsadasdasdss@gmail.com","password": "Rahasia123"}`)
-					request = httptest.NewRequest(http.MethodPost, "/api/users", requestBody)
+					requestBody := strings.NewReader(`{"name":"wids","email": "Widdysdsdasdddddddsadasdasdss@gmail.com","password": "Rahasia123"}`)
+					request := httptest.NewRequest(http.MethodPost, "/api/users", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.AddCookie(cookie)
 
-					writer = httptest.NewRecorder()
+					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
 					response := writer.Result()
@@ -364,41 +229,13 @@ var _ = Describe("User API", func() {
 
 			When("the password field is incorrect", func() {
 				It("should return error required", func() {
-					// Create user
-					tx, _ := database.Begin()
-					userRepository := repository.NewUserRepository()
-					password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-					_, _ = userRepository.Create(context.Background(), tx, entity.User{
-						Name:      "Widdy",
-						Email:     "widdy@gmail.com",
-						Password:  string(password),
-						CreatedAt: time.Now(),
-						UpdatedAt: time.Now(),
-					})
-					_ = tx.Commit()
-
-					// Login
-					requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
-					request.Header.Add("Content-Type", "application/json")
-
-					writer := httptest.NewRecorder()
-					server.ServeHTTP(writer, request)
-
-					var cookie *http.Cookie
-					for _, c := range writer.Result().Cookies() {
-						if c.Name == "token" {
-							cookie = c
-						}
-					}
-
 					// Create User When logged In
-					requestBody = strings.NewReader(`{"name": "Widdy","email": "widdy@gmail.com"}`)
-					request = httptest.NewRequest(http.MethodPost, "/api/users", requestBody)
+					requestBody := strings.NewReader(`{"name": "Widdy","email": "widdy@gmail.com"}`)
+					request := httptest.NewRequest(http.MethodPost, "/api/users", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.AddCookie(cookie)
 
-					writer = httptest.NewRecorder()
+					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
 					response := writer.Result()
@@ -413,41 +250,13 @@ var _ = Describe("User API", func() {
 				})
 
 				It("should return error less character of length", func() {
-					// Create user
-					tx, _ := database.Begin()
-					userRepository := repository.NewUserRepository()
-					password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-					_, _ = userRepository.Create(context.Background(), tx, entity.User{
-						Name:      "Widdy",
-						Email:     "widdy@gmail.com",
-						Password:  string(password),
-						CreatedAt: time.Now(),
-						UpdatedAt: time.Now(),
-					})
-					_ = tx.Commit()
-
-					// Login
-					requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
-					request.Header.Add("Content-Type", "application/json")
-
-					writer := httptest.NewRecorder()
-					server.ServeHTTP(writer, request)
-
-					var cookie *http.Cookie
-					for _, c := range writer.Result().Cookies() {
-						if c.Name == "token" {
-							cookie = c
-						}
-					}
-
 					// Create User When logged In
-					requestBody = strings.NewReader(`{"name": "Widdy","email": "widdy@gmail.com","password": "as"}`)
-					request = httptest.NewRequest(http.MethodPost, "/api/users", requestBody)
+					requestBody := strings.NewReader(`{"name": "Widdy","email": "widdy@gmail.com","password": "as"}`)
+					request := httptest.NewRequest(http.MethodPost, "/api/users", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.AddCookie(cookie)
 
-					writer = httptest.NewRecorder()
+					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
 					response := writer.Result()
@@ -465,41 +274,13 @@ var _ = Describe("User API", func() {
 
 		When("the fields are correct", func() {
 			It("should return a successful create new user response", func() {
-				// Create user
-				tx, _ := database.Begin()
-				userRepository := repository.NewUserRepository()
-				password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-				_, _ = userRepository.Create(context.Background(), tx, entity.User{
-					Name:      "Widdy",
-					Email:     "widdy@gmail.com",
-					Password:  string(password),
-					CreatedAt: time.Now(),
-					UpdatedAt: time.Now(),
-				})
-				_ = tx.Commit()
-
-				// Login
-				requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
-				request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
-				request.Header.Add("Content-Type", "application/json")
-
-				writer := httptest.NewRecorder()
-				server.ServeHTTP(writer, request)
-
-				var cookie *http.Cookie
-				for _, c := range writer.Result().Cookies() {
-					if c.Name == "token" {
-						cookie = c
-					}
-				}
-
 				// Create User When logged In
-				requestBody = strings.NewReader(`{"name": "Agung","email": "agung@gmail.com","password": "Rahasia123"}`)
-				request = httptest.NewRequest(http.MethodPost, "/api/users", requestBody)
+				requestBody := strings.NewReader(`{"name": "Agung","email": "agung@gmail.com","password": "Rahasia123"}`)
+				request := httptest.NewRequest(http.MethodPost, "/api/users", requestBody)
 				request.Header.Add("Content-Type", "application/json")
 				request.AddCookie(cookie)
 
-				writer = httptest.NewRecorder()
+				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
 				response := writer.Result()
@@ -519,41 +300,13 @@ var _ = Describe("User API", func() {
 	Describe("Update User /users/:id", func() {
 		When("user not found", func() {
 			It("should return error not found", func() {
-				// Create user
-				tx, _ := database.Begin()
-				userRepository := repository.NewUserRepository()
-				password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-				_, _ = userRepository.Create(context.Background(), tx, entity.User{
-					Name:      "Widdy",
-					Email:     "widdy@gmail.com",
-					Password:  string(password),
-					CreatedAt: time.Now(),
-					UpdatedAt: time.Now(),
-				})
-				_ = tx.Commit()
-
-				// Login
-				requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
-				request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
-				request.Header.Add("Content-Type", "application/json")
-
-				writer := httptest.NewRecorder()
-				server.ServeHTTP(writer, request)
-
-				var cookie *http.Cookie
-				for _, c := range writer.Result().Cookies() {
-					if c.Name == "token" {
-						cookie = c
-					}
-				}
-
 				// Update User
-				requestBody = strings.NewReader(`{"name": "SiGanteng","email": "ganteng@gmail.com","password":"Widdy123"}`)
-				request = httptest.NewRequest(http.MethodPatch, "/api/users/23", requestBody)
+				requestBody := strings.NewReader(`{"name": "SiGanteng","email": "ganteng@gmail.com","password":"Widdy123"}`)
+				request := httptest.NewRequest(http.MethodPatch, "/api/users/23", requestBody)
 				request.Header.Add("Content-Type", "application/json")
 				request.AddCookie(cookie)
 
-				writer = httptest.NewRecorder()
+				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
 				response := writer.Result()
@@ -571,41 +324,13 @@ var _ = Describe("User API", func() {
 		When("the fields are incorrect", func() {
 			When("the name field is incorrect", func() {
 				It("should return error required", func() {
-					// Create user
-					tx, _ := database.Begin()
-					userRepository := repository.NewUserRepository()
-					password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-					row, _ := userRepository.Create(context.Background(), tx, entity.User{
-						Name:      "Widdy",
-						Email:     "widdy@gmail.com",
-						Password:  string(password),
-						CreatedAt: time.Now(),
-						UpdatedAt: time.Now(),
-					})
-					_ = tx.Commit()
-
-					// Login
-					requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
-					request.Header.Add("Content-Type", "application/json")
-
-					writer := httptest.NewRecorder()
-					server.ServeHTTP(writer, request)
-
-					var cookie *http.Cookie
-					for _, c := range writer.Result().Cookies() {
-						if c.Name == "token" {
-							cookie = c
-						}
-					}
-
 					// Update User
-					requestBody = strings.NewReader(`{"email": "widdy@gmail.com","password": "Rahasia123"}`)
-					request = httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(int(row.IdUser)), requestBody)
+					requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password": "Rahasia123"}`)
+					request := httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(int(row.IdUser)), requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.AddCookie(cookie)
 
-					writer = httptest.NewRecorder()
+					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
 					response := writer.Result()
@@ -620,41 +345,13 @@ var _ = Describe("User API", func() {
 				})
 
 				It("should return error exceeds the limit character", func() {
-					// Create user
-					tx, _ := database.Begin()
-					userRepository := repository.NewUserRepository()
-					password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-					row, _ := userRepository.Create(context.Background(), tx, entity.User{
-						Name:      "Widdy",
-						Email:     "widdy@gmail.com",
-						Password:  string(password),
-						CreatedAt: time.Now(),
-						UpdatedAt: time.Now(),
-					})
-					_ = tx.Commit()
-
-					// Login
-					requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
-					request.Header.Add("Content-Type", "application/json")
-
-					writer := httptest.NewRecorder()
-					server.ServeHTTP(writer, request)
-
-					var cookie *http.Cookie
-					for _, c := range writer.Result().Cookies() {
-						if c.Name == "token" {
-							cookie = c
-						}
-					}
-
 					// Update User
-					requestBody = strings.NewReader(`{"name":"asdasdsdsasdsfsdsassssssssssd", "email": "widdy@gmail.com","password": "Rahasia123"}`)
-					request = httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(int(row.IdUser)), requestBody)
+					requestBody := strings.NewReader(`{"name":"asdasdsdsasdsfsdsassssssssssd", "email": "widdy@gmail.com","password": "Rahasia123"}`)
+					request := httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(int(row.IdUser)), requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.AddCookie(cookie)
 
-					writer = httptest.NewRecorder()
+					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
 					response := writer.Result()
@@ -671,41 +368,13 @@ var _ = Describe("User API", func() {
 
 			When("the email field is incorrect", func() {
 				It("should return error required", func() {
-					// Create user
-					tx, _ := database.Begin()
-					userRepository := repository.NewUserRepository()
-					password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-					row, _ := userRepository.Create(context.Background(), tx, entity.User{
-						Name:      "Widdy",
-						Email:     "widdy@gmail.com",
-						Password:  string(password),
-						CreatedAt: time.Now(),
-						UpdatedAt: time.Now(),
-					})
-					_ = tx.Commit()
-
-					// Login
-					requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
-					request.Header.Add("Content-Type", "application/json")
-
-					writer := httptest.NewRecorder()
-					server.ServeHTTP(writer, request)
-
-					var cookie *http.Cookie
-					for _, c := range writer.Result().Cookies() {
-						if c.Name == "token" {
-							cookie = c
-						}
-					}
-
 					// Update User
-					requestBody = strings.NewReader(`{"name": "Widdy","password": "Rahasia123"}`)
-					request = httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(int(row.IdUser)), requestBody)
+					requestBody := strings.NewReader(`{"name": "Widdy","password": "Rahasia123"}`)
+					request := httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(int(row.IdUser)), requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.AddCookie(cookie)
 
-					writer = httptest.NewRecorder()
+					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
 					response := writer.Result()
@@ -720,41 +389,13 @@ var _ = Describe("User API", func() {
 				})
 
 				It("should return error the email must be valid email", func() {
-					// Create user
-					tx, _ := database.Begin()
-					userRepository := repository.NewUserRepository()
-					password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-					row, _ := userRepository.Create(context.Background(), tx, entity.User{
-						Name:      "Widdy",
-						Email:     "widdy@gmail.com",
-						Password:  string(password),
-						CreatedAt: time.Now(),
-						UpdatedAt: time.Now(),
-					})
-					_ = tx.Commit()
-
-					// Login
-					requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
-					request.Header.Add("Content-Type", "application/json")
-
-					writer := httptest.NewRecorder()
-					server.ServeHTTP(writer, request)
-
-					var cookie *http.Cookie
-					for _, c := range writer.Result().Cookies() {
-						if c.Name == "token" {
-							cookie = c
-						}
-					}
-
 					// Update User
-					requestBody = strings.NewReader(`{"name": "Widdy","email": "Widdys","password": "Rahasia123"}`)
-					request = httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(int(row.IdUser)), requestBody)
+					requestBody := strings.NewReader(`{"name": "Widdy","email": "Widdys","password": "Rahasia123"}`)
+					request := httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(int(row.IdUser)), requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.AddCookie(cookie)
 
-					writer = httptest.NewRecorder()
+					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
 					response := writer.Result()
@@ -769,41 +410,13 @@ var _ = Describe("User API", func() {
 				})
 
 				It("should return error exceeds the limit character", func() {
-					// Create user
-					tx, _ := database.Begin()
-					userRepository := repository.NewUserRepository()
-					password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-					row, _ := userRepository.Create(context.Background(), tx, entity.User{
-						Name:      "Widdy",
-						Email:     "widdy@gmail.com",
-						Password:  string(password),
-						CreatedAt: time.Now(),
-						UpdatedAt: time.Now(),
-					})
-					_ = tx.Commit()
-
-					// Login
-					requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
-					request.Header.Add("Content-Type", "application/json")
-
-					writer := httptest.NewRecorder()
-					server.ServeHTTP(writer, request)
-
-					var cookie *http.Cookie
-					for _, c := range writer.Result().Cookies() {
-						if c.Name == "token" {
-							cookie = c
-						}
-					}
-
 					// Update User
-					requestBody = strings.NewReader(`{"name":"wids","email": "Widdysdsdasdddddddsadasdasdss@gmail.com","password": "Rahasia123"}`)
-					request = httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(int(row.IdUser)), requestBody)
+					requestBody := strings.NewReader(`{"name":"wids","email": "Widdysdsdasdddddddsadasdasdss@gmail.com","password": "Rahasia123"}`)
+					request := httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(int(row.IdUser)), requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.AddCookie(cookie)
 
-					writer = httptest.NewRecorder()
+					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
 					response := writer.Result()
@@ -820,41 +433,13 @@ var _ = Describe("User API", func() {
 
 			When("the password field is incorrect", func() {
 				It("should return error less character of length", func() {
-					// Create user
-					tx, _ := database.Begin()
-					userRepository := repository.NewUserRepository()
-					password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-					row, _ := userRepository.Create(context.Background(), tx, entity.User{
-						Name:      "Widdy",
-						Email:     "widdy@gmail.com",
-						Password:  string(password),
-						CreatedAt: time.Now(),
-						UpdatedAt: time.Now(),
-					})
-					_ = tx.Commit()
-
-					// Login
-					requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
-					request.Header.Add("Content-Type", "application/json")
-
-					writer := httptest.NewRecorder()
-					server.ServeHTTP(writer, request)
-
-					var cookie *http.Cookie
-					for _, c := range writer.Result().Cookies() {
-						if c.Name == "token" {
-							cookie = c
-						}
-					}
-
 					// Update User
-					requestBody = strings.NewReader(`{"name": "Widdy","email": "widdy@gmail.com","password": "as"}`)
-					request = httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(int(row.IdUser)), requestBody)
+					requestBody := strings.NewReader(`{"name": "Widdy","email": "widdy@gmail.com","password": "as"}`)
+					request := httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(int(row.IdUser)), requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.AddCookie(cookie)
 
-					writer = httptest.NewRecorder()
+					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
 					response := writer.Result()
@@ -873,41 +458,13 @@ var _ = Describe("User API", func() {
 		When("the fields are correct", func() {
 			When("password is empty", func() {
 				It("should return a successful update user response", func() {
-					// Create user
-					tx, _ := database.Begin()
-					userRepository := repository.NewUserRepository()
-					password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-					row, _ := userRepository.Create(context.Background(), tx, entity.User{
-						Name:      "Widdy",
-						Email:     "widdy@gmail.com",
-						Password:  string(password),
-						CreatedAt: time.Now(),
-						UpdatedAt: time.Now(),
-					})
-					_ = tx.Commit()
-
-					// Login
-					requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
-					request.Header.Add("Content-Type", "application/json")
-
-					writer := httptest.NewRecorder()
-					server.ServeHTTP(writer, request)
-
-					var cookie *http.Cookie
-					for _, c := range writer.Result().Cookies() {
-						if c.Name == "token" {
-							cookie = c
-						}
-					}
-
 					// Update User
-					requestBody = strings.NewReader(`{"name": "SiGanteng","email": "ganteng@gmail.com"}`)
-					request = httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(int(row.IdUser)), requestBody)
+					requestBody := strings.NewReader(`{"name": "SiGanteng","email": "ganteng@gmail.com"}`)
+					request := httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(int(row.IdUser)), requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.AddCookie(cookie)
 
-					writer = httptest.NewRecorder()
+					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
 					response := writer.Result()
@@ -925,41 +482,13 @@ var _ = Describe("User API", func() {
 
 			When("the fields are filled", func() {
 				It("should return a successful update user response", func() {
-					// Create user
-					tx, _ := database.Begin()
-					userRepository := repository.NewUserRepository()
-					password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-					row, _ := userRepository.Create(context.Background(), tx, entity.User{
-						Name:      "Widdy",
-						Email:     "widdy@gmail.com",
-						Password:  string(password),
-						CreatedAt: time.Now(),
-						UpdatedAt: time.Now(),
-					})
-					_ = tx.Commit()
-
-					// Login
-					requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
-					request.Header.Add("Content-Type", "application/json")
-
-					writer := httptest.NewRecorder()
-					server.ServeHTTP(writer, request)
-
-					var cookie *http.Cookie
-					for _, c := range writer.Result().Cookies() {
-						if c.Name == "token" {
-							cookie = c
-						}
-					}
-
 					// Update User
-					requestBody = strings.NewReader(`{"name": "SiGanteng","email": "ganteng@gmail.com","password":"Widdy123"}`)
-					request = httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(int(row.IdUser)), requestBody)
+					requestBody := strings.NewReader(`{"name": "SiGanteng","email": "ganteng@gmail.com","password":"Widdy123"}`)
+					request := httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(int(row.IdUser)), requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.AddCookie(cookie)
 
-					writer = httptest.NewRecorder()
+					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
 					response := writer.Result()
@@ -978,42 +507,14 @@ var _ = Describe("User API", func() {
 	})
 
 	Describe("Delete User /users/:id", func() {
-		When("user not found", func() {
+		When("user is not found", func() {
 			It("should return error not found", func() {
-				// Create user
-				tx, _ := database.Begin()
-				userRepository := repository.NewUserRepository()
-				password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-				_, _ = userRepository.Create(context.Background(), tx, entity.User{
-					Name:      "Widdy",
-					Email:     "widdy@gmail.com",
-					Password:  string(password),
-					CreatedAt: time.Now(),
-					UpdatedAt: time.Now(),
-				})
-				_ = tx.Commit()
-
-				// Login
-				requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
-				request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
-				request.Header.Add("Content-Type", "application/json")
-
-				writer := httptest.NewRecorder()
-				server.ServeHTTP(writer, request)
-
-				var cookie *http.Cookie
-				for _, c := range writer.Result().Cookies() {
-					if c.Name == "token" {
-						cookie = c
-					}
-				}
-
 				// Delete User
-				request = httptest.NewRequest(http.MethodDelete, "/api/users/23", nil)
+				request := httptest.NewRequest(http.MethodDelete, "/api/users/23", nil)
 				request.Header.Add("Content-Type", "application/json")
 				request.AddCookie(cookie)
 
-				writer = httptest.NewRecorder()
+				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
 				response := writer.Result()
@@ -1030,40 +531,12 @@ var _ = Describe("User API", func() {
 
 		When("user is found", func() {
 			It("should return a successful delete user response", func() {
-				// Create user
-				tx, _ := database.Begin()
-				userRepository := repository.NewUserRepository()
-				password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-				row, _ := userRepository.Create(context.Background(), tx, entity.User{
-					Name:      "Widdy",
-					Email:     "widdy@gmail.com",
-					Password:  string(password),
-					CreatedAt: time.Now(),
-					UpdatedAt: time.Now(),
-				})
-				_ = tx.Commit()
-
-				// Login
-				requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
-				request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
-				request.Header.Add("Content-Type", "application/json")
-
-				writer := httptest.NewRecorder()
-				server.ServeHTTP(writer, request)
-
-				var cookie *http.Cookie
-				for _, c := range writer.Result().Cookies() {
-					if c.Name == "token" {
-						cookie = c
-					}
-				}
-
 				// Update User
-				request = httptest.NewRequest(http.MethodDelete, "/api/users/"+strconv.Itoa(int(row.IdUser)), nil)
+				request := httptest.NewRequest(http.MethodDelete, "/api/users/"+strconv.Itoa(int(row.IdUser)), nil)
 				request.Header.Add("Content-Type", "application/json")
 				request.AddCookie(cookie)
 
-				writer = httptest.NewRecorder()
+				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
 				response := writer.Result()
@@ -1082,40 +555,12 @@ var _ = Describe("User API", func() {
 	Describe("Find ALl User /users", func() {
 		When("the user is not present", func() {
 			It("should return a successful but the data is null", func() {
-				// Create user
-				tx, _ := database.Begin()
-				userRepository := repository.NewUserRepository()
-				password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-				row, _ := userRepository.Create(context.Background(), tx, entity.User{
-					Name:      "Widdy",
-					Email:     "widdy@gmail.com",
-					Password:  string(password),
-					CreatedAt: time.Now(),
-					UpdatedAt: time.Now(),
-				})
-				_ = tx.Commit()
-
-				// Login
-				requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
-				request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
-				request.Header.Add("Content-Type", "application/json")
-
-				writer := httptest.NewRecorder()
-				server.ServeHTTP(writer, request)
-
-				var cookie *http.Cookie
-				for _, c := range writer.Result().Cookies() {
-					if c.Name == "token" {
-						cookie = c
-					}
-				}
-
 				// Delete User
-				request = httptest.NewRequest(http.MethodDelete, "/api/users/"+strconv.Itoa(int(row.IdUser)), nil)
+				request := httptest.NewRequest(http.MethodDelete, "/api/users/"+strconv.Itoa(int(row.IdUser)), nil)
 				request.Header.Add("Content-Type", "application/json")
 				request.AddCookie(cookie)
 
-				writer = httptest.NewRecorder()
+				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
 				// Find All User
@@ -1145,7 +590,7 @@ var _ = Describe("User API", func() {
 				password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
 				user1, _ := userRepository.Create(context.Background(), tx, entity.User{
 					Name:      "Widdy",
-					Email:     "widdy@gmail.com",
+					Email:     "arfian@gmail.com",
 					Password:  string(password),
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
@@ -1159,27 +604,12 @@ var _ = Describe("User API", func() {
 				})
 				_ = tx.Commit()
 
-				// Login
-				requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
-				request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
-				request.Header.Add("Content-Type", "application/json")
-
-				writer := httptest.NewRecorder()
-				server.ServeHTTP(writer, request)
-
-				var cookie *http.Cookie
-				for _, c := range writer.Result().Cookies() {
-					if c.Name == "token" {
-						cookie = c
-					}
-				}
-
 				// Find All User
-				request = httptest.NewRequest(http.MethodGet, "/api/users", nil)
+				request := httptest.NewRequest(http.MethodGet, "/api/users", nil)
 				request.Header.Add("Content-Type", "application/json")
 				request.AddCookie(cookie)
 
-				writer = httptest.NewRecorder()
+				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
 				response := writer.Result()
@@ -1190,8 +620,8 @@ var _ = Describe("User API", func() {
 
 				users := responseBody["data"].([]interface{})
 
-				usersResponse1 := users[0].(map[string]interface{})
-				usersResponse2 := users[1].(map[string]interface{})
+				usersResponse1 := users[1].(map[string]interface{})
+				usersResponse2 := users[2].(map[string]interface{})
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("OK"))
@@ -1208,40 +638,12 @@ var _ = Describe("User API", func() {
 	Describe("Find By Id User /users/:id", func() {
 		When("user is not found", func() {
 			It("should return error not found", func() {
-				// Create user
-				tx, _ := database.Begin()
-				userRepository := repository.NewUserRepository()
-				password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-				_, _ = userRepository.Create(context.Background(), tx, entity.User{
-					Name:      "Widdy",
-					Email:     "widdy@gmail.com",
-					Password:  string(password),
-					CreatedAt: time.Now(),
-					UpdatedAt: time.Now(),
-				})
-				_ = tx.Commit()
-
-				// Login
-				requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
-				request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
-				request.Header.Add("Content-Type", "application/json")
-
-				writer := httptest.NewRecorder()
-				server.ServeHTTP(writer, request)
-
-				var cookie *http.Cookie
-				for _, c := range writer.Result().Cookies() {
-					if c.Name == "token" {
-						cookie = c
-					}
-				}
-
 				// Find By Id User
-				request = httptest.NewRequest(http.MethodGet, "/api/users/5", nil)
+				request := httptest.NewRequest(http.MethodGet, "/api/users/5", nil)
 				request.Header.Add("Content-Type", "application/json")
 				request.AddCookie(cookie)
 
-				writer = httptest.NewRecorder()
+				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
 				response := writer.Result()
@@ -1257,40 +659,12 @@ var _ = Describe("User API", func() {
 		})
 		When("user is found", func() {
 			It("should return a successful find user by id", func() {
-				// Create user
-				tx, _ := database.Begin()
-				userRepository := repository.NewUserRepository()
-				password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-				row, _ := userRepository.Create(context.Background(), tx, entity.User{
-					Name:      "Widdy",
-					Email:     "widdy@gmail.com",
-					Password:  string(password),
-					CreatedAt: time.Now(),
-					UpdatedAt: time.Now(),
-				})
-				_ = tx.Commit()
-
-				// Login
-				requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
-				request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
-				request.Header.Add("Content-Type", "application/json")
-
-				writer := httptest.NewRecorder()
-				server.ServeHTTP(writer, request)
-
-				var cookie *http.Cookie
-				for _, c := range writer.Result().Cookies() {
-					if c.Name == "token" {
-						cookie = c
-					}
-				}
-
 				// Find By Id User
-				request = httptest.NewRequest(http.MethodGet, "/api/users/"+strconv.Itoa(int(row.IdUser)), nil)
+				request := httptest.NewRequest(http.MethodGet, "/api/users/"+strconv.Itoa(int(row.IdUser)), nil)
 				request.Header.Add("Content-Type", "application/json")
 				request.AddCookie(cookie)
 
-				writer = httptest.NewRecorder()
+				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
 				response := writer.Result()
@@ -1310,40 +684,12 @@ var _ = Describe("User API", func() {
 	Describe("View profile user /profile", func() {
 		When("user is logged in", func() {
 			It("should return user profile response", func() {
-				// Create user
-				tx, _ := database.Begin()
-				userRepository := repository.NewUserRepository()
-				password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-				_, _ = userRepository.Create(context.Background(), tx, entity.User{
-					Name:      "Widdy",
-					Email:     "widdy@gmail.com",
-					Password:  string(password),
-					CreatedAt: time.Now(),
-					UpdatedAt: time.Now(),
-				})
-				_ = tx.Commit()
-
-				// Login
-				requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
-				request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
-				request.Header.Add("Content-Type", "application/json")
-
-				writer := httptest.NewRecorder()
-				server.ServeHTTP(writer, request)
-
-				var cookie *http.Cookie
-				for _, c := range writer.Result().Cookies() {
-					if c.Name == "token" {
-						cookie = c
-					}
-				}
-
 				// Find By Id User
-				request = httptest.NewRequest(http.MethodGet, "/api/profile", nil)
+				request := httptest.NewRequest(http.MethodGet, "/api/profile", nil)
 				request.Header.Add("Content-Type", "application/json")
 				request.AddCookie(cookie)
 
-				writer = httptest.NewRecorder()
+				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
 				response := writer.Result()

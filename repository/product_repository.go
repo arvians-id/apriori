@@ -119,8 +119,8 @@ func (repository *productRepository) Create(ctx context.Context, tx *sql.Tx, pro
 }
 
 func (repository *productRepository) Update(ctx context.Context, tx *sql.Tx, product entity.Product) (entity.Product, error) {
-	query := "UPDATE products SET code = ?, name = ?, description = ?, updated_at = ? WHERE code = ?"
-	_, err := tx.ExecContext(ctx, query, product.Code, product.Name, product.Description, product.UpdatedAt, product.Code)
+	query := "UPDATE products SET name = ?, description = ?, updated_at = ? WHERE code = ?"
+	_, err := tx.ExecContext(ctx, query, product.Name, product.Description, product.UpdatedAt, product.Code)
 	if err != nil {
 		return entity.Product{}, err
 	}
