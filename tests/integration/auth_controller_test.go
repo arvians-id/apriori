@@ -2,14 +2,18 @@ package integration_test
 
 import (
 	"apriori/api/controller"
+	"apriori/entity"
 	"apriori/repository"
 	"apriori/service"
+	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	gin "github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"golang.org/x/crypto/bcrypt"
 	"io"
+	"log"
 	"strings"
 	"testing"
 	"time"
@@ -30,6 +34,7 @@ func TestUserController(t *testing.T) {
 var _ = Describe("Auth Controller", func() {
 
 	var server *gin.Engine
+	var database *sql.DB
 
 	BeforeEach(func() {
 		db, err := sql.Open("mysql", "root@tcp(localhost:3306)/apriori_test?parseTime=true")
@@ -41,6 +46,8 @@ var _ = Describe("Auth Controller", func() {
 		db.SetMaxOpenConns(20)
 		db.SetConnMaxLifetime(60 * time.Minute)
 		db.SetConnMaxIdleTime(10 * time.Minute)
+
+		database = db
 
 		err = godotenv.Load("../../.env")
 		if err != nil {
@@ -67,7 +74,7 @@ var _ = Describe("Auth Controller", func() {
 	})
 
 	AfterEach(func() {
-		db, err := sql.Open("mysql", "root@tcp(localhost:3306)/apriori_test")
+		db, err := sql.Open("mysql", "root@tcp(localhost:3306)/apriori_test?parseTime=true")
 		if err != nil {
 			panic(err)
 		}
@@ -162,20 +169,25 @@ var _ = Describe("Auth Controller", func() {
 			})
 			When("the password is wrong", func() {
 				It("should return error wrong password", func() {
-					// Create user first
-					requestBody := strings.NewReader(`{"name": "Agung","email": "agungs@gmail.com","password": "Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/register", requestBody)
+					// Create user
+					tx, _ := database.Begin()
+					userRepository := repository.NewUserRepository()
+					password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
+					_, _ = userRepository.Create(context.Background(), tx, entity.User{
+						Name:      "Agung",
+						Email:     "agungs@gmail.com",
+						Password:  string(password),
+						CreatedAt: time.Now(),
+						UpdatedAt: time.Now(),
+					})
+					_ = tx.Commit()
+
+					// Login
+					requestBody := strings.NewReader(`{"email": "agungs@gmail.com","password":"Raha123"}`)
+					request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/login", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 
 					writer := httptest.NewRecorder()
-					server.ServeHTTP(writer, request)
-
-					// Login
-					requestBody = strings.NewReader(`{"email": "agungs@gmail.com","password":"Raha123"}`)
-					request = httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/login", requestBody)
-					request.Header.Add("Content-Type", "application/json")
-
-					writer = httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
 					response := writer.Result()
@@ -193,20 +205,25 @@ var _ = Describe("Auth Controller", func() {
 
 		When("the fields is correct", func() {
 			It("should return successful login response", func() {
-				// Create user first
-				requestBody := strings.NewReader(`{"name": "Agung","email": "agungs@gmail.com","password": "Rahasia123"}`)
-				request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/register", requestBody)
+				// Create user
+				tx, _ := database.Begin()
+				userRepository := repository.NewUserRepository()
+				password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
+				_, _ = userRepository.Create(context.Background(), tx, entity.User{
+					Name:      "Agung",
+					Email:     "agungs@gmail.com",
+					Password:  string(password),
+					CreatedAt: time.Now(),
+					UpdatedAt: time.Now(),
+				})
+				_ = tx.Commit()
+
+				// Login
+				requestBody := strings.NewReader(`{"email": "agungs@gmail.com","password":"Rahasia123"}`)
+				request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/login", requestBody)
 				request.Header.Add("Content-Type", "application/json")
 
 				writer := httptest.NewRecorder()
-				server.ServeHTTP(writer, request)
-
-				// Login
-				requestBody = strings.NewReader(`{"email": "agungs@gmail.com","password":"Rahasia123"}`)
-				request = httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/login", requestBody)
-				request.Header.Add("Content-Type", "application/json")
-
-				writer = httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
 				response := writer.Result()
@@ -215,6 +232,7 @@ var _ = Describe("Auth Controller", func() {
 				var responseBody map[string]interface{}
 				_ = json.Unmarshal(body, &responseBody)
 
+				log.Println(responseBody["status"])
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("OK"))
 				Expect(responseBody["data"].(map[string]interface{})["access_token"]).ShouldNot(BeNil())
@@ -249,20 +267,25 @@ var _ = Describe("Auth Controller", func() {
 		})
 		When("the refresh token is correct", func() {
 			It("should regenerate a new access token and refresh token", func() {
-				// Create user first
-				requestBody := strings.NewReader(`{"name": "Agung","email": "agungs@gmail.com","password": "Rahasia123"}`)
-				request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/register", requestBody)
+				// Create user
+				tx, _ := database.Begin()
+				userRepository := repository.NewUserRepository()
+				password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
+				_, _ = userRepository.Create(context.Background(), tx, entity.User{
+					Name:      "Agung",
+					Email:     "agungs@gmail.com",
+					Password:  string(password),
+					CreatedAt: time.Now(),
+					UpdatedAt: time.Now(),
+				})
+				_ = tx.Commit()
+
+				// Login
+				requestBody := strings.NewReader(`{"email": "agungs@gmail.com","password":"Rahasia123"}`)
+				request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/login", requestBody)
 				request.Header.Add("Content-Type", "application/json")
 
 				writer := httptest.NewRecorder()
-				server.ServeHTTP(writer, request)
-
-				// Login
-				requestBody = strings.NewReader(`{"email": "agungs@gmail.com","password":"Rahasia123"}`)
-				request = httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/login", requestBody)
-				request.Header.Add("Content-Type", "application/json")
-
-				writer = httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
 				response := writer.Result()
@@ -297,20 +320,25 @@ var _ = Describe("Auth Controller", func() {
 	Describe("Logout /auth/logout", func() {
 		When("the token is correct", func() {
 			It("should delete cookies and cannot log in", func() {
-				// Create user first
-				requestBody := strings.NewReader(`{"name": "Agung","email": "agungs@gmail.com","password": "Rahasia123"}`)
-				request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/register", requestBody)
+				// Create user
+				tx, _ := database.Begin()
+				userRepository := repository.NewUserRepository()
+				password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
+				_, _ = userRepository.Create(context.Background(), tx, entity.User{
+					Name:      "Agung",
+					Email:     "agungs@gmail.com",
+					Password:  string(password),
+					CreatedAt: time.Now(),
+					UpdatedAt: time.Now(),
+				})
+				_ = tx.Commit()
+
+				// Login
+				requestBody := strings.NewReader(`{"email": "agungs@gmail.com","password":"Rahasia123"}`)
+				request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/login", requestBody)
 				request.Header.Add("Content-Type", "application/json")
 
 				writer := httptest.NewRecorder()
-				server.ServeHTTP(writer, request)
-
-				// Login
-				requestBody = strings.NewReader(`{"email": "agungs@gmail.com","password":"Rahasia123"}`)
-				request = httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/login", requestBody)
-				request.Header.Add("Content-Type", "application/json")
-
-				writer = httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
 				response := writer.Result()
@@ -384,20 +412,25 @@ var _ = Describe("Auth Controller", func() {
 
 		When("the email field is correct", func() {
 			It("should return success response and send email to user", func() {
-				// Create user first
-				requestBody := strings.NewReader(`{"name": "Agung","email": "agungs@gmail.com","password": "Rahasia123"}`)
-				request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/register", requestBody)
+				// Create user
+				tx, _ := database.Begin()
+				userRepository := repository.NewUserRepository()
+				password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
+				_, _ = userRepository.Create(context.Background(), tx, entity.User{
+					Name:      "Agung",
+					Email:     "agungs@gmail.com",
+					Password:  string(password),
+					CreatedAt: time.Now(),
+					UpdatedAt: time.Now(),
+				})
+				_ = tx.Commit()
+
+				// Send forgot password
+				requestBody := strings.NewReader(`{"email": "agungs@gmail.com"}`)
+				request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/forgot-password", requestBody)
 				request.Header.Add("Content-Type", "application/json")
 
 				writer := httptest.NewRecorder()
-				server.ServeHTTP(writer, request)
-
-				// Send forgot password
-				requestBody = strings.NewReader(`{"email": "agungs@gmail.com"}`)
-				request = httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/forgot-password", requestBody)
-				request.Header.Add("Content-Type", "application/json")
-
-				writer = httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
 				response := writer.Result()
@@ -536,20 +569,25 @@ var _ = Describe("Auth Controller", func() {
 
 		When("the field is correct", func() {
 			It("should return success response and update password's user", func() {
-				// Create user first
-				requestBody := strings.NewReader(`{"name": "Agung","email": "agungs@gmail.com","password": "Rahasia123"}`)
-				request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/register", requestBody)
+				// Create user
+				tx, _ := database.Begin()
+				userRepository := repository.NewUserRepository()
+				password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
+				_, _ = userRepository.Create(context.Background(), tx, entity.User{
+					Name:      "Agung",
+					Email:     "agungs@gmail.com",
+					Password:  string(password),
+					CreatedAt: time.Now(),
+					UpdatedAt: time.Now(),
+				})
+				_ = tx.Commit()
+
+				// Send forgot password
+				requestBody := strings.NewReader(`{"email": "agungs@gmail.com"}`)
+				request := httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/forgot-password", requestBody)
 				request.Header.Add("Content-Type", "application/json")
 
 				writer := httptest.NewRecorder()
-				server.ServeHTTP(writer, request)
-
-				// Send forgot password
-				requestBody = strings.NewReader(`{"email": "agungs@gmail.com"}`)
-				request = httptest.NewRequest(http.MethodPost, "http://localhost:3000/api/auth/forgot-password", requestBody)
-				request.Header.Add("Content-Type", "application/json")
-
-				writer = httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
 				response := writer.Result()
@@ -763,7 +801,8 @@ var _ = Describe("Auth Controller", func() {
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("created"))
-				Expect(responseBody["data"]).To(BeNil())
+				Expect(responseBody["data"].(map[string]interface{})["name"]).To(Equal("Agung"))
+				Expect(responseBody["data"].(map[string]interface{})["email"]).To(Equal("agungs@gmail.com"))
 			})
 		})
 	})
