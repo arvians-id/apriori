@@ -2,6 +2,7 @@ package setup
 
 import (
 	"apriori/api/controller"
+	"apriori/api/middleware"
 	"apriori/repository"
 	"apriori/service"
 	"database/sql"
@@ -38,6 +39,9 @@ func ModuleSetup(db *sql.DB) *gin.Engine {
 
 	// Setup Router
 	authController.Route(router)
+
+	// Auth Middleware
+	router.Use(middleware.AuthJwtMiddleware())
 	userController.Route(router)
 	productController.Route(router)
 	transactionController.Route(router)
