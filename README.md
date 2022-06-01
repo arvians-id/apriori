@@ -13,6 +13,7 @@ at the same time giving discounts on large datasets using an Apriori Algorithm.
  - Database : [MySQL](https://www.mysql.com/)
  - Authentication : [JWT](https://github.com/dgrijalva/jwt-go)
  - Logging : [Logrus](https://github.com/sirupsen/logrus)
+ - Testing : [Ginkgo](https://onsi.github.io/ginkgo/)
 
 
 ## Authors
@@ -20,7 +21,6 @@ at the same time giving discounts on large datasets using an Apriori Algorithm.
 - [@arvians-id](https://www.github.com/arvians-id)
 
 ## Contribute
-Support saya agar lebih banyak berkontribusi dalam membuat sebuah project aplikasi berbasis website sederhana
 
 - Saweria : https://saweria.co/widdyarfian
 
