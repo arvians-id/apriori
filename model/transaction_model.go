@@ -13,7 +13,7 @@ type CreateTransactionFromFileRequest struct {
 type UpdateTransactionRequest struct {
 	ProductName   string `json:"product_name" binding:"required,max=256"`
 	CustomerName  string `json:"customer_name" binding:"required,max=100"`
-	NoTransaction string `json:"no_transaction" binding:"required,max=100"`
+	NoTransaction string
 }
 
 type GetProductNameTransactionResponse struct {

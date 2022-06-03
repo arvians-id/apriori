@@ -5,7 +5,6 @@ import (
 	"apriori/model"
 	"apriori/service"
 	"apriori/utils"
-	"errors"
 	"github.com/gin-gonic/gin"
 	"os"
 	"path/filepath"
@@ -79,10 +78,10 @@ func (controller *TransactionController) CreateFromCsv(c *gin.Context) {
 		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
-	if file.Header.Get("Content-Type") != "text/csv" {
-		response.ReturnErrorInternalServerError(c, errors.New("file not allowed"), nil)
-		return
-	}
+	//if file.Header.Get("Content-Type") != "text/csv" {
+	//	response.ReturnErrorInternalServerError(c, errors.New("file not allowed"), nil)
+	//	return
+	//}
 
 	dir, err := os.Getwd()
 	if err != nil {

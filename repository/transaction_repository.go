@@ -149,6 +149,9 @@ func (repository *transactionRepository) Create(ctx context.Context, tx *sql.Tx,
 		transaction.CreatedAt,
 		transaction.UpdatedAt,
 	)
+	if err != nil {
+		return entity.Transaction{}, err
+	}
 
 	id, err := row.LastInsertId()
 	if err != nil {

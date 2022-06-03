@@ -51,6 +51,7 @@ var _ = Describe("Auth API", func() {
 		if err != nil {
 			panic(err)
 		}
+		defer db.Close()
 
 		err = setup.TearDownTest(db)
 		if err != nil {
