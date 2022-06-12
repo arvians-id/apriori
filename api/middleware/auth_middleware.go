@@ -6,33 +6,26 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"net/http"
+	"strings"
 )
 
 func AuthJwtMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		value, err := c.Cookie("token")
-		if err != nil {
-			if err == http.ErrNoCookie {
-				c.JSON(http.StatusUnauthorized, model.WebResponse{
-					Code:   http.StatusUnauthorized,
-					Status: "you don't have permission",
-					Data:   nil,
-				})
-				c.Abort()
-				return
-			}
-
+		authorizationHeader := c.GetHeader("Authorization")
+		if !strings.Contains(authorizationHeader, "Bearer") {
 			c.JSON(http.StatusBadRequest, model.WebResponse{
 				Code:   http.StatusBadRequest,
-				Status: err.Error(),
+				Status: "invalid token",
 				Data:   nil,
 			})
 			c.Abort()
 			return
 		}
 
+		tokenString := strings.Replace(authorizationHeader, "Bearer ", "", -1)
+
 		jwtService := service.NewJwtService()
-		token, err := jwtService.ValidateToken(value)
+		token, err := jwtService.ValidateToken(tokenString)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, model.WebResponse{
 				Code:   http.StatusUnauthorized,

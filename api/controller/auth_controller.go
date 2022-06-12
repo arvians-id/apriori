@@ -6,8 +6,6 @@ import (
 	"apriori/service"
 	"fmt"
 	"github.com/gin-gonic/gin"
-	"net/http"
-	"net/url"
 	"time"
 )
 
@@ -57,20 +55,12 @@ func (controller *AuthController) Login(c *gin.Context) {
 		return
 	}
 
-	expirationTime := time.Now().Add(5 * time.Minute)
+	expirationTime := time.Now().Add(1 * time.Hour)
 	token, err := controller.JwtService.GenerateToken(user.IdUser, expirationTime)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
-
-	http.SetCookie(c.Writer, &http.Cookie{
-		Name:     "token",
-		Value:    url.QueryEscape(token.AccessToken),
-		Expires:  expirationTime,
-		Path:     "/api",
-		HttpOnly: true,
-	})
 
 	response.ReturnSuccessOK(c, "OK", gin.H{
 		"access_token":  token.AccessToken,
@@ -93,14 +83,6 @@ func (controller *AuthController) Refresh(c *gin.Context) {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
-
-	http.SetCookie(c.Writer, &http.Cookie{
-		Name:     "token",
-		Value:    url.QueryEscape(token.AccessToken),
-		Expires:  time.Now().Add(5 * time.Minute),
-		Path:     "/api",
-		HttpOnly: true,
-	})
 
 	response.ReturnSuccessOK(c, "OK", gin.H{
 		"access_token":  token.AccessToken,
@@ -174,13 +156,5 @@ func (controller *AuthController) VerifyResetPassword(c *gin.Context) {
 }
 
 func (controller *AuthController) Logout(c *gin.Context) {
-	http.SetCookie(c.Writer, &http.Cookie{
-		Name:     "token",
-		Value:    "",
-		Path:     "/api",
-		Expires:  time.Unix(0, 0),
-		HttpOnly: true,
-	})
-
 	response.ReturnSuccessOK(c, "OK", nil)
 }
