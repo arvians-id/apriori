@@ -9,7 +9,6 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
 	"strings"
 	"time"
 
@@ -204,15 +203,10 @@ var _ = Describe("Auth API", func() {
 				var responseBody map[string]interface{}
 				_ = json.Unmarshal(body, &responseBody)
 
-				log.Println(responseBody["status"])
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("OK"))
 				Expect(responseBody["data"].(map[string]interface{})["access_token"]).ShouldNot(BeNil())
 				Expect(responseBody["data"].(map[string]interface{})["refresh_token"]).ShouldNot(BeNil())
-
-				cookies := response.Cookies()
-
-				Expect(cookies[0].Value).ShouldNot(BeNil())
 			})
 		})
 	})

@@ -13,8 +13,8 @@ func AuthJwtMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authorizationHeader := c.GetHeader("Authorization")
 		if !strings.Contains(authorizationHeader, "Bearer") {
-			c.JSON(http.StatusBadRequest, model.WebResponse{
-				Code:   http.StatusBadRequest,
+			c.JSON(http.StatusUnauthorized, model.WebResponse{
+				Code:   http.StatusUnauthorized,
 				Status: "invalid token",
 				Data:   nil,
 			})

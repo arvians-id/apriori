@@ -8,10 +8,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
-	"github.com/gin-gonic/gin"
-	. "github.com/onsi/ginkgo/v2"
-	. "github.com/onsi/gomega"
-	"golang.org/x/crypto/bcrypt"
+	"fmt"
 	"io"
 	"log"
 	"mime/multipart"
@@ -20,13 +17,18 @@ import (
 	"os"
 	"strings"
 	"time"
+
+	"github.com/gin-gonic/gin"
+	. "github.com/onsi/ginkgo/v2"
+	. "github.com/onsi/gomega"
+	"golang.org/x/crypto/bcrypt"
 )
 
 var _ = Describe("User API", func() {
 
 	var server *gin.Engine
 	var database *sql.DB
-	var cookie *http.Cookie
+	var tokenJWT string
 
 	BeforeEach(func() {
 		err := setup.TestEnv()
@@ -66,11 +68,13 @@ var _ = Describe("User API", func() {
 		writer := httptest.NewRecorder()
 		server.ServeHTTP(writer, request)
 
-		for _, c := range writer.Result().Cookies() {
-			if c.Name == "token" {
-				cookie = c
-			}
-		}
+		response := writer.Result()
+
+		body, _ := io.ReadAll(response.Body)
+		var responseBody map[string]interface{}
+		_ = json.Unmarshal(body, &responseBody)
+
+		tokenJWT = responseBody["data"].(map[string]interface{})["access_token"].(string)
 	})
 
 	AfterEach(func() {
@@ -91,10 +95,10 @@ var _ = Describe("User API", func() {
 			When("the product name field is incorrect", func() {
 				It("should return error required", func() {
 					// Create Transaction
-					requestBody := strings.NewReader(`{"customer_name": "Wids","no_transaction": "202320"}`)
+					requestBody := strings.NewReader(`{"customer_name": "Wids"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/transactions", requestBody)
 					request.Header.Add("Content-Type", "application/json")
-					request.AddCookie(cookie)
+					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
@@ -114,10 +118,10 @@ var _ = Describe("User API", func() {
 			When("the customer name field is incorrect", func() {
 				It("should return error required", func() {
 					// Create Transaction
-					requestBody := strings.NewReader(`{"product_name": "Kasur cinta, Bantal memori","no_transaction": "202320"}`)
+					requestBody := strings.NewReader(`{"product_name": "Kasur cinta, Bantal memori"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/transactions", requestBody)
 					request.Header.Add("Content-Type", "application/json")
-					request.AddCookie(cookie)
+					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
@@ -133,68 +137,15 @@ var _ = Describe("User API", func() {
 					Expect(responseBody["data"]).To(BeNil())
 				})
 			})
-
-			When("the no transaction field is incorrect", func() {
-				It("should return error required", func() {
-					// Create Transaction
-					requestBody := strings.NewReader(`{"product_name": "Kasur cinta, Bantal memori","customer_name": "Wids"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/transactions", requestBody)
-					request.Header.Add("Content-Type", "application/json")
-					request.AddCookie(cookie)
-
-					writer := httptest.NewRecorder()
-					server.ServeHTTP(writer, request)
-
-					response := writer.Result()
-
-					body, _ := io.ReadAll(response.Body)
-					var responseBody map[string]interface{}
-					_ = json.Unmarshal(body, &responseBody)
-
-					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusBadRequest))
-					Expect(responseBody["status"]).To(Equal("Key: 'CreateTransactionRequest.NoTransaction' Error:Field validation for 'NoTransaction' failed on the 'required' tag"))
-					Expect(responseBody["data"]).To(BeNil())
-				})
-
-				It("should return error has duplicate values", func() {
-					// Create Transaction
-					requestBody := strings.NewReader(`{"product_name": "Kasur cinta, Bantal memori","customer_name": "Wids","no_transaction": "202320"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/transactions", requestBody)
-					request.Header.Add("Content-Type", "application/json")
-					request.AddCookie(cookie)
-
-					writer := httptest.NewRecorder()
-					server.ServeHTTP(writer, request)
-
-					// Create Transaction Again
-					requestBody = strings.NewReader(`{"product_name": "Kasur cinta, Bantal memori","customer_name": "Wids","no_transaction": "202320"}`)
-					request = httptest.NewRequest(http.MethodPost, "/api/transactions", requestBody)
-					request.Header.Add("Content-Type", "application/json")
-					request.AddCookie(cookie)
-
-					writer = httptest.NewRecorder()
-					server.ServeHTTP(writer, request)
-
-					response := writer.Result()
-
-					body, _ := io.ReadAll(response.Body)
-					var responseBody map[string]interface{}
-					_ = json.Unmarshal(body, &responseBody)
-
-					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusInternalServerError))
-					Expect(responseBody["status"]).To(Equal("Error 1062: Duplicate entry '202320' for key 'no_transaction'"))
-					Expect(responseBody["data"]).To(BeNil())
-				})
-			})
 		})
 
 		When("the fields are correct", func() {
 			It("should return successful create transaction response", func() {
 				// Create Transaction
-				requestBody := strings.NewReader(`{"product_name": "Kasur cinta, Bantal memori","customer_name": "Wids","no_transaction": "202320"}`)
+				requestBody := strings.NewReader(`{"product_name": "Kasur cinta, Bantal memori","customer_name": "Wids"}`)
 				request := httptest.NewRequest(http.MethodPost, "/api/transactions", requestBody)
 				request.Header.Add("Content-Type", "application/json")
-				request.AddCookie(cookie)
+				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
@@ -209,7 +160,6 @@ var _ = Describe("User API", func() {
 				Expect(responseBody["status"]).To(Equal("created"))
 				Expect(responseBody["data"].(map[string]interface{})["product_name"]).To(Equal("Kasur cinta, Bantal memori"))
 				Expect(responseBody["data"].(map[string]interface{})["customer_name"]).To(Equal("Wids"))
-				Expect(responseBody["data"].(map[string]interface{})["no_transaction"]).To(Equal("202320"))
 			})
 		})
 	})
@@ -229,7 +179,7 @@ var _ = Describe("User API", func() {
 				// Create Transaction
 				request := httptest.NewRequest(http.MethodPost, "/api/transactions/csv", body)
 				request.Header.Add("Content-Type", writer.FormDataContentType())
-				request.AddCookie(cookie)
+				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 				rec := httptest.NewRecorder()
 				server.ServeHTTP(rec, request)
@@ -268,7 +218,7 @@ var _ = Describe("User API", func() {
 					requestBody := strings.NewReader(`{"customer_name": "Wids"}`)
 					request := httptest.NewRequest(http.MethodPatch, "/api/transactions/"+row.NoTransaction, requestBody)
 					request.Header.Add("Content-Type", "application/json")
-					request.AddCookie(cookie)
+					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
@@ -303,7 +253,7 @@ var _ = Describe("User API", func() {
 					requestBody := strings.NewReader(`{"product_name": "Kasur cinta, Bantal memori"}`)
 					request := httptest.NewRequest(http.MethodPatch, "/api/transactions/"+row.NoTransaction, requestBody)
 					request.Header.Add("Content-Type", "application/json")
-					request.AddCookie(cookie)
+					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
@@ -339,7 +289,7 @@ var _ = Describe("User API", func() {
 				requestBody := strings.NewReader(`{"product_name": "Guling cinta, Guling memori","customer_name": "Goengs"}`)
 				request := httptest.NewRequest(http.MethodPatch, "/api/transactions/"+row.NoTransaction, requestBody)
 				request.Header.Add("Content-Type", "application/json")
-				request.AddCookie(cookie)
+				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
@@ -364,7 +314,7 @@ var _ = Describe("User API", func() {
 				// Delete Transaction
 				request := httptest.NewRequest(http.MethodDelete, "/api/transactions/32412", nil)
 				request.Header.Add("Content-Type", "application/json")
-				request.AddCookie(cookie)
+				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
@@ -398,7 +348,7 @@ var _ = Describe("User API", func() {
 				// Delete Transaction
 				request := httptest.NewRequest(http.MethodDelete, "/api/transactions/"+row.NoTransaction, nil)
 				request.Header.Add("Content-Type", "application/json")
-				request.AddCookie(cookie)
+				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
@@ -422,7 +372,7 @@ var _ = Describe("User API", func() {
 				// Find All Transaction
 				request := httptest.NewRequest(http.MethodGet, "/api/transactions", nil)
 				request.Header.Add("Content-Type", "application/json")
-				request.AddCookie(cookie)
+				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
@@ -444,25 +394,23 @@ var _ = Describe("User API", func() {
 				tx, _ := database.Begin()
 				transactionRepository := repository.NewTransactionRepository()
 				transaction1, _ := transactionRepository.Create(context.Background(), tx, entity.Transaction{
-					ProductName:   "Kasur cinta, Bantal memori",
-					CustomerName:  "Wids",
-					NoTransaction: "202320",
-					CreatedAt:     time.Now(),
-					UpdatedAt:     time.Now(),
+					ProductName:  "Kasur cinta, Bantal memori",
+					CustomerName: "Wids",
+					CreatedAt:    time.Now(),
+					UpdatedAt:    time.Now(),
 				})
 				transaction2, _ := transactionRepository.Create(context.Background(), tx, entity.Transaction{
-					ProductName:   "Guling cinta, Guling memori",
-					CustomerName:  "Goengs",
-					NoTransaction: "110232",
-					CreatedAt:     time.Now(),
-					UpdatedAt:     time.Now(),
+					ProductName:  "Guling cinta, Guling memori",
+					CustomerName: "Goengs",
+					CreatedAt:    time.Now(),
+					UpdatedAt:    time.Now(),
 				})
 				_ = tx.Commit()
 
 				// Find All Transaction
 				request := httptest.NewRequest(http.MethodGet, "/api/transactions", nil)
 				request.Header.Add("Content-Type", "application/json")
-				request.AddCookie(cookie)
+				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
@@ -483,11 +431,9 @@ var _ = Describe("User API", func() {
 
 				Expect(transaction1.ProductName).To(Equal(transactionResponse1["product_name"]))
 				Expect(transaction1.CustomerName).To(Equal(transactionResponse1["customer_name"]))
-				Expect(transaction1.NoTransaction).To(Equal(transactionResponse1["no_transaction"]))
 
 				Expect(transaction2.ProductName).To(Equal(transactionResponse2["product_name"]))
 				Expect(transaction2.CustomerName).To(Equal(transactionResponse2["customer_name"]))
-				Expect(transaction2.NoTransaction).To(Equal(transactionResponse2["no_transaction"]))
 			})
 		})
 	})
@@ -498,7 +444,7 @@ var _ = Describe("User API", func() {
 				// Find By No Transaction
 				request := httptest.NewRequest(http.MethodGet, "/api/transactions/52324", nil)
 				request.Header.Add("Content-Type", "application/json")
-				request.AddCookie(cookie)
+				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
@@ -531,7 +477,7 @@ var _ = Describe("User API", func() {
 				// Find By No Transaction
 				request := httptest.NewRequest(http.MethodGet, "/api/transactions/"+row.NoTransaction, nil)
 				request.Header.Add("Content-Type", "application/json")
-				request.AddCookie(cookie)
+				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
@@ -566,7 +512,7 @@ var _ = Describe("User API", func() {
 				_ = json.Unmarshal(body, &responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusUnauthorized))
-				Expect(responseBody["status"]).To(Equal("you don't have permission"))
+				Expect(responseBody["status"]).To(Equal("invalid token"))
 				Expect(responseBody["data"]).To(BeNil())
 			})
 		})

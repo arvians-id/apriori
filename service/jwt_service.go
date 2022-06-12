@@ -106,7 +106,7 @@ func (service *jwtService) RefreshToken(refreshToken string) (*TokenDetails, err
 	// Check if token is expired
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok && !token.Valid {
-		return nil, errors.New("token expired")
+		return nil, errors.New("invalid token")
 	}
 
 	// Ge user id
