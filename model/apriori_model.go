@@ -22,12 +22,12 @@ type GetAprioriResponse struct {
 }
 
 type GenerateAprioriRequest struct {
-	MinimumSupport    int32  `json:"minimum_support" binding:"required,min=1,max=100"`
-	MinimumConfidence int32  `json:"minimum_confidence" binding:"required,min=1,max=100"`
-	MinimumDiscount   int32  `json:"minimum_discount" binding:"required"`
-	MaximumDiscount   int32  `json:"maximum_discount" binding:"required,gtefield=MinimumDiscount"`
-	StartDate         string `json:"start_date" binding:"required"`
-	EndDate           string `json:"end_date" binding:"required"`
+	MinimumSupport    float64 `json:"minimum_support" binding:"required,max=100"`
+	MinimumConfidence float64 `json:"minimum_confidence" binding:"required,max=100"`
+	MinimumDiscount   int32   `json:"minimum_discount" binding:"required"`
+	MaximumDiscount   int32   `json:"maximum_discount" binding:"required,gtefield=MinimumDiscount"`
+	StartDate         string  `json:"start_date" binding:"required"`
+	EndDate           string  `json:"end_date" binding:"required"`
 }
 
 type GetGenerateAprioriResponse struct {

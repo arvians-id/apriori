@@ -3,13 +3,14 @@ package lib
 import (
 	"apriori/entity"
 	"apriori/model"
+	"fmt"
 	"reflect"
 	"sort"
 	"strconv"
 	"strings"
 )
 
-func FindFirstItemSet(transactionsSet []entity.Transaction, minimumSupport int) ([]model.GetProductNameTransactionResponse, map[string]float64, []string) {
+func FindFirstItemSet(transactionsSet []entity.Transaction, minimumSupport float64) ([]model.GetProductNameTransactionResponse, map[string]float64, []string) {
 	// Generate all product
 	var transactions []model.GetProductNameTransactionResponse
 	for _, transaction := range transactionsSet {
@@ -32,11 +33,11 @@ func FindFirstItemSet(transactionsSet []entity.Transaction, minimumSupport int) 
 	var propertyProduct []string
 	for nameOfProduct, total := range productName {
 		support := total / float64(len(transactionsSet)) * 100
-		if support >= float64(minimumSupport) {
-			supportValue := strconv.Itoa(int(support))
+		if support >= minimumSupport {
+			supportValue := fmt.Sprintf("%.2f", support)
 			totalValue := strconv.Itoa(int(total))
 
-			propertyProduct = append(propertyProduct, nameOfProduct+":"+supportValue+","+totalValue)
+			propertyProduct = append(propertyProduct, nameOfProduct+":"+supportValue+"/"+totalValue)
 		}
 	}
 
@@ -52,14 +53,14 @@ func HandleMapsProblem(propertyProduct []string) ([]string, []float64, []int32) 
 	for i := 0; i < len(propertyProduct); i++ {
 		// Split property
 		nameOfProduct := strings.Split(propertyProduct[i], ":")
-		transaction := strings.Split(nameOfProduct[1], ",")
+		transaction := strings.Split(nameOfProduct[1], "/")
 
 		// Insert product name
 		oneSet = append(oneSet, nameOfProduct[0])
 
 		// Convert and insert support
-		number, _ := strconv.Atoi(transaction[0])
-		support = append(support, float64(number))
+		number, _ := strconv.ParseFloat(transaction[0], 64)
+		support = append(support, number)
 
 		// Convert and insert total transaction
 		transactionNumber, _ := strconv.Atoi(transaction[1])

@@ -85,7 +85,7 @@ func (service *transactionService) Create(ctx context.Context, request model.Cre
 	transaction := entity.Transaction{
 		ProductName:   request.ProductName,
 		CustomerName:  request.CustomerName,
-		NoTransaction: request.NoTransaction,
+		NoTransaction: utils.CreateTransaction(),
 		CreatedAt:     timeNow,
 		UpdatedAt:     timeNow,
 	}

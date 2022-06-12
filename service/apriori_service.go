@@ -8,6 +8,7 @@ import (
 	"apriori/utils"
 	"context"
 	"database/sql"
+	"math"
 	"time"
 )
 
@@ -194,7 +195,7 @@ func (service *aprioriService) Generate(ctx context.Context, request model.Gener
 	}
 
 	// Find first item set
-	transactions, productName, propertyProduct := lib.FindFirstItemSet(transactionsSet, int(request.MinimumSupport))
+	transactions, productName, propertyProduct := lib.FindFirstItemSet(transactionsSet, request.MinimumSupport)
 
 	// Handle random maps problem
 	oneSet, support, totalTransaction := lib.HandleMapsProblem(propertyProduct)
@@ -242,12 +243,13 @@ func (service *aprioriService) Generate(ctx context.Context, request model.Gener
 		for i := 0; i < len(dataTemp); i++ {
 			countCandidates := lib.FindCandidate(dataTemp[i], transactions)
 			result := float64(countCandidates) / float64(len(transactionsSet)) * 100
-			if result >= float64(request.MinimumSupport) {
+			if result >= request.MinimumSupport {
 				apriori = append(apriori, model.GetGenerateAprioriResponse{
 					ItemSet:     dataTemp[i],
-					Support:     result,
+					Support:     math.Round(result*100) / 100,
 					Iterate:     int32(iterate) + 2,
 					Transaction: int32(countCandidates),
+					RangeDate:   request.StartDate + " - " + request.EndDate,
 				})
 			}
 		}
@@ -285,13 +287,13 @@ func (service *aprioriService) Generate(ctx context.Context, request model.Gener
 
 	// Replace the last item set and add discount and confidence
 	for i := 0; i < len(discount); i++ {
-		if discount[i].Confidence >= float64(request.MinimumConfidence) {
+		if discount[i].Confidence >= request.MinimumConfidence {
 			apriori = append(apriori, model.GetGenerateAprioriResponse{
 				ItemSet:     discount[i].ItemSet,
-				Support:     discount[i].Support,
+				Support:     math.Round(discount[i].Support*100) / 100,
 				Iterate:     discount[i].Iterate,
 				Transaction: discount[i].Transaction,
-				Confidence:  discount[i].Confidence,
+				Confidence:  math.Round(discount[i].Confidence*100) / 100,
 				Discount:    discount[i].Discount,
 				Description: "Eligible",
 				RangeDate:   request.StartDate + " - " + request.EndDate,
@@ -299,10 +301,10 @@ func (service *aprioriService) Generate(ctx context.Context, request model.Gener
 		} else {
 			apriori = append(apriori, model.GetGenerateAprioriResponse{
 				ItemSet:     discount[i].ItemSet,
-				Support:     discount[i].Support,
+				Support:     math.Round(discount[i].Support*100) / 100,
 				Iterate:     discount[i].Iterate,
 				Transaction: discount[i].Transaction,
-				Confidence:  discount[i].Confidence,
+				Confidence:  math.Round(discount[i].Confidence*100) / 100,
 				Description: "Not Eligible",
 				RangeDate:   request.StartDate + " - " + request.EndDate,
 			})
