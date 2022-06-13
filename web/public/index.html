@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+    <title><%= htmlWebpackPlugin.options.title %></title>
+    
+    <link rel="icon" href="<%= BASE_URL %>favicon.ico">
+    <!-- Fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300,400,600,700">
+    <!-- Icons -->
+    <link rel="stylesheet" href="/frontend/vendor/nucleo/css/nucleo.css" type="text/css">
+    <link rel="stylesheet" href="/frontend/vendor/@fortawesome/fontawesome-free/css/all.min.css" type="text/css">
+    <!-- Argon CSS -->
+    <link rel="stylesheet" href="/frontend/css/argon.css?v=1.1.0" type="text/css">
+  </head>
+  <body>
+    <noscript>
+      <strong>We're sorry but <%= htmlWebpackPlugin.options.title %> doesn't work properly without JavaScript enabled. Please enable it to continue.</strong>
+    </noscript>
+    <div id="app"></div>
+    <!-- built files will be auto injected -->
+  <!-- Core -->
+  <script src="/frontend/vendor/jquery/dist/jquery.min.js" type="text/javascript"></script>
+  <script src="/frontend/vendor/bootstrap/dist/js/bootstrap.bundle.min.js" type="text/javascript"></script>
+  <script src="/frontend/vendor/js-cookie/js.cookie.js" type="text/javascript"></script>
+  <script src="/frontend/vendor/jquery.scrollbar/jquery.scrollbar.min.js" type="text/javascript"></script>
+  <script src="/frontend/vendor/jquery-scroll-lock/dist/jquery-scrollLock.min.js" type="text/javascript"></script>
+  <!-- Argon JS -->
+  <script src="/frontend/js/argon.js?v=1.1.0" type="text/javascript"></script>
+  <!-- Demo JS - remove this in your project -->
+  <script src="/frontend/js/demo.min.js" type="text/javascript"></script>
+  </body>
+</html>
