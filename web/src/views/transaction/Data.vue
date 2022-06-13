@@ -40,7 +40,7 @@
                     <td>{{ item.updated_at }}</td>
                     <td class="text-center">
                       <router-link to="" class="btn btn-primary btn-sm">Ubah</router-link>
-                      <form class="d-inline" onsubmit="return confirm(`Apakah anda yakin ingin menghapus data ini?`)">
+                      <form @submit.prevent="submit(item.no_transaction)" method="POST" class="d-inline">
                         <button class="btn btn-danger btn-sm">Hapus</button>
                       </form>
                     </td>
@@ -76,17 +76,33 @@ export default {
     Topbar
   },
   mounted() {
-    axios.get("http://localhost:3000/api/transactions").then((response) => {
-      this.transactions = response.data.data;
-      setTimeout(function(){
-        $('#datatable').DataTable();
-      }, 0);
-    });
+    this.fetchData()
   },
   data: function () {
     return {
       transactions: [],
     };
   },
+  methods: {
+    fetchData() {
+      axios.get("http://localhost:3000/api/transactions").then((response) => {
+        this.transactions = response.data.data;
+        setTimeout(function(){
+          $('#datatable').DataTable();
+        }, 0);
+      });
+    },
+    submit(no_transaction) {
+      axios.delete("http://localhost:3000/api/transactions/" + no_transaction)
+          .then(response => {
+            if(response.data.code === 200) {
+              alert(response.data.status)
+              this.fetchData()
+            }
+          }).catch(error => {
+            alert(error.response.data.status)
+          })
+    }
+  }
 }
 </script>
