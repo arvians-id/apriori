@@ -15,27 +15,25 @@
           <div class="card">
             <!-- Card header -->
             <div class="card-header">
-              <h3 class="mb-0">Data Produk</h3>
+              <h3 class="mb-0">Data Pengguna</h3>
             </div>
             <div class="table-responsive py-4">
               <table class="table table-flush" id="datatable">
                 <thead class="thead-light">
                 <tr>
                   <th>No</th>
-                  <th>Code Produk</th>
-                  <th>Nama</th>
-                  <th>Deskripsi</th>
+                  <th>Nama Lengkap</th>
+                  <th>Email</th>
                   <th>Tanggal Dibuat</th>
                   <th>Terakhir Diubah</th>
                   <th class="text-center">Action</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="(item,i) in products" :key="item.id_product">
+                <tr v-for="(item,i) in users" :key="item.id_user">
                   <td>{{ (i++) + 1 }}</td>
-                  <td>{{ item.code }}</td>
                   <td>{{ item.name }}</td>
-                  <td>{{ item.description }}</td>
+                  <td>{{ item.email }}</td>
                   <td>{{ item.created_at }}</td>
                   <td>{{ item.updated_at }}</td>
                   <td class="text-center">
@@ -76,8 +74,8 @@ export default {
     Topbar
   },
   mounted() {
-    axios.get("http://localhost:3000/api/products").then((response) => {
-      this.products = response.data.data;
+    axios.get("http://localhost:3000/api/users").then((response) => {
+      this.users = response.data.data;
       setTimeout(function(){
         $('#datatable').DataTable();
       }, 0);
@@ -85,7 +83,7 @@ export default {
   },
   data: function () {
     return {
-      products: []
+      users: [],
     };
   },
 }

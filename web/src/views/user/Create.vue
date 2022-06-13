@@ -16,20 +16,25 @@
             <div class="card">
               <!-- Card header -->
               <div class="card-header">
-                <h3 class="mb-0">Custom styles</h3>
+                <h3 class="mb-0">Buat Pengguna</h3>
               </div>
               <!-- Card body -->
               <div class="card-body">
-                <div class="row">
-                  <div class="col-lg-8">
-                    <p class="mb-0">
-                      For custom form validation messages, you ll need to add the novalidate boolean attribute to your <code>&lt;form&gt;</code>. This disables the browser default feedback tooltips, but still provides access to the form
-                      validation APIs in JavaScript.
-                      <br /><br />
-                      When attempting to submit, you ll see the<code>:invalid</code> and <code>:valid</code> styles applied to your form controls.
-                    </p>
+                 <form>
+                  <div class="form-group">
+                    <label class="form-control-label">Nama Lengkap</label>
+                    <input type="text" class="form-control" v-model="name">
                   </div>
-                </div>
+                  <div class="form-group">
+                    <label class="form-control-label">Email</label>
+                    <input type="text" class="form-control" v-model="email">
+                  </div>
+                   <div class="form-group">
+                     <label class="form-control-label">Password</label>
+                     <input type="password" class="form-control" v-model="password">
+                   </div>
+                  <button class="btn btn-primary" type="submit">Submit form</button>
+                </form>
               </div>
             </div>
           </div>

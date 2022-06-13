@@ -15,29 +15,35 @@
           <div class="card">
             <!-- Card header -->
             <div class="card-header">
-              <h3 class="mb-0">Datatable</h3>
-              <p class="text-sm mb-0">
-                This is an exmaple of datatable using the well known datatables.net plugin. This is a minimal setup in order to get started fast.
-              </p>
+              <h3 class="mb-0">Data Transaksi</h3>
             </div>
             <div class="table-responsive py-4">
               <table class="table table-flush" id="datatable">
                 <thead class="thead-light">
                   <tr>
+                    <th>No</th>
                     <th>No Transaksi</th>
                     <th>Nama Pelanggan</th>
                     <th>Nama Produk</th>
                     <th>Tanggal Dibuat</th>
                     <th>Terakhir Diubah</th>
+                    <th class="text-center">Action</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr v-for="item in products" :key="item.id_transaction">
+                  <tr v-for="(item,i) in transactions" :key="item.id_transaction">
+                    <td>{{ (i++) + 1 }}</td>
                     <td>{{ item.no_transaction }}</td>
                     <td>{{ item.customer_name }}</td>
                     <td>{{ item.product_name }}</td>
                     <td>{{ item.created_at }}</td>
                     <td>{{ item.updated_at }}</td>
+                    <td class="text-center">
+                      <router-link to="" class="btn btn-primary btn-sm">Ubah</router-link>
+                      <form class="d-inline" onsubmit="return confirm(`Apakah anda yakin ingin menghapus data ini?`)">
+                        <button class="btn btn-danger btn-sm">Hapus</button>
+                      </form>
+                    </td>
                   </tr>
                 </tbody>
               </table>
@@ -71,7 +77,7 @@ export default {
   },
   mounted() {
     axios.get("http://localhost:3000/api/transactions").then((response) => {
-      this.products = response.data.data;
+      this.transactions = response.data.data;
       setTimeout(function(){
         $('#datatable').DataTable();
       }, 0);
@@ -79,7 +85,7 @@ export default {
   },
   data: function () {
     return {
-      products: [],
+      transactions: [],
     };
   },
 }

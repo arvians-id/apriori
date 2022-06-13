@@ -22,17 +22,9 @@
               <div class="card-body">
                  <form>
                   <div class="form-group">
-                    <label class="form-control-label">No Transaksi</label>
-                    <input type="text" class="form-control" v-model="no_transaction">
-                  </div>
-                  <div class="form-group">
-                    <label class="form-control-label">Nama Produk</label>
+                    <label class="form-control-label">Nama Produk</label> <small class="text-danger">*use ctrl for selecting the product</small>
                     <select multiple class="form-control" v-model="product_name">
-                      <option>1</option>
-                      <option>2</option>
-                      <option>3</option>
-                      <option>4</option>
-                      <option>5</option>
+                        <option v-for="(item) in products" :key="item.id_product">{{ item.name }}</option>
                     </select>
                   </div>
                   <div class="form-group">
@@ -57,6 +49,8 @@ import Sidebar from "@/components/Sidebar.vue"
 import Topbar from "@/components/Topbar.vue"
 import Header from "@/components/Header.vue"
 import Footer from "@/components/Footer.vue"
+import axios from "axios";
+import $ from "jquery";
 
 export default {
   components: {
@@ -64,6 +58,19 @@ export default {
     Sidebar,
     Header,
     Topbar
-  }
+  },
+  mounted() {
+    axios.get("http://localhost:3000/api/products").then((response) => {
+      this.products = response.data.data;
+      setTimeout(function(){
+        $('#datatable').DataTable();
+      }, 0);
+    });
+  },
+  data: function () {
+    return {
+      products: []
+    };
+  },
 }
 </script>

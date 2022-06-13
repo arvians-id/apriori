@@ -23,17 +23,17 @@
           <!-- Nav items -->
           <ul class="navbar-nav">
             <li class="nav-item">
-              <router-link class="nav-link" :to="{ name: 'admin' }">
+              <router-link :class="getActiveNavLink('admin')" :to="{ name: 'admin' }">
                 <i class="ni ni-shop text-primary"></i>
                 <span class="nav-link-text">Home</span>
               </router-link>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#navbar-examples" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="navbar-examples">
+              <a :class="getActiveNavLink('transaction')" href="#navbar-examples" data-toggle="collapse" role="button" :aria-expanded="getAreaExpandedBool('transaction')" aria-controls="navbar-examples">
                 <i class="ni ni-cart text-orange"></i>
                 <span class="nav-link-text">Transaction</span>
               </a>
-              <div class="collapse" id="navbar-examples">
+              <div :class="getCollapseNavLink('transaction')" id="navbar-examples">
                 <ul class="nav nav-sm flex-column">
                   <li class="nav-item">
                     <router-link :to="{ name: 'transaction' }" class="nav-link">Data</router-link>
@@ -48,11 +48,11 @@
               </div>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#navbar-components" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="navbar-components">
+              <a :class="getActiveNavLink('product')" href="#navbar-components" data-toggle="collapse" role="button" :aria-expanded="getAreaExpandedBool('product')" aria-controls="navbar-components">
                 <i class="ni ni-app text-info"></i>
                 <span class="nav-link-text">Product</span>
               </a>
-              <div class="collapse" id="navbar-components">
+              <div :class="getCollapseNavLink('product')" id="navbar-components">
                 <ul class="nav nav-sm flex-column">
                   <li class="nav-item">
                     <router-link :to="{ name: 'product' }" class="nav-link">Data</router-link>
@@ -64,17 +64,33 @@
               </div>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="#navbar-forms" data-toggle="collapse" role="button" aria-expanded="false" aria-controls="navbar-forms">
+              <a :class="getActiveNavLink('apriori')" href="#navbar-forms" data-toggle="collapse" role="button" :aria-expanded="getAreaExpandedBool('apriori')" aria-controls="navbar-forms">
                 <i class="ni ni-ungroup text-pink"></i>
                 <span class="nav-link-text">Apriori</span>
               </a>
-              <div class="collapse" id="navbar-forms">
+              <div :class="getCollapseNavLink('apriori')" id="navbar-forms">
                 <ul class="nav nav-sm flex-column">
                   <li class="nav-item">
                     <router-link :to="{ name: 'apriori' }" class="nav-link">Data</router-link>
                   </li>
                   <li class="nav-item">
                     <router-link :to="{ name: 'apriori.create' }" class="nav-link">Create</router-link>
+                  </li>
+                </ul>
+              </div>
+            </li>
+            <li class="nav-item">
+              <a :class="getActiveNavLink('user')" href="#navbar-users" data-toggle="collapse" role="button" :aria-expanded="getAreaExpandedBool('user')" aria-controls="navbar-users">
+                <i class="ni ni-circle-08 text-danger"></i>
+                <span class="nav-link-text">User</span>
+              </a>
+              <div :class="getCollapseNavLink('user')" id="navbar-users">
+                <ul class="nav nav-sm flex-column">
+                  <li class="nav-item">
+                    <router-link :to="{ name: 'user' }" class="nav-link">Data</router-link>
+                  </li>
+                  <li class="nav-item">
+                    <router-link :to="{ name: 'user.create' }" class="nav-link">Create</router-link>
                   </li>
                 </ul>
               </div>
@@ -87,7 +103,7 @@
           <!-- Navigation -->
           <ul class="navbar-nav mb-md-3">
             <li class="nav-item">
-              <router-link class="nav-link" :to="{ name: 'profile' }">
+              <router-link :class="getActiveNavLink('profile')" :to="{ name: 'profile' }">
                 <i class="ni ni-single-02"></i>
                 <span class="nav-link-text">My Account</span>
               </router-link>
@@ -104,3 +120,41 @@
     </div>
   </nav>
 </template>
+
+<script>
+
+export default {
+  methods: {
+    getActiveNavLink(name) {
+      let classString = "nav-link "
+
+      let routeName = this.$route.name
+      let route = routeName.split(".")
+      if (route[0] === name) {
+        classString += "active"
+      }
+      return classString;
+    },
+    getCollapseNavLink(name) {
+      let classString = "collapse "
+
+      let routeName = this.$route.name
+      let route = routeName.split(".")
+      if (route[0] === name) {
+        classString += "show"
+      }
+      return classString;
+    },
+    getAreaExpandedBool(name) {
+      let classString = "false"
+
+      let routeName = this.$route.name
+      let route = routeName.split(".")
+      if (route[0] === name) {
+        classString = "true"
+      }
+      return classString;
+    }
+  }
+}
+</script>

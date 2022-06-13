@@ -9,6 +9,8 @@ import Product from "../views/product/Data.vue";
 import ProductCreate from "../views/product/Create.vue";
 import Apriori from "../views/apriori/Data.vue";
 import AprioriCreate from "../views/apriori/Create.vue";
+import User from "../views/user/Data.vue";
+import UserCreate from "../views/user/Create.vue";
 import Profil from "../views/Profile.vue";
 import NotFound from "../views/NotFound.vue";
 
@@ -62,6 +64,16 @@ const routes = [
     path: "/admin/apriori/create",
     name: "apriori.create",
     component: AprioriCreate,
+  },
+  {
+    path: "/admin/user",
+    name: "user",
+    component: User,
+  },
+  {
+    path: "/admin/user/create",
+    name: "user.create",
+    component: UserCreate,
   },
   {
     path: "/admin/profile",

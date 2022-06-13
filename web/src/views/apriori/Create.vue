@@ -22,20 +22,20 @@
               <div class="card-body">
                  <form>
                   <div class="form-group">
-                    <label class="form-control-label">Minimum Pendukung (Support)</label>
-                    <input type="text" class="form-control" v-model="minimum_support">
+                    <label class="form-control-label">Minimum Pendukung (Support)</label> <small class="text-danger">*%</small>
+                    <input type="text" class="form-control" v-model="minimum_support" placeholder="contoh: 0.3 atau 20">
                   </div>
                   <div class="form-group">
-                    <label class="form-control-label">Maximum Kepercayaan (Confidence)</label>
-                    <input type="text" class="form-control" v-model="maximum_confidence">
+                    <label class="form-control-label">Maximum Kepercayaan (Confidence)</label> <small class="text-danger">*%</small>
+                    <input type="text" class="form-control" v-model="maximum_confidence" placeholder="contoh: 0.3 atau 20">
                   </div>
                   <div class="form-group">
-                    <label class="form-control-label">Minimum Diskon</label>
-                    <input type="text" class="form-control" v-model="minimum_discount">
+                    <label class="form-control-label">Minimum Diskon</label> <small class="text-danger">*%</small>
+                    <input type="text" class="form-control" v-model="minimum_discount" placeholder="contoh: 10">
                   </div>
                   <div class="form-group">
-                    <label class="form-control-label">Maximum Diskon</label>
-                    <input type="text" class="form-control" v-model="maximum_discount">
+                    <label class="form-control-label">Maximum Diskon</label> <small class="text-danger">*%</small>
+                    <input type="text" class="form-control" v-model="maximum_discount" placeholder="contoh: 15">
                   </div>
                   <div class="form-group">
                     <label class="form-control-label">Dimulai</label>
