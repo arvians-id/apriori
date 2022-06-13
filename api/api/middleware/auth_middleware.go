@@ -11,6 +11,19 @@ import (
 
 func AuthJwtMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		tokenCookie, err := c.Cookie("token")
+		if err != nil {
+			if err == http.ErrNoCookie {
+				c.JSON(http.StatusUnauthorized, model.WebResponse{
+					Code:   http.StatusUnauthorized,
+					Status: "invalid token",
+					Data:   nil,
+				})
+				c.Abort()
+				return
+			}
+		}
+
 		authorizationHeader := c.GetHeader("Authorization")
 		if !strings.Contains(authorizationHeader, "Bearer") {
 			c.JSON(http.StatusUnauthorized, model.WebResponse{
@@ -23,6 +36,16 @@ func AuthJwtMiddleware() gin.HandlerFunc {
 		}
 
 		tokenString := strings.Replace(authorizationHeader, "Bearer ", "", -1)
+
+		if tokenCookie != tokenString {
+			c.JSON(http.StatusUnauthorized, model.WebResponse{
+				Code:   http.StatusUnauthorized,
+				Status: "invalid token",
+				Data:   nil,
+			})
+			c.Abort()
+			return
+		}
 
 		jwtService := service.NewJwtService()
 		token, err := jwtService.ValidateToken(tokenString)

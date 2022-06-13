@@ -25,6 +25,7 @@ var _ = Describe("User API", func() {
 	var server *gin.Engine
 	var database *sql.DB
 	var tokenJWT string
+	var cookie *http.Cookie
 
 	BeforeEach(func() {
 		err := setup.TestEnv()
@@ -71,6 +72,11 @@ var _ = Describe("User API", func() {
 		_ = json.Unmarshal(body, &responseBody)
 
 		tokenJWT = responseBody["data"].(map[string]interface{})["access_token"].(string)
+		for _, c := range writer.Result().Cookies() {
+			if c.Name == "token" {
+				cookie = c
+			}
+		}
 	})
 
 	AfterEach(func() {
@@ -94,6 +100,7 @@ var _ = Describe("User API", func() {
 					requestBody := strings.NewReader(`{"name": "Bantal Biasa","description": "Test"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/products", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 					writer := httptest.NewRecorder()
@@ -115,6 +122,7 @@ var _ = Describe("User API", func() {
 					requestBody := strings.NewReader(`{"code": "SK6","name": "Bantal Biasa","description": "Test"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/products", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 					writer := httptest.NewRecorder()
@@ -123,6 +131,7 @@ var _ = Describe("User API", func() {
 					requestBody = strings.NewReader(`{"code": "SK6","name": "Bantal Biasa","description": "Test"}`)
 					request = httptest.NewRequest(http.MethodPost, "/api/products", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 					writer = httptest.NewRecorder()
@@ -144,6 +153,7 @@ var _ = Describe("User API", func() {
 					requestBody := strings.NewReader(`{"code": "S","name": "Bantal Biasa","description": "Test"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/products", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 					writer := httptest.NewRecorder()
@@ -166,6 +176,7 @@ var _ = Describe("User API", func() {
 					requestBody := strings.NewReader(`{"code": "SK6","description": "Test"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/products", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 					writer := httptest.NewRecorder()
@@ -187,6 +198,7 @@ var _ = Describe("User API", func() {
 					requestBody := strings.NewReader(`{"code": "SK6","name": "saa","description": "Test"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/products", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 					writer := httptest.NewRecorder()
@@ -212,6 +224,7 @@ var _ = Describe("User API", func() {
 					requestBody := strings.NewReader(`{"code": "SK6","name": "Bantal Biasa"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/products", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 					writer := httptest.NewRecorder()
@@ -237,6 +250,7 @@ var _ = Describe("User API", func() {
 					requestBody := strings.NewReader(`{"code": "SK6","name": "Bantal Biasa","description": "Test"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/products", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 					writer := httptest.NewRecorder()
@@ -265,6 +279,7 @@ var _ = Describe("User API", func() {
 				requestBody := strings.NewReader(`{"code": "SK1","name": "Bantal Biasa","description": "Test"}`)
 				request := httptest.NewRequest(http.MethodPatch, "/api/products/SK1", requestBody)
 				request.Header.Add("Content-Type", "application/json")
+				request.AddCookie(cookie)
 				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 				writer := httptest.NewRecorder()
@@ -300,6 +315,7 @@ var _ = Describe("User API", func() {
 					requestBody := strings.NewReader(`{"code": "SK1","description": "Test"}`)
 					request := httptest.NewRequest(http.MethodPatch, "/api/products/"+row.Code, requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 					writer := httptest.NewRecorder()
@@ -333,6 +349,7 @@ var _ = Describe("User API", func() {
 					requestBody := strings.NewReader(`{"code": "SK1","name": "Kas","description": "Test"}`)
 					request := httptest.NewRequest(http.MethodPatch, "/api/products/"+row.Code, requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 					writer := httptest.NewRecorder()
@@ -370,6 +387,7 @@ var _ = Describe("User API", func() {
 					requestBody := strings.NewReader(`{"code": "SK1","name": "Guling Doti"}`)
 					request := httptest.NewRequest(http.MethodPatch, "/api/products/"+row.Code, requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 					writer := httptest.NewRecorder()
@@ -406,6 +424,7 @@ var _ = Describe("User API", func() {
 					requestBody := strings.NewReader(`{"code": "SK1","name": "Guling Doti","description": "Test Bang"}`)
 					request := httptest.NewRequest(http.MethodPatch, "/api/products/"+row.Code, requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 					writer := httptest.NewRecorder()
@@ -432,6 +451,7 @@ var _ = Describe("User API", func() {
 				// Delete Product
 				request := httptest.NewRequest(http.MethodDelete, "/api/products/SK9", nil)
 				request.Header.Add("Content-Type", "application/json")
+				request.AddCookie(cookie)
 				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 				writer := httptest.NewRecorder()
@@ -466,6 +486,7 @@ var _ = Describe("User API", func() {
 				// Delete Product
 				request := httptest.NewRequest(http.MethodDelete, "/api/products/"+row.Code, nil)
 				request.Header.Add("Content-Type", "application/json")
+				request.AddCookie(cookie)
 				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 				writer := httptest.NewRecorder()
@@ -490,6 +511,7 @@ var _ = Describe("User API", func() {
 				// Find All Product
 				request := httptest.NewRequest(http.MethodGet, "/api/products", nil)
 				request.Header.Add("Content-Type", "application/json")
+				request.AddCookie(cookie)
 				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 				writer := httptest.NewRecorder()
@@ -530,6 +552,7 @@ var _ = Describe("User API", func() {
 				// Find All Products
 				request := httptest.NewRequest(http.MethodGet, "/api/products", nil)
 				request.Header.Add("Content-Type", "application/json")
+				request.AddCookie(cookie)
 				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 				writer := httptest.NewRecorder()
@@ -564,6 +587,7 @@ var _ = Describe("User API", func() {
 				// Find By Code Product
 				request := httptest.NewRequest(http.MethodGet, "/api/products/SK5", nil)
 				request.Header.Add("Content-Type", "application/json")
+				request.AddCookie(cookie)
 				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 				writer := httptest.NewRecorder()
@@ -597,6 +621,7 @@ var _ = Describe("User API", func() {
 				// Find By Code Product
 				request := httptest.NewRequest(http.MethodGet, "/api/products/"+row.Code, nil)
 				request.Header.Add("Content-Type", "application/json")
+				request.AddCookie(cookie)
 				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 				writer := httptest.NewRecorder()

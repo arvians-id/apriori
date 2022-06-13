@@ -6,6 +6,8 @@ import (
 	"apriori/service"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"net/http"
+	"net/url"
 	"time"
 )
 
@@ -36,6 +38,7 @@ func (controller *AuthController) Route(router *gin.Engine) *gin.Engine {
 		authorized.POST("/verify", controller.VerifyResetPassword)
 		authorized.POST("/register", controller.Register)
 		authorized.DELETE("/logout", controller.Logout)
+		authorized.POST("/token", controller.Token)
 	}
 
 	return router
@@ -62,6 +65,14 @@ func (controller *AuthController) Login(c *gin.Context) {
 		return
 	}
 
+	http.SetCookie(c.Writer, &http.Cookie{
+		Name:     "token",
+		Value:    url.QueryEscape(token.AccessToken),
+		Expires:  expirationTime,
+		Path:     "/api",
+		HttpOnly: true,
+	})
+
 	response.ReturnSuccessOK(c, "OK", gin.H{
 		"access_token":  token.AccessToken,
 		"refresh_token": token.RefreshToken,
@@ -83,6 +94,14 @@ func (controller *AuthController) Refresh(c *gin.Context) {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
+
+	http.SetCookie(c.Writer, &http.Cookie{
+		Name:     "token",
+		Value:    url.QueryEscape(token.AccessToken),
+		Expires:  time.Now().Add(1 * time.Hour),
+		Path:     "/api",
+		HttpOnly: true,
+	})
 
 	response.ReturnSuccessOK(c, "OK", gin.H{
 		"access_token":  token.AccessToken,
@@ -156,5 +175,29 @@ func (controller *AuthController) VerifyResetPassword(c *gin.Context) {
 }
 
 func (controller *AuthController) Logout(c *gin.Context) {
+	http.SetCookie(c.Writer, &http.Cookie{
+		Name:     "token",
+		Value:    "",
+		Path:     "/api",
+		Expires:  time.Unix(0, 0),
+		HttpOnly: true,
+	})
+
 	response.ReturnSuccessOK(c, "OK", nil)
+}
+
+func (controller *AuthController) Token(c *gin.Context) {
+	tokenCookie, err := c.Cookie("token")
+	if err != nil {
+		if err == http.ErrNoCookie {
+			c.JSON(http.StatusUnauthorized, model.WebResponse{
+				Code:   http.StatusUnauthorized,
+				Status: "invalid token",
+				Data:   nil,
+			})
+			return
+		}
+	}
+
+	response.ReturnSuccessOK(c, "OK", tokenCookie)
 }

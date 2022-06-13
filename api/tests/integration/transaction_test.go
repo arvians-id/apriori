@@ -29,6 +29,7 @@ var _ = Describe("User API", func() {
 	var server *gin.Engine
 	var database *sql.DB
 	var tokenJWT string
+	var cookie *http.Cookie
 
 	BeforeEach(func() {
 		err := setup.TestEnv()
@@ -75,6 +76,11 @@ var _ = Describe("User API", func() {
 		_ = json.Unmarshal(body, &responseBody)
 
 		tokenJWT = responseBody["data"].(map[string]interface{})["access_token"].(string)
+		for _, c := range writer.Result().Cookies() {
+			if c.Name == "token" {
+				cookie = c
+			}
+		}
 	})
 
 	AfterEach(func() {
@@ -98,6 +104,7 @@ var _ = Describe("User API", func() {
 					requestBody := strings.NewReader(`{"customer_name": "Wids"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/transactions", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 					writer := httptest.NewRecorder()
@@ -121,6 +128,7 @@ var _ = Describe("User API", func() {
 					requestBody := strings.NewReader(`{"product_name": "Kasur cinta, Bantal memori"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/transactions", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 					writer := httptest.NewRecorder()
@@ -145,6 +153,7 @@ var _ = Describe("User API", func() {
 				requestBody := strings.NewReader(`{"product_name": "Kasur cinta, Bantal memori","customer_name": "Wids"}`)
 				request := httptest.NewRequest(http.MethodPost, "/api/transactions", requestBody)
 				request.Header.Add("Content-Type", "application/json")
+				request.AddCookie(cookie)
 				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 				writer := httptest.NewRecorder()
@@ -179,6 +188,7 @@ var _ = Describe("User API", func() {
 				// Create Transaction
 				request := httptest.NewRequest(http.MethodPost, "/api/transactions/csv", body)
 				request.Header.Add("Content-Type", writer.FormDataContentType())
+				request.AddCookie(cookie)
 				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 				rec := httptest.NewRecorder()
@@ -218,6 +228,7 @@ var _ = Describe("User API", func() {
 					requestBody := strings.NewReader(`{"customer_name": "Wids"}`)
 					request := httptest.NewRequest(http.MethodPatch, "/api/transactions/"+row.NoTransaction, requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 					writer := httptest.NewRecorder()
@@ -253,6 +264,7 @@ var _ = Describe("User API", func() {
 					requestBody := strings.NewReader(`{"product_name": "Kasur cinta, Bantal memori"}`)
 					request := httptest.NewRequest(http.MethodPatch, "/api/transactions/"+row.NoTransaction, requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 					writer := httptest.NewRecorder()
@@ -289,6 +301,7 @@ var _ = Describe("User API", func() {
 				requestBody := strings.NewReader(`{"product_name": "Guling cinta, Guling memori","customer_name": "Goengs"}`)
 				request := httptest.NewRequest(http.MethodPatch, "/api/transactions/"+row.NoTransaction, requestBody)
 				request.Header.Add("Content-Type", "application/json")
+				request.AddCookie(cookie)
 				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 				writer := httptest.NewRecorder()
@@ -314,6 +327,7 @@ var _ = Describe("User API", func() {
 				// Delete Transaction
 				request := httptest.NewRequest(http.MethodDelete, "/api/transactions/32412", nil)
 				request.Header.Add("Content-Type", "application/json")
+				request.AddCookie(cookie)
 				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 				writer := httptest.NewRecorder()
@@ -348,6 +362,7 @@ var _ = Describe("User API", func() {
 				// Delete Transaction
 				request := httptest.NewRequest(http.MethodDelete, "/api/transactions/"+row.NoTransaction, nil)
 				request.Header.Add("Content-Type", "application/json")
+				request.AddCookie(cookie)
 				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 				writer := httptest.NewRecorder()
@@ -372,6 +387,7 @@ var _ = Describe("User API", func() {
 				// Find All Transaction
 				request := httptest.NewRequest(http.MethodGet, "/api/transactions", nil)
 				request.Header.Add("Content-Type", "application/json")
+				request.AddCookie(cookie)
 				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 				writer := httptest.NewRecorder()
@@ -410,6 +426,7 @@ var _ = Describe("User API", func() {
 				// Find All Transaction
 				request := httptest.NewRequest(http.MethodGet, "/api/transactions", nil)
 				request.Header.Add("Content-Type", "application/json")
+				request.AddCookie(cookie)
 				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 				writer := httptest.NewRecorder()
@@ -444,6 +461,7 @@ var _ = Describe("User API", func() {
 				// Find By No Transaction
 				request := httptest.NewRequest(http.MethodGet, "/api/transactions/52324", nil)
 				request.Header.Add("Content-Type", "application/json")
+				request.AddCookie(cookie)
 				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 				writer := httptest.NewRecorder()
@@ -477,6 +495,7 @@ var _ = Describe("User API", func() {
 				// Find By No Transaction
 				request := httptest.NewRequest(http.MethodGet, "/api/transactions/"+row.NoTransaction, nil)
 				request.Header.Add("Content-Type", "application/json")
+				request.AddCookie(cookie)
 				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
 				writer := httptest.NewRecorder()
