@@ -20,10 +20,10 @@
               </div>
               <!-- Card body -->
               <div class="card-body">
-                <form>
+                <form @submit.prevent="submit" method="POST">
                 <label class="form-control-label">Upload File CSV</label>
                   <div class="custom-file mb-3">
-                    <input type="file" class="custom-file-input">
+                    <input type="file" class="custom-file-input" @change="submitFile">
                     <label class="custom-file-label">Select file</label>
                   </div>
                   <button class="btn btn-primary" type="submit">Submit form</button>
@@ -44,18 +44,48 @@ import Sidebar from "@/components/Sidebar.vue"
 import Topbar from "@/components/Topbar.vue"
 import Header from "@/components/Header.vue"
 import Footer from "@/components/Footer.vue"
+import axios from "axios";
 
 export default {
-    data(){
-        return {
-            file: ""
-        }
-    },
     components: {
         Footer,
         Sidebar,
         Header,
         Topbar
+    },
+    data: function () {
+      return {
+        products: [],
+        transaction: {
+          file: null
+        }
+      };
+    },
+    methods: {
+      submit() {
+        const config = {
+          headers: {
+            'content-type': 'multipart/form-data'
+          }
+        }
+        const formData = new FormData()
+        formData.append("file", this.transaction.file)
+
+        axios.post("http://localhost:3000/api/transactions/csv", formData, config)
+            .then(response => {
+              if(response.data.code === 200) {
+                alert(response.data.status)
+                this.$router.push({
+                  name: 'transaction'
+                })
+              }
+            }).catch(error => {
+          alert(error.response.data.status)
+        })
+      },
+      submitFile(e){
+        this.transaction.file = e.target.files[0]
+      }
     }
 }
 </script>

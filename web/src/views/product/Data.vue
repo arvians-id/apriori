@@ -39,7 +39,7 @@
                   <td>{{ item.created_at }}</td>
                   <td>{{ item.updated_at }}</td>
                   <td class="text-center">
-                    <router-link to="" class="btn btn-primary btn-sm">Ubah</router-link>
+                    <router-link :to="{ name: 'product.edit', params: { code: item.code } }" class="btn btn-primary btn-sm">Ubah</router-link>
                     <form @submit.prevent="submit(item.code)" method="POST" class="d-inline">
                       <button class="btn btn-danger btn-sm">Hapus</button>
                     </form>

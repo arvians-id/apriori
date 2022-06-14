@@ -16,22 +16,22 @@
             <div class="card">
               <!-- Card header -->
               <div class="card-header">
-                <h3 class="mb-0">Buat Produk</h3>
+                <h3 class="mb-0">Ubah Transaksi</h3>
               </div>
               <!-- Card body -->
               <div class="card-body">
-                 <form @submit.prevent="submit" method="POST">
+                <form @submit.prevent="submit" method="POST">
                   <div class="form-group">
-                    <label class="form-control-label">Kode Product</label>
-                    <input type="text" class="form-control" v-model="product.code">
+                    <label class="form-control-label">Nama Lengkap</label>
+                    <input type="text" class="form-control" v-model="user.name">
                   </div>
                   <div class="form-group">
-                    <label class="form-control-label">Nama Produk</label>
-                    <input type="text" class="form-control" v-model="product.name">
+                    <label class="form-control-label">Email</label>
+                    <input type="email" class="form-control" v-model="user.email">
                   </div>
                   <div class="form-group">
-                    <label class="form-control-label">Deskripsi</label> <small class="text-danger">*optional</small>
-                    <input type="text" class="form-control" v-model="product.description">
+                    <label class="form-control-label">Password</label> <small class="text-danger">*optional</small>
+                    <input type="password" class="form-control" v-model="user.password">
                   </div>
                   <button class="btn btn-primary" type="submit">Submit form</button>
                 </form>
@@ -60,28 +60,39 @@ export default {
     Header,
     Topbar
   },
-  data(){
+  mounted() {
+    this.fetchData()
+  },
+  data: function () {
     return {
-      product: {
-        code: "",
+      user: {
         name: "",
-        description: "",
+        email: "",
+        password: "",
       }
-    }
+    };
   },
   methods: {
     submit() {
-      axios.post("http://localhost:3000/api/products", this.product)
+      axios.patch(`http://localhost:3000/api/users/${this.$route.params.id}`, this.user)
           .then(response => {
             if(response.data.code === 200) {
               alert(response.data.status)
               this.$router.push({
-                name: 'product'
+                name: 'user'
               })
             }
           }).catch(error => {
         alert(error.response.data.status)
       })
+    },
+    fetchData() {
+      axios.get(`http://localhost:3000/api/users/${this.$route.params.id}`).then(response => {
+        this.user = {
+          name: response.data.data.name,
+          email: response.data.data.email,
+        };
+      });
     }
   }
 }

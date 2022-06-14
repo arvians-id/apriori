@@ -24,7 +24,7 @@ func NewProductRepository() ProductRepository {
 }
 
 func (repository *productRepository) FindAll(ctx context.Context, tx *sql.Tx) ([]entity.Product, error) {
-	query := "SELECT * FROM products"
+	query := "SELECT * FROM products ORDER BY id_product DESC"
 	queryContext, err := tx.QueryContext(ctx, query)
 	if err != nil {
 		return []entity.Product{}, err

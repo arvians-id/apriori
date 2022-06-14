@@ -223,7 +223,7 @@ var _ = Describe("User API", func() {
 
 				It("should return error exceeds the limit character", func() {
 					// Create User When logged In
-					requestBody := strings.NewReader(`{"name":"wids","email": "Widdysdsdasdddddddsadasdasdss@gmail.com","password": "Rahasia123"}`)
+					requestBody := strings.NewReader(`{"name":"wids","email": "sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssddddddddddddddddddddddddddddddddddddddd@gmail.com","password": "Rahasia123"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/users", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.AddCookie(cookie)
@@ -436,7 +436,7 @@ var _ = Describe("User API", func() {
 
 				It("should return error exceeds the limit character", func() {
 					// Update User
-					requestBody := strings.NewReader(`{"name":"wids","email": "Widdysdsdasdddddddsadasdasdss@gmail.com","password": "Rahasia123"}`)
+					requestBody := strings.NewReader(`{"name":"wids","email": "sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssddddddddddddddddddddddddddddddddddddddd@gmail.com","password": "Rahasia123"}`)
 					request := httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(int(row.IdUser)), requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.AddCookie(cookie)
@@ -654,8 +654,9 @@ var _ = Describe("User API", func() {
 
 				users := responseBody["data"].([]interface{})
 
+				// Desc
 				usersResponse1 := users[1].(map[string]interface{})
-				usersResponse2 := users[2].(map[string]interface{})
+				usersResponse2 := users[0].(map[string]interface{})
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("OK"))

@@ -25,7 +25,7 @@ func NewUserRepository() UserRepository {
 }
 
 func (repository *userRepository) FindAll(ctx context.Context, tx *sql.Tx) ([]entity.User, error) {
-	query := "SELECT * FROM users"
+	query := "SELECT * FROM users ORDER BY id_user DESC"
 	queryContext, err := tx.QueryContext(ctx, query)
 	if err != nil {
 		return []entity.User{}, err

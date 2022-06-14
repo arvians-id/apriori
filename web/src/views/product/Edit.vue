@@ -16,15 +16,11 @@
             <div class="card">
               <!-- Card header -->
               <div class="card-header">
-                <h3 class="mb-0">Buat Produk</h3>
+                <h3 class="mb-0">Ubah Produk</h3>
               </div>
               <!-- Card body -->
               <div class="card-body">
-                 <form @submit.prevent="submit" method="POST">
-                  <div class="form-group">
-                    <label class="form-control-label">Kode Product</label>
-                    <input type="text" class="form-control" v-model="product.code">
-                  </div>
+                <form @submit.prevent="submit" method="POST">
                   <div class="form-group">
                     <label class="form-control-label">Nama Produk</label>
                     <input type="text" class="form-control" v-model="product.name">
@@ -60,18 +56,21 @@ export default {
     Header,
     Topbar
   },
-  data(){
+  mounted() {
+    this.fetchData()
+  },
+  data: function () {
     return {
       product: {
         code: "",
         name: "",
         description: "",
       }
-    }
+    };
   },
   methods: {
     submit() {
-      axios.post("http://localhost:3000/api/products", this.product)
+      axios.patch(`http://localhost:3000/api/products/${this.$route.params.code}`, this.product)
           .then(response => {
             if(response.data.code === 200) {
               alert(response.data.status)
@@ -82,6 +81,15 @@ export default {
           }).catch(error => {
         alert(error.response.data.status)
       })
+    },
+    fetchData() {
+      axios.get(`http://localhost:3000/api/products/${this.$route.params.code}`).then(response => {
+        this.product = {
+          code: response.data.data.code,
+          name: response.data.data.name,
+          description: response.data.data.description,
+        }
+      });
     }
   }
 }

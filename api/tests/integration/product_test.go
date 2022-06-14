@@ -566,8 +566,9 @@ var _ = Describe("User API", func() {
 
 				products := responseBody["data"].([]interface{})
 
-				productResponse1 := products[0].(map[string]interface{})
-				productResponse2 := products[1].(map[string]interface{})
+				// Desc
+				productResponse1 := products[1].(map[string]interface{})
+				productResponse2 := products[0].(map[string]interface{})
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("OK"))

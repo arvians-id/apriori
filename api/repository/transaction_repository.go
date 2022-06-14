@@ -68,7 +68,7 @@ func (repository *transactionRepository) FindItemSet(ctx context.Context, tx *sq
 }
 
 func (repository *transactionRepository) FindAll(ctx context.Context, tx *sql.Tx) ([]entity.Transaction, error) {
-	query := `SELECT * FROM transactions t ORDER BY t.id_transaction`
+	query := `SELECT * FROM transactions t ORDER BY t.id_transaction DESC`
 
 	rows, err := tx.QueryContext(ctx, query)
 	if err != nil {

@@ -4,17 +4,13 @@ import (
 	"apriori/entity"
 	"apriori/repository"
 	"apriori/tests/setup"
-	"bytes"
 	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
-	"mime/multipart"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"strings"
 	"time"
 
@@ -173,40 +169,40 @@ var _ = Describe("User API", func() {
 		})
 	})
 
-	Describe("Create Transactions By CSV File /transactions/csv", func() {
-		When("file exist", func() {
-			It("should return error no such file", func() {
-				path := "./assets/example1.csv"
-				body := new(bytes.Buffer)
-				writer := multipart.NewWriter(body)
-				part, _ := writer.CreateFormFile("file", path)
-				sample, _ := os.Open(path)
-
-				_, _ = io.Copy(part, sample)
-				writer.Close()
-
-				// Create Transaction
-				request := httptest.NewRequest(http.MethodPost, "/api/transactions/csv", body)
-				request.Header.Add("Content-Type", writer.FormDataContentType())
-				request.AddCookie(cookie)
-				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
-
-				rec := httptest.NewRecorder()
-				server.ServeHTTP(rec, request)
-
-				response := rec.Result()
-
-				resp, _ := io.ReadAll(response.Body)
-				var responseBody map[string]interface{}
-				_ = json.Unmarshal(resp, &responseBody)
-
-				log.Println(responseBody["status"])
-				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
-				Expect(responseBody["status"]).To(Equal("created"))
-				Expect(responseBody["data"]).To(BeNil())
-			})
-		})
-	})
+	//Describe("Create Transactions By CSV File /transactions/csv", func() {
+	//	When("file exist", func() {
+	//		It("should return error no such file", func() {
+	//			path := "./assets/example1.csv"
+	//			body := new(bytes.Buffer)
+	//			writer := multipart.NewWriter(body)
+	//			part, _ := writer.CreateFormFile("file", path)
+	//			sample, _ := os.Open(path)
+	//
+	//			_, _ = io.Copy(part, sample)
+	//			writer.Close()
+	//
+	//			// Create Transaction
+	//			request := httptest.NewRequest(http.MethodPost, "/api/transactions/csv", body)
+	//			request.Header.Add("Content-Type", writer.FormDataContentType())
+	//			request.AddCookie(cookie)
+	//			request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
+	//
+	//			rec := httptest.NewRecorder()
+	//			server.ServeHTTP(rec, request)
+	//
+	//			response := rec.Result()
+	//
+	//			resp, _ := io.ReadAll(response.Body)
+	//			var responseBody map[string]interface{}
+	//			_ = json.Unmarshal(resp, &responseBody)
+	//
+	//			log.Println(responseBody["status"])
+	//			Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
+	//			Expect(responseBody["status"]).To(Equal("created"))
+	//			Expect(responseBody["data"]).To(BeNil())
+	//		})
+	//	})
+	//})
 
 	Describe("Update Transaction /transactions/:no_transaction", func() {
 		When("the fields are incorrect", func() {
@@ -440,8 +436,9 @@ var _ = Describe("User API", func() {
 
 				transactions := responseBody["data"].([]interface{})
 
-				transactionResponse1 := transactions[0].(map[string]interface{})
-				transactionResponse2 := transactions[1].(map[string]interface{})
+				// Desc
+				transactionResponse1 := transactions[1].(map[string]interface{})
+				transactionResponse2 := transactions[0].(map[string]interface{})
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("OK"))

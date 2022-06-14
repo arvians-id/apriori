@@ -42,7 +42,7 @@
                     <router-link :to="{ name: 'transaction.create' }" class="nav-link">Create</router-link>
                   </li>
                   <li class="nav-item">
-                    <router-link :to="{ name: 'transaction.create.csv' }" class="nav-link">Create CSV</router-link>
+                    <router-link :to="{ name: 'transaction.create.csv' }" class="nav-link">Import</router-link>
                   </li>
                 </ul>
               </div>
