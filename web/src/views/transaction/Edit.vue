@@ -16,19 +16,19 @@
             <div class="card">
               <!-- Card header -->
               <div class="card-header">
-                <h3 class="mb-0">Ubah Transaksi</h3>
+                <h3 class="mb-0">Edit Transaction</h3>
               </div>
               <!-- Card body -->
               <div class="card-body">
                 <form @submit.prevent="submit" method="POST">
                   <div class="form-group">
-                    <label class="form-control-label">Nama Produk</label> <small class="text-danger">*use ctrl for selecting the product</small>
+                    <label class="form-control-label">Product Name</label> <small class="text-danger">*use ctrl for selecting the product</small>
                     <select multiple class="form-control" v-model="transaction.product_name">
                       <option v-for="(item) in products" :key="item.id_product">{{ item.name }}</option>
                     </select>
                   </div>
                   <div class="form-group">
-                    <label class="form-control-label">Nama Pelanggan</label>
+                    <label class="form-control-label">Customer Name</label> <small class="text-danger">*</small>
                     <input type="text" class="form-control" v-model="transaction.customer_name">
                   </div>
                   <button class="btn btn-primary" type="submit">Submit form</button>

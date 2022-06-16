@@ -16,22 +16,22 @@
             <div class="card">
               <!-- Card header -->
               <div class="card-header">
-                <h3 class="mb-0">Buat Pengguna</h3>
+                <h3 class="mb-0">Create User</h3>
               </div>
               <!-- Card body -->
               <div class="card-body">
                 <form @submit.prevent="submit" method="POST">
                   <div class="form-group">
-                    <label class="form-control-label">Nama Lengkap</label>
-                    <input type="text" class="form-control" v-model="user.name">
+                    <label class="form-control-label">Full Name</label> <small class="text-danger">*</small>
+                    <input type="text" class="form-control" v-model="user.name" required>
                   </div>
                   <div class="form-group">
-                    <label class="form-control-label">Email</label>
-                    <input type="email" class="form-control" v-model="user.email">
+                    <label class="form-control-label">Email</label> <small class="text-danger">*</small>
+                    <input type="email" class="form-control" v-model="user.email" required>
                   </div>
                    <div class="form-group">
-                     <label class="form-control-label">Password</label>
-                     <input type="password" class="form-control" v-model="user.password">
+                     <label class="form-control-label">Password</label> <small class="text-danger">*</small>
+                     <input type="password" class="form-control" v-model="user.password" required>
                    </div>
                   <button class="btn btn-primary" type="submit">Submit form</button>
                 </form>

@@ -16,21 +16,21 @@
             <div class="card">
               <!-- Card header -->
               <div class="card-header">
-                <h3 class="mb-0">Buat Produk</h3>
+                <h3 class="mb-0">Create Product</h3>
               </div>
               <!-- Card body -->
               <div class="card-body">
                  <form @submit.prevent="submit" method="POST">
                   <div class="form-group">
-                    <label class="form-control-label">Kode Product</label>
-                    <input type="text" class="form-control" v-model="product.code">
+                    <label class="form-control-label">Product Code</label> <small class="text-danger">*</small>
+                    <input type="text" class="form-control" v-model="product.code" required>
                   </div>
                   <div class="form-group">
-                    <label class="form-control-label">Nama Produk</label>
-                    <input type="text" class="form-control" v-model="product.name">
+                    <label class="form-control-label">Product Name</label> <small class="text-danger">*</small>
+                    <input type="text" class="form-control" v-model="product.name" required>
                   </div>
                   <div class="form-group">
-                    <label class="form-control-label">Deskripsi</label> <small class="text-danger">*optional</small>
+                    <label class="form-control-label">Description</label>
                     <input type="text" class="form-control" v-model="product.description">
                   </div>
                   <button class="btn btn-primary" type="submit">Submit form</button>

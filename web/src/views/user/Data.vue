@@ -15,17 +15,17 @@
           <div class="card">
             <!-- Card header -->
             <div class="card-header">
-              <h3 class="mb-0">Data Pengguna</h3>
+              <h3 class="mb-0">Data User</h3>
             </div>
             <div class="table-responsive py-4">
               <table class="table table-flush" id="datatable">
                 <thead class="thead-light">
                 <tr>
                   <th>No</th>
-                  <th>Nama Lengkap</th>
+                  <th>Full Name</th>
                   <th>Email</th>
-                  <th>Tanggal Dibuat</th>
-                  <th>Terakhir Diubah</th>
+                  <th>Created At</th>
+                  <th>Last Modified</th>
                   <th class="text-center">Action</th>
                 </tr>
                 </thead>
@@ -37,9 +37,9 @@
                   <td>{{ item.created_at }}</td>
                   <td>{{ item.updated_at }}</td>
                   <td class="text-center">
-                    <router-link :to="{ name: 'user.edit', params: { id: item.id_user } }" class="btn btn-primary btn-sm">Ubah</router-link>
+                    <router-link :to="{ name: 'user.edit', params: { id: item.id_user } }" class="btn btn-primary btn-sm">Edit</router-link>
                     <form @submit.prevent="submit(item.id_user)" method="POST" class="d-inline">
-                      <button class="btn btn-danger btn-sm">Hapus</button>
+                      <button class="btn btn-danger btn-sm">Delete</button>
                     </form>
                   </td>
                 </tr>

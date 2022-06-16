@@ -21,30 +21,50 @@
               <!-- Card body -->
               <div class="card-body">
                  <form>
-                  <div class="form-group">
-                    <label class="form-control-label">Minimum Pendukung (Support)</label> <small class="text-danger">*%</small>
-                    <input type="text" class="form-control" v-model="minimum_support" placeholder="contoh: 0.3 atau 20">
-                  </div>
-                  <div class="form-group">
-                    <label class="form-control-label">Maximum Kepercayaan (Confidence)</label> <small class="text-danger">*%</small>
-                    <input type="text" class="form-control" v-model="maximum_confidence" placeholder="contoh: 0.3 atau 20">
-                  </div>
-                  <div class="form-group">
-                    <label class="form-control-label">Minimum Diskon</label> <small class="text-danger">*%</small>
-                    <input type="text" class="form-control" v-model="minimum_discount" placeholder="contoh: 10">
-                  </div>
-                  <div class="form-group">
-                    <label class="form-control-label">Maximum Diskon</label> <small class="text-danger">*%</small>
-                    <input type="text" class="form-control" v-model="maximum_discount" placeholder="contoh: 15">
-                  </div>
-                  <div class="form-group">
-                    <label class="form-control-label">Dimulai</label>
-                    <input type="date" class="form-control" v-model="start_date">
-                  </div>
-                  <div class="form-group">
-                    <label class="form-control-label">Hingga</label>
-                    <input type="date" class="form-control" v-model="end_date">
-                  </div>
+                   <div class="form-group">
+                     <label class="form-control-label">Minimum Support</label> <small class="text-danger">*</small>
+                     <div class="input-group input-group-merge">
+                       <input type="number" step="0.1" min="0.1" class="form-control" v-model="minimum_support" placeholder="example: 0.3 or 20" required>
+                       <div class="input-group-append">
+                         <span class="input-group-text">%</span>
+                       </div>
+                     </div>
+                   </div>
+                   <div class="form-group">
+                     <label class="form-control-label">Minimum Confidence</label> <small class="text-danger">*</small>
+                     <div class="input-group input-group-merge">
+                       <input type="number" step="0.1" min="0.1" class="form-control" v-model="maximum_confidence" placeholder="example: 0.3 or 20" required>
+                       <div class="input-group-append">
+                         <span class="input-group-text">%</span>
+                       </div>
+                     </div>
+                   </div>
+                   <div class="form-group">
+                     <label class="form-control-label">Minimum Discount</label> <small class="text-danger">*</small>
+                     <div class="input-group input-group-merge">
+                       <input type="number" min="1" class="form-control" v-model="minimum_discount" placeholder="example: 10" required>
+                       <div class="input-group-append">
+                         <span class="input-group-text">%</span>
+                       </div>
+                     </div>
+                   </div>
+                   <div class="form-group">
+                     <label class="form-control-label">Maximum Discount</label> <small class="text-danger">*</small>
+                     <div class="input-group input-group-merge">
+                       <input type="number" min="1" max="100" class="form-control" v-model="maximum_discount" placeholder="example: 15" required>
+                       <div class="input-group-append">
+                         <span class="input-group-text">%</span>
+                       </div>
+                     </div>
+                   </div>
+                   <div class="form-group">
+                     <label class="form-control-label">Start Date</label> <small class="text-danger">*</small>
+                     <input type="date" class="form-control" v-model="start_date" required>
+                   </div>
+                   <div class="form-group">
+                     <label class="form-control-label">End Date</label> <small class="text-danger">*</small>
+                     <input type="date" class="form-control" v-model="end_date" required>
+                   </div>
                   <button class="btn btn-primary" type="submit">Submit form</button>
                 </form>
               </div>

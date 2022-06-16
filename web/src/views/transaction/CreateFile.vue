@@ -16,14 +16,14 @@
             <div class="card">
               <!-- Card header -->
               <div class="card-header">
-                <h3 class="mb-0">Buat Transaksi Dengan CSV File</h3>
+                <h3 class="mb-0">Create Transaction By CSV File</h3>
               </div>
               <!-- Card body -->
               <div class="card-body">
                 <form @submit.prevent="submit" method="POST">
-                <label class="form-control-label">Upload File CSV</label>
+                <label class="form-control-label">Upload</label>  <small class="text-danger">*</small>
                   <div class="custom-file mb-3">
-                    <input type="file" class="custom-file-input" @change="submitFile">
+                    <input type="file" class="custom-file-input" @change="submitFile" required>
                     <label class="custom-file-label">Select file</label>
                   </div>
                   <button class="btn btn-primary" type="submit">Submit form</button>
@@ -65,7 +65,7 @@ export default {
       submit() {
         const config = {
           headers: {
-            'content-type': 'multipart/form-data'
+            'Content-Type': 'multipart/form-data'
           }
         }
         const formData = new FormData()

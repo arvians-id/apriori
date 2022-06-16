@@ -23,9 +23,9 @@
                 <tr>
                   <th>No</th>
                   <th>Code</th>
-                  <th>Rentang Tanggal</th>
+                  <th>Date Range</th>
                   <th>Status</th>
-                  <th>Terakhir Dibuat</th>
+                  <th>Created At</th>
                   <th class="text-center">Action</th>
                 </tr>
                 </thead>
@@ -38,9 +38,9 @@
                   <td>{{ item.created_at }}</td>
                   <td class="text-center">
                     <router-link to="" class="btn btn-secondary btn-sm">Detail</router-link>
-                    <router-link to="" class="btn btn-primary btn-sm">Ubah</router-link>
-                    <form class="d-inline" onsubmit="return confirm(`Apakah anda yakin ingin menghapus data ini?`)">
-                      <button class="btn btn-danger btn-sm">Hapus</button>
+                    <router-link to="" class="btn btn-primary btn-sm">Activate</router-link>
+                    <form class="d-inline">
+                      <button class="btn btn-danger btn-sm">Delete</button>
                     </form>
                   </td>
                 </tr>

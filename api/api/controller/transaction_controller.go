@@ -79,7 +79,8 @@ func (controller *TransactionController) CreateFromCsv(c *gin.Context) {
 		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
-	if file.Header.Get("Content-Type") != "text/csv" {
+
+	if file.Header.Get("Content-Type") != "application/vnd.ms-excel" {
 		response.ReturnErrorInternalServerError(c, errors.New("file not allowed"), nil)
 		return
 	}
