@@ -37,16 +37,24 @@ func FindFirstItemSet(transactionsSet []entity.Transaction, minimumSupport float
 			supportValue := fmt.Sprintf("%.2f", support)
 			totalValue := strconv.Itoa(int(total))
 
-			propertyProduct = append(propertyProduct, nameOfProduct+":"+supportValue+"/"+totalValue)
+			propertyProduct = append(propertyProduct, nameOfProduct+":"+supportValue+"/"+totalValue+"*"+"Eligible")
+		} else {
+			supportValue := fmt.Sprintf("%.2f", support)
+			totalValue := strconv.Itoa(int(total))
+
+			propertyProduct = append(propertyProduct, nameOfProduct+":"+supportValue+"/"+totalValue+"*"+"Not Eligible")
+
 		}
 	}
 
 	return transactions, productName, propertyProduct
 }
-func HandleMapsProblem(propertyProduct []string) ([]string, []float64, []int32) {
+func HandleMapsProblem(propertyProduct []string, minSupport float64) ([]string, []float64, []int32, []string, []string) {
 	var oneSet []string
 	var support []float64
 	var totalTransaction []int32
+	var checkEligible []string
+	var cleanSet []string
 
 	sort.Strings(propertyProduct)
 
@@ -54,6 +62,7 @@ func HandleMapsProblem(propertyProduct []string) ([]string, []float64, []int32) 
 		// Split property
 		nameOfProduct := strings.Split(propertyProduct[i], ":")
 		transaction := strings.Split(nameOfProduct[1], "/")
+		isEligible := strings.Split(transaction[1], "*")
 
 		// Insert product name
 		oneSet = append(oneSet, nameOfProduct[0])
@@ -62,19 +71,26 @@ func HandleMapsProblem(propertyProduct []string) ([]string, []float64, []int32) 
 		number, _ := strconv.ParseFloat(transaction[0], 64)
 		support = append(support, number)
 
+		if number >= minSupport {
+			cleanSet = append(cleanSet, nameOfProduct[0])
+		}
+
 		// Convert and insert total transaction
-		transactionNumber, _ := strconv.Atoi(transaction[1])
+		transactionNumber, _ := strconv.Atoi(isEligible[0])
 		totalTransaction = append(totalTransaction, int32(transactionNumber))
+
+		// Check Is Eligible
+		checkEligible = append(checkEligible, isEligible[1])
 	}
 
-	return oneSet, support, totalTransaction
+	return oneSet, support, totalTransaction, checkEligible, cleanSet
 }
 
-func FindConfidence(apriori []model.GetGenerateAprioriResponse, productName map[string]float64) []model.GetGenerateAprioriResponse {
+func FindConfidence(apriori []model.GetGenerateAprioriResponse, productName map[string]float64, minSupport float64) []model.GetGenerateAprioriResponse {
 	var confidence []model.GetGenerateAprioriResponse
 	for _, value := range apriori {
 		if value.Iterate == apriori[len(apriori)-1].Iterate {
-			if val, ok := productName[value.ItemSet[0]]; ok {
+			if val, ok := productName[value.ItemSet[0]]; ok && value.Support >= minSupport {
 				confidence = append(confidence, model.GetGenerateAprioriResponse{
 					ItemSet:     value.ItemSet,
 					Support:     value.Support,

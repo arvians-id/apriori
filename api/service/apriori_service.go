@@ -198,7 +198,7 @@ func (service *aprioriService) Generate(ctx context.Context, request model.Gener
 	transactions, productName, propertyProduct := lib.FindFirstItemSet(transactionsSet, request.MinimumSupport)
 
 	// Handle random maps problem
-	oneSet, support, totalTransaction := lib.HandleMapsProblem(propertyProduct)
+	oneSet, support, totalTransaction, isEligible, cleanSet := lib.HandleMapsProblem(propertyProduct, request.MinimumSupport)
 
 	// Get one item set
 	for i := 0; i < len(oneSet); i++ {
@@ -207,10 +207,12 @@ func (service *aprioriService) Generate(ctx context.Context, request model.Gener
 			Support:     support[i],
 			Iterate:     1,
 			Transaction: totalTransaction[i],
+			Description: isEligible[i],
 			RangeDate:   request.StartDate + " - " + request.EndDate,
 		})
 	}
 
+	oneSet = cleanSet
 	// Looking for more than one item set
 	var iterate int
 	var dataTemp [][]string
@@ -249,6 +251,16 @@ func (service *aprioriService) Generate(ctx context.Context, request model.Gener
 					Support:     math.Round(result*100) / 100,
 					Iterate:     int32(iterate) + 2,
 					Transaction: int32(countCandidates),
+					Description: "Eligible",
+					RangeDate:   request.StartDate + " - " + request.EndDate,
+				})
+			} else {
+				apriori = append(apriori, model.GetGenerateAprioriResponse{
+					ItemSet:     dataTemp[i],
+					Support:     math.Round(result*100) / 100,
+					Iterate:     int32(iterate) + 2,
+					Transaction: int32(countCandidates),
+					Description: "Not Eligible",
 					RangeDate:   request.StartDate + " - " + request.EndDate,
 				})
 			}
@@ -264,6 +276,30 @@ func (service *aprioriService) Generate(ctx context.Context, request model.Gener
 		// After finish operating, then clean the array
 		dataTemp = [][]string{}
 
+		var checkClean bool
+		for _, value := range apriori {
+			if value.Iterate == int32(iterate)+2 && value.Description == "Eligible" {
+				checkClean = true
+				break
+			}
+		}
+
+		countIterate := 0
+		for i := 0; i < len(apriori); i++ {
+			if apriori[i].Iterate == int32(iterate)+2 {
+				countIterate++
+			}
+		}
+
+		if checkClean == false {
+			for i := 0; i < len(apriori); i++ {
+				if apriori[i].Iterate == int32(iterate)+2 {
+					apriori = append(apriori[:i], apriori[i+countIterate:]...)
+				}
+			}
+			break
+		}
+
 		// if nothing else is sent to the candidate, then break it
 		if int32(iterate)+2 > apriori[len(apriori)-1].Iterate {
 			break
@@ -275,15 +311,15 @@ func (service *aprioriService) Generate(ctx context.Context, request model.Gener
 
 	// Find Association rules
 	// Set confidence
-	confidence := lib.FindConfidence(apriori, productName)
+	confidence := lib.FindConfidence(apriori, productName, request.MinimumSupport)
 
 	// Set discount
 	discount := lib.FindDiscount(confidence, float64(request.MinimumDiscount), float64(request.MaximumDiscount))
 
-	// Remove last element in apriori as many association rules
-	for i := 0; i < len(discount); i++ {
-		apriori = apriori[:len(apriori)-1]
-	}
+	//// Remove last element in apriori as many association rules
+	//for i := 0; i < len(discount); i++ {
+	//	apriori = apriori[:len(apriori)-1]
+	//}
 
 	// Replace the last item set and add discount and confidence
 	for i := 0; i < len(discount); i++ {
@@ -291,21 +327,11 @@ func (service *aprioriService) Generate(ctx context.Context, request model.Gener
 			apriori = append(apriori, model.GetGenerateAprioriResponse{
 				ItemSet:     discount[i].ItemSet,
 				Support:     math.Round(discount[i].Support*100) / 100,
-				Iterate:     discount[i].Iterate,
+				Iterate:     discount[i].Iterate + 1,
 				Transaction: discount[i].Transaction,
 				Confidence:  math.Round(discount[i].Confidence*100) / 100,
 				Discount:    discount[i].Discount,
-				Description: "Eligible",
-				RangeDate:   request.StartDate + " - " + request.EndDate,
-			})
-		} else {
-			apriori = append(apriori, model.GetGenerateAprioriResponse{
-				ItemSet:     discount[i].ItemSet,
-				Support:     math.Round(discount[i].Support*100) / 100,
-				Iterate:     discount[i].Iterate,
-				Transaction: discount[i].Transaction,
-				Confidence:  math.Round(discount[i].Confidence*100) / 100,
-				Description: "Not Eligible",
+				Description: "Rules",
 				RangeDate:   request.StartDate + " - " + request.EndDate,
 			})
 		}

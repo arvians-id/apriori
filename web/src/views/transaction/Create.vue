@@ -85,7 +85,6 @@ export default {
 
       axios.post("http://localhost:3000/api/transactions", this.transaction)
             .then(response => {
-              console.log(response)
               if(response.data.code === 200) {
                 alert(response.data.status)
                 this.$router.push({
