@@ -34,12 +34,14 @@
                   <td>{{ (i++) + 1 }}</td>
                   <td>{{ item.code }}</td>
                   <td>{{ item.range_date }}</td>
-                  <td>{{ item.is_active }}</td>
+                  <td>{{ item.is_active == 0 ? "Non Active" : "Active" }}</td>
                   <td>{{ item.created_at }}</td>
                   <td class="text-center">
-                    <router-link to="" class="btn btn-secondary btn-sm">Detail</router-link>
-                    <router-link to="" class="btn btn-primary btn-sm">Activate</router-link>
-                    <form class="d-inline">
+                    <router-link :to="{ name: 'apriori.detail', params: { code: item.code } }" class="btn btn-secondary btn-sm">Detail</router-link>
+                    <form @submit.prevent="activate(item.code)" method="POST" class="d-inline mr-1">
+                      <button class="btn btn-primary btn-sm">{{ item.is_active == 0 ? "Activate" : "Deactivate" }}</button>
+                    </form>
+                    <form @submit.prevent="submit(item.code)" method="POST" class="d-inline">
                       <button class="btn btn-danger btn-sm">Delete</button>
                     </form>
                   </td>
@@ -75,17 +77,44 @@ export default {
     Topbar
   },
   mounted() {
-    axios.get("http://localhost:3000/api/apriori").then((response) => {
-      this.apriories = response.data.data;
-      setTimeout(function(){
-        $('#datatable').DataTable();
-      }, 0);
-    });
+    this.fetchData()
   },
   data: function () {
     return {
       apriories: [],
     };
   },
+  methods: {
+    fetchData() {
+      axios.get("http://localhost:3000/api/apriori").then((response) => {
+        this.apriories = response.data.data;
+        setTimeout(function(){
+          $('#datatable').DataTable();
+        }, 0);
+      });
+    },
+    submit(code) {
+      axios.delete("http://localhost:3000/api/apriori/" + code)
+          .then(response => {
+            if(response.data.code === 200) {
+              alert(response.data.status)
+              this.fetchData()
+            }
+          }).catch(error => {
+        alert(error.response.data.status)
+      })
+    },
+    activate(code) {
+      axios.patch("http://localhost:3000/api/apriori/" + code)
+          .then(response => {
+            if(response.data.code === 200) {
+              alert(response.data.status)
+              this.fetchData()
+            }
+          }).catch(error => {
+        alert(error.response.data.status)
+      })
+    }
+  }
 }
 </script>

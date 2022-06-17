@@ -86,11 +86,11 @@ func HandleMapsProblem(propertyProduct []string, minSupport float64) ([]string, 
 	return oneSet, support, totalTransaction, checkEligible, cleanSet
 }
 
-func FindConfidence(apriori []model.GetGenerateAprioriResponse, productName map[string]float64, minSupport float64) []model.GetGenerateAprioriResponse {
+func FindConfidence(apriori []model.GetGenerateAprioriResponse, productName map[string]float64, minSupport float64, minConfidence float64) []model.GetGenerateAprioriResponse {
 	var confidence []model.GetGenerateAprioriResponse
 	for _, value := range apriori {
 		if value.Iterate == apriori[len(apriori)-1].Iterate {
-			if val, ok := productName[value.ItemSet[0]]; ok && value.Support >= minSupport {
+			if val, ok := productName[value.ItemSet[0]]; ok && value.Support >= minSupport && float64(value.Transaction)/val*100 >= minConfidence {
 				confidence = append(confidence, model.GetGenerateAprioriResponse{
 					ItemSet:     value.ItemSet,
 					Support:     value.Support,

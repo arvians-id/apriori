@@ -15,7 +15,7 @@
             <div class="card-body pt-0">
               <div class="text-center">
                 <h5 class="h3 mt-4">
-                  Ini Nama Saya<span class="font-weight-light"></span>
+                  Email<span class="font-weight-light"></span>
                 </h5>
                 <div class="h5 font-weight-300">
                   <i class="ni location_pin mr-2"></i>emailsaya@gmail.com

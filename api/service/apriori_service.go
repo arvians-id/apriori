@@ -311,7 +311,7 @@ func (service *aprioriService) Generate(ctx context.Context, request model.Gener
 
 	// Find Association rules
 	// Set confidence
-	confidence := lib.FindConfidence(apriori, productName, request.MinimumSupport)
+	confidence := lib.FindConfidence(apriori, productName, request.MinimumSupport, request.MinimumConfidence)
 
 	// Set discount
 	discount := lib.FindDiscount(confidence, float64(request.MinimumDiscount), float64(request.MaximumDiscount))

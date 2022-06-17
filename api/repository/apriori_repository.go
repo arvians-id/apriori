@@ -25,7 +25,7 @@ func NewAprioriRepository() AprioriRepository {
 }
 
 func (repository *aprioriRepository) FindAll(ctx context.Context, tx *sql.Tx) ([]entity.Apriori, error) {
-	query := `SELECT code,range_date,created_at,is_active FROM apriories GROUP BY code,range_date,created_at,is_active`
+	query := `SELECT code,range_date,created_at,is_active FROM apriories GROUP BY code,range_date,created_at,is_active ORDER BY created_at DESC`
 
 	rows, err := tx.QueryContext(ctx, query)
 	if err != nil {

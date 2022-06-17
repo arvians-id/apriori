@@ -74,6 +74,42 @@
                 <h3 class="mb-0">Result Apriori</h3>
               </div>
               <div class="card-body">
+                <div :class="{ hide: !submitted }" id="hide">
+                  <ul class="list-group list-group-flush mb-4" data-toggle="checklist">
+                    <li class="checklist-entry list-group-item flex-column align-items-start py-4 px-4">
+                      <div class="checklist-item checklist-item-success">
+                        <div class="checklist-info">
+                          <h5 class="checklist-title mb-0">Minimum Support</h5>
+                          <small>{{ apriori.minimum_support }}%</small>
+                        </div>
+                      </div>
+                    </li>
+                    <li class="checklist-entry list-group-item flex-column align-items-start py-4 px-4">
+                      <div class="checklist-item checklist-item-warning">
+                        <div class="checklist-info">
+                          <h5 class="checklist-title mb-0">Minimum Confidence</h5>
+                          <small>{{ apriori.minimum_confidence }}%</small>
+                        </div>
+                      </div>
+                    </li>
+                    <li class="checklist-entry list-group-item flex-column align-items-start py-4 px-4">
+                      <div class="checklist-item checklist-item-info">
+                        <div class="checklist-info">
+                          <h5 class="checklist-title mb-0">Discount</h5>
+                          <small>{{ `${apriori.minimum_discount}% - ${apriori.maximum_discount}%` }}</small>
+                        </div>
+                      </div>
+                    </li>
+                    <li class="checklist-entry list-group-item flex-column align-items-start py-4 px-4">
+                      <div class="checklist-item checklist-item-danger">
+                        <div class="checklist-info">
+                          <h5 class="checklist-title mb-0">Range Date</h5>
+                          <small>{{ `${apriori.start_date} - ${apriori.end_date}` }}</small>
+                        </div>
+                      </div>
+                    </li>
+                  </ul>
+                </div>
                 <template v-for="(item,i) in result" :key="i">
                   <div class="timeline timeline-one-side mt-3" data-timeline-content="axis" data-timeline-axis-style="dashed">
                     <div class="timeline-block">
@@ -83,7 +119,7 @@
                         </span>
                       </template>
                       <template v-else>
-                        <span class="timeline-step badge-success">
+                        <span class="timeline-step badge-info">
                           {{ i + 1 }}
                         </span>
                       </template>
@@ -108,8 +144,8 @@
                                   <td>{{ value.transaction }}</td>
                                   <td>{{ value.support }}%</td>
                                   <template v-if="i + 1 == result.length && value.description == `Rules`">
-                                    <th>{{ value.confidence }}</th>
-                                    <th>{{ value.discount }}</th>
+                                    <td>{{ value.confidence }}%</td>
+                                    <td>{{ value.discount }}%</td>
                                   </template>
                                   <td>
                                     <template v-if="value.description == `Eligible` || value.description == `Rules`">
@@ -125,17 +161,20 @@
                         </table>
                         <div class="mt-3">
                           <template v-for="(value,z) in item" :key="z">
-                            <template v-if="value.description == `Eligible`">
-                              <span class="badge badge-pill badge-success">{{ value.item_set.join(", ") }}</span>
+                            <template v-if="value.description == `Eligible` || value.description == `Rules`">
+                              <span class="badge badge-pill badge-success mr-2">{{ value.item_set.join(", ") }}</span>
                             </template>
                           </template>
                         </div>
                       </div>
                     </div>
                   </div>
+                  <form @submit.prevent="save" method="POST" class="mt-3 text-center" v-if="item[item.length-1].description == `Rules`">
+                    <button class="btn btn-primary" type="submit">Save</button>
+                  </form>
                 </template>
-                <template v-if="result">
-
+                <template v-if="result.length == 0">
+                  <p class="text-center">No data available</p>
                 </template>
               </div>
             </div>
@@ -152,6 +191,9 @@
   .timeline-one-side .timeline-content {
     max-width: 300rem;
   }
+  .hide {
+    display:none;
+   }
 </style>
 
 <script>
@@ -172,6 +214,7 @@ export default {
     return {
       result: [],
       test: [],
+      submitted: false,
       apriori: {
         minimum_support: 0,
         minimum_confidence: 0,
@@ -184,17 +227,10 @@ export default {
   },
   methods: {
     submit() {
-      this.apriori = {
-            minimum_support: 30,
-            minimum_confidence: 70,
-            minimum_discount: 10,
-            maximum_discount: 15,
-            start_date: "2022-05-21",
-            end_date: "2022-05-21"
-      }
-
+      this.result = []
       axios.post("http://localhost:3000/api/apriori/generate", this.apriori)
           .then(response => {
+            this.submitted = true
             if(response.data.code === 200) {
               alert(response.data.status)
               // Logic for clean data aproiri
@@ -219,6 +255,19 @@ export default {
               alert(error.response.data.status)
             }
       })
+    },
+    save() {
+      axios.post("http://localhost:3000/api/apriori", this.result[this.result.length-1])
+          .then(response => {
+            if(response.data.code === 200) {
+              alert(response.data.status)
+              this.$router.push({
+                name: 'apriori'
+              })
+            }
+          }).catch(error => {
+              alert(error.response.data.status)
+          })
     }
   }
 }

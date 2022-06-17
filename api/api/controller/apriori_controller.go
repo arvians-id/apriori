@@ -85,17 +85,15 @@ func (controller *AprioriController) Create(c *gin.Context) {
 
 	var request []model.CreateAprioriRequest
 	for _, property := range requestGenerate {
-		if property.Description == "Eligible" {
-			ItemSet := strings.Join(property.ItemSet, ", ")
+		ItemSet := strings.Join(property.ItemSet, ", ")
 
-			request = append(request, model.CreateAprioriRequest{
-				Item:       ItemSet,
-				Discount:   property.Discount,
-				Support:    property.Support,
-				Confidence: property.Confidence,
-				RangeDate:  property.RangeDate,
-			})
-		}
+		request = append(request, model.CreateAprioriRequest{
+			Item:       ItemSet,
+			Discount:   property.Discount,
+			Support:    property.Support,
+			Confidence: property.Confidence,
+			RangeDate:  property.RangeDate,
+		})
 	}
 
 	err = controller.AprioriService.Create(c.Request.Context(), request)
