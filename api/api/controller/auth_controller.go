@@ -38,7 +38,6 @@ func (controller *AuthController) Route(router *gin.Engine) *gin.Engine {
 		authorized.POST("/verify", controller.VerifyResetPassword)
 		authorized.POST("/register", controller.Register)
 		authorized.DELETE("/logout", controller.Logout)
-		authorized.POST("/token", controller.Token)
 	}
 
 	return router
@@ -58,7 +57,7 @@ func (controller *AuthController) Login(c *gin.Context) {
 		return
 	}
 
-	expirationTime := time.Now().Add(1 * time.Hour)
+	expirationTime := time.Now().Add(5 * time.Minute)
 	token, err := controller.JwtService.GenerateToken(user.IdUser, expirationTime)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
@@ -98,7 +97,7 @@ func (controller *AuthController) Refresh(c *gin.Context) {
 	http.SetCookie(c.Writer, &http.Cookie{
 		Name:     "token",
 		Value:    url.QueryEscape(token.AccessToken),
-		Expires:  time.Now().Add(1 * time.Hour),
+		Expires:  time.Now().Add(4 * time.Minute),
 		Path:     "/api",
 		HttpOnly: true,
 	})
@@ -184,20 +183,4 @@ func (controller *AuthController) Logout(c *gin.Context) {
 	})
 
 	response.ReturnSuccessOK(c, "OK", nil)
-}
-
-func (controller *AuthController) Token(c *gin.Context) {
-	tokenCookie, err := c.Cookie("token")
-	if err != nil {
-		if err == http.ErrNoCookie {
-			c.JSON(http.StatusUnauthorized, model.WebResponse{
-				Code:   http.StatusUnauthorized,
-				Status: "invalid token",
-				Data:   nil,
-			})
-			return
-		}
-	}
-
-	response.ReturnSuccessOK(c, "OK", tokenCookie)
 }

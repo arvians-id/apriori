@@ -6,6 +6,7 @@ import (
 	"apriori/service"
 	"errors"
 	"github.com/gin-gonic/gin"
+	"log"
 	"strconv"
 )
 
@@ -29,6 +30,7 @@ func (controller *UserController) Route(router *gin.Engine) *gin.Engine {
 		authorized.DELETE("/users/:userId", controller.Delete)
 
 		authorized.GET("/profile", controller.Profile)
+		authorized.PATCH("/profile/update", controller.UpdateProfile)
 	}
 
 	return router
@@ -48,6 +50,32 @@ func (controller *UserController) Profile(c *gin.Context) {
 	}
 
 	response.ReturnSuccessOK(c, "OK", user)
+}
+
+func (controller *UserController) UpdateProfile(c *gin.Context) {
+	var request model.UpdateUserRequest
+	err := c.ShouldBindJSON(&request)
+	if err != nil {
+		response.ReturnErrorBadRequest(c, err, nil)
+		return
+	}
+
+	id, isExist := c.Get("id_user")
+	if !isExist {
+		response.ReturnErrorUnauthorized(c, errors.New("unauthorized"), nil)
+		return
+	}
+
+	request.IdUser = uint64(id.(float64))
+	log.Println(request)
+
+	user, err := controller.UserService.Update(c.Request.Context(), request)
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	response.ReturnSuccessOK(c, "updated", user)
 }
 
 func (controller *UserController) FindAll(c *gin.Context) {

@@ -131,13 +131,15 @@ export default {
       axios.delete("http://localhost:3000/api/auth/logout")
           .then(response => {
             if(response.data.code === 200) {
+              localStorage.removeItem("token")
+              localStorage.removeItem("refresh-token")
               alert(response.data.status)
               this.$router.push({
                 name: 'login'
               })
             }
           }).catch(error => {
-        alert(error.response.data.status)
+        console.log(error.response.data.status)
       })
     },
     getActiveNavLink(name) {

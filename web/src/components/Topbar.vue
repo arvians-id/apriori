@@ -17,10 +17,10 @@
           </ul>
           <ul class="navbar-nav align-items-center ml-auto ml-md-0">
             <li class="nav-item dropdown">
-              <a class="nav-link pr-0" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <a class="nav-link pr-0" href="javascript:void(0);" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                 <div class="media align-items-center">
                   <div class="media-body ml-2">
-                    <span class="mb-0 text-sm text-white font-weight-bold">John Snow</span>
+                    <span class="mb-0 text-sm text-white font-weight-bold">{{ user.name }}</span>
                   </div>
                 </div>
               </a>
@@ -28,14 +28,14 @@
                 <div class="dropdown-header noti-title">
                   <h6 class="text-overflow m-0">Welcome!</h6>
                 </div>
-                <a href="#!" class="dropdown-item">
+                <router-link :to="{ name:'profile' }" class="dropdown-item">
                   <i class="ni ni-single-02"></i>
                   <span>My profile</span>
-                </a>
-                <a href="#!" class="dropdown-item">
+                </router-link>
+                <form @submit.prevent="submit" method="POST" class="dropdown-item">
                   <i class="ni ni-user-run"></i>
-                  <span>Logout</span>
-                </a>
+                  <button class="btn btn-link text-dark" style="padding: 0; font-weight: normal;" type="submit">Logout</button>
+                </form>
               </div>
             </li>
           </ul>
@@ -43,3 +43,49 @@
       </div>
     </nav>
 </template>
+
+<script>
+import axios from "axios";
+import authHeader from "@/service/auth-header";
+
+export default {
+  data() {
+    return {
+      user: {
+        name: ""
+      }
+    }
+  },
+  mounted() {
+    this.fetchData()
+  },
+  methods: {
+    submit() {
+      axios.delete("http://localhost:3000/api/auth/logout")
+          .then(response => {
+            if(response.data.code === 200) {
+              localStorage.removeItem("token")
+              localStorage.removeItem("refresh-token")
+              alert(response.data.status)
+              this.$router.push({
+                name: 'login'
+              })
+            }
+          }).catch(error => {
+        console.log(error.response.data.status)
+      })
+    },
+    fetchData() {
+      axios.get("http://localhost:3000/api/profile", { headers: authHeader() })
+          .then(response => {
+            this.user = {
+              name: response.data.data.name,
+              email: response.data.data.email,
+            }
+          }).catch(error => {
+        console.log(error.response.data.status)
+      })
+    },
+  }
+}
+</script>

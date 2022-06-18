@@ -17,6 +17,8 @@ import UserCreate from "../views/user/Create.vue";
 import UserEdit from "../views/user/Edit.vue";
 import Profile from "../views/user/Profile.vue";
 import NotFound from "../views/NotFound.vue";
+import authHeader from "@/service/auth-header";
+import axios from "axios";
 
 const routes = [
   { path: "/", name: "login", component: Login },
@@ -43,5 +45,29 @@ const router = createRouter({
   history: createWebHistory(process.env.BASE_URL),
   routes,
 });
+
+router.beforeEach( async (to) => {
+  if (Object.keys(authHeader()).length === 0 && to.name !== 'login' && to.name !== 'register') {
+    return { name: 'login' }
+  }
+  if (to.name !== 'login' && to.name !== 'register') {
+        axios.get("http://localhost:3000/api/profile", { headers: authHeader() })
+            .catch(() => {
+                let refreshToken = {
+                    refresh_token: localStorage.getItem("refresh-token")
+                }
+                axios.post("http://localhost:3000/api/auth/refresh",refreshToken)
+                    .then(response => {
+                        let token = response.data.data.access_token
+                        let refreshToken = response.data.data.refresh_token
+                        localStorage.setItem("token", token)
+                        localStorage.setItem("refresh-token", refreshToken)
+                    }).catch(() => {
+                    localStorage.removeItem("token")
+                    localStorage.removeItem("refresh-token")
+                })
+            })
+    }
+})
 
 export default router;

@@ -69,6 +69,7 @@ import Topbar from "@/components/Topbar.vue"
 import Header from "@/components/Header.vue"
 import Footer from "@/components/Footer.vue"
 import axios from "axios";
+import authHeader from "@/service/auth-header";
 
 export default {
   components: {
@@ -88,7 +89,7 @@ export default {
   },
   methods: {
     fetchData() {
-      axios.get("http://localhost:3000/api/apriori/actives").then((response) => {
+      axios.get("http://localhost:3000/api/apriori/actives", { headers: authHeader() }).then((response) => {
         this.apriories = response.data.data;
         this.getDate = `${this.apriories[0].range_date}`
       });

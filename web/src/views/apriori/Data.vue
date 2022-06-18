@@ -68,6 +68,7 @@ import Sidebar from "@/components/Sidebar.vue"
 import Topbar from "@/components/Topbar.vue"
 import Header from "@/components/Header.vue"
 import Footer from "@/components/Footer.vue"
+import authHeader from "@/service/auth-header";
 
 export default {
   components: {
@@ -86,7 +87,7 @@ export default {
   },
   methods: {
     fetchData() {
-      axios.get("http://localhost:3000/api/apriori").then((response) => {
+      axios.get("http://localhost:3000/api/apriori", { headers: authHeader() }).then((response) => {
         this.apriories = response.data.data;
         setTimeout(function(){
           $('#datatable').DataTable();
@@ -94,25 +95,25 @@ export default {
       });
     },
     submit(code) {
-      axios.delete("http://localhost:3000/api/apriori/" + code)
+      axios.delete("http://localhost:3000/api/apriori/" + code, { headers: authHeader() })
           .then(response => {
             if(response.data.code === 200) {
               alert(response.data.status)
               this.fetchData()
             }
           }).catch(error => {
-        alert(error.response.data.status)
+        console.log(error.response.data.status)
       })
     },
     activate(code) {
-      axios.patch("http://localhost:3000/api/apriori/" + code)
+      axios.patch("http://localhost:3000/api/apriori/" + code, null,{ headers: authHeader() })
           .then(response => {
             if(response.data.code === 200) {
               alert(response.data.status)
               this.fetchData()
             }
           }).catch(error => {
-        alert(error.response.data.status)
+        console.log(error.response.data.status)
       })
     }
   }

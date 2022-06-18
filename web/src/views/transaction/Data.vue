@@ -14,8 +14,11 @@
         <div class="col">
           <div class="card">
             <!-- Card header -->
-            <div class="card-header">
+            <div class="card-header d-flex justify-content-between">
               <h3 class="mb-0">Data Transaction</h3>
+              <form @submit.prevent="truncate()" method="POST">
+                <button class="btn btn-danger btn-sm" type="submit">Clear Data</button>
+              </form>
             </div>
             <div class="table-responsive py-4">
               <table class="table table-flush" id="datatable">
@@ -58,6 +61,7 @@
 </template>
 
 <script>
+import authHeader from "@/service/auth-header";
 import "jquery/dist/jquery.min.js";
 import "datatables.net-dt/js/dataTables.dataTables";
 import "datatables.net-dt/css/jquery.dataTables.min.css";
@@ -85,7 +89,7 @@ export default {
   },
   methods: {
     fetchData() {
-      axios.get("http://localhost:3000/api/transactions").then((response) => {
+      axios.get("http://localhost:3000/api/transactions", { headers: authHeader() }).then((response) => {
         this.transactions = response.data.data;
         setTimeout(function(){
           $('#datatable').DataTable();
@@ -93,15 +97,26 @@ export default {
       });
     },
     submit(no_transaction) {
-      axios.delete("http://localhost:3000/api/transactions/" + no_transaction)
+      axios.delete("http://localhost:3000/api/transactions/" + no_transaction, { headers: authHeader() })
           .then(response => {
             if(response.data.code === 200) {
               alert(response.data.status)
               this.fetchData()
             }
           }).catch(error => {
-            alert(error.response.data.status)
+        console.log(error.response.data.status)
           })
+    },
+    truncate() {
+      axios.delete("http://localhost:3000/api/transactions/truncate", { headers: authHeader() })
+          .then(response => {
+            if(response.data.code === 200) {
+              alert(response.data.status)
+              this.fetchData()
+            }
+          }).catch(error => {
+        console.log(error.response.data.status)
+      })
     }
   }
 }

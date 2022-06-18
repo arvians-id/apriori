@@ -109,7 +109,7 @@ func (service *jwtService) RefreshToken(refreshToken string) (*TokenDetails, err
 		return nil, errors.New("invalid token")
 	}
 
-	// Ge user id
+	// Get user id
 	userId, err := strconv.ParseUint(fmt.Sprintf("%.f", claims["id_user"]), 10, 64)
 	if err != nil {
 		return nil, err

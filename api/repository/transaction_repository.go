@@ -16,6 +16,7 @@ type TransactionRepository interface {
 	CreateFromCsv(ctx context.Context, tx *sql.Tx, transaction []entity.Transaction) error
 	Update(ctx context.Context, tx *sql.Tx, transaction entity.Transaction) (entity.Transaction, error)
 	Delete(ctx context.Context, tx *sql.Tx, noTransaction string) error
+	Truncate(ctx context.Context, tx *sql.Tx) error
 }
 
 type transactionRepository struct {
@@ -208,6 +209,17 @@ func (repository *transactionRepository) Delete(ctx context.Context, tx *sql.Tx,
 	query := "DELETE FROM transactions WHERE no_transaction = ?"
 
 	_, err := tx.ExecContext(ctx, query, noTransaction)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repository *transactionRepository) Truncate(ctx context.Context, tx *sql.Tx) error {
+	query := `DELETE FROM transactions`
+
+	_, err := tx.ExecContext(ctx, query)
 	if err != nil {
 		return err
 	}

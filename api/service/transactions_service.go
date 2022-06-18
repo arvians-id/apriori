@@ -17,6 +17,7 @@ type TransactionService interface {
 	CreateFromCsv(ctx context.Context, data [][]string) error
 	Update(ctx context.Context, request model.UpdateTransactionRequest) (model.GetTransactionResponse, error)
 	Delete(ctx context.Context, noTransaction string) error
+	Truncate(ctx context.Context) error
 }
 
 type transactionService struct {
@@ -179,6 +180,21 @@ func (service *transactionService) Delete(ctx context.Context, noTransaction str
 	}
 
 	err = service.TransactionRepository.Delete(ctx, tx, rows.NoTransaction)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (service *transactionService) Truncate(ctx context.Context) error {
+	tx, err := service.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer utils.CommitOrRollback(tx)
+
+	err = service.TransactionRepository.Truncate(ctx, tx)
 	if err != nil {
 		return err
 	}

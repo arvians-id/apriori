@@ -65,7 +65,8 @@ export default {
       submit() {
         const config = {
           headers: {
-            'Content-Type': 'multipart/form-data'
+            'Content-Type': 'multipart/form-data',
+            'Authorization': 'Bearer ' + localStorage.getItem('token'),
           }
         }
         const formData = new FormData()
@@ -80,7 +81,7 @@ export default {
                 })
               }
             }).catch(error => {
-          alert(error.response.data.status)
+          console.log(error.response.data.status)
         })
       },
       submitFile(e){

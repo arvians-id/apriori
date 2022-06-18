@@ -86,6 +86,7 @@ import Topbar from "@/components/Topbar.vue"
 import Header from "@/components/Header.vue"
 import Footer from "@/components/Footer.vue"
 import axios from "axios";
+import authHeader from "@/service/auth-header";
 
 export default {
   components: {
@@ -104,7 +105,7 @@ export default {
   },
   methods: {
     fetchData() {
-      axios.get(`http://localhost:3000/api/apriori/${this.$route.params.code}`).then((response) => {
+      axios.get(`http://localhost:3000/api/apriori/${this.$route.params.code}`, { headers: authHeader() }).then((response) => {
         this.apriories = response.data.data;
       });
     }

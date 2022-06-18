@@ -67,7 +67,7 @@ func main() {
 	authController.Route(router)
 
 	// Authentication Middleware
-	//router.Use(middleware.AuthJwtMiddleware())
+	router.Use(middleware.AuthJwtMiddleware())
 
 	userController.Route(router)
 	productController.Route(router)

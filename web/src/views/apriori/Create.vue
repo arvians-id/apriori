@@ -319,6 +319,7 @@ import Topbar from "@/components/Topbar.vue"
 import Header from "@/components/Header.vue"
 import Footer from "@/components/Footer.vue"
 import axios from "axios";
+import authHeader from "@/service/auth-header";
 
 export default {
   components: {
@@ -345,7 +346,7 @@ export default {
   methods: {
     submit() {
       this.result = []
-      axios.post("http://localhost:3000/api/apriori/generate", this.apriori)
+      axios.post("http://localhost:3000/api/apriori/generate", this.apriori, { headers: authHeader() })
           .then(response => {
             this.submitted = true
             if(response.data.code === 200) {
@@ -369,12 +370,12 @@ export default {
             if (error.response == undefined) {
               alert("data is empty")
             } else {
-              alert(error.response.data.status)
+              console.log(error.response.data.status)
             }
       })
     },
     save() {
-      axios.post("http://localhost:3000/api/apriori", this.result[this.result.length-1])
+      axios.post("http://localhost:3000/api/apriori", this.result[this.result.length-1], { headers: authHeader() })
           .then(response => {
             if(response.data.code === 200) {
               alert(response.data.status)
@@ -383,7 +384,7 @@ export default {
               })
             }
           }).catch(error => {
-              alert(error.response.data.status)
+        console.log(error.response.data.status)
           })
     }
   }

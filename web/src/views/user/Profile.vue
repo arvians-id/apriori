@@ -15,10 +15,10 @@
             <div class="card-body pt-0">
               <div class="text-center">
                 <h5 class="h3 mt-4">
-                  My Name
+                  {{ user.name }}
                 </h5>
                 <div class="h5 font-weight-300">
-                  <i class="ni location_pin mr-2"></i>emailsaya@gmail.com
+                  <i class="ni location_pin mr-2"></i>{{ user.email }}
                 </div>
               </div>
             </div>
@@ -38,11 +38,11 @@
               <form @submit.prevent="submit" method="POST">
                 <div class="form-group">
                   <label class="form-control-label">Full Name</label> <small class="text-danger">*</small>
-                  <input type="text" class="form-control" v-model="user.name">
+                  <input type="text" class="form-control" v-model="user.name" required>
                 </div>
                 <div class="form-group">
                   <label class="form-control-label">Email</label> <small class="text-danger">*</small>
-                  <input type="email" class="form-control" v-model="user.email">
+                  <input type="email" class="form-control" v-model="user.email" required>
                 </div>
                 <div class="form-group">
                   <label class="form-control-label">Password</label> <small class="text-danger">*</small>
@@ -66,6 +66,7 @@ import Topbar from "@/components/Topbar.vue"
 import Header from "@/components/Header.vue"
 import Footer from "@/components/Footer.vue"
 import axios from "axios";
+import authHeader from "@/service/auth-header";
 
 export default {
   components: {
@@ -83,18 +84,33 @@ export default {
       }
     }
   },
+  mounted() {
+    this.fetchData()
+  },
   methods: {
     submit() {
-      axios.post("http://localhost:3000/api/userss", this.user)
+      axios.patch("http://localhost:3000/api/profile/update", this.user, { headers: authHeader() })
           .then(response => {
             if(response.data.code === 200) {
               alert(response.data.status)
               this.$router.push({
-                name: 'user'
+                name: 'profile'
               })
             }
           }).catch(error => {
-        alert(error.response.data.status)
+        console.log(error.response.data.status)
+      })
+    },
+    fetchData() {
+      axios.get("http://localhost:3000/api/profile", { headers: authHeader() })
+          .then(response => {
+              this.user = {
+                name: response.data.data.name,
+                email: response.data.data.email,
+                password: response.data.data.password,
+              }
+          }).catch(error => {
+        console.log(error.response.data.status)
       })
     }
   }

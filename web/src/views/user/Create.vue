@@ -52,6 +52,7 @@ import Topbar from "@/components/Topbar.vue"
 import Header from "@/components/Header.vue"
 import Footer from "@/components/Footer.vue"
 import axios from "axios";
+import authHeader from "@/service/auth-header";
 
 export default {
   components: {
@@ -71,7 +72,7 @@ export default {
   },
   methods: {
     submit() {
-      axios.post("http://localhost:3000/api/users", this.user)
+      axios.post("http://localhost:3000/api/users", this.user, { headers: authHeader() })
           .then(response => {
             if(response.data.code === 200) {
               alert(response.data.status)
@@ -80,7 +81,7 @@ export default {
               })
             }
           }).catch(error => {
-        alert(error.response.data.status)
+        console.log(error.response.data.status)
       })
     }
   }

@@ -52,6 +52,7 @@ import Topbar from "@/components/Topbar.vue"
 import Header from "@/components/Header.vue"
 import Footer from "@/components/Footer.vue"
 import axios from "axios";
+import authHeader from "@/service/auth-header";
 
 export default {
   components: {
@@ -74,7 +75,7 @@ export default {
   },
   methods: {
     submit() {
-      axios.patch(`http://localhost:3000/api/users/${this.$route.params.id}`, this.user)
+      axios.patch(`http://localhost:3000/api/users/${this.$route.params.id}`, this.user, { headers: authHeader() })
           .then(response => {
             if(response.data.code === 200) {
               alert(response.data.status)
@@ -83,11 +84,11 @@ export default {
               })
             }
           }).catch(error => {
-        alert(error.response.data.status)
+        console.log(error.response.data.status)
       })
     },
     fetchData() {
-      axios.get(`http://localhost:3000/api/users/${this.$route.params.id}`).then(response => {
+      axios.get(`http://localhost:3000/api/users/${this.$route.params.id}`, { headers: authHeader() }).then(response => {
         this.user = {
           name: response.data.data.name,
           email: response.data.data.email,

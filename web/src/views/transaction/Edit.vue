@@ -51,6 +51,7 @@ import Header from "@/components/Header.vue"
 import Footer from "@/components/Footer.vue"
 import axios from "axios";
 import $ from "jquery";
+import authHeader from "@/service/auth-header";
 
 export default {
   components: {
@@ -60,7 +61,7 @@ export default {
     Topbar
   },
   mounted() {
-    axios.get("http://localhost:3000/api/products").then((response) => {
+    axios.get("http://localhost:3000/api/products", { headers: authHeader() }).then((response) => {
       this.products = response.data.data;
       setTimeout(function(){
         $('#datatable').DataTable();
@@ -84,7 +85,7 @@ export default {
         this.transaction.product_name = productName.join(", ")
       }
 
-      axios.patch(`http://localhost:3000/api/transactions/${this.$route.params.no_transaction}`, this.transaction)
+      axios.patch(`http://localhost:3000/api/transactions/${this.$route.params.no_transaction}`, this.transaction, { headers: authHeader() })
           .then(response => {
             if(response.data.code === 200) {
               alert(response.data.status)
@@ -93,11 +94,11 @@ export default {
               })
             }
           }).catch(error => {
-        alert(error.response.data.status)
+        console.log(error.response.data.status)
       })
     },
     fetchData() {
-      axios.get(`http://localhost:3000/api/transactions/${this.$route.params.no_transaction}`).then(response => {
+      axios.get(`http://localhost:3000/api/transactions/${this.$route.params.no_transaction}`, { headers: authHeader() }).then(response => {
         let productName = response.data.data.product_name
         this.transaction = {
           product_name: productName.split(", "),
