@@ -115,7 +115,12 @@ func (service *aprioriService) ChangeActive(ctx context.Context, code string) er
 		return err
 	}
 
-	err = service.AprioriRepository.ChangeStatusByCode(ctx, tx, rows[0].Code, true)
+	status := true
+	if rows[0].IsActive == true {
+		status = false
+	}
+
+	err = service.AprioriRepository.ChangeStatusByCode(ctx, tx, rows[0].Code, status)
 	if err != nil {
 		return err
 	}

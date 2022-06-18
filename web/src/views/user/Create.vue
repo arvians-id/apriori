@@ -73,7 +73,6 @@ export default {
     submit() {
       axios.post("http://localhost:3000/api/users", this.user)
           .then(response => {
-            console.log(response)
             if(response.data.code === 200) {
               alert(response.data.status)
               this.$router.push({

@@ -15,20 +15,42 @@
             <!-- Custom form validation -->
             <div class="card">
               <!-- Card header -->
-              <div class="card-header">
-                <h3 class="mb-0">Custom styles</h3>
+              <div class="card-header d-flex justify-content-between">
+                <h3 class="mb-0">List of Recommendation Packages </h3>
+                <h3 class="mb-0">{{ getDate }}</h3>
               </div>
               <!-- Card body -->
               <div class="card-body">
                 <div class="row">
-                  <div class="col-lg-8">
-                    <p class="mb-0">
-                      For custom form validation messages, you ll need to add the novalidate boolean attribute to your <code>&lt;form&gt;</code>. This disables the browser default feedback tooltips, but still provides access to the form
-                      validation APIs in JavaScript.
-                      <br /><br />
-                      When attempting to submit, you ll see the<code>:invalid</code> and <code>:valid</code> styles applied to your form controls.
-                    </p>
+                  <div class="col-12 col-md-6 col-lg-4 col-xl-3" v-for="item in apriories" :key="item.id_apriori">
+                    <div class="card card-pricing border-0 text-center mb-4">
+                      <div class="card-header bg-transparent">
+                        <h4 class="text-uppercase ls-1 text-primary py-3 mb-0">Recommendation pack</h4>
+                      </div>
+                      <div class="card-body mx-auto">
+                        <div class="display-2">{{ item.discount }}%</div>
+                        <span class="text-muted">discount</span>
+                        <ul class="list-unstyled my-4">
+                          <li v-for="(value,i) in item.item.split(', ')" :key="i">
+                            <div class="d-flex align-items-center">
+                              <div>
+                                <div class="icon icon-xs icon-shape bg-gradient-primary text-white shadow rounded-circle">
+                                  <i class="ni ni-basket"></i>
+                                </div>
+                              </div>
+                              <div>
+                                <span class="pl-2 text-sm">{{ UpperWord(value) }}</span>
+                              </div>
+                            </div>
+                          </li>
+                        </ul>
+                      </div>
+                      <div class="card-footer">
+                        <router-link :to="{ name: 'apriori.detail', params: { code: item.code } }" class=" text-muted">{{ item.code }}</router-link>
+                      </div>
+                    </div>
                   </div>
+                  <p v-if="apriories.length == 0" class="mx-auto">No Recommendation Found</p>
                 </div>
               </div>
             </div>
@@ -46,6 +68,7 @@ import Sidebar from "@/components/Sidebar.vue"
 import Topbar from "@/components/Topbar.vue"
 import Header from "@/components/Header.vue"
 import Footer from "@/components/Footer.vue"
+import axios from "axios";
 
 export default {
   components: {
@@ -53,6 +76,28 @@ export default {
     Sidebar,
     Header,
     Topbar
+  },
+  created() {
+    this.fetchData()
+  },
+  data: function () {
+    return {
+      apriories: [],
+      getDate: "No date found"
+    };
+  },
+  methods: {
+    fetchData() {
+      axios.get("http://localhost:3000/api/apriori/actives").then((response) => {
+        this.apriories = response.data.data;
+        this.getDate = `${this.apriories[0].range_date}`
+      });
+    },
+    UpperWord(str) {
+      return str.toLowerCase().replace(/\b[a-z]/g, function (letter) {
+        return letter.toUpperCase();
+      })
+    }
   }
 }
 </script>

@@ -109,10 +109,10 @@
               </router-link>
             </li>
             <li class="nav-item">
-              <a class="nav-link" href="https://demos.creative-tim.com/argon-dashboard/docs/foundation/colors.html">
+              <form @submit.prevent="submit" method="POST" class="nav-link">
                 <i class="ni ni-curved-next"></i>
-                <span class="nav-link-text">Logout</span>
-              </a>
+                <button class="btn btn-link" style="padding: 0; font-weight: normal; color: rgba(0, 0, 0, .6)" type="submit">Logout</button>
+              </form>
             </li>
           </ul>
         </div>
@@ -123,8 +123,23 @@
 
 <script>
 
+import axios from "axios";
+
 export default {
   methods: {
+    submit() {
+      axios.delete("http://localhost:3000/api/auth/logout")
+          .then(response => {
+            if(response.data.code === 200) {
+              alert(response.data.status)
+              this.$router.push({
+                name: 'login'
+              })
+            }
+          }).catch(error => {
+        alert(error.response.data.status)
+      })
+    },
     getActiveNavLink(name) {
       let classString = "nav-link "
 

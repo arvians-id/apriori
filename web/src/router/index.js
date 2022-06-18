@@ -15,7 +15,7 @@ import AprioriDetail from "../views/apriori/Detail.vue";
 import User from "../views/user/Data.vue";
 import UserCreate from "../views/user/Create.vue";
 import UserEdit from "../views/user/Edit.vue";
-import Profile from "../views/Profile.vue";
+import Profile from "../views/user/Profile.vue";
 import NotFound from "../views/NotFound.vue";
 
 const routes = [

@@ -53,7 +53,7 @@ func (repository *aprioriRepository) FindAll(ctx context.Context, tx *sql.Tx) ([
 }
 
 func (repository *aprioriRepository) FindByActive(ctx context.Context, tx *sql.Tx) ([]entity.Apriori, error) {
-	query := `SELECT * FROM apriories WHERE is_active = 1`
+	query := `SELECT * FROM apriories WHERE is_active = 1 ORDER BY discount DESC`
 
 	rows, err := tx.QueryContext(ctx, query)
 	if err != nil {

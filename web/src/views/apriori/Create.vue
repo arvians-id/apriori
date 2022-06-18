@@ -181,6 +181,123 @@
           </div>
         </div>
       </div>
+      <div class="card">
+        <div class="card-header">
+          <h3 class="mb-0">Guide</h3>
+        </div>
+        <div class="card-body">
+          <div class="row">
+            <div class="col-md-4">
+              <button type="button" class="btn btn-block btn-primary mb-3" data-toggle="modal" data-target="#modal-rules">What is Association Rules?</button>
+              <div class="modal fade" id="modal-rules" tabindex="-1" role="dialog" aria-labelledby="modal-rules" aria-hidden="true">
+                <div class="modal-dialog modal- modal-dialog-centered modal-" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h6 class="modal-title" id="modal-title-rules">What is Association Rules?</h6>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p>Association rule atau analisis asosiasi adalah teknik data mining untuk menemukan aturan asosiasi antara suatu kombinasi item</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <button type="button" class="btn btn-block btn-primary mb-3" data-toggle="modal" data-target="#modal-apriori">What is Apriori?</button>
+              <div class="modal fade" id="modal-apriori" tabindex="-1" role="dialog" aria-labelledby="modal-apriori" aria-hidden="true">
+                <div class="modal-dialog modal- modal-dialog-centered modal-" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h6 class="modal-title" id="modal-title-apriori">What is Apriori?</h6>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p>Algoritma apriori adalah suatu metode untuk mencari pola hubungan antar satu atau lebih item dalam suatu dataset</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <button type="button" class="btn btn-block btn-primary mb-3" data-toggle="modal" data-target="#modal-support">What is Support?</button>
+              <div class="modal fade" id="modal-support" tabindex="-1" role="dialog" aria-labelledby="modal-support" aria-hidden="true">
+                <div class="modal-dialog modal- modal-dialog-centered modal-" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h6 class="modal-title" id="modal-title-support">What is Support?</h6>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p>Support (nilai penunjang) adalah persentase kombinasi item tersebut dalam database</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <button type="button" class="btn btn-block btn-primary mb-3" data-toggle="modal" data-target="#modal-confidence">What is Confidence?</button>
+              <div class="modal fade" id="modal-confidence" tabindex="-1" role="dialog" aria-labelledby="modal-confidence" aria-hidden="true">
+                <div class="modal-dialog modal- modal-dialog-centered modal-" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h6 class="modal-title" id="modal-title-confidence">What is Confidence?</h6>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p>Confidence (nilai kepastian) yaitu kuatnya hubungan antar item dalam aturan asosiatif yang terbentuk oleh metode asosiasi dalam data mining</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <button type="button" class="btn btn-block btn-primary mb-3" data-toggle="modal" data-target="#modal-discount">About Discount</button>
+              <div class="modal fade" id="modal-discount" tabindex="-1" role="dialog" aria-labelledby="modal-discount" aria-hidden="true">
+                <div class="modal-dialog modal- modal-dialog-centered modal-" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h6 class="modal-title" id="modal-title-discount">About Discount</h6>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p>Anda dapat menetapkan minimal diskon dan maksimal diskon agar perhitungan apriori tidak melebihi diskon yang tidak anda inginkan.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="col-md-4">
+              <button type="button" class="btn btn-block btn-primary mb-3" data-toggle="modal" data-target="#modal-date">About Date</button>
+              <div class="modal fade" id="modal-date" tabindex="-1" role="dialog" aria-labelledby="modal-date" aria-hidden="true">
+                <div class="modal-dialog modal- modal-dialog-centered modal-" role="document">
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h6 class="modal-title" id="modal-title-date">About Date</h6>
+                      <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                      </button>
+                    </div>
+                    <div class="modal-body">
+                      <p>Anda dapat mengatur tanggal yang anda inginkan kedalam perhitungan apriori.</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       <!-- Footer -->
       <Footer />
     </div>
