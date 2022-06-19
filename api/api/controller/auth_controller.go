@@ -1,9 +1,11 @@
 package controller
 
 import (
+	"apriori/api/middleware"
 	"apriori/api/response"
 	"apriori/model"
 	"apriori/service"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -38,6 +40,7 @@ func (controller *AuthController) Route(router *gin.Engine) *gin.Engine {
 		authorized.POST("/verify", controller.VerifyResetPassword)
 		authorized.POST("/register", controller.Register)
 		authorized.DELETE("/logout", controller.Logout)
+		authorized.GET("/token", middleware.AuthJwtMiddleware(), controller.Token)
 	}
 
 	return router
@@ -57,7 +60,7 @@ func (controller *AuthController) Login(c *gin.Context) {
 		return
 	}
 
-	expirationTime := time.Now().Add(5 * time.Minute)
+	expirationTime := time.Now().Add(15 * time.Minute)
 	token, err := controller.JwtService.GenerateToken(user.IdUser, expirationTime)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
@@ -97,7 +100,7 @@ func (controller *AuthController) Refresh(c *gin.Context) {
 	http.SetCookie(c.Writer, &http.Cookie{
 		Name:     "token",
 		Value:    url.QueryEscape(token.AccessToken),
-		Expires:  time.Now().Add(4 * time.Minute),
+		Expires:  time.Now().Add(15 * time.Minute),
 		Path:     "/api",
 		HttpOnly: true,
 	})
@@ -181,6 +184,16 @@ func (controller *AuthController) Logout(c *gin.Context) {
 		Expires:  time.Unix(0, 0),
 		HttpOnly: true,
 	})
+
+	response.ReturnSuccessOK(c, "OK", nil)
+}
+
+func (controller *AuthController) Token(c *gin.Context) {
+	_, isExist := c.Get("id_user")
+	if !isExist {
+		response.ReturnErrorUnauthorized(c, errors.New("unauthorized"), nil)
+		return
+	}
 
 	response.ReturnSuccessOK(c, "OK", nil)
 }

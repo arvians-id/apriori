@@ -50,7 +50,7 @@ func getRefreshSecretKey() string {
 func (service *jwtService) GenerateToken(IdUser uint64, expirationTime time.Time) (*TokenDetails, error) {
 	tokens := &TokenDetails{}
 	tokens.AtExpires = expirationTime.Unix()
-	tokens.RtExpires = time.Now().Add(7 * 24 * time.Hour).Unix()
+	tokens.RtExpires = time.Now().Add(1 * 24 * time.Hour).Unix()
 
 	// Access token
 	accessToken := jwtCustomClaim{
@@ -119,7 +119,7 @@ func (service *jwtService) RefreshToken(refreshToken string) (*TokenDetails, err
 	// --
 
 	// Create new pairs of refresh and access tokens
-	tokens, err := service.GenerateToken(userId, time.Now().Add(5*time.Minute))
+	tokens, err := service.GenerateToken(userId, time.Now().Add(15*time.Minute))
 	if err != nil {
 		return nil, err
 	}

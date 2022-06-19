@@ -49,9 +49,14 @@ const router = createRouter({
 router.beforeEach( async (to) => {
   if (Object.keys(authHeader()).length === 0 && to.name !== 'login' && to.name !== 'register') {
     return { name: 'login' }
+  } else if (Object.keys(authHeader()).length > 0 && to.name === 'login') {
+      return { name: 'admin' }
+  } else if (Object.keys(authHeader()).length > 0 && to.name === 'register') {
+      return { name: 'admin' }
   }
+
   if (to.name !== 'login' && to.name !== 'register') {
-        axios.get("http://localhost:3000/api/profile", { headers: authHeader() })
+        axios.get("http://localhost:3000/api/auth/token", { headers: authHeader() })
             .catch(() => {
                 let refreshToken = {
                     refresh_token: localStorage.getItem("refresh-token")

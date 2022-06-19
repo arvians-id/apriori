@@ -81,7 +81,8 @@ export default {
               })
             }
           }).catch(error => {
-        console.log(error.response.data.status)
+            alert("invalid input")
+            console.log(error.response.data.status)
       })
     }
   }

@@ -72,7 +72,7 @@ export default {
     return {
       products: [],
       transaction: {
-        product_name: "",
+        product_name: [],
         customer_name: ""
       }
     };
