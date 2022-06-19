@@ -34,6 +34,11 @@
               <span class="nav-link-inner--text">Register</span>
             </router-link>
           </li>
+          <li class="nav-item">
+            <router-link :to="{ name: 'forgot-password' }" class="nav-link">
+              <span class="nav-link-inner--text">Reset Password</span>
+            </router-link>
+          </li>
         </ul>
       </div>
     </div>

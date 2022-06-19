@@ -11,7 +11,7 @@
           <div class="card bg-secondary border-0 mb-0">
             <div class="card-body px-lg-5 py-lg-5">
               <div class="text-center text-muted mb-4">
-                <small>Sign in your account</small>
+                <small>Reset your password here</small>
               </div>
               <form @submit.prevent="submit" method="POST" role="form">
                 <div class="form-group mb-3">
@@ -19,7 +19,7 @@
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="ni ni-email-83"></i></span>
                     </div>
-                    <input class="form-control" placeholder="Email" type="email" v-model="user.email" required>
+                    <input class="form-control" placeholder="Your Email" type="email" v-model="user.email" required>
                   </div>
                 </div>
                 <div class="form-group">
@@ -27,11 +27,11 @@
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="ni ni-lock-circle-open"></i></span>
                     </div>
-                    <input class="form-control" placeholder="Password" type="password" v-model="user.password" required>
+                    <input class="form-control" placeholder="New Password" type="password" v-model="user.password" required>
                   </div>
                 </div>
                 <div class="text-center">
-                  <button type="submit" class="btn btn-primary my-4">Sign in</button>
+                  <button type="submit" class="btn btn-primary my-4">Submit Form</button>
                 </div>
               </form>
             </div>
@@ -59,7 +59,6 @@ export default {
   data(){
     return {
       user: {
-        name: "",
         email: "",
         password: "",
       }
@@ -67,17 +66,12 @@ export default {
   },
   methods: {
     submit() {
-      axios.post("http://localhost:3000/api/auth/login", this.user)
+      axios.post(`http://localhost:3000/api/auth/verify?signature=${this.$route.query.signature}`, this.user)
           .then(response => {
             if(response.data.code === 200) {
               alert(response.data.status)
-
-              let token = response.data.data.access_token
-              let refreshToken = response.data.data.refresh_token
-              localStorage.setItem("token", token)
-              localStorage.setItem("refresh-token", refreshToken)
               this.$router.push({
-                name: 'admin'
+                name: 'login'
               })
             }
           }).catch(error => {

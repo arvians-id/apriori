@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from "vue-router";
 import Login from "../views/auth/Login.vue";
 import Register from "../views/auth/Register.vue";
+import ForgotPassword from "../views/auth/ForgotPassword.vue";
+import ResetPassword from "../views/auth/ResetPassword.vue";
 import Dashboard from "../views/Dashboard.vue";
 import Transaction from "../views/transaction/Data.vue";
 import TransactionCreate from "../views/transaction/Create.vue";
@@ -23,6 +25,8 @@ import axios from "axios";
 const routes = [
   { path: "/", name: "login", component: Login },
   { path: "/register", name: "register", component: Register },
+  { path: "/forgot-password", name: "forgot-password", component: ForgotPassword },
+  { path: "/reset-password", name: "reset-password", component: ResetPassword },
   { path: "/home", name: "admin", component: Dashboard },
   { path: "/transaction", name: "transaction", component: Transaction },
   { path: "/transaction/create", name: "transaction.create", component: TransactionCreate },
@@ -47,15 +51,19 @@ const router = createRouter({
 });
 
 router.beforeEach( async (to) => {
-  if (Object.keys(authHeader()).length === 0 && to.name !== 'login' && to.name !== 'register') {
+  if (Object.keys(authHeader()).length === 0 && to.name !== 'login' && to.name !== 'register' && to.name !== 'forgot-password' && to.name !== 'reset-password') {
     return { name: 'login' }
   } else if (Object.keys(authHeader()).length > 0 && to.name === 'login') {
       return { name: 'admin' }
   } else if (Object.keys(authHeader()).length > 0 && to.name === 'register') {
       return { name: 'admin' }
+  } else if (Object.keys(authHeader()).length > 0 && to.name === 'forgot-password') {
+      return { name: 'admin' }
+  } else if (Object.keys(authHeader()).length > 0 && to.name === 'reset-password') {
+      return { name: 'admin' }
   }
 
-  if (to.name !== 'login' && to.name !== 'register') {
+  if (to.name !== 'login' && to.name !== 'register' && to.name !== 'forgot-password' && to.name !== 'reset-password') {
         axios.get("http://localhost:3000/api/auth/token", { headers: authHeader() })
             .catch(() => {
                 let refreshToken = {
