@@ -1,6 +1,7 @@
 package integration_test
 
 import (
+	"apriori/config"
 	"apriori/entity"
 	"apriori/repository"
 	"apriori/tests/setup"
@@ -29,24 +30,23 @@ var _ = Describe("Auth API", func() {
 	var database *sql.DB
 
 	BeforeEach(func() {
-		err := setup.TestEnv()
+		// Setup Configuration
+		configuration := config.New("../../.env.test")
+
+		db, err := setup.SuiteSetupMySQL(configuration)
 		if err != nil {
 			panic(err)
 		}
-
-		db, err := setup.SuiteSetup()
-		if err != nil {
-			panic(err)
-		}
-
-		router := setup.ModuleSetup(db)
+		router := setup.ModuleSetup(configuration)
 
 		database = db
 		server = router
 	})
 
 	AfterEach(func() {
-		db, err := setup.SuiteSetup()
+		// Setup Configuration
+		configuration := config.New("../../.env.test")
+		db, err := setup.SuiteSetupMySQL(configuration)
 		if err != nil {
 			panic(err)
 		}

@@ -1,25 +1,27 @@
 package setup
 
 import (
+	"apriori/config"
 	"database/sql"
-	"time"
+	"fmt"
+	"net/url"
 )
 
-func SuiteSetup() (*sql.DB, error) {
-	db, err := sql.Open("mysql", "root@tcp(localhost:3306)/apriori_test?parseTime=true")
+func SuiteSetupMySQL(configuration config.Config) (*sql.DB, error) {
+	conf := url.Values{}
+	conf.Add("parseTime", "True")
+
+	username := configuration.Get("DB_USERNAME")
+	password := configuration.Get("DB_PASSWORD")
+	host := configuration.Get("DB_HOST")
+	port := configuration.Get("DB_PORT")
+	database := configuration.Get("DB_DATABASE")
+
+	dsn := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?%v", username, password, host, port, database, conf.Encode())
+	db, err := sql.Open(configuration.Get("DB_CONNECTION"), dsn)
 	if err != nil {
 		return nil, err
 	}
-
-	err = db.Ping()
-	if err != nil {
-		return nil, err
-	}
-
-	db.SetMaxIdleConns(5)
-	db.SetMaxOpenConns(20)
-	db.SetConnMaxLifetime(60 * time.Minute)
-	db.SetConnMaxIdleTime(10 * time.Minute)
 
 	return db, nil
 }

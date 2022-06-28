@@ -1,6 +1,7 @@
 package integration
 
 import (
+	"apriori/config"
 	"apriori/entity"
 	"apriori/repository"
 	"apriori/tests/setup"
@@ -28,17 +29,14 @@ var _ = Describe("User API", func() {
 	var cookie *http.Cookie
 
 	BeforeEach(func() {
-		err := setup.TestEnv()
+		// Setup Configuration
+		configuration := config.New("../../.env.test")
+
+		db, err := setup.SuiteSetupMySQL(configuration)
 		if err != nil {
 			panic(err)
 		}
-
-		db, err := setup.SuiteSetup()
-		if err != nil {
-			panic(err)
-		}
-
-		router := setup.ModuleSetup(db)
+		router := setup.ModuleSetup(configuration)
 
 		database = db
 		server = router
@@ -80,7 +78,9 @@ var _ = Describe("User API", func() {
 	})
 
 	AfterEach(func() {
-		db, err := setup.SuiteSetup()
+		// Setup Configuration
+		configuration := config.New("../../.env.test")
+		db, err := setup.SuiteSetupMySQL(configuration)
 		if err != nil {
 			panic(err)
 		}

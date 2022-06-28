@@ -26,10 +26,6 @@ func NewTransactionRepository() TransactionRepository {
 	return &transactionRepository{}
 }
 
-type Test struct {
-	productName string
-}
-
 func (repository *transactionRepository) FindItemSet(ctx context.Context, tx *sql.Tx, startDate string, endDate string) ([]entity.Transaction, error) {
 	query := `SELECT * FROM transactions WHERE DATE(created_at) >= ? AND DATE(created_at) <= ?`
 

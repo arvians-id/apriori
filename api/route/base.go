@@ -1,16 +1,21 @@
-package setup
+package route
 
 import (
 	"apriori/api/controller"
 	"apriori/api/middleware"
+	"apriori/config"
 	"apriori/repository"
 	"apriori/service"
-	"database/sql"
 	"github.com/gin-gonic/gin"
 )
 
-func ModuleSetup(db *sql.DB) *gin.Engine {
-	router := gin.New()
+func NewInitializedServer(configuration config.Config) *gin.Engine {
+	// Setup Configuration
+	router := gin.Default()
+	db, err := config.NewMySQL(configuration)
+	if err != nil {
+		panic(err)
+	}
 
 	// Setup Repository
 	userRepository := repository.NewUserRepository()
@@ -37,11 +42,21 @@ func ModuleSetup(db *sql.DB) *gin.Engine {
 	transactionController := controller.NewTransactionController(&transactionService)
 	aprioriController := controller.NewAprioriController(aprioriService)
 
+	// Setup Proxies
+	err = router.SetTrustedProxies([]string{configuration.Get("APP_URL")})
+	if err != nil {
+		panic(err)
+	}
+
+	// CORS Middleware
+	router.Use(middleware.SetupCorsMiddleware())
+
 	// Setup Router
 	authController.Route(router)
 
-	// Auth Middleware
+	// Authentication Middleware
 	router.Use(middleware.AuthJwtMiddleware())
+
 	userController.Route(router)
 	productController.Route(router)
 	transactionController.Route(router)

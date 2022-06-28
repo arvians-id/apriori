@@ -3,42 +3,57 @@ package config
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/go-sql-driver/mysql"
-	log "github.com/sirupsen/logrus"
 	"net/url"
-	"os"
+	"strconv"
 	"time"
+
+	_ "github.com/go-sql-driver/mysql"
 )
 
-func NewDB() *sql.DB {
+func NewMySQL(configuration Config) (*sql.DB, error) {
 	conf := url.Values{}
 	conf.Add("parseTime", "True")
 
-	username := os.Getenv("DB_USERNAME")
-	password := os.Getenv("DB_PASSWORD")
-	host := os.Getenv("DB_HOST")
-	port := os.Getenv("DB_PORT")
-	database := os.Getenv("DB_DATABASE")
+	username := configuration.Get("DB_USERNAME")
+	password := configuration.Get("DB_PASSWORD")
+	host := configuration.Get("DB_HOST")
+	port := configuration.Get("DB_PORT")
+	database := configuration.Get("DB_DATABASE")
 
 	dsn := fmt.Sprintf("%v:%v@tcp(%v:%v)/%v?%v", username, password, host, port, database, conf.Encode())
-	db, err := sql.Open(os.Getenv("DB_CONNECTION"), dsn)
+	db, err := sql.Open(configuration.Get("DB_CONNECTION"), dsn)
 	if err != nil {
-		log.Fatal("cannot connected database", err)
+		return nil, err
 	}
 
 	err = db.Ping()
 	if err != nil {
-		log.Fatal("request Timeout ", err)
-		return nil
+		return nil, err
 
 	}
 
-	db.SetMaxIdleConns(5)
-	db.SetMaxOpenConns(20)
-	db.SetConnMaxLifetime(60 * time.Minute)
-	db.SetConnMaxIdleTime(10 * time.Minute)
+	// Limit connection with db pooling
+	setMaxIdleConns, err := strconv.Atoi(configuration.Get("DATABASE_POOL_MIN"))
+	if err != nil {
+		panic(err)
+	}
+	setMaxOpenConns, err := strconv.Atoi(configuration.Get("DATABASE_POOL_MAX"))
+	if err != nil {
+		panic(err)
+	}
+	setConnMaxIdleTime, err := strconv.Atoi(configuration.Get("DATABASE_MAX_IDLE_TIME_SECOND"))
+	if err != nil {
+		panic(err)
+	}
+	setConnMaxLifetime, err := strconv.Atoi(configuration.Get("DATABASE_MAX_LIFE_TIME_SECOND"))
+	if err != nil {
+		panic(err)
+	}
 
-	log.Info("Connected Database MySQL")
+	db.SetMaxIdleConns(setMaxIdleConns)                                    // minimal connection
+	db.SetMaxOpenConns(setMaxOpenConns)                                    // maximal connection
+	db.SetConnMaxLifetime(time.Duration(setConnMaxIdleTime) * time.Minute) // unused connections will be deleted
+	db.SetConnMaxIdleTime(time.Duration(setConnMaxLifetime) * time.Minute) // connection that can be used
 
-	return db
+	return db, nil
 }
