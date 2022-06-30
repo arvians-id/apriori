@@ -24,9 +24,8 @@
                   <th>No</th>
                   <th>Product Code</th>
                   <th>Name</th>
+                  <th>Price</th>
                   <th>Description</th>
-                  <th>Created At</th>
-                  <th>Last Modified</th>
                   <th class="text-center">Action</th>
                 </tr>
                 </thead>
@@ -35,10 +34,10 @@
                   <td>{{ (i++) + 1 }}</td>
                   <td>{{ item.code }}</td>
                   <td>{{ item.name }}</td>
-                  <td>{{ item.description }}</td>
-                  <td>{{ item.created_at }}</td>
-                  <td>{{ item.updated_at }}</td>
+                  <td>Rp. {{ item.price }}</td>
+                  <td>{{ item.description.length > 50 ? item.description.slice(0, 50) + "..." : item.description }}</td>
                   <td class="text-center">
+                    <router-link :to="{ name: 'product.detail', params: { code: item.code } }" class="btn btn-secondary btn-sm">Detail</router-link>
                     <router-link :to="{ name: 'product.edit', params: { code: item.code } }" class="btn btn-primary btn-sm">Edit</router-link>
                     <form @submit.prevent="submit(item.code)" method="POST" class="d-inline">
                       <button class="btn btn-danger btn-sm">Delete</button>

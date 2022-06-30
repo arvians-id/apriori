@@ -26,8 +26,16 @@
                     <input type="text" class="form-control" v-model="product.name" required>
                   </div>
                   <div class="form-group">
+                    <label class="form-control-label">Price</label>
+                    <input type="number" class="form-control" v-model="product.price" required>
+                  </div>
+                  <div class="form-group">
                     <label class="form-control-label">Description</label>
                     <input type="text" class="form-control" v-model="product.description">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-control-label">Image</label>
+                    <input type="file" class="form-control" @change="uploadImage">
                   </div>
                   <button class="btn btn-primary" type="submit">Submit form</button>
                 </form>
@@ -63,15 +71,28 @@ export default {
   data: function () {
     return {
       product: {
-        code: "",
         name: "",
+        price: 0,
         description: "",
+        image: null
       }
     };
   },
   methods: {
     submit() {
-      axios.patch(`http://localhost:3000/api/products/${this.$route.params.code}`, this.product, { headers: authHeader() })
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': 'Bearer ' + localStorage.getItem('token'),
+        }
+      }
+      let formData = new FormData()
+      formData.append("name", this.product.name)
+      formData.append("price", this.product.price)
+      formData.append("description", this.product.description)
+      formData.append("image", this.product.image)
+
+      axios.patch(`http://localhost:3000/api/products/${this.$route.params.code}`, formData, config)
           .then(response => {
             if(response.data.code === 200) {
               alert(response.data.status)
@@ -80,17 +101,20 @@ export default {
               })
             }
           }).catch(error => {
-        console.log(error.response.data.status)
-      })
+            console.log(error.response.data.status)
+          })
     },
     fetchData() {
       axios.get(`http://localhost:3000/api/products/${this.$route.params.code}`, { headers: authHeader() }).then(response => {
         this.product = {
-          code: response.data.data.code,
           name: response.data.data.name,
+          price: response.data.data.price,
           description: response.data.data.description,
         }
       });
+    },
+    uploadImage(e) {
+      this.product.image = e.target.files[0]
     }
   }
 }

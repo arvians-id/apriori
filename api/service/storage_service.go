@@ -100,6 +100,12 @@ func (service *storageService) UploadFileS3(file multipart.File, header *multipa
 }
 
 func (service *storageService) DeleteFileS3(fileName string) error {
+	headerFileName := strings.Split(fileName, "/")
+	oldFileName := headerFileName[len(headerFileName)-1]
+	if oldFileName == "no-image.png" {
+		return nil
+	}
+
 	go func() {
 		sess, err := service.ConnectToAWS()
 		if err != nil {
@@ -108,8 +114,6 @@ func (service *storageService) DeleteFileS3(fileName string) error {
 
 		svc := s3.New(sess)
 
-		headerFileName := strings.Split(fileName, "/")
-		oldFileName := headerFileName[len(headerFileName)-1]
 		_, err = svc.DeleteObject(&s3.DeleteObjectInput{
 			Bucket: aws.String(service.MyBucket),
 			Key:    aws.String(oldFileName),

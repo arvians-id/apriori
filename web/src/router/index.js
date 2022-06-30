@@ -11,6 +11,7 @@ import TransactionEdit from "../views/transaction/Edit.vue";
 import Product from "../views/product/Data.vue";
 import ProductCreate from "../views/product/Create.vue";
 import ProductEdit from "../views/product/Edit.vue";
+import ProductDetail from "../views/product/Detail.vue";
 import Apriori from "../views/apriori/Data.vue";
 import AprioriCreate from "../views/apriori/Create.vue";
 import AprioriDetail from "../views/apriori/Detail.vue";
@@ -34,6 +35,7 @@ const routes = [
   { path: "/transaction/:no_transaction/edit", name: "transaction.edit", component: TransactionEdit },
   { path: "/product", name: "product", component: Product },
   { path: "/product/create", name: "product.create", component: ProductCreate },
+    { path: "/product/:code", name: "product.detail", component: ProductDetail },
   { path: "/product/:code/edit", name: "product.edit", component: ProductEdit },
   { path: "/apriori", name: "apriori", component: Apriori },
   { path: "/apriori/create", name: "apriori.create", component: AprioriCreate },

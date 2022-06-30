@@ -29,10 +29,18 @@
                     <label class="form-control-label">Product Name</label> <small class="text-danger">*</small>
                     <input type="text" class="form-control" v-model="product.name" required>
                   </div>
+                   <div class="form-group">
+                     <label class="form-control-label">Price</label>
+                     <input type="number" class="form-control" v-model="product.price" required>
+                   </div>
                   <div class="form-group">
                     <label class="form-control-label">Description</label>
                     <input type="text" class="form-control" v-model="product.description">
                   </div>
+                   <div class="form-group">
+                     <label class="form-control-label">Image</label>
+                     <input type="file" class="form-control" @change="uploadImage">
+                   </div>
                   <button class="btn btn-primary" type="submit">Submit form</button>
                 </form>
               </div>
@@ -52,7 +60,6 @@ import Topbar from "@/components/Topbar.vue"
 import Header from "@/components/Header.vue"
 import Footer from "@/components/Footer.vue"
 import axios from "axios";
-import authHeader from "@/service/auth-header";
 
 export default {
   components: {
@@ -66,13 +73,28 @@ export default {
       product: {
         code: "",
         name: "",
+        price: 0,
         description: "",
+        image: null
       }
     }
   },
   methods: {
     submit() {
-      axios.post("http://localhost:3000/api/products", this.product, { headers: authHeader() })
+      const config = {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+          'Authorization': 'Bearer ' + localStorage.getItem('token'),
+        }
+      }
+      let formData = new FormData()
+      formData.append("code", this.product.code)
+      formData.append("name", this.product.name)
+      formData.append("price", this.product.price)
+      formData.append("description", this.product.description)
+      formData.append("image", this.product.image)
+
+      axios.post("http://localhost:3000/api/products", formData, config)
           .then(response => {
             if(response.data.code === 200) {
               alert(response.data.status)
@@ -81,8 +103,11 @@ export default {
               })
             }
           }).catch(error => {
-        console.log(error.response.data.status)
-      })
+            console.log(error.response.data.status)
+          })
+    },
+    uploadImage(e) {
+      this.product.image = e.target.files[0]
     }
   }
 }

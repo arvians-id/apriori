@@ -155,6 +155,11 @@ func (service *productService) Delete(ctx context.Context, code string) error {
 		return err
 	}
 
+	err = service.StorageService.DeleteFileS3(getProduct.Image)
+	if err != nil {
+		return err
+	}
+
 	err = service.ProductRepository.Delete(ctx, tx, getProduct.Code)
 	if err != nil {
 		return err
