@@ -5,6 +5,7 @@ node_modules
 .env
 .env.test
 gin-bin.exe
+/api/.env.test
 
 # local env files
 .env.local

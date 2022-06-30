@@ -6,7 +6,6 @@ import (
 	"apriori/service"
 	"apriori/utils"
 	"github.com/gin-gonic/gin"
-	"log"
 )
 
 type ProductController struct {
@@ -73,7 +72,6 @@ func (controller *ProductController) Create(c *gin.Context) {
 
 	pathName, err := utils.UploadToS3(c)
 	if err != nil {
-		log.Println("sasu")
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
