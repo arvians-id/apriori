@@ -5,7 +5,9 @@ import (
 	"apriori/model"
 	"apriori/service"
 	"apriori/utils"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"os"
 )
 
 type ProductController struct {
@@ -63,17 +65,17 @@ func (controller *ProductController) Create(c *gin.Context) {
 	request.Price = utils.StrToInt(c.PostForm("price"))
 
 	file, header, err := c.Request.FormFile("image")
-	if err != nil {
-		response.ReturnErrorInternalServerError(c, err, nil)
-		return
-	}
-	pathName, err := controller.StorageService.UploadFileS3(file, header)
-	if err != nil {
-		response.ReturnErrorInternalServerError(c, err, nil)
-		return
+	filePath := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", os.Getenv("AWS_BUCKET"), os.Getenv("AWS_REGION"), "no-image.png")
+	if err == nil {
+		pathName, err := controller.StorageService.UploadFileS3(file, header)
+		if err != nil {
+			response.ReturnErrorInternalServerError(c, err, nil)
+			return
+		}
+		filePath = pathName
 	}
 
-	request.Image = pathName
+	request.Image = filePath
 	product, err := controller.ProductService.Create(c.Request.Context(), request)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)

@@ -13,13 +13,6 @@ import (
 	"strings"
 )
 
-var (
-	ACCESS_KEY_ID     = config.New().Get("AWS_ACCESS_KEY_ID")
-	SECRET_ACCESS_KEY = config.New().Get("AWS_SECRET_KEY")
-	MY_REGION         = config.New().Get("AWS_REGION")
-	MY_BUCKET         = config.New().Get("AWS_BUCKET")
-)
-
 type StorageService interface {
 	UploadFile(c *gin.Context, image *multipart.FileHeader) (chan string, error)
 	UploadFileS3(file multipart.File, header *multipart.FileHeader) (string, error)
@@ -33,20 +26,20 @@ type storageService struct {
 	MyBucket        string
 }
 
-func NewStorageService() StorageService {
+func NewStorageService(cofiguration config.Config) StorageService {
 	return &storageService{
-		AccessKeyID:     ACCESS_KEY_ID,
-		SecretAccessKey: SECRET_ACCESS_KEY,
-		MyRegion:        MY_REGION,
-		MyBucket:        MY_BUCKET,
+		AccessKeyID:     cofiguration.Get("AWS_ACCESS_KEY_ID"),
+		SecretAccessKey: cofiguration.Get("AWS_SECRET_KEY"),
+		MyRegion:        cofiguration.Get("AWS_REGION"),
+		MyBucket:        cofiguration.Get("AWS_BUCKET"),
 	}
 }
 
-func ConnectToAWS() (*session.Session, error) {
+func (service *storageService) ConnectToAWS() (*session.Session, error) {
 	sess, err := session.NewSession(
 		&aws.Config{
-			Region:      aws.String(MY_REGION),
-			Credentials: credentials.NewStaticCredentials(ACCESS_KEY_ID, SECRET_ACCESS_KEY, ""),
+			Region:      aws.String(service.MyRegion),
+			Credentials: credentials.NewStaticCredentials(service.AccessKeyID, service.SecretAccessKey, ""),
 		},
 	)
 	if err != nil {
@@ -79,7 +72,7 @@ func (service *storageService) UploadFile(c *gin.Context, image *multipart.FileH
 func (service *storageService) UploadFileS3(file multipart.File, header *multipart.FileHeader) (string, error) {
 	fileName := make(chan string)
 	go func() {
-		sess, err := ConnectToAWS()
+		sess, err := service.ConnectToAWS()
 		if err != nil {
 			panic(err)
 		}
@@ -108,7 +101,7 @@ func (service *storageService) UploadFileS3(file multipart.File, header *multipa
 
 func (service *storageService) DeleteFileS3(fileName string) error {
 	go func() {
-		sess, err := ConnectToAWS()
+		sess, err := service.ConnectToAWS()
 		if err != nil {
 			panic(err)
 		}

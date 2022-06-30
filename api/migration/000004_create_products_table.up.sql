@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS `products` (
     `name` VARCHAR(100) NOT NULL,
     `description` VARCHAR(100) NOT NULL,
     `price` INTEGER(11) NOT NULL,
-    `image` VARCHAR(50),
+    `image` TEXT,
     `created_at` TIMESTAMP,
     `updated_at` TIMESTAMP,
     PRIMARY KEY (`id_product`)

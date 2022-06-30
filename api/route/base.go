@@ -26,7 +26,7 @@ func NewInitializedServer(configuration config.Config) *gin.Engine {
 	aprioriRepository := repository.NewAprioriRepository()
 
 	// Setup Service
-	storageService := service.NewStorageService()
+	storageService := service.NewStorageService(configuration)
 	userService := service.NewUserService(&userRepository, db)
 	authService := service.NewAuthService(&userRepository, &authRepository, db)
 	jwtService := service.NewJwtService()

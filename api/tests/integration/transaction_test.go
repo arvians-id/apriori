@@ -21,7 +21,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var _ = Describe("User API", func() {
+var _ = Describe("Transaction API", func() {
 
 	var server *gin.Engine
 	var database *sql.DB

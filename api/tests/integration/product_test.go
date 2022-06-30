@@ -5,6 +5,7 @@ import (
 	"apriori/entity"
 	"apriori/repository"
 	"apriori/tests/setup"
+	"bytes"
 	"context"
 	"database/sql"
 	"encoding/json"
@@ -21,7 +22,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-var _ = Describe("User API", func() {
+var _ = Describe("Product API", func() {
 
 	var server *gin.Engine
 	var database *sql.DB
@@ -93,180 +94,30 @@ var _ = Describe("User API", func() {
 	})
 
 	Describe("Create Product /products", func() {
-		When("the fields are incorrect", func() {
-			When("the code field is incorrect", func() {
-				It("should return error required", func() {
-					// Create Product
-					requestBody := strings.NewReader(`{"name": "Bantal Biasa","description": "Test"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/products", requestBody)
-					request.Header.Add("Content-Type", "application/json")
-					request.AddCookie(cookie)
-					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
-
-					writer := httptest.NewRecorder()
-					server.ServeHTTP(writer, request)
-
-					response := writer.Result()
-
-					body, _ := io.ReadAll(response.Body)
-					var responseBody map[string]interface{}
-					_ = json.Unmarshal(body, &responseBody)
-
-					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusBadRequest))
-					Expect(responseBody["status"]).To(Equal("Key: 'CreateProductRequest.Code' Error:Field validation for 'Code' failed on the 'required' tag"))
-					Expect(responseBody["data"]).To(BeNil())
-				})
-
-				It("should return error duplicate values", func() {
-					// Create Product
-					requestBody := strings.NewReader(`{"code": "SK6","name": "Bantal Biasa","description": "Test"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/products", requestBody)
-					request.Header.Add("Content-Type", "application/json")
-					request.AddCookie(cookie)
-					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
-
-					writer := httptest.NewRecorder()
-					server.ServeHTTP(writer, request)
-
-					requestBody = strings.NewReader(`{"code": "SK6","name": "Bantal Biasa","description": "Test"}`)
-					request = httptest.NewRequest(http.MethodPost, "/api/products", requestBody)
-					request.Header.Add("Content-Type", "application/json")
-					request.AddCookie(cookie)
-					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
-
-					writer = httptest.NewRecorder()
-					server.ServeHTTP(writer, request)
-
-					response := writer.Result()
-
-					body, _ := io.ReadAll(response.Body)
-					var responseBody map[string]interface{}
-					_ = json.Unmarshal(body, &responseBody)
-
-					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusInternalServerError))
-					Expect(responseBody["status"]).To(Equal("Error 1062: Duplicate entry 'SK6' for key 'code'"))
-					Expect(responseBody["data"]).To(BeNil())
-				})
-
-				It("should return error less character of length", func() {
-					// Create Product
-					requestBody := strings.NewReader(`{"code": "S","name": "Bantal Biasa","description": "Test"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/products", requestBody)
-					request.Header.Add("Content-Type", "application/json")
-					request.AddCookie(cookie)
-					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
-
-					writer := httptest.NewRecorder()
-					server.ServeHTTP(writer, request)
-
-					response := writer.Result()
-
-					body, _ := io.ReadAll(response.Body)
-					var responseBody map[string]interface{}
-					_ = json.Unmarshal(body, &responseBody)
-
-					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusBadRequest))
-					Expect(responseBody["status"]).To(Equal("Key: 'CreateProductRequest.Code' Error:Field validation for 'Code' failed on the 'min' tag"))
-					Expect(responseBody["data"]).To(BeNil())
-				})
-			})
-			When("the name field is incorrect", func() {
-				It("should return error required", func() {
-					// Create Product
-					requestBody := strings.NewReader(`{"code": "SK6","description": "Test"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/products", requestBody)
-					request.Header.Add("Content-Type", "application/json")
-					request.AddCookie(cookie)
-					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
-
-					writer := httptest.NewRecorder()
-					server.ServeHTTP(writer, request)
-
-					response := writer.Result()
-
-					body, _ := io.ReadAll(response.Body)
-					var responseBody map[string]interface{}
-					_ = json.Unmarshal(body, &responseBody)
-
-					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusBadRequest))
-					Expect(responseBody["status"]).To(Equal("Key: 'CreateProductRequest.Name' Error:Field validation for 'Name' failed on the 'required' tag"))
-					Expect(responseBody["data"]).To(BeNil())
-				})
-
-				It("should return error less character of length", func() {
-					// Create Product
-					requestBody := strings.NewReader(`{"code": "SK6","name": "saa","description": "Test"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/products", requestBody)
-					request.Header.Add("Content-Type", "application/json")
-					request.AddCookie(cookie)
-					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
-
-					writer := httptest.NewRecorder()
-					server.ServeHTTP(writer, request)
-
-					response := writer.Result()
-
-					body, _ := io.ReadAll(response.Body)
-					var responseBody map[string]interface{}
-					_ = json.Unmarshal(body, &responseBody)
-
-					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusBadRequest))
-					Expect(responseBody["status"]).To(Equal("Key: 'CreateProductRequest.Name' Error:Field validation for 'Name' failed on the 'min' tag"))
-					Expect(responseBody["data"]).To(BeNil())
-				})
-			})
-		})
-
 		When("the fields are correct", func() {
-			When("the description field is empty", func() {
-				It("should return successful create product response", func() {
-					// Create Product
-					requestBody := strings.NewReader(`{"code": "SK6","name": "Bantal Biasa"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/products", requestBody)
-					request.Header.Add("Content-Type", "application/json")
-					request.AddCookie(cookie)
-					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
-
-					writer := httptest.NewRecorder()
-					server.ServeHTTP(writer, request)
-
-					response := writer.Result()
-
-					body, _ := io.ReadAll(response.Body)
-					var responseBody map[string]interface{}
-					_ = json.Unmarshal(body, &responseBody)
-
-					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
-					Expect(responseBody["status"]).To(Equal("created"))
-					Expect(responseBody["data"].(map[string]interface{})["code"]).To(Equal("SK6"))
-					Expect(responseBody["data"].(map[string]interface{})["name"]).To(Equal("Bantal Biasa"))
-					Expect(responseBody["data"].(map[string]interface{})["description"]).To(Equal(""))
-				})
-			})
-
 			When("the fields are filled", func() {
 				It("should return successful create product response", func() {
 					// Create Product
-					requestBody := strings.NewReader(`{"code": "SK6","name": "Bantal Biasa","description": "Test"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/products", requestBody)
+					requestBody := map[string]interface{}{
+						"code":        "SK6",
+						"name":        "Bantal Biasa",
+						"description": "Test",
+						"price":       7000,
+					}
+					bodyOne, _ := json.Marshal(requestBody)
+					request := httptest.NewRequest(http.MethodPost, "/api/products", bytes.NewBuffer(bodyOne))
 					request.Header.Add("Content-Type", "application/json")
 					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
-					writer := httptest.NewRecorder()
-					server.ServeHTTP(writer, request)
-
-					response := writer.Result()
-
-					body, _ := io.ReadAll(response.Body)
 					var responseBody map[string]interface{}
-					_ = json.Unmarshal(body, &responseBody)
+					_ = json.NewDecoder(request.Body).Decode(&responseBody)
+					request.Body.Close()
 
-					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
-					Expect(responseBody["status"]).To(Equal("created"))
-					Expect(responseBody["data"].(map[string]interface{})["code"]).To(Equal("SK6"))
-					Expect(responseBody["data"].(map[string]interface{})["name"]).To(Equal("Bantal Biasa"))
-					Expect(responseBody["data"].(map[string]interface{})["description"]).To(Equal("Test"))
+					Expect(responseBody["code"]).To(Equal("SK6"))
+					Expect(responseBody["name"]).To(Equal("Bantal Biasa"))
+					Expect(responseBody["description"]).To(Equal("Test"))
+					Expect(int(responseBody["price"].(float64))).To(Equal(7000))
 				})
 			})
 		})
@@ -296,116 +147,8 @@ var _ = Describe("User API", func() {
 				Expect(responseBody["data"]).To(BeNil())
 			})
 		})
-		When("the fields are incorrect", func() {
-			When("the name field is incorrect", func() {
-				It("should return error required", func() {
-					// Create Product
-					tx, _ := database.Begin()
-					productRepository := repository.NewProductRepository()
-					row, _ := productRepository.Create(context.Background(), tx, entity.Product{
-						Code:        "SK6",
-						Name:        "Widdy",
-						Description: "Test",
-						CreatedAt:   time.Now(),
-						UpdatedAt:   time.Now(),
-					})
-					_ = tx.Commit()
-
-					// Update Product
-					requestBody := strings.NewReader(`{"code": "SK1","description": "Test"}`)
-					request := httptest.NewRequest(http.MethodPatch, "/api/products/"+row.Code, requestBody)
-					request.Header.Add("Content-Type", "application/json")
-					request.AddCookie(cookie)
-					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
-
-					writer := httptest.NewRecorder()
-					server.ServeHTTP(writer, request)
-
-					response := writer.Result()
-
-					body, _ := io.ReadAll(response.Body)
-					var responseBody map[string]interface{}
-					_ = json.Unmarshal(body, &responseBody)
-
-					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusBadRequest))
-					Expect(responseBody["status"]).To(Equal("Key: 'UpdateProductRequest.Name' Error:Field validation for 'Name' failed on the 'required' tag"))
-					Expect(responseBody["data"]).To(BeNil())
-				})
-
-				It("should return error less character of length", func() {
-					// Create Product
-					tx, _ := database.Begin()
-					productRepository := repository.NewProductRepository()
-					row, _ := productRepository.Create(context.Background(), tx, entity.Product{
-						Code:        "SK6",
-						Name:        "Widdy",
-						Description: "Test",
-						CreatedAt:   time.Now(),
-						UpdatedAt:   time.Now(),
-					})
-					_ = tx.Commit()
-
-					// Update Product
-					requestBody := strings.NewReader(`{"code": "SK1","name": "Kas","description": "Test"}`)
-					request := httptest.NewRequest(http.MethodPatch, "/api/products/"+row.Code, requestBody)
-					request.Header.Add("Content-Type", "application/json")
-					request.AddCookie(cookie)
-					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
-
-					writer := httptest.NewRecorder()
-					server.ServeHTTP(writer, request)
-
-					response := writer.Result()
-
-					body, _ := io.ReadAll(response.Body)
-					var responseBody map[string]interface{}
-					_ = json.Unmarshal(body, &responseBody)
-
-					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusBadRequest))
-					Expect(responseBody["status"]).To(Equal("Key: 'UpdateProductRequest.Name' Error:Field validation for 'Name' failed on the 'min' tag"))
-					Expect(responseBody["data"]).To(BeNil())
-				})
-			})
-		})
 
 		When("the fields are correct", func() {
-			When("the description field is empty", func() {
-				It("should return successful create product response", func() {
-					// Create Product
-					tx, _ := database.Begin()
-					productRepository := repository.NewProductRepository()
-					row, _ := productRepository.Create(context.Background(), tx, entity.Product{
-						Code:        "SK6",
-						Name:        "Widdy",
-						Description: "Test",
-						CreatedAt:   time.Now(),
-						UpdatedAt:   time.Now(),
-					})
-					_ = tx.Commit()
-
-					// Update Product
-					requestBody := strings.NewReader(`{"code": "SK1","name": "Guling Doti"}`)
-					request := httptest.NewRequest(http.MethodPatch, "/api/products/"+row.Code, requestBody)
-					request.Header.Add("Content-Type", "application/json")
-					request.AddCookie(cookie)
-					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
-
-					writer := httptest.NewRecorder()
-					server.ServeHTTP(writer, request)
-
-					response := writer.Result()
-
-					body, _ := io.ReadAll(response.Body)
-					var responseBody map[string]interface{}
-					_ = json.Unmarshal(body, &responseBody)
-
-					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
-					Expect(responseBody["status"]).To(Equal("updated"))
-					Expect(responseBody["data"].(map[string]interface{})["name"]).ShouldNot(Equal("Widdy"))
-					Expect(responseBody["data"].(map[string]interface{})["description"]).To(Equal(""))
-				})
-			})
-
 			When("the fields are filled", func() {
 				It("should return successful create product response", func() {
 					// Create Product
