@@ -82,11 +82,16 @@ func (service *productService) Create(ctx context.Context, request model.CreateP
 	if err != nil {
 		return model.GetProductResponse{}, err
 	}
+	if request.Image == "" {
+		request.Image = "no-image.png"
+	}
 
 	createProduct := entity.Product{
 		Code:        request.Code,
 		Name:        request.Name,
 		Description: request.Description,
+		Price:       request.Price,
+		Image:       request.Image,
 		CreatedAt:   createdAt,
 		UpdatedAt:   updatedAt,
 	}
@@ -118,6 +123,8 @@ func (service *productService) Update(ctx context.Context, request model.UpdateP
 
 	getProduct.Name = request.Name
 	getProduct.Description = request.Description
+	getProduct.Price = request.Price
+	getProduct.Image = request.Image
 	getProduct.UpdatedAt = updatedAt
 
 	product, err := service.ProductRepository.Update(ctx, tx, getProduct)

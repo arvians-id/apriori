@@ -4,16 +4,20 @@ import (
 	"apriori/api/response"
 	"apriori/model"
 	"apriori/service"
+	"apriori/utils"
 	"github.com/gin-gonic/gin"
+	"log"
 )
 
 type ProductController struct {
 	ProductService service.ProductService
+	StorageService service.StorageService
 }
 
-func NewProductController(productService *service.ProductService) *ProductController {
+func NewProductController(productService *service.ProductService, storageService *service.StorageService) *ProductController {
 	return &ProductController{
 		ProductService: *productService,
+		StorageService: *storageService,
 	}
 }
 
@@ -54,12 +58,27 @@ func (controller *ProductController) FindById(c *gin.Context) {
 
 func (controller *ProductController) Create(c *gin.Context) {
 	var request model.CreateProductRequest
-	err := c.ShouldBindJSON(&request)
+
+	request.Code = c.PostForm("code")
+	request.Name = c.PostForm("name")
+	request.Description = c.PostForm("description")
+	request.Price = utils.StrToInt(c.PostForm("price"))
+
+	sess, err := controller.StorageService.ConnectToAWS()
 	if err != nil {
-		response.ReturnErrorBadRequest(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+	c.Set("sess", sess)
+
+	pathName, err := utils.UploadToS3(c)
+	if err != nil {
+		log.Println("sasu")
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
+	request.Image = pathName
 	product, err := controller.ProductService.Create(c.Request.Context(), request)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)

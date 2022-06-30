@@ -29,6 +29,8 @@ func ToProductResponse(user entity.Product) model.GetProductResponse {
 		Code:        user.Code,
 		Name:        user.Name,
 		Description: user.Description,
+		Price:       user.Price,
+		Image:       user.Image,
 		CreatedAt:   user.CreatedAt.String(),
 		UpdatedAt:   user.UpdatedAt.String(),
 	}

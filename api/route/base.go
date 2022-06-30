@@ -34,11 +34,12 @@ func NewInitializedServer(configuration config.Config) *gin.Engine {
 	productService := service.NewProductService(&productRepository, db)
 	transactionService := service.NewTransactionService(&transactionRepository, &productRepository, db)
 	aprioriService := service.NewAprioriService(&transactionRepository, &aprioriRepository, db)
+	storageService := service.NewStorageService()
 
 	// Setup Controller
 	userController := controller.NewUserController(&userService)
 	authController := controller.NewAuthController(&authService, &userService, jwtService, emailService, &passwordResetService)
-	productController := controller.NewProductController(&productService)
+	productController := controller.NewProductController(&productService, &storageService)
 	transactionController := controller.NewTransactionController(&transactionService)
 	aprioriController := controller.NewAprioriController(aprioriService)
 

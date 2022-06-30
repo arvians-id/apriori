@@ -39,7 +39,7 @@ func (repository *productRepository) FindAll(ctx context.Context, tx *sql.Tx) ([
 	var products []entity.Product
 	for queryContext.Next() {
 		var product entity.Product
-		err := queryContext.Scan(&product.IdProduct, &product.Code, &product.Name, &product.Description, &product.CreatedAt, &product.UpdatedAt)
+		err := queryContext.Scan(&product.IdProduct, &product.Code, &product.Name, &product.Description, &product.Price, &product.Image, &product.CreatedAt, &product.UpdatedAt)
 		if err != nil {
 			return []entity.Product{}, err
 		}
@@ -64,7 +64,7 @@ func (repository *productRepository) FindById(ctx context.Context, tx *sql.Tx, p
 
 	var product entity.Product
 	if queryContext.Next() {
-		err := queryContext.Scan(&product.IdProduct, &product.Code, &product.Name, &product.Description, &product.CreatedAt, &product.UpdatedAt)
+		err := queryContext.Scan(&product.IdProduct, &product.Code, &product.Name, &product.Description, &product.Price, &product.Image, &product.CreatedAt, &product.UpdatedAt)
 		if err != nil {
 			return entity.Product{}, err
 		}
@@ -90,7 +90,7 @@ func (repository *productRepository) FindByCode(ctx context.Context, tx *sql.Tx,
 
 	var product entity.Product
 	if queryContext.Next() {
-		err := queryContext.Scan(&product.IdProduct, &product.Code, &product.Name, &product.Description, &product.CreatedAt, &product.UpdatedAt)
+		err := queryContext.Scan(&product.IdProduct, &product.Code, &product.Name, &product.Description, &product.Price, &product.Image, &product.CreatedAt, &product.UpdatedAt)
 		if err != nil {
 			return entity.Product{}, err
 		}
@@ -102,8 +102,8 @@ func (repository *productRepository) FindByCode(ctx context.Context, tx *sql.Tx,
 }
 
 func (repository *productRepository) Create(ctx context.Context, tx *sql.Tx, product entity.Product) (entity.Product, error) {
-	query := "INSERT INTO products (code,name,description,created_at,updated_at) VALUES(?,?,?,?,?)"
-	row, err := tx.ExecContext(ctx, query, product.Code, product.Name, product.Description, product.CreatedAt, product.UpdatedAt)
+	query := "INSERT INTO products (code,name,description,price,image,created_at,updated_at) VALUES(?,?,?,?,?,?,?)"
+	row, err := tx.ExecContext(ctx, query, product.Code, product.Name, product.Description, product.Price, product.Image, product.CreatedAt, product.UpdatedAt)
 	if err != nil {
 		return entity.Product{}, err
 	}
@@ -119,8 +119,8 @@ func (repository *productRepository) Create(ctx context.Context, tx *sql.Tx, pro
 }
 
 func (repository *productRepository) Update(ctx context.Context, tx *sql.Tx, product entity.Product) (entity.Product, error) {
-	query := "UPDATE products SET name = ?, description = ?, updated_at = ? WHERE code = ?"
-	_, err := tx.ExecContext(ctx, query, product.Name, product.Description, product.UpdatedAt, product.Code)
+	query := "UPDATE products SET name = ?, description = ?, price = ?, image = ?, updated_at = ? WHERE code = ?"
+	_, err := tx.ExecContext(ctx, query, product.Name, product.Description, product.Price, product.Image, product.UpdatedAt, product.Code)
 	if err != nil {
 		return entity.Product{}, err
 	}

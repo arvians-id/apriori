@@ -3,6 +3,7 @@ node_modules
 /dist
 
 .env
+.env.test
 gin-bin.exe
 
 # local env files
