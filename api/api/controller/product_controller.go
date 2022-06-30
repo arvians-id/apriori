@@ -57,20 +57,17 @@ func (controller *ProductController) FindById(c *gin.Context) {
 
 func (controller *ProductController) Create(c *gin.Context) {
 	var request model.CreateProductRequest
-
 	request.Code = c.PostForm("code")
 	request.Name = c.PostForm("name")
 	request.Description = c.PostForm("description")
 	request.Price = utils.StrToInt(c.PostForm("price"))
 
-	sess, err := controller.StorageService.ConnectToAWS()
+	file, header, err := c.Request.FormFile("image")
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
-	c.Set("sess", sess)
-
-	pathName, err := utils.UploadToS3(c)
+	pathName, err := controller.StorageService.UploadFileS3(file, header)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
@@ -88,13 +85,22 @@ func (controller *ProductController) Create(c *gin.Context) {
 
 func (controller *ProductController) Update(c *gin.Context) {
 	var request model.UpdateProductRequest
-	err := c.ShouldBindJSON(&request)
-	if err != nil {
-		response.ReturnErrorBadRequest(c, err, nil)
-		return
-	}
-
+	request.Code = c.PostForm("code")
+	request.Name = c.PostForm("name")
+	request.Description = c.PostForm("description")
+	request.Price = utils.StrToInt(c.PostForm("price"))
 	params := c.Param("code")
+
+	file, header, err := c.Request.FormFile("image")
+	if err == nil {
+		pathName, err := controller.StorageService.UploadFileS3(file, header)
+		if err != nil {
+			response.ReturnErrorInternalServerError(c, err, nil)
+			return
+		}
+
+		request.Image = pathName
+	}
 
 	request.Code = params
 	product, err := controller.ProductService.Update(c.Request.Context(), request)

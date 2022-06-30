@@ -20,13 +20,15 @@ type ProductService interface {
 
 type productService struct {
 	ProductRepository repository.ProductRepository
-	DB                *sql.DB
-	date              string
+	StorageService
+	DB   *sql.DB
+	date string
 }
 
-func NewProductService(ProductRepository *repository.ProductRepository, db *sql.DB) ProductService {
+func NewProductService(ProductRepository *repository.ProductRepository, storageService StorageService, db *sql.DB) ProductService {
 	return &productService{
 		ProductRepository: *ProductRepository,
+		StorageService:    storageService,
 		DB:                db,
 		date:              "2006-01-02 15:04:05",
 	}
@@ -124,8 +126,14 @@ func (service *productService) Update(ctx context.Context, request model.UpdateP
 	getProduct.Name = request.Name
 	getProduct.Description = request.Description
 	getProduct.Price = request.Price
-	getProduct.Image = request.Image
 	getProduct.UpdatedAt = updatedAt
+	if request.Image != "" {
+		err := service.StorageService.DeleteFileS3(getProduct.Image)
+		if err != nil {
+			return model.GetProductResponse{}, err
+		}
+		getProduct.Image = request.Image
+	}
 
 	product, err := service.ProductRepository.Update(ctx, tx, getProduct)
 	if err != nil {

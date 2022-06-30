@@ -2,34 +2,51 @@ package service
 
 import (
 	"apriori/config"
+	"apriori/utils"
+	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/aws/aws-sdk-go/service/s3"
+	"github.com/gin-gonic/gin"
+	"mime/multipart"
+	"strings"
+)
+
+var (
+	ACCESS_KEY_ID     = config.New().Get("AWS_ACCESS_KEY_ID")
+	SECRET_ACCESS_KEY = config.New().Get("AWS_SECRET_KEY")
+	MY_REGION         = config.New().Get("AWS_REGION")
+	MY_BUCKET         = config.New().Get("AWS_BUCKET")
 )
 
 type StorageService interface {
-	ConnectToAWS() (*session.Session, error)
+	UploadFile(c *gin.Context, image *multipart.FileHeader) (chan string, error)
+	UploadFileS3(file multipart.File, header *multipart.FileHeader) (string, error)
+	DeleteFileS3(fileName string) error
 }
 
 type storageService struct {
 	AccessKeyID     string
 	SecretAccessKey string
 	MyRegion        string
+	MyBucket        string
 }
 
 func NewStorageService() StorageService {
 	return &storageService{
-		AccessKeyID:     config.New().Get("AWS_ACCESS_KEY_ID"),
-		SecretAccessKey: config.New().Get("AWS_SECRET_KEY"),
-		MyRegion:        config.New().Get("AWS_REGION"),
+		AccessKeyID:     ACCESS_KEY_ID,
+		SecretAccessKey: SECRET_ACCESS_KEY,
+		MyRegion:        MY_REGION,
+		MyBucket:        MY_BUCKET,
 	}
 }
 
-func (service *storageService) ConnectToAWS() (*session.Session, error) {
+func ConnectToAWS() (*session.Session, error) {
 	sess, err := session.NewSession(
 		&aws.Config{
-			Region:      aws.String(service.MyRegion),
-			Credentials: credentials.NewStaticCredentials(service.AccessKeyID, service.SecretAccessKey, ""),
+			Region:      aws.String(MY_REGION),
+			Credentials: credentials.NewStaticCredentials(ACCESS_KEY_ID, SECRET_ACCESS_KEY, ""),
 		},
 	)
 	if err != nil {
@@ -37,4 +54,77 @@ func (service *storageService) ConnectToAWS() (*session.Session, error) {
 	}
 
 	return sess, nil
+}
+
+func (service *storageService) UploadFile(c *gin.Context, image *multipart.FileHeader) (chan string, error) {
+	newFileName := make(chan string)
+	go func() {
+		extension := strings.Split(image.Filename, ".")
+		newFileNames := utils.RandomString(10) + "." + extension[len(extension)-1]
+
+		path, err := utils.GetPath("/assets/", newFileNames)
+		if err != nil {
+			panic(err)
+		}
+		err = c.SaveUploadedFile(image, path)
+		if err != nil {
+			panic(err)
+		}
+		newFileName <- newFileNames
+	}()
+
+	return newFileName, nil
+}
+
+func (service *storageService) UploadFileS3(file multipart.File, header *multipart.FileHeader) (string, error) {
+	fileName := make(chan string)
+	go func() {
+		sess, err := ConnectToAWS()
+		if err != nil {
+			panic(err)
+		}
+		headerFileName := strings.Split(header.Filename, ".")
+		fileNames := utils.RandomString(10) + "." + headerFileName[len(headerFileName)-1]
+		fileName <- fileNames
+
+		_, err = s3.New(sess).PutObject(&s3.PutObjectInput{
+			Bucket:               aws.String(service.MyBucket),
+			ACL:                  aws.String("public-read"),
+			Key:                  aws.String(fileNames),
+			Body:                 file,
+			ContentType:          aws.String(header.Header.Get("Content-Type")),
+			ContentDisposition:   aws.String("attachment"),
+			ServerSideEncryption: aws.String("AES256"),
+		})
+
+		if err != nil {
+			panic(err)
+		}
+	}()
+
+	filePath := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", service.MyBucket, service.MyRegion, <-fileName)
+	return filePath, nil
+}
+
+func (service *storageService) DeleteFileS3(fileName string) error {
+	go func() {
+		sess, err := ConnectToAWS()
+		if err != nil {
+			panic(err)
+		}
+
+		svc := s3.New(sess)
+
+		headerFileName := strings.Split(fileName, "/")
+		oldFileName := headerFileName[len(headerFileName)-1]
+		_, err = svc.DeleteObject(&s3.DeleteObjectInput{
+			Bucket: aws.String(service.MyBucket),
+			Key:    aws.String(oldFileName),
+		})
+		if err != nil {
+			panic(err)
+		}
+	}()
+
+	return nil
 }
