@@ -9,16 +9,25 @@ type CreateAprioriRequest struct {
 	CreatedAt  string  `json:"created_at"`
 }
 
+type UpdateAprioriRequest struct {
+	IdApriori   uint64
+	Code        string
+	Description string
+	Image       string
+}
+
 type GetAprioriResponse struct {
-	IdApriori  uint64  `json:"id_apriori,omitempty"`
-	Code       string  `json:"code"`
-	Item       string  `json:"item,omitempty"`
-	Discount   float64 `json:"discount,omitempty"`
-	Support    float64 `json:"support,omitempty"`
-	Confidence float64 `json:"confidence,omitempty"`
-	RangeDate  string  `json:"range_date"`
-	IsActive   bool    `json:"is_active"`
-	CreatedAt  string  `json:"created_at"`
+	IdApriori   uint64  `json:"id_apriori,omitempty"`
+	Code        string  `json:"code"`
+	Item        string  `json:"item,omitempty"`
+	Discount    float64 `json:"discount,omitempty"`
+	Support     float64 `json:"support,omitempty"`
+	Confidence  float64 `json:"confidence,omitempty"`
+	RangeDate   string  `json:"range_date"`
+	IsActive    bool    `json:"is_active"`
+	Description *string `json:"description,omitempty"`
+	Image       string  `json:"image"`
+	CreatedAt   string  `json:"created_at"`
 }
 
 type GenerateAprioriRequest struct {

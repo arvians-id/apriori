@@ -18,7 +18,7 @@
             </div>
             <div class="row align-items-center">
               <div class="col-12 col-lg-6 text-center">
-                <img :src="getImage()" class="img-fluid img-thumbnail my-5" width="500">
+                <img :src="getImage()" class="img-fluid my-5" width="500">
               </div>
               <div class="col-12 col-lg-6">
                 <div class="card-header text-center border-0 pt-8 pt-md-4 pb-0 pb-md-4">
@@ -59,7 +59,48 @@
               </div>
             </div>
           </div>
-          <!-- Progress track -->
+          <div class="card">
+            <!-- Card header -->
+            <div class="card-header d-flex justify-content-between">
+              <h3 class="mb-0">Recommendation Packages For You</h3>
+            </div>
+            <!-- Card body -->
+            <div class="card-body">
+              <div class="row">
+                <div class="col-12 col-md-6 col-lg-4 col-xl-3" v-for="item in recommendation" :key="item.apriori_id">
+                  <div class="card card-pricing border-0 text-center mb-4">
+                    <div class="card-header bg-transparent">
+                      <h4 class="text-uppercase ls-1 text-primary py-3 mb-0">Recommendation pack</h4>
+                    </div>
+                    <div class="card-body mx-auto">
+                      <div class="display-2">{{ item.apriori_discount }}%</div>
+                      <span class="text-muted h2" style="text-decoration: line-through">Rp. {{ item.product_total_price }}</span>
+                      /
+                      <span class="text-muted">Rp. {{ item.price_discount }}</span>
+                      <ul class="list-unstyled my-4">
+                        <li v-for="(value,i) in item.apriori_item.split(', ')" :key="i">
+                          <div class="d-flex align-items-center">
+                            <div>
+                              <div class="icon icon-xs icon-shape bg-gradient-primary text-white shadow rounded-circle">
+                                <i class="ni ni-basket"></i>
+                              </div>
+                            </div>
+                            <div>
+                              <span class="pl-2 text-sm">{{ UpperWord(value) }}</span>
+                            </div>
+                          </div>
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="card-footer">
+                      <h3>Rp. {{ item.price_discount }}</h3>
+                    </div>
+                  </div>
+                </div>
+                <p v-if="recommendation.length === 0" class="mx-auto">No Recommendation Found</p>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <!-- Footer -->
@@ -85,16 +126,25 @@ export default {
   },
   mounted() {
     this.fetchData()
+    this.fetchDataRecommendation()
   },
   data: function () {
     return {
       product: [],
+      recommendation: []
     };
   },
   methods: {
     fetchData() {
       axios.get(`http://localhost:3000/api/products/${this.$route.params.code}`, { headers: authHeader() }).then((response) => {
         this.product = response.data.data;
+      });
+    },
+    fetchDataRecommendation() {
+      axios.get(`http://localhost:3000/api/products/${this.$route.params.code}/recommendation`, { headers: authHeader() }).then((response) => {
+        if(response.data.data != null) {
+          this.recommendation = response.data.data;
+        }
       });
     },
     getImage() {

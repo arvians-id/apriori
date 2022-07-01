@@ -7,11 +7,14 @@ import (
 	"apriori/utils"
 	"context"
 	"database/sql"
+	"strings"
+	"sync"
 	"time"
 )
 
 type ProductService interface {
 	FindAll(ctx context.Context) ([]model.GetProductResponse, error)
+	FindAllRecommendation(ctx context.Context, code string) ([]model.GetProductRecommendationResponse, error)
 	FindByCode(ctx context.Context, code string) (model.GetProductResponse, error)
 	Create(ctx context.Context, request model.CreateProductRequest) (model.GetProductResponse, error)
 	Update(ctx context.Context, request model.UpdateProductRequest) (model.GetProductResponse, error)
@@ -20,14 +23,16 @@ type ProductService interface {
 
 type productService struct {
 	ProductRepository repository.ProductRepository
+	AprioriRepository repository.AprioriRepository
 	StorageService
 	DB   *sql.DB
 	date string
 }
 
-func NewProductService(ProductRepository *repository.ProductRepository, storageService StorageService, db *sql.DB) ProductService {
+func NewProductService(productRepository *repository.ProductRepository, storageService StorageService, aprioriRepository *repository.AprioriRepository, db *sql.DB) ProductService {
 	return &productService{
-		ProductRepository: *ProductRepository,
+		ProductRepository: *productRepository,
+		AprioriRepository: *aprioriRepository,
 		StorageService:    storageService,
 		DB:                db,
 		date:              "2006-01-02 15:04:05",
@@ -52,6 +57,54 @@ func (service *productService) FindAll(ctx context.Context) ([]model.GetProductR
 	}
 
 	return productResponse, nil
+}
+
+func (service *productService) FindAllRecommendation(ctx context.Context, code string) ([]model.GetProductRecommendationResponse, error) {
+	tx, err := service.DB.Begin()
+	if err != nil {
+		return nil, err
+	}
+	defer utils.CommitOrRollback(tx)
+
+	product, err := service.ProductRepository.FindByCode(ctx, tx, code)
+	if err != nil {
+		return nil, err
+	}
+
+	apriories, err := service.AprioriRepository.FindByActive(ctx, tx)
+	if err != nil {
+		return nil, err
+	}
+
+	var aprioriResponse []model.GetProductRecommendationResponse
+	for _, apriori := range apriories {
+		items := strings.Split(apriori.Item, ",")
+		var exists bool
+		for _, nameProduct := range items {
+			if strings.ToLower(product.Name) == strings.TrimSpace(nameProduct) {
+				exists = true
+			}
+		}
+
+		var totalPrice int
+		if exists {
+			for _, nameProduct := range items {
+				filterProduct, _ := service.ProductRepository.FindByName(ctx, tx, utils.UpperWords(nameProduct))
+				totalPrice += filterProduct.Price
+			}
+
+			aprioriResponse = append(aprioriResponse, model.GetProductRecommendationResponse{
+				AprioriId:          apriori.IdApriori,
+				AprioriCode:        apriori.Code,
+				AprioriItem:        apriori.Item,
+				AprioriDiscount:    apriori.Discount,
+				ProductTotalPrice:  totalPrice,
+				PriceAfterDiscount: totalPrice - (totalPrice * int(apriori.Discount) / 100),
+			})
+		}
+	}
+
+	return aprioriResponse, nil
 }
 
 func (service *productService) FindByCode(ctx context.Context, code string) (model.GetProductResponse, error) {
@@ -90,7 +143,7 @@ func (service *productService) Create(ctx context.Context, request model.CreateP
 
 	createProduct := entity.Product{
 		Code:        request.Code,
-		Name:        request.Name,
+		Name:        utils.UpperWords(request.Name),
 		Description: request.Description,
 		Price:       request.Price,
 		Image:       request.Image,
@@ -123,7 +176,7 @@ func (service *productService) Update(ctx context.Context, request model.UpdateP
 		return model.GetProductResponse{}, err
 	}
 
-	getProduct.Name = request.Name
+	getProduct.Name = utils.UpperWords(request.Name)
 	getProduct.Description = request.Description
 	getProduct.Price = request.Price
 	getProduct.UpdatedAt = updatedAt
@@ -155,9 +208,15 @@ func (service *productService) Delete(ctx context.Context, code string) error {
 		return err
 	}
 
-	err = service.StorageService.DeleteFileS3(getProduct.Image)
-	if err != nil {
-		return err
+	headerFileName := strings.Split(getProduct.Image, "/")
+	oldFileName := headerFileName[len(headerFileName)-1]
+	if oldFileName != "no-image.png" {
+		var wg sync.WaitGroup
+		err = service.StorageService.WaitDeleteFileS3(oldFileName, &wg)
+		if err != nil {
+			return err
+		}
+		wg.Done()
 	}
 
 	err = service.ProductRepository.Delete(ctx, tx, getProduct.Code)

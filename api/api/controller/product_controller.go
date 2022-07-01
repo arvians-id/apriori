@@ -30,6 +30,7 @@ func (controller *ProductController) Route(router *gin.Engine) *gin.Engine {
 		authorized.POST("/products", controller.Create)
 		authorized.PATCH("/products/:code", controller.Update)
 		authorized.DELETE("/products/:code", controller.Delete)
+		authorized.GET("/products/:code/recommendation", controller.FindAllRecommendation)
 	}
 
 	return router
@@ -37,6 +38,18 @@ func (controller *ProductController) Route(router *gin.Engine) *gin.Engine {
 
 func (controller *ProductController) FindAll(c *gin.Context) {
 	products, err := controller.ProductService.FindAll(c.Request.Context())
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	response.ReturnSuccessOK(c, "OK", products)
+}
+
+func (controller *ProductController) FindAllRecommendation(c *gin.Context) {
+	params := c.Param("code")
+
+	products, err := controller.ProductService.FindAllRecommendation(c.Request.Context(), params)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return

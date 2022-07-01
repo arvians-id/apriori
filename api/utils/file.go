@@ -2,17 +2,20 @@ package utils
 
 import (
 	"encoding/csv"
+	"net/http"
 	"os"
 	"path/filepath"
 )
 
 func OpenCsvFile(path string) ([][]string, error) {
-	file, err := os.Open(path)
+	resp, err := http.Get(path)
 	if err != nil {
 		return nil, err
 	}
+	defer resp.Body.Close()
 
-	reader := csv.NewReader(file)
+	reader := csv.NewReader(resp.Body)
+	reader.LazyQuotes = true
 
 	_, err = reader.Read()
 	if err != nil {

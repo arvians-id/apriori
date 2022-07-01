@@ -28,6 +28,15 @@ type GetProductResponse struct {
 	UpdatedAt   string `json:"updated_at"`
 }
 
+type GetProductRecommendationResponse struct {
+	AprioriId          uint64  `json:"apriori_id"`
+	AprioriCode        string  `json:"apriori_code"`
+	AprioriItem        string  `json:"apriori_item"`
+	AprioriDiscount    float64 `json:"apriori_discount"`
+	ProductTotalPrice  int     `json:"product_total_price"`
+	PriceAfterDiscount int     `json:"price_discount"`
+}
+
 type GetProductTransactionResponse struct {
 	Code        string  `json:"code"`
 	ProductName string  `json:"product_name"`

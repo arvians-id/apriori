@@ -29,6 +29,7 @@
                       <th class="text-center">Support</th>
                       <th class="text-center">Confidence</th>
                       <th class="text-center">Range Date</th>
+                      <th class="text-center">Action</th>
                     </tr>
                   </thead>
                   <tbody class="list">
@@ -66,6 +67,10 @@
                         </div>
                       </td>
                       <td class="text-center">{{ item.range_date }}</td>
+                      <td class="text-center">
+                        <router-link :to="{ name: 'apriori.code-detail', params: { code: item.code, id: item.id_apriori } }" class="btn btn-secondary btn-sm">Detail</router-link>
+                        <router-link :to="{ name: 'apriori.edit', params: { code: item.code, id: item.id_apriori } }" class="btn btn-primary btn-sm">Edit</router-link>
+                      </td>
                     </tr>
                   </tbody>
                 </table>

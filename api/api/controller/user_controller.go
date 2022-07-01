@@ -6,7 +6,6 @@ import (
 	"apriori/service"
 	"errors"
 	"github.com/gin-gonic/gin"
-	"log"
 	"strconv"
 )
 
@@ -67,7 +66,6 @@ func (controller *UserController) UpdateProfile(c *gin.Context) {
 	}
 
 	request.IdUser = uint64(id.(float64))
-	log.Println(request)
 
 	user, err := controller.UserService.Update(c.Request.Context(), request)
 	if err != nil {

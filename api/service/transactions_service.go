@@ -107,10 +107,8 @@ func (service *transactionService) CreateFromCsv(ctx context.Context, data [][]s
 	defer utils.CommitOrRollback(tx)
 
 	var transactions []entity.Transaction
-
 	for _, transaction := range data {
 		createdAt, _ := time.Parse(service.date, transaction[3]+" 00:00:00")
-
 		transactions = append(transactions, entity.Transaction{
 			ProductName:   transaction[0],
 			CustomerName:  transaction[1],

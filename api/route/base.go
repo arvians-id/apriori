@@ -32,16 +32,16 @@ func NewInitializedServer(configuration config.Config) *gin.Engine {
 	jwtService := service.NewJwtService()
 	emailService := service.NewEmailService()
 	passwordResetService := service.NewPasswordResetService(&passwordRepository, &userRepository, db)
-	productService := service.NewProductService(&productRepository, storageService, db)
+	productService := service.NewProductService(&productRepository, storageService, &aprioriRepository, db)
 	transactionService := service.NewTransactionService(&transactionRepository, &productRepository, db)
-	aprioriService := service.NewAprioriService(&transactionRepository, &aprioriRepository, db)
+	aprioriService := service.NewAprioriService(&transactionRepository, storageService, &aprioriRepository, db)
 
 	// Setup Controller
 	userController := controller.NewUserController(&userService)
 	authController := controller.NewAuthController(&authService, &userService, jwtService, emailService, &passwordResetService)
 	productController := controller.NewProductController(&productService, &storageService)
-	transactionController := controller.NewTransactionController(&transactionService)
-	aprioriController := controller.NewAprioriController(aprioriService)
+	transactionController := controller.NewTransactionController(&transactionService, &storageService)
+	aprioriController := controller.NewAprioriController(aprioriService, &storageService)
 
 	// Setup Proxies
 	err = router.SetTrustedProxies([]string{configuration.Get("APP_URL")})

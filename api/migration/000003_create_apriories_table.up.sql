@@ -7,6 +7,8 @@ CREATE TABLE IF NOT EXISTS `apriories` (
     `confidence` DECIMAL(6,2) NOT NULL,
     `range_date` VARCHAR(50) NOT NULL,
     `is_active` INT(1) NOT NULL,
+    `description` TEXT,
+    `image` TEXT,
     `created_at` TIMESTAMP,
     PRIMARY KEY (`id_apriori`)
 ) ENGINE = InnoDB;

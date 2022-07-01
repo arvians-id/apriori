@@ -49,14 +49,16 @@ func ToTransactionResponse(transaction entity.Transaction) model.GetTransactionR
 
 func ToAprioriResponse(apriori entity.Apriori) model.GetAprioriResponse {
 	return model.GetAprioriResponse{
-		IdApriori:  apriori.IdApriori,
-		Code:       apriori.Code,
-		Item:       apriori.Item,
-		Discount:   apriori.Discount,
-		Support:    apriori.Support,
-		Confidence: apriori.Confidence,
-		RangeDate:  apriori.RangeDate,
-		IsActive:   apriori.IsActive,
-		CreatedAt:  apriori.CreatedAt.String(),
+		IdApriori:   apriori.IdApriori,
+		Code:        apriori.Code,
+		Item:        apriori.Item,
+		Discount:    apriori.Discount,
+		Support:     apriori.Support,
+		Confidence:  apriori.Confidence,
+		RangeDate:   apriori.RangeDate,
+		IsActive:    apriori.IsActive,
+		Description: apriori.Description,
+		Image:       apriori.Image,
+		CreatedAt:   apriori.CreatedAt.String(),
 	}
 }

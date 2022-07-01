@@ -4,17 +4,20 @@ import (
 	"apriori/api/response"
 	"apriori/model"
 	"apriori/service"
+	"apriori/utils"
 	"github.com/gin-gonic/gin"
 	"strings"
 )
 
 type AprioriController struct {
 	AprioriService service.AprioriService
+	StorageService service.StorageService
 }
 
-func NewAprioriController(aprioriService service.AprioriService) *AprioriController {
+func NewAprioriController(aprioriService service.AprioriService, storageService *service.StorageService) *AprioriController {
 	return &AprioriController{
 		AprioriService: aprioriService,
+		StorageService: *storageService,
 	}
 }
 
@@ -26,6 +29,8 @@ func (controller *AprioriController) Route(router *gin.Engine) *gin.Engine {
 		authorized.PATCH("/apriori/:code", controller.ChangeActive)
 		authorized.POST("/apriori", controller.Create)
 		authorized.DELETE("/apriori/:code", controller.Delete)
+		authorized.GET("/apriori/:code/detail/:id", controller.FindAprioriById)
+		authorized.PATCH("/apriori/:code/update/:id", controller.UpdateApriori)
 		authorized.GET("/apriori/actives", controller.FindByActive)
 		authorized.POST("/apriori/generate", controller.Generate)
 	}
@@ -62,6 +67,48 @@ func (controller *AprioriController) FindByCode(c *gin.Context) {
 	}
 
 	response.ReturnSuccessOK(c, "OK", apriori)
+}
+
+func (controller *AprioriController) FindAprioriById(c *gin.Context) {
+	code := c.Param("code")
+	id := utils.StrToInt(c.Param("id"))
+	apriories, err := controller.AprioriService.FindAprioriById(c.Request.Context(), code, id)
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	response.ReturnSuccessOK(c, "OK", apriories)
+}
+
+func (controller *AprioriController) UpdateApriori(c *gin.Context) {
+	code := c.Param("code")
+	id := utils.StrToInt(c.Param("id"))
+	description := c.PostForm("description")
+
+	file, header, err := c.Request.FormFile("image")
+	filePath := ""
+	if err == nil {
+		pathName, err := controller.StorageService.UploadFileS3(file, header)
+		if err != nil {
+			response.ReturnErrorInternalServerError(c, err, nil)
+			return
+		}
+		filePath = pathName
+	}
+
+	var request model.UpdateAprioriRequest
+	request.IdApriori = uint64(id)
+	request.Code = code
+	request.Description = description
+	request.Image = filePath
+	apriories, err := controller.AprioriService.UpdateApriori(c.Request.Context(), request)
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	response.ReturnSuccessOK(c, "OK", apriories)
 }
 
 func (controller *AprioriController) ChangeActive(c *gin.Context) {

@@ -6,17 +6,18 @@ import (
 	"apriori/service"
 	"apriori/utils"
 	"github.com/gin-gonic/gin"
-	"os"
-	"path/filepath"
+	"sync"
 )
 
 type TransactionController struct {
 	TransactionService service.TransactionService
+	StorageService     service.StorageService
 }
 
-func NewTransactionController(transactionService *service.TransactionService) *TransactionController {
+func NewTransactionController(transactionService *service.TransactionService, storageService *service.StorageService) *TransactionController {
 	return &TransactionController{
 		TransactionService: *transactionService,
+		StorageService:     *storageService,
 	}
 }
 
@@ -74,38 +75,33 @@ func (controller *TransactionController) Create(c *gin.Context) {
 }
 
 func (controller *TransactionController) CreateFromCsv(c *gin.Context) {
-	file, err := c.FormFile("file")
+	file, header, err := c.Request.FormFile("file")
 	if err != nil {
 		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
-	//if file.Header.Get("Content-Type") != "application/vnd.ms-excel" || file.Header.Get("Content-Type") != "text/csv" {
-	//	response.ReturnErrorInternalServerError(c, errors.New("file not allowed"), nil)
-	//	return
-	//}
-
-	dir, err := os.Getwd()
+	var wg sync.WaitGroup
+	pathName, err := controller.StorageService.WaitUploadFileS3(file, header, &wg)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
+	wg.Wait()
 
-	path := "/assets/" + file.Filename
-	path = filepath.Join(dir, path)
-	err = c.SaveUploadedFile(file, path)
-	if err != nil {
-		response.ReturnErrorInternalServerError(c, err, nil)
-		return
-	}
-
-	data, err := utils.OpenCsvFile(path)
+	data, err := utils.OpenCsvFile(pathName)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
 	err = controller.TransactionService.CreateFromCsv(c.Request.Context(), data)
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	err = controller.StorageService.DeleteFileS3(pathName)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return

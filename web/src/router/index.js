@@ -15,6 +15,8 @@ import ProductDetail from "../views/product/Detail.vue";
 import Apriori from "../views/apriori/Data.vue";
 import AprioriCreate from "../views/apriori/Create.vue";
 import AprioriDetail from "../views/apriori/Detail.vue";
+import AprioriCodeDetail from "../views/apriori/DetailApriori.vue";
+import AprioriEdit from "../views/apriori/Edit.vue";
 import User from "../views/user/Data.vue";
 import UserCreate from "../views/user/Create.vue";
 import UserEdit from "../views/user/Edit.vue";
@@ -40,6 +42,8 @@ const routes = [
   { path: "/apriori", name: "apriori", component: Apriori },
   { path: "/apriori/create", name: "apriori.create", component: AprioriCreate },
   { path: "/apriori/:code", name: "apriori.detail", component: AprioriDetail },
+  { path: "/apriori/:code/detail/:id", name: "apriori.code-detail", component: AprioriCodeDetail },
+  { path: "/apriori/:code/edit/:id", name: "apriori.edit", component: AprioriEdit },
   { path: "/user", name: "user", component: User },
   { path: "/user/create", name: "user.create", component: UserCreate },
   { path: "/user/:id/edit", name: "user.edit", component: UserEdit },

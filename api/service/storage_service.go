@@ -11,12 +11,15 @@ import (
 	"github.com/gin-gonic/gin"
 	"mime/multipart"
 	"strings"
+	"sync"
 )
 
 type StorageService interface {
 	UploadFile(c *gin.Context, image *multipart.FileHeader) (chan string, error)
 	UploadFileS3(file multipart.File, header *multipart.FileHeader) (string, error)
+	WaitUploadFileS3(file multipart.File, header *multipart.FileHeader, wg *sync.WaitGroup) (string, error)
 	DeleteFileS3(fileName string) error
+	WaitDeleteFileS3(fileName string, wg *sync.WaitGroup) error
 }
 
 type storageService struct {
@@ -69,6 +72,39 @@ func (service *storageService) UploadFile(c *gin.Context, image *multipart.FileH
 	return newFileName, nil
 }
 
+func (service *storageService) WaitUploadFileS3(file multipart.File, header *multipart.FileHeader, wg *sync.WaitGroup) (string, error) {
+	fileName := make(chan string)
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+
+		sess, err := service.ConnectToAWS()
+		if err != nil {
+			panic(err)
+		}
+		headerFileName := strings.Split(header.Filename, ".")
+		fileNames := utils.RandomString(10) + "." + headerFileName[len(headerFileName)-1]
+		fileName <- fileNames
+
+		_, err = s3.New(sess).PutObject(&s3.PutObjectInput{
+			Bucket:               aws.String(service.MyBucket),
+			ACL:                  aws.String("public-read"),
+			Key:                  aws.String(fileNames),
+			Body:                 file,
+			ContentType:          aws.String(header.Header.Get("Content-Type")),
+			ContentDisposition:   aws.String("attachment"),
+			ServerSideEncryption: aws.String("AES256"),
+		})
+
+		if err != nil {
+			panic(err)
+		}
+	}()
+
+	filePath := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", service.MyBucket, service.MyRegion, <-fileName)
+	return filePath, nil
+}
+
 func (service *storageService) UploadFileS3(file multipart.File, header *multipart.FileHeader) (string, error) {
 	fileName := make(chan string)
 	go func() {
@@ -107,6 +143,29 @@ func (service *storageService) DeleteFileS3(fileName string) error {
 	}
 
 	go func() {
+		sess, err := service.ConnectToAWS()
+		if err != nil {
+			panic(err)
+		}
+
+		svc := s3.New(sess)
+
+		_, err = svc.DeleteObject(&s3.DeleteObjectInput{
+			Bucket: aws.String(service.MyBucket),
+			Key:    aws.String(oldFileName),
+		})
+		if err != nil {
+			panic(err)
+		}
+	}()
+
+	return nil
+}
+
+func (service *storageService) WaitDeleteFileS3(oldFileName string, wg *sync.WaitGroup) error {
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
 		sess, err := service.ConnectToAWS()
 		if err != nil {
 			panic(err)
