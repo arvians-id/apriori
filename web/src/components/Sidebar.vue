@@ -135,7 +135,7 @@ export default {
               localStorage.removeItem("refresh-token")
               alert(response.data.status)
               this.$router.push({
-                name: 'login'
+                name: 'auth.login'
               })
             }
           }).catch(error => {

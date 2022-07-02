@@ -37,9 +37,9 @@
 </template>
 
 <script>
-import Footer from "@/components/auth/Footer.vue"
-import Navbar from "@/components/auth/Navbar.vue"
-import Header from "@/components/auth/Header.vue"
+import Footer from "@/components/landing/Footer.vue"
+import Navbar from "@/components/landing/Navbar.vue"
+import Header from "@/components/landing/Header.vue"
 import axios from "axios";
 
 export default {
@@ -62,7 +62,7 @@ export default {
             if(response.data.code === 200) {
               alert("Verification has been sent to your mail")
               this.$router.push({
-                name: 'forgot-password'
+                name: 'auth.forgot-password'
               })
             }
           }).catch(error => {

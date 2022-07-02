@@ -1,7 +1,7 @@
 <template>
   <nav id="navbar-main" class="navbar navbar-horizontal navbar-transparent navbar-main navbar-expand-lg navbar-light">
     <div class="container">
-      <router-link class="navbar-brand" :to="{ name: 'login' }">
+      <router-link class="navbar-brand" :to="{ name: 'auth.login' }">
         <img src="/frontend/img/brand/white.png">
       </router-link>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
@@ -11,7 +11,7 @@
         <div class="navbar-collapse-header">
           <div class="row">
             <div class="col-6 collapse-brand">
-              <router-link :to="{ name: 'login' }">
+              <router-link :to="{ name: 'auth.login' }">
                 <img src="/frontend/img/brand/blue.png">
               </router-link>
             </div>
@@ -25,17 +25,17 @@
         </div>
         <ul class="navbar-nav ml-auto">
           <li class="nav-item">
-            <router-link :to="{ name: 'login' }" class="nav-link">
+            <router-link :to="{ name: 'auth.login' }" class="nav-link">
               <span class="nav-link-inner--text">Login</span>
             </router-link>
           </li>
           <li class="nav-item">
-            <router-link :to="{ name: 'register' }" class="nav-link">
+            <router-link :to="{ name: 'auth.register' }" class="nav-link">
               <span class="nav-link-inner--text">Register</span>
             </router-link>
           </li>
           <li class="nav-item">
-            <router-link :to="{ name: 'forgot-password' }" class="nav-link">
+            <router-link :to="{ name: 'auth.forgot-password' }" class="nav-link">
               <span class="nav-link-inner--text">Reset Password</span>
             </router-link>
           </li>
