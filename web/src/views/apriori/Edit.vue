@@ -103,9 +103,9 @@ export default {
     fetchData() {
       axios.get(`${process.env.VUE_APP_SERVICE_URL}/apriori/${this.$route.params.code}/detail/${this.$route.params.id}`, { headers: authHeader() }).then(response => {
         this.apriori = {
-          description: response.data.data.description,
+          description: response.data.data.apriori_description,
         }
-        this.previewImage = response.data.data.image
+        this.previewImage = response.data.data.apriori_image
       });
     },
     uploadImage(e) {

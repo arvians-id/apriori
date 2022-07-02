@@ -72,13 +72,13 @@ func (controller *AprioriController) FindByCode(c *gin.Context) {
 func (controller *AprioriController) FindAprioriById(c *gin.Context) {
 	code := c.Param("code")
 	id := utils.StrToInt(c.Param("id"))
-	apriories, err := controller.AprioriService.FindAprioriById(c.Request.Context(), code, id)
+	apriori, err := controller.AprioriService.FindAprioriById(c.Request.Context(), code, id)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response.ReturnSuccessOK(c, "OK", apriories)
+	response.ReturnSuccessOK(c, "OK", apriori)
 }
 
 func (controller *AprioriController) UpdateApriori(c *gin.Context) {

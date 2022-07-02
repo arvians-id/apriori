@@ -14,23 +14,30 @@
           <div class="card card-profile">
             <!-- Card header -->
             <div class="card-header">
-              <h3 class="mb-0">Detail Apriori</h3>
+              <h3 class="mb-0">Recommendation Packages</h3>
             </div>
             <div class="row align-items-center">
               <div class="col-12 col-lg-6 text-center">
                 <img :src="getImage()" class="img-fluid my-5" width="500">
               </div>
               <div class="col-12 col-lg-6">
+                <div class="card-header text-center border-0 pt-8 pt-md-4 pb-0 pb-md-4">
+                  <div class="d-flex justify-content-between">
+                    <router-link :to="{ name: 'apriori.edit', params: { code: this.$route.params.code, id: this.$route.params.id } }"  class="btn btn-sm btn-default float-right">Edit</router-link>
+                  </div>
+                </div>
                 <div class="card-pricing border-0 text-center mb-4">
                   <div class="card-body px-lg-7">
-                    <div class="display-2">{{ apriori.discount }}%</div>
-                    <span class="text-muted">discount</span>
-                    <ul class="list-unstyled my-4" v-if="apriori.item">
-                      <li v-for="(value,i) in apriori.item.split(', ')" :key="i">
+                    <div class="display-2">{{ apriori.apriori_discount }}%</div>
+                    <span class="text-muted h2" style="text-decoration: line-through">Rp. {{ apriori.product_total_price }}</span>
+                    /
+                    <span class="text-muted">Rp. {{ apriori.price_discount }}</span>
+                    <ul class="list-unstyled my-4" v-if="apriori.apriori_item">
+                      <li v-for="(value,i) in apriori.apriori_item.split(', ')" :key="i">
                         <div class="d-flex align-items-center justify-content-center">
                           <div>
                             <div class="icon icon-xs icon-shape bg-gradient-primary text-white shadow rounded-circle">
-                              <i class="fas fa-terminal"></i>
+                              <i class="ni ni-basket"></i>
                             </div>
                           </div>
                           <div>
@@ -39,11 +46,11 @@
                         </div>
                       </li>
                     </ul>
-                    <p>{{ apriori.description }}</p>
+                    <p>{{ apriori.apriori_description }}</p>
                   </div>
                   <div class="card-footer">
                     <router-link :to="{ name: 'apriori.detail', params: { code: this.$route.params.code } }" class="text-muted">
-                      {{ apriori.code }}</router-link>
+                      {{ apriori.apriori_code }}</router-link>
                   </div>
                 </div>
               </div>
@@ -87,7 +94,7 @@ export default {
       });
     },
     getImage() {
-      return this.apriori.image
+      return this.apriori.apriori_image
     },
     UpperWord(str) {
       return str.toLowerCase().replace(/\b[a-z]/g, function (letter) {

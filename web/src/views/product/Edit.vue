@@ -31,7 +31,7 @@
                   </div>
                   <div class="form-group">
                     <label class="form-control-label">Description</label>
-                    <input type="text" class="form-control" v-model="product.description">
+                    <textarea class="form-control" v-model="product.description" rows="5"></textarea>
                   </div>
                   <div class="form-group">
                     <label class="form-control-label">Image</label>

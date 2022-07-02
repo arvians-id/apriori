@@ -34,7 +34,7 @@ func NewInitializedServer(configuration config.Config) *gin.Engine {
 	passwordResetService := service.NewPasswordResetService(&passwordRepository, &userRepository, db)
 	productService := service.NewProductService(&productRepository, storageService, &aprioriRepository, db)
 	transactionService := service.NewTransactionService(&transactionRepository, &productRepository, db)
-	aprioriService := service.NewAprioriService(&transactionRepository, storageService, &aprioriRepository, db)
+	aprioriService := service.NewAprioriService(&transactionRepository, storageService, &productRepository, &aprioriRepository, db)
 
 	// Setup Controller
 	userController := controller.NewUserController(&userService)

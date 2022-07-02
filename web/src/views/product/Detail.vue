@@ -70,7 +70,7 @@
                 <div class="col-12 col-md-6 col-lg-4 col-xl-3" v-for="item in recommendation" :key="item.apriori_id">
                   <div class="card card-pricing border-0 text-center mb-4">
                     <div class="card-header bg-transparent">
-                      <h4 class="text-uppercase ls-1 text-primary py-3 mb-0">Recommendation pack</h4>
+                      <router-link :to="{ name: 'apriori.code-detail', params: { code: item.apriori_code, id: item.apriori_id } }" class="text-uppercase h4 ls-1 text-primary py-3 mb-0">Recommendation pack</router-link>
                     </div>
                     <div class="card-body mx-auto">
                       <div class="display-2">{{ item.apriori_discount }}%</div>

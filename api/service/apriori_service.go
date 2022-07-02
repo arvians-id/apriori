@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"math"
 	"os"
+	"strings"
 	"time"
 )
 
@@ -18,7 +19,7 @@ type AprioriService interface {
 	FindAll(ctx context.Context) ([]model.GetAprioriResponse, error)
 	FindByActive(ctx context.Context) ([]model.GetAprioriResponse, error)
 	FindByCode(ctx context.Context, code string) ([]model.GetAprioriResponse, error)
-	FindAprioriById(ctx context.Context, code string, id int) (model.GetAprioriResponse, error)
+	FindAprioriById(ctx context.Context, code string, id int) (model.GetProductRecommendationResponse, error)
 	UpdateApriori(ctx context.Context, request model.UpdateAprioriRequest) (model.GetAprioriResponse, error)
 	ChangeActive(ctx context.Context, code string) error
 	Create(ctx context.Context, requests []model.CreateAprioriRequest) error
@@ -29,16 +30,18 @@ type AprioriService interface {
 type aprioriService struct {
 	TransactionRepository repository.TransactionRepository
 	AprioriRepository     repository.AprioriRepository
+	ProductRepository     repository.ProductRepository
 	StorageService
 	DB   *sql.DB
 	date string
 }
 
-func NewAprioriService(transactionRepository *repository.TransactionRepository, storageService StorageService, aprioriRepository *repository.AprioriRepository, db *sql.DB) AprioriService {
+func NewAprioriService(transactionRepository *repository.TransactionRepository, storageService StorageService, productRepository *repository.ProductRepository, aprioriRepository *repository.AprioriRepository, db *sql.DB) AprioriService {
 	return &aprioriService{
 		TransactionRepository: *transactionRepository,
 		AprioriRepository:     *aprioriRepository,
 		StorageService:        storageService,
+		ProductRepository:     *productRepository,
 		DB:                    db,
 		date:                  "2006-01-02 15:04:05",
 	}
@@ -104,19 +107,35 @@ func (service *aprioriService) FindByCode(ctx context.Context, code string) ([]m
 	return apriories, nil
 }
 
-func (service *aprioriService) FindAprioriById(ctx context.Context, code string, id int) (model.GetAprioriResponse, error) {
+func (service *aprioriService) FindAprioriById(ctx context.Context, code string, id int) (model.GetProductRecommendationResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return model.GetAprioriResponse{}, err
+		return model.GetProductRecommendationResponse{}, err
 	}
 	defer utils.CommitOrRollback(tx)
 
 	rows, err := service.AprioriRepository.FindByCodeAndId(ctx, tx, code, id)
 	if err != nil {
-		return model.GetAprioriResponse{}, err
+		return model.GetProductRecommendationResponse{}, err
 	}
 
-	return utils.ToAprioriResponse(rows), nil
+	var totalPrice int
+	items := strings.Split(rows.Item, ",")
+	for _, nameProduct := range items {
+		filterProduct, _ := service.ProductRepository.FindByName(ctx, tx, utils.UpperWords(nameProduct))
+		totalPrice += filterProduct.Price
+	}
+
+	return model.GetProductRecommendationResponse{
+		AprioriId:          rows.IdApriori,
+		AprioriCode:        rows.Code,
+		AprioriItem:        rows.Item,
+		AprioriDiscount:    rows.Discount,
+		ProductTotalPrice:  totalPrice,
+		PriceAfterDiscount: totalPrice - (totalPrice * int(rows.Discount) / 100),
+		Image:              rows.Image,
+		Description:        *rows.Description,
+	}, nil
 }
 
 func (service *aprioriService) UpdateApriori(ctx context.Context, request model.UpdateAprioriRequest) (model.GetAprioriResponse, error) {
