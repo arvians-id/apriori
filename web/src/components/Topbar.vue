@@ -61,7 +61,7 @@ export default {
   },
   methods: {
     submit() {
-      axios.delete("http://localhost:3000/api/auth/logout")
+      axios.delete(`${process.env.VUE_APP_SERVICE_URL}/auth/logout`)
           .then(response => {
             if(response.data.code === 200) {
               localStorage.removeItem("token")
@@ -76,7 +76,7 @@ export default {
       })
     },
     fetchData() {
-      axios.get("http://localhost:3000/api/profile", { headers: authHeader() })
+      axios.get(`${process.env.VUE_APP_SERVICE_URL}/profile`, { headers: authHeader() })
           .then(response => {
             this.user = {
               name: response.data.data.name,

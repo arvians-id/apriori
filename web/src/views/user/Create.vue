@@ -72,7 +72,7 @@ export default {
   },
   methods: {
     submit() {
-      axios.post("http://localhost:3000/api/users", this.user, { headers: authHeader() })
+      axios.post(`${process.env.VUE_APP_SERVICE_URL}/users`, this.user, { headers: authHeader() })
           .then(response => {
             if(response.data.code === 200) {
               alert(response.data.status)

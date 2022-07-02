@@ -29,6 +29,9 @@
                     <label class="form-control-label">Image</label>
                     <input type="file" class="form-control" @change="uploadImage">
                   </div>
+                  <div class="form-group">
+                    <img :src="previewImage" width="150"/>
+                  </div>
                   <button class="btn btn-primary" type="submit">Submit form</button>
                 </form>
               </div>
@@ -65,7 +68,8 @@ export default {
       apriori: {
         description: "",
         image: null
-      }
+      },
+      previewImage: "https://my-apriori.s3.ap-southeast-1.amazonaws.com/no-image.png"
     };
   },
   methods: {
@@ -80,7 +84,7 @@ export default {
       formData.append("description", this.apriori.description)
       formData.append("image", this.apriori.image)
 
-      axios.patch(`http://localhost:3000/api/apriori/${this.$route.params.code}/update/${this.$route.params.id}`, formData, config)
+      axios.patch(`${process.env.VUE_APP_SERVICE_URL}/apriori/${this.$route.params.code}/update/${this.$route.params.id}`, formData, config)
           .then(response => {
             if(response.data.code === 200) {
               alert(response.data.status)
@@ -97,14 +101,17 @@ export default {
       })
     },
     fetchData() {
-      axios.get(`http://localhost:3000/api/apriori/${this.$route.params.code}/detail/${this.$route.params.id}`, { headers: authHeader() }).then(response => {
+      axios.get(`${process.env.VUE_APP_SERVICE_URL}/apriori/${this.$route.params.code}/detail/${this.$route.params.id}`, { headers: authHeader() }).then(response => {
         this.apriori = {
           description: response.data.data.description,
         }
+        this.previewImage = response.data.data.image
       });
     },
     uploadImage(e) {
-      this.apriori.image = e.target.files[0]
+      let files = e.target.files[0]
+      this.apriori.image = files
+      this.previewImage = URL.createObjectURL(files)
     }
   }
 }

@@ -72,7 +72,7 @@ export default {
         const formData = new FormData()
         formData.append("file", this.transaction.file)
 
-        axios.post("http://localhost:3000/api/transactions/csv", formData, config)
+        axios.post(`${process.env.VUE_APP_SERVICE_URL}/transactions/csv`, formData, config)
             .then(response => {
               if(response.data.code === 200) {
                 alert(response.data.status)

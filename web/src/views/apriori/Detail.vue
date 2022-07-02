@@ -110,7 +110,7 @@ export default {
   },
   methods: {
     fetchData() {
-      axios.get(`http://localhost:3000/api/apriori/${this.$route.params.code}`, { headers: authHeader() }).then((response) => {
+      axios.get(`${process.env.VUE_APP_SERVICE_URL}/apriori/${this.$route.params.code}`, { headers: authHeader() }).then((response) => {
         this.apriories = response.data.data;
       });
     }

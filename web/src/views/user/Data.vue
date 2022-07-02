@@ -84,7 +84,7 @@ export default {
   },
   methods: {
     fetchData() {
-      axios.get("http://localhost:3000/api/users", { headers: authHeader() }).then((response) => {
+      axios.get(`${process.env.VUE_APP_SERVICE_URL}/users`, { headers: authHeader() }).then((response) => {
         this.users = response.data.data;
         setTimeout(function(){
           $('#datatable').DataTable();
@@ -92,7 +92,7 @@ export default {
       });
     },
     submit(id) {
-      axios.delete("http://localhost:3000/api/users/" + id, { headers: authHeader() })
+      axios.delete(`${process.env.VUE_APP_SERVICE_URL}/users/` + id, { headers: authHeader() })
           .then(response => {
             if(response.data.code === 200) {
               alert(response.data.status)

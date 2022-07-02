@@ -89,7 +89,7 @@ export default {
   },
   methods: {
     fetchData() {
-      axios.get("http://localhost:3000/api/transactions", { headers: authHeader() }).then((response) => {
+      axios.get(`${process.env.VUE_APP_SERVICE_URL}/transactions`, { headers: authHeader() }).then((response) => {
         this.transactions = response.data.data;
         setTimeout(function(){
           $('#datatable').DataTable();
@@ -97,7 +97,7 @@ export default {
       });
     },
     submit(no_transaction) {
-      axios.delete("http://localhost:3000/api/transactions/" + no_transaction, { headers: authHeader() })
+      axios.delete(`${process.env.VUE_APP_SERVICE_URL}/transactions/` + no_transaction, { headers: authHeader() })
           .then(response => {
             if(response.data.code === 200) {
               alert(response.data.status)
@@ -108,7 +108,7 @@ export default {
           })
     },
     truncate() {
-      axios.delete("http://localhost:3000/api/transactions/truncate", { headers: authHeader() })
+      axios.delete(`${process.env.VUE_APP_SERVICE_URL}/transactions/truncate`, { headers: authHeader() })
           .then(response => {
             if(response.data.code === 200) {
               alert(response.data.status)

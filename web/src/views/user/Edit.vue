@@ -75,7 +75,7 @@ export default {
   },
   methods: {
     submit() {
-      axios.patch(`http://localhost:3000/api/users/${this.$route.params.id}`, this.user, { headers: authHeader() })
+      axios.patch(`${process.env.VUE_APP_SERVICE_URL}/users/${this.$route.params.id}`, this.user, { headers: authHeader() })
           .then(response => {
             if(response.data.code === 200) {
               alert(response.data.status)
@@ -88,7 +88,7 @@ export default {
       })
     },
     fetchData() {
-      axios.get(`http://localhost:3000/api/users/${this.$route.params.id}`, { headers: authHeader() }).then(response => {
+      axios.get(`${process.env.VUE_APP_SERVICE_URL}/users/${this.$route.params.id}`, { headers: authHeader() }).then(response => {
         this.user = {
           name: response.data.data.name,
           email: response.data.data.email,

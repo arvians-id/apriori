@@ -61,7 +61,7 @@ export default {
     Topbar
   },
   mounted() {
-    axios.get("http://localhost:3000/api/products", { headers: authHeader() }).then((response) => {
+    axios.get(`${process.env.VUE_APP_SERVICE_URL}/products`, { headers: authHeader() }).then((response) => {
       this.products = response.data.data;
       setTimeout(function(){
         $('#datatable').DataTable();
@@ -85,7 +85,7 @@ export default {
         this.transaction.product_name = productName.join(", ")
       }
 
-      axios.patch(`http://localhost:3000/api/transactions/${this.$route.params.no_transaction}`, this.transaction, { headers: authHeader() })
+      axios.patch(`${process.env.VUE_APP_SERVICE_URL}/transactions/${this.$route.params.no_transaction}`, this.transaction, { headers: authHeader() })
           .then(response => {
             if(response.data.code === 200) {
               alert(response.data.status)
@@ -98,7 +98,7 @@ export default {
       })
     },
     fetchData() {
-      axios.get(`http://localhost:3000/api/transactions/${this.$route.params.no_transaction}`, { headers: authHeader() }).then(response => {
+      axios.get(`${process.env.VUE_APP_SERVICE_URL}/transactions/${this.$route.params.no_transaction}`, { headers: authHeader() }).then(response => {
         let productName = response.data.data.product_name
         this.transaction = {
           product_name: productName.split(", "),

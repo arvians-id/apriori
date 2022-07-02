@@ -66,7 +66,7 @@ export default {
   },
   methods: {
     submit() {
-      axios.post(`http://localhost:3000/api/auth/verify?signature=${this.$route.query.signature}`, this.user)
+      axios.post(`${process.env.VUE_APP_SERVICE_URL}/auth/verify?signature=${this.$route.query.signature}`, this.user)
           .then(response => {
             if(response.data.code === 200) {
               alert(response.data.status)

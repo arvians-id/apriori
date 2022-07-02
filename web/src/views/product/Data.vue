@@ -85,7 +85,7 @@ export default {
   },
   methods: {
     fetchData() {
-      axios.get("http://localhost:3000/api/products", { headers: authHeader() }).then((response) => {
+      axios.get(`${process.env.VUE_APP_SERVICE_URL}/products`, { headers: authHeader() }).then((response) => {
         this.products = response.data.data;
         setTimeout(function(){
           $('#datatable').DataTable();
@@ -93,7 +93,7 @@ export default {
       });
     },
     submit(no_product) {
-      axios.delete("http://localhost:3000/api/products/" + no_product, { headers: authHeader() })
+      axios.delete(`${process.env.VUE_APP_SERVICE_URL}/products/` + no_product, { headers: authHeader() })
           .then(response => {
             if(response.data.code === 200) {
               alert(response.data.status)

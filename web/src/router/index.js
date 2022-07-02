@@ -70,12 +70,12 @@ router.beforeEach( async (to) => {
   }
 
   if (to.name !== 'login' && to.name !== 'register' && to.name !== 'forgot-password' && to.name !== 'reset-password') {
-        axios.get("http://localhost:3000/api/auth/token", { headers: authHeader() })
+        axios.get(`${process.env.VUE_APP_SERVICE_URL}/auth/token`, { headers: authHeader() })
             .catch(() => {
                 let refreshToken = {
                     refresh_token: localStorage.getItem("refresh-token")
                 }
-                axios.post("http://localhost:3000/api/auth/refresh",refreshToken)
+                axios.post(`${process.env.VUE_APP_SERVICE_URL}/auth/refresh`,refreshToken)
                     .then(response => {
                         let token = response.data.data.access_token
                         let refreshToken = response.data.data.refresh_token

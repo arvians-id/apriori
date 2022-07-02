@@ -89,7 +89,7 @@ export default {
   },
   methods: {
     submit() {
-      axios.patch("http://localhost:3000/api/profile/update", this.user, { headers: authHeader() })
+      axios.patch(`${process.env.VUE_APP_SERVICE_URL}/profile/update`, this.user, { headers: authHeader() })
           .then(response => {
             if(response.data.code === 200) {
               alert(response.data.status)
@@ -102,7 +102,7 @@ export default {
       })
     },
     fetchData() {
-      axios.get("http://localhost:3000/api/profile", { headers: authHeader() })
+      axios.get(`${process.env.VUE_APP_SERVICE_URL}/profile`, { headers: authHeader() })
           .then(response => {
               this.user = {
                 name: response.data.data.name,

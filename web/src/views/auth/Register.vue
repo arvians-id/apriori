@@ -75,7 +75,7 @@ export default {
   },
   methods: {
     submit() {
-      axios.post("http://localhost:3000/api/auth/register", this.user)
+      axios.post(`${process.env.VUE_APP_SERVICE_URL}/auth/register`, this.user)
           .then(response => {
             if(response.data.code === 200) {
               alert(response.data.status)

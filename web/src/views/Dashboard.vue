@@ -89,7 +89,7 @@ export default {
   },
   methods: {
     fetchData() {
-      axios.get("http://localhost:3000/api/apriori/actives", { headers: authHeader() }).then((response) => {
+      axios.get(`${process.env.VUE_APP_SERVICE_URL}/apriori/actives`, { headers: authHeader() }).then((response) => {
         this.apriories = response.data.data;
         this.getDate = `${this.apriories[0].range_date}`
       });

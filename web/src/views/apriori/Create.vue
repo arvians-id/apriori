@@ -346,7 +346,7 @@ export default {
   methods: {
     submit() {
       this.result = []
-      axios.post("http://localhost:3000/api/apriori/generate", this.apriori, { headers: authHeader() })
+      axios.post(`${process.env.VUE_APP_SERVICE_URL}/apriori/generate`, this.apriori, { headers: authHeader() })
           .then(response => {
             this.submitted = true
             if(response.data.code === 200) {
@@ -375,7 +375,7 @@ export default {
       })
     },
     save() {
-      axios.post("http://localhost:3000/api/apriori", this.result[this.result.length-1], { headers: authHeader() })
+      axios.post(`${process.env.VUE_APP_SERVICE_URL}/apriori`, this.result[this.result.length-1], { headers: authHeader() })
           .then(response => {
             if(response.data.code === 200) {
               alert(response.data.status)

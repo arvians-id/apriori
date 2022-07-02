@@ -128,7 +128,7 @@ import axios from "axios";
 export default {
   methods: {
     submit() {
-      axios.delete("http://localhost:3000/api/auth/logout")
+      axios.delete(`${process.env.VUE_APP_SERVICE_URL}/auth/logout`)
           .then(response => {
             if(response.data.code === 200) {
               localStorage.removeItem("token")
