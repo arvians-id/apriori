@@ -103,6 +103,12 @@
           <!-- Navigation -->
           <ul class="navbar-nav mb-md-3">
             <li class="nav-item">
+              <router-link class="nav-link" :to="{ name: 'guest.index' }">
+                <i class="ni ni-basket"></i>
+                <span class="nav-link-text">Back to Shop</span>
+              </router-link>
+            </li>
+            <li class="nav-item">
               <router-link :class="getActiveNavLink('profile')" :to="{ name: 'profile' }">
                 <i class="ni ni-single-02"></i>
                 <span class="nav-link-text">My Account</span>

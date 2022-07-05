@@ -1,7 +1,7 @@
 <template>
   <nav id="navbar-main" class="navbar navbar-horizontal navbar-transparent navbar-main navbar-expand-lg navbar-light">
     <div class="container">
-      <router-link class="navbar-brand" :to="{ name: 'auth.login' }">
+      <router-link class="navbar-brand" :to="{ name: 'guest.index' }">
         <img src="/frontend/img/brand/white.png">
       </router-link>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">

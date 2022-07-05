@@ -4,10 +4,10 @@ import ForgotPassword from "@/views/auth/ForgotPassword";
 import ResetPassword from "@/views/auth/ResetPassword";
 
 const authRouter = [
-    { path: "/", name: "auth.login", component: Login },
-    { path: "/register", name: "auth.register", component: Register },
-    { path: "/forgot-password", name: "auth.forgot-password", component: ForgotPassword },
-    { path: "/reset-password", name: "auth.reset-password", component: ResetPassword },
+    { path: "/auth/login", name: "auth.login", component: Login },
+    { path: "/auth/register", name: "auth.register", component: Register },
+    { path: "/auth/forgot-password", name: "auth.forgot-password", component: ForgotPassword },
+    { path: "/auth/reset-password", name: "auth.reset-password", component: ResetPassword },
 ]
 
 export default authRouter;

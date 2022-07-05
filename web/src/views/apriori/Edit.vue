@@ -46,10 +46,10 @@
 </template>
 
 <script>
-import Sidebar from "@/components/Sidebar.vue"
-import Topbar from "@/components/Topbar.vue"
-import Header from "@/components/Header.vue"
-import Footer from "@/components/Footer.vue"
+import Sidebar from "@/components/admin/Sidebar.vue"
+import Topbar from "@/components/admin/Topbar.vue"
+import Header from "@/components/admin/Header.vue"
+import Footer from "@/components/admin/Footer.vue"
 import axios from "axios";
 import authHeader from "@/service/auth-header";
 
@@ -77,7 +77,7 @@ export default {
       const config = {
         headers: {
           'Content-Type': 'multipart/form-data',
-          'Authorization': 'Bearer ' + localStorage.getItem('token'),
+          ...authHeader(),
         }
       }
       let formData = new FormData()

@@ -45,9 +45,9 @@
 </template>
 
 <script>
-import Footer from "@/components/landing/Footer.vue"
-import Navbar from "@/components/landing/Navbar.vue"
-import Header from "@/components/landing/Header.vue"
+import Footer from "@/components/auth/Footer.vue"
+import Navbar from "@/components/auth/Navbar.vue"
+import Header from "@/components/auth/Header.vue"
 import axios from "axios";
 
 export default {

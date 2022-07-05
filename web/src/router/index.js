@@ -7,8 +7,10 @@ import TransactionRouter from "@/router/transaction-router";
 import ProductRouter from "@/router/product-router";
 import AprioriRouter from "@/router/apriori-router";
 import UserRouter from "@/router/user-router";
+import UserGuestRouter from "@/router/user-guest-router";
 
 const routes = [
+    ...UserGuestRouter,
     ...AuthRouter,
     ...TransactionRouter,
     ...ProductRouter,
@@ -23,13 +25,13 @@ const router = createRouter({
 });
 
 router.beforeEach( async (to) => {
-  if (Object.keys(authHeader()).length === 0 && to.name.split(".")[0] !== "auth") {
-    return { name: 'auth.login' }
+  if (Object.keys(authHeader()).length === 0 && to.name.split(".")[0] !== "auth" && to.name.split(".")[0] !== "guest") {
+      return {name: 'auth.login'}
   } else if (Object.keys(authHeader()).length > 0 && to.name.split(".")[0] === "auth") {
       return { name: 'admin' }
   }
 
-  if (to.name.split(".")[0] !== "auth") {
+  if (to.name.split(".")[0] !== "auth" && Object.keys(authHeader()).length > 0) {
         axios.get(`${process.env.VUE_APP_SERVICE_URL}/auth/token`, { headers: authHeader() })
             .catch(() => {
                 let refreshToken = {
