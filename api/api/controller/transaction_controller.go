@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"apriori/api/middleware"
 	"apriori/api/response"
 	"apriori/model"
 	"apriori/service"
@@ -22,7 +23,7 @@ func NewTransactionController(transactionService *service.TransactionService, st
 }
 
 func (controller *TransactionController) Route(router *gin.Engine) *gin.Engine {
-	authorized := router.Group("/api")
+	authorized := router.Group("/api", middleware.AuthJwtMiddleware())
 	{
 		authorized.GET("/transactions", controller.FindAll)
 		authorized.GET("/transactions/:code", controller.FindByTransaction)

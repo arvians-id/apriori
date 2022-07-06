@@ -55,9 +55,6 @@ func NewInitializedServer(configuration config.Config) *gin.Engine {
 	// Setup Router
 	authController.Route(router)
 
-	// Authentication Middleware
-	router.Use(middleware.AuthJwtMiddleware())
-
 	userController.Route(router)
 	productController.Route(router)
 	transactionController.Route(router)

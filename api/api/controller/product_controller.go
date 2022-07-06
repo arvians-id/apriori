@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"apriori/api/middleware"
 	"apriori/api/response"
 	"apriori/model"
 	"apriori/service"
@@ -27,9 +28,9 @@ func (controller *ProductController) Route(router *gin.Engine) *gin.Engine {
 	{
 		authorized.GET("/products", controller.FindAll)
 		authorized.GET("/products/:code", controller.FindById)
-		authorized.POST("/products", controller.Create)
-		authorized.PATCH("/products/:code", controller.Update)
-		authorized.DELETE("/products/:code", controller.Delete)
+		authorized.POST("/products", controller.Create, middleware.AuthJwtMiddleware())
+		authorized.PATCH("/products/:code", controller.Update, middleware.AuthJwtMiddleware())
+		authorized.DELETE("/products/:code", controller.Delete, middleware.AuthJwtMiddleware())
 		authorized.GET("/products/:code/recommendation", controller.FindAllRecommendation)
 	}
 

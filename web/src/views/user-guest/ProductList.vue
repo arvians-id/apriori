@@ -16,79 +16,22 @@
             <div class="card">
               <!-- Card header -->
               <div class="card-body">
-                <div class="timeline timeline-one-side" data-timeline-content="axis" data-timeline-axis-style="dashed">
-                  <div class="timeline-block">
-                  <span class="timeline-step badge-success">
-                    <i class="ni ni-bell-55"></i>
-                  </span>
-                    <div class="timeline-content">
-                      <small class="text-muted font-weight-bold">10:30 AM</small>
-                      <h5 class=" mt-3 mb-0">New message</h5>
-                      <p class=" text-sm mt-1 mb-0">Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p>
-                      <div class="mt-3">
-                        <span class="badge badge-pill badge-success">design</span>
-                        <span class="badge badge-pill badge-success">system</span>
-                        <span class="badge badge-pill badge-success">creative</span>
+                <div class="row">
+                  <div class="col-12 col-md-6 col-lg-4 col-xl-3" v-for="item in products" :key="item.id_product">
+                    <div class="card">
+                      <div class="embed-responsive embed-responsive-16by9">
+                        <img class="card-img-top embed-responsive-item" :src="getImage(item.image)" alt="Preview Image">
                       </div>
-                    </div>
-                  </div>
-                  <div class="timeline-block">
-                  <span class="timeline-step badge-danger">
-                    <i class="ni ni-html5"></i>
-                  </span>
-                    <div class="timeline-content">
-                      <small class="text-muted font-weight-bold">10:30 AM</small>
-                      <h5 class=" mt-3 mb-0">Product issue</h5>
-                      <p class=" text-sm mt-1 mb-0">Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p>
-                      <div class="mt-3">
-                        <span class="badge badge-pill badge-danger">design</span>
-                        <span class="badge badge-pill badge-danger">system</span>
-                        <span class="badge badge-pill badge-danger">creative</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="timeline-block">
-                  <span class="timeline-step badge-info">
-                    <i class="ni ni-like-2"></i>
-                  </span>
-                    <div class="timeline-content">
-                      <small class="text-muted font-weight-bold">10:30 AM</small>
-                      <h5 class=" mt-3 mb-0">New likes</h5>
-                      <p class=" text-sm mt-1 mb-0">Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p>
-                      <div class="mt-3">
-                        <span class="badge badge-pill badge-info">design</span>
-                        <span class="badge badge-pill badge-info">system</span>
-                        <span class="badge badge-pill badge-info">creative</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="timeline-block">
-                  <span class="timeline-step badge-success">
-                    <i class="ni ni-bell-55"></i>
-                  </span>
-                    <div class="timeline-content">
-                      <small class="text-muted font-weight-bold">10:30 AM</small>
-                      <h5 class=" mt-3 mb-0">New message</h5>
-                      <p class=" text-sm mt-1 mb-0">Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p>
-                      <div class="mt-3">
-                        <span class="badge badge-pill badge-success">design</span>
-                        <span class="badge badge-pill badge-success">system</span>
-                        <span class="badge badge-pill badge-success">creative</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="timeline-block">
-                  <span class="timeline-step badge-danger">
-                    <i class="ni ni-html5"></i>
-                  </span>
-                    <div class="timeline-content">
-                      <small class="text-muted font-weight-bold">10:30 AM</small>
-                      <h5 class=" mt-3 mb-0">Product issue</h5>
-                      <p class=" text-sm mt-1 mb-0">Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p>
-                      <div class="mt-3">
-                        <span class="badge badge-pill badge-danger">design</span>
-                        <span class="badge badge-pill badge-danger">system</span>
-                        <span class="badge badge-pill badge-danger">creative</span>
+                      <ul class="list-group list-group-flush">
+                        <li class="list-group-item text-danger font-weight-bold">Rp{{ numberWithCommas(item.price) }}</li>
+                      </ul>
+                      <div class="card-body">
+                        <router-link :to="{ name: 'guest.product.detail', params: { code: item.code } }" class="card-title mb-3 text-dark">{{ item.name }}</router-link>
+                        <p class="card-text mb-4">{{ item.description.length > 35 ? item.description.slice(0, 35) + "..." : item.description }}</p>
+                        <div class="d-flex justify-content-between">
+                          <button type="button" @click="add(item)" class="btn btn-primary btn-sm">Tambah</button>
+                          <button type="button" @click="min(item)" class="btn btn-danger btn-sm">Kurangi</button>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -104,11 +47,19 @@
   </div>
 </template>
 
+<style scoped>
+  .card-img-top {
+    width: 100%;
+    object-fit: cover;
+  }
+</style>
+
 <script>
 import Sidebar from "@/components/guest/Sidebar.vue"
 import Topbar from "@/components/guest/Topbar.vue"
 import Header from "@/components/guest/Header.vue"
 import Footer from "@/components/guest/Footer.vue"
+import axios from "axios";
 
 export default {
   components: {
@@ -116,6 +67,65 @@ export default {
     Sidebar,
     Header,
     Topbar
+  },
+  mounted() {
+    this.fetchData()
+  },
+  data: function () {
+    return {
+      products: [],
+      carts: [],
+    };
+  },
+  methods: {
+    fetchData() {
+      axios.get(`${process.env.VUE_APP_SERVICE_URL}/products`).then((response) => {
+        this.products = response.data.data;
+      });
+    },
+    numberWithCommas(x) {
+      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+    },
+    getImage(image) {
+      return image;
+    },
+    add(item) {
+      localStorage.getItem("my-carts")
+          ? (this.carts = JSON.parse(localStorage.getItem("my-carts")))
+          : (this.carts = []);
+
+      let productItem = this.carts.find(product => product.code === item.code);
+      if (productItem) {
+        productItem.quantity += 1
+        productItem.totalPricePerItem = productItem.price * productItem.quantity
+      } else {
+        this.carts.push({
+          id_product: item.id_product,
+          code: item.code,
+          name: item.name,
+          price: item.price,
+          image: item.image,
+          quantity: 1,
+          totalPricePerItem: item.price
+        });
+      }
+
+      localStorage.setItem('my-carts', JSON.stringify(this.carts));
+    },
+    min(item){
+      localStorage.getItem("my-carts")
+          ? (this.carts = JSON.parse(localStorage.getItem("my-carts")))
+          : (this.carts = []);
+
+      let productItem = this.carts.find(product => product.code === item.code);
+      if (productItem.quantity > 1) {
+        productItem.quantity -= 1
+        productItem.totalPricePerItem -= productItem.price
+      } else {
+        this.carts.splice(this.carts.indexOf(productItem), 1);
+      }
+      localStorage.setItem('my-carts', JSON.stringify(this.carts));
+    }
   }
 }
 </script>

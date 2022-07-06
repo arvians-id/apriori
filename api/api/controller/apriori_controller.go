@@ -1,6 +1,7 @@
 package controller
 
 import (
+	"apriori/api/middleware"
 	"apriori/api/response"
 	"apriori/model"
 	"apriori/service"
@@ -22,18 +23,19 @@ func NewAprioriController(aprioriService service.AprioriService, storageService 
 }
 
 func (controller *AprioriController) Route(router *gin.Engine) *gin.Engine {
-	authorized := router.Group("/api")
+	authorized := router.Group("/api", middleware.AuthJwtMiddleware())
 	{
-		authorized.GET("/apriori", controller.FindAll)
-		authorized.GET("/apriori/:code", controller.FindByCode)
 		authorized.PATCH("/apriori/:code", controller.ChangeActive)
 		authorized.POST("/apriori", controller.Create)
 		authorized.DELETE("/apriori/:code", controller.Delete)
-		authorized.GET("/apriori/:code/detail/:id", controller.FindAprioriById)
 		authorized.PATCH("/apriori/:code/update/:id", controller.UpdateApriori)
-		authorized.GET("/apriori/actives", controller.FindByActive)
 		authorized.POST("/apriori/generate", controller.Generate)
 	}
+
+	router.GET("/api/apriori", controller.FindAll)
+	router.GET("/api/apriori/:code", controller.FindByCode)
+	router.GET("/api/apriori/:code/detail/:id", controller.FindAprioriById)
+	router.GET("/api/apriori/actives", controller.FindByActive)
 
 	return router
 }

@@ -15,84 +15,53 @@
             <!-- Custom form validation -->
             <div class="card">
               <!-- Card header -->
+              <div class="card-header">
+                <!-- Title -->
+                <h5 class="h3 mb-0">Keranjang Belanja</h5>
+              </div>
+              <!-- Card body -->
               <div class="card-body">
-                <div class="timeline timeline-one-side" data-timeline-content="axis" data-timeline-axis-style="dashed">
-                  <div class="timeline-block">
-                  <span class="timeline-step badge-success">
-                    <i class="ni ni-bell-55"></i>
-                  </span>
-                    <div class="timeline-content">
-                      <small class="text-muted font-weight-bold">10:30 AM</small>
-                      <h5 class=" mt-3 mb-0">New message</h5>
-                      <p class=" text-sm mt-1 mb-0">Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p>
-                      <div class="mt-3">
-                        <span class="badge badge-pill badge-success">design</span>
-                        <span class="badge badge-pill badge-success">system</span>
-                        <span class="badge badge-pill badge-success">creative</span>
+                <!-- List group -->
+                <ul class="list-group list-group-flush list my--3" v-if="carts.length > 0">
+                  <li class="list-group-item px-0" v-for="(item, i) in carts" :key="i">
+                    <div class="row align-items-center">
+                      <div class="col-auto">
+                        <!-- Avatar -->
+                        <a href="#" class="avatar">
+                          <img alt="Image placeholder" :src="getImage(item.image)">
+                        </a>
+                      </div>
+                      <div class="col ml--2">
+                        <h4 class="mb-0">
+                          <a href="#!">{{ item.name }}</a>
+                        </h4>
+                        <small>Rp{{ item.price }}</small>
+                      </div>
+                      <div class="col-auto">
+                        <p>Rp {{ item.totalPricePerItem }} - {{ item.quantity }} item</p>
+
+                        <button type="button" @click="add(item)" class="btn btn-primary btn-sm">Tambah</button>
+                        <button type="button" @click="min(item)" class="btn btn-danger btn-sm">Kurangi</button>
                       </div>
                     </div>
-                  </div>
-                  <div class="timeline-block">
-                  <span class="timeline-step badge-danger">
-                    <i class="ni ni-html5"></i>
-                  </span>
-                    <div class="timeline-content">
-                      <small class="text-muted font-weight-bold">10:30 AM</small>
-                      <h5 class=" mt-3 mb-0">Product issue</h5>
-                      <p class=" text-sm mt-1 mb-0">Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p>
-                      <div class="mt-3">
-                        <span class="badge badge-pill badge-danger">design</span>
-                        <span class="badge badge-pill badge-danger">system</span>
-                        <span class="badge badge-pill badge-danger">creative</span>
+                  </li>
+                  <li class="list-group-item px-0">
+                    <div class="row align-items-center">
+                      <div class="col-auto">
+                      </div>
+                      <div class="col">
+                        <button class="btn btn-primary">Pesan Sekarang</button>
+                      </div>
+                      <div class="col-auto text-center">
+                        <h3>Total harga : Rp{{ totalPrice }}</h3>
                       </div>
                     </div>
-                  </div>
-                  <div class="timeline-block">
-                  <span class="timeline-step badge-info">
-                    <i class="ni ni-like-2"></i>
-                  </span>
-                    <div class="timeline-content">
-                      <small class="text-muted font-weight-bold">10:30 AM</small>
-                      <h5 class=" mt-3 mb-0">New likes</h5>
-                      <p class=" text-sm mt-1 mb-0">Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p>
-                      <div class="mt-3">
-                        <span class="badge badge-pill badge-info">design</span>
-                        <span class="badge badge-pill badge-info">system</span>
-                        <span class="badge badge-pill badge-info">creative</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="timeline-block">
-                  <span class="timeline-step badge-success">
-                    <i class="ni ni-bell-55"></i>
-                  </span>
-                    <div class="timeline-content">
-                      <small class="text-muted font-weight-bold">10:30 AM</small>
-                      <h5 class=" mt-3 mb-0">New message</h5>
-                      <p class=" text-sm mt-1 mb-0">Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p>
-                      <div class="mt-3">
-                        <span class="badge badge-pill badge-success">design</span>
-                        <span class="badge badge-pill badge-success">system</span>
-                        <span class="badge badge-pill badge-success">creative</span>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="timeline-block">
-                  <span class="timeline-step badge-danger">
-                    <i class="ni ni-html5"></i>
-                  </span>
-                    <div class="timeline-content">
-                      <small class="text-muted font-weight-bold">10:30 AM</small>
-                      <h5 class=" mt-3 mb-0">Product issue</h5>
-                      <p class=" text-sm mt-1 mb-0">Nullam id dolor id nibh ultricies vehicula ut id elit. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.</p>
-                      <div class="mt-3">
-                        <span class="badge badge-pill badge-danger">design</span>
-                        <span class="badge badge-pill badge-danger">system</span>
-                        <span class="badge badge-pill badge-danger">creative</span>
-                      </div>
-                    </div>
-                  </div>
-                </div>
+                  </li>
+                </ul>
+                <ul class="list-group list-group-flush list text-center" v-else>
+                  Keranjang Belanjaan Kosong
+                  <router-link :to="{ name: 'guest.product' }" >Beli Produk Disini</router-link>
+                </ul>
               </div>
             </div>
           </div>
@@ -104,6 +73,11 @@
   </div>
 </template>
 
+<style scoped>
+.avatar{
+  background-color: transparent;
+}
+</style>
 <script>
 import Sidebar from "@/components/guest/Sidebar.vue"
 import Topbar from "@/components/guest/Topbar.vue"
@@ -116,6 +90,62 @@ export default {
     Sidebar,
     Header,
     Topbar
+  },
+  data(){
+    return {
+      carts: [],
+      totalPrice: 0,
+    }
+  },
+  mounted() {
+    this.fetchData()
+  },
+  methods: {
+    fetchData() {
+      localStorage.getItem("my-carts")
+        ? (this.carts = JSON.parse(localStorage.getItem("my-carts")))
+        : (this.carts = []);
+
+      this.carts.map(item => {
+        this.totalPrice += item.price * item.quantity;
+      })
+    },
+    getImage(image) {
+      return image;
+    },
+    add(item) {
+      let productItem = this.carts.find(product => product.code === item.code);
+      if (productItem) {
+        productItem.quantity += 1
+        productItem.totalPricePerItem = productItem.price * productItem.quantity
+
+        this.totalPrice += productItem.price
+      } else {
+        this.carts.push({
+          id_product: item.id_product,
+          code: item.code,
+          name: item.name,
+          price: item.price,
+          image: item.image,
+          quantity: 1,
+          totalPricePerItem: item.price
+        });
+      }
+
+      localStorage.setItem('my-carts', JSON.stringify(this.carts));
+    },
+    min(item){
+      let productItem = this.carts.find(product => product.code === item.code);
+      if (productItem.quantity > 1) {
+        productItem.quantity -= 1
+        productItem.totalPricePerItem -= productItem.price
+      } else {
+        this.carts.splice(this.carts.indexOf(productItem), 1);
+      }
+
+      this.totalPrice -= productItem.price
+      localStorage.setItem('my-carts', JSON.stringify(this.carts));
+    }
   }
 }
 </script>
