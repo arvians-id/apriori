@@ -22,11 +22,10 @@
               <!-- Dropdown header -->
               <div class="px-3 py-3">
                 <h6 class="text-sm text-muted m-0">Kamu memiliki <strong class="text-primary">{{ totalCart }}</strong> barang dikeranjang.</h6>
-                <a href="javascript:void(0);" class="text-muted text-sm" @click="reloadPage">Refresh halaman</a>
               </div>
               <!-- List group -->
-              <div class="list-group list-group-flush" v-if="cart.length > 0">
-                <template v-for="(item,i) in cart" :key="i">
+              <div class="list-group list-group-flush overflow-auto" style="height: 400px" v-if="carts.length > 0">
+                <template v-for="(item,i) in carts" :key="i">
                   <router-link
                         :to="{ name: 'guest.product.recommendation', params: { code: item.id_product, id: item.code } }"
                         v-if="item.name.includes(`Paket Rekomendasi`)"
@@ -115,19 +114,26 @@ import authHeader from "@/service/auth-header";
 import axios from "axios";
 
 export default {
+  props: {
+    totalCart: {
+      type: Number,
+      default: 0
+    },
+    carts: {
+      type: Array,
+      default: () => []
+    },
+  },
   mounted() {
     this.checkLogin()
     if(this.isLoggedIn) {
       this.fetchData()
     }
-    this.fetchCart()
   },
   data() {
     return {
       name: "",
       isLoggedIn: false,
-      cart: [],
-      totalCart: 0,
     }
   },
   methods: {
@@ -146,16 +152,6 @@ export default {
     },
     getImage(image) {
       return image;
-    },
-    fetchCart(){
-      localStorage.getItem('my-carts') ? this.cart = JSON.parse(localStorage.getItem('my-carts')).slice(0,5) : this.cart = []
-
-      this.totalCart = JSON.parse(localStorage.getItem('my-carts')).reduce((total, item) => {
-        return total + item.quantity
-      }, 0)
-    },
-    reloadPage() {
-      window.location.reload();
     }
   }
 }

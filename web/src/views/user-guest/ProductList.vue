@@ -4,7 +4,7 @@
   <!-- Main content -->
   <div class="main-content" id="panel">
     <!-- Topnav -->
-    <Topbar />
+    <Topbar :totalCart="totalCart" :carts="carts" />
     <!-- Header -->
     <Header />
     <!-- Page content -->
@@ -15,6 +15,10 @@
             <!-- Custom form validation -->
             <div class="card">
               <!-- Card header -->
+              <div class="card-header">
+                <!-- Title -->
+                <h5 class="h3 mb-0">Semua Produk</h5>
+              </div>
               <div class="card-body">
                 <div class="row" v-if="products.length > 0">
                   <div class="col-12 col-md-6 col-lg-4 col-xl-3" v-for="item in products" :key="item.id_product">
@@ -42,6 +46,47 @@
                       <h5 class="alert-heading">Oops!</h5>
                       <p>Tidak ada produk yang tersedia.</p>
                     </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <!-- Custom form validation -->
+          <div class="card">
+            <!-- Card header -->
+            <div class="card-header">
+              <!-- Title -->
+              <h5 class="h3 mb-0">Rekomendasi Paket Diskon Barang</h5>
+            </div>
+            <div class="card-body">
+              <div class="row" v-if="recommendation.length > 0">
+                <div class="col-12 col-md-6 col-lg-4 col-xl-3" v-for="item in recommendation" :key="item.apriori_id">
+                  <div class="card card-pricing border-0 mb-4">
+                    <div class="embed-responsive embed-responsive-16by9">
+                      <img class="card-img-top embed-responsive-item" :src="getImage(item.image)" alt="Preview Image">
+                    </div>
+                    <div class="card-body pb-3">
+                      <router-link :to="{ name: 'guest.product.recommendation', params: { code: item.code, id: item.id_apriori } }" class="display-2 text-dark">{{ item.discount }}%</router-link>
+                      <p class="text-muted">discount</p>
+                      <ul class="list-unstyled my-4">
+                        <li v-for="(value,i) in item.item.split(', ')" :key="i">
+                          <div class="d-flex align-items-center mb-2">
+                            <div class="icon icon-xs icon-shape bg-gradient-primary text-white shadow rounded-circle">
+                              <i class="ni ni-basket"></i>
+                            </div>
+                            <span class="pl-2 text-sm">{{ UpperWord(value) }}</span>
+                          </div>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="row" v-else>
+                <div class="col-12">
+                  <div class="alert alert-secondary">
+                    <h5 class="alert-heading">Oops!</h5>
+                    <p>Tidak ada rekomendasi yang tersedia.</p>
                   </div>
                 </div>
               </div>
@@ -78,17 +123,35 @@ export default {
   },
   mounted() {
     this.fetchData()
+    this.fetchDataRecommendation()
   },
   data: function () {
     return {
       products: [],
       carts: [],
+      totalCart: 0,
+      recommendation: [],
     };
   },
   methods: {
     fetchData() {
+      localStorage.getItem("my-carts")
+          ? (this.carts = JSON.parse(localStorage.getItem("my-carts")))
+          : (this.carts = []);
+
       axios.get(`${process.env.VUE_APP_SERVICE_URL}/products`).then((response) => {
         this.products = response.data.data;
+      });
+
+      if(this.carts.length > 0){
+        this.totalCart = JSON.parse(localStorage.getItem('my-carts')).reduce((total, item) => {
+          return total + item.quantity
+        }, 0)
+      }
+    },
+    fetchDataRecommendation() {
+      axios.get(`${process.env.VUE_APP_SERVICE_URL}/apriori/actives`).then((response) => {
+        this.recommendation = response.data.data;
       });
     },
     numberWithCommas(x) {
@@ -96,6 +159,11 @@ export default {
     },
     getImage(image) {
       return image;
+    },
+    UpperWord(str) {
+      return str.toLowerCase().replace(/\b[a-z]/g, function (letter) {
+        return letter.toUpperCase();
+      })
     },
     add(item) {
       localStorage.getItem("my-carts")
@@ -106,6 +174,7 @@ export default {
       if (productItem) {
         productItem.quantity += 1
         productItem.totalPricePerItem = productItem.price * productItem.quantity
+        this.totalCart += 1
       } else {
         this.carts.push({
           id_product: item.id_product,
@@ -116,6 +185,7 @@ export default {
           quantity: 1,
           totalPricePerItem: item.price
         });
+        this.totalCart += 1
       }
 
       localStorage.setItem('my-carts', JSON.stringify(this.carts));
@@ -130,8 +200,10 @@ export default {
         if (productItem.quantity > 1) {
           productItem.quantity -= 1
           productItem.totalPricePerItem -= productItem.price
+          this.totalCart -= 1
         } else {
           this.carts.splice(this.carts.indexOf(productItem), 1);
+          this.totalCart -= 1
         }
         localStorage.setItem('my-carts', JSON.stringify(this.carts));
       }

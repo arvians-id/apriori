@@ -4,7 +4,7 @@
   <!-- Main content -->
   <div class="main-content" id="panel">
     <!-- Topnav -->
-    <Topbar />
+    <Topbar :totalCart="totalCart" :carts="carts" />
     <!-- Header -->
     <Header />
     <!-- Page content -->
@@ -62,22 +62,25 @@
                           <tr>
                             <td>Total keseluruhan item</td>
                             <td>:</td>
-                            <td>{{ totalCart }} item</td>
+                            <td class="text-right">{{ totalCart }} item</td>
                           </tr>
                           <tr>
                             <td>Total jenis barang</td>
                             <td>:</td>
-                            <td>{{ this.carts.length }} barang</td>
+                            <td class="text-right">{{ this.carts.length }} barang</td>
                           </tr>
                           <tr>
                             <td>Total harga</td>
                             <td>:</td>
-                            <td>Rp {{ numberWithCommas(totalPrice) }}</td>
+                            <td class="text-right font-weight-bold"><h3>Rp {{ numberWithCommas(totalPrice) }}</h3></td>
                           </tr>
                           <tr>
                             <td></td>
                             <td></td>
-                            <td><a :href="send(carts, totalPrice)" class="btn btn-primary btn-sm">Pesan Sekarang</a></td>
+                            <td>
+                              <a href="javascript:void(0);" @click="clearCart" class="btn btn-danger btn-sm">Bersihkan keranjang</a>
+                              <a :href="send(carts, totalPrice)" class="btn btn-primary btn-sm">Pesan Sekarang</a>
+                            </td>
                           </tr>
                         </table>
                       </div>
@@ -141,9 +144,11 @@ export default {
         this.totalPrice += item.price * item.quantity;
       })
 
-      this.totalCart = this.carts.reduce((total, item) => {
-        return total + item.quantity
-      }, 0)
+      if(this.carts.length > 0){
+        this.totalCart = JSON.parse(localStorage.getItem('my-carts')).reduce((total, item) => {
+          return total + item.quantity
+        }, 0)
+      }
     },
     getImage(image) {
       return image;
@@ -156,8 +161,8 @@ export default {
       if (productItem) {
         productItem.quantity += 1
         productItem.totalPricePerItem = productItem.price * productItem.quantity
-
         this.totalPrice += productItem.price
+        this.totalCart += 1
       } else {
         this.carts.push({
           id_product: item.id_product,
@@ -168,6 +173,7 @@ export default {
           quantity: 1,
           totalPricePerItem: item.price
         });
+        this.totalCart += 1
       }
 
       localStorage.setItem('my-carts', JSON.stringify(this.carts));
@@ -177,8 +183,10 @@ export default {
       if (productItem.quantity > 1) {
         productItem.quantity -= 1
         productItem.totalPricePerItem -= productItem.price
+        this.totalCart -= 1
       } else {
         this.carts.splice(this.carts.indexOf(productItem), 1);
+        this.totalCart -= 1
       }
 
       this.totalPrice -= productItem.price
@@ -187,6 +195,14 @@ export default {
     send(item, totalPrice) {
       let text = `Hallo saya ingin memesan produk-produk berikut : %0a${item.map(item => `${item.name} - ${item.quantity} x`).join('%0a')} %0aTotal harga : Rp ${this.numberWithCommas(totalPrice)}`;
       return `whatsapp://send/?phone=${process.env.VUE_APP_PHONE_NUMBER}&text=${text}`
+    },
+    clearCart() {
+      if(confirm("Apakah anda yakin ingin menghapus semua keranjang belanjaan?")){
+        this.carts = []
+        localStorage.setItem('my-carts', JSON.stringify([]));
+        this.totalCart = 0
+        this.totalPrice = 0
+      }
     }
   }
 }

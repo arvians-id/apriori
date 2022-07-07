@@ -4,7 +4,7 @@
   <!-- Main content -->
   <div class="main-content" id="panel">
     <!-- Topnav -->
-    <Topbar />
+    <Topbar :totalCart="totalCart" :carts="carts" />
     <!-- Header -->
     <Header />
     <!-- Page content -->
@@ -286,13 +286,25 @@ export default {
   data: function () {
     return {
       apriories: [],
+      carts: [],
+      totalCart: 0
     };
   },
   methods: {
     fetchData() {
+      localStorage.getItem("my-carts")
+          ? (this.carts = JSON.parse(localStorage.getItem("my-carts")))
+          : (this.carts = []);
+
       axios.get(`${process.env.VUE_APP_SERVICE_URL}/apriori/actives`).then((response) => {
         this.apriories = response.data.data.slice(0,3);
       });
+
+      if(this.carts.length > 0){
+        this.totalCart = JSON.parse(localStorage.getItem('my-carts')).reduce((total, item) => {
+          return total + item.quantity
+        }, 0)
+      }
     },
     UpperWord(str) {
       return str.toLowerCase().replace(/\b[a-z]/g, function (letter) {

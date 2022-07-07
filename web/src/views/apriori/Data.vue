@@ -95,15 +95,17 @@ export default {
       });
     },
     submit(code) {
-      axios.delete(`${process.env.VUE_APP_SERVICE_URL}/apriori/` + code, { headers: authHeader() })
-          .then(response => {
-            if(response.data.code === 200) {
-              alert(response.data.status)
-              this.fetchData()
-            }
-          }).catch(error => {
-        console.log(error.response.data.status)
-      })
+      if(confirm("Are you sure to delete this data?")) {
+        axios.delete(`${process.env.VUE_APP_SERVICE_URL}/apriori/` + code, { headers: authHeader() })
+            .then(response => {
+              if(response.data.code === 200) {
+                alert(response.data.status)
+                this.fetchData()
+              }
+            }).catch(error => {
+          console.log(error.response.data.status)
+        })
+      }
     },
     activate(code) {
       axios.patch(`${process.env.VUE_APP_SERVICE_URL}/apriori/` + code, null,{ headers: authHeader() })

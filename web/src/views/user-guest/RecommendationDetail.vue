@@ -4,7 +4,7 @@
   <!-- Main content -->
   <div class="main-content" id="panel">
     <!-- Topnav -->
-    <Topbar />
+    <Topbar :totalCart="totalCart" :carts="carts" />
     <!-- Header -->
     <Header />
     <!-- Page content -->
@@ -80,18 +80,25 @@ export default {
     return {
       apriori: [],
       carts: [],
+      totalCart: 0,
       quantity: 0,
     };
   },
   methods: {
     fetchData() {
+      localStorage.getItem("my-carts")
+          ? (this.carts = JSON.parse(localStorage.getItem("my-carts")))
+          : (this.carts = []);
+
       axios.get(`${process.env.VUE_APP_SERVICE_URL}/apriori/${this.$route.params.code}/detail/${this.$route.params.id}`, { headers: authHeader() }).then((response) => {
         this.apriori = response.data.data;
       });
 
-      localStorage.getItem("my-carts")
-          ? (this.carts = JSON.parse(localStorage.getItem("my-carts")))
-          : (this.carts = []);
+      if(this.carts.length > 0){
+        this.totalCart = JSON.parse(localStorage.getItem('my-carts')).reduce((total, item) => {
+          return total + item.quantity
+        }, 0)
+      }
 
       let productItem = this.carts.find(product => product.code == this.$route.params.id);
       this.quantity = productItem ? productItem.quantity : 0;
@@ -113,6 +120,7 @@ export default {
         productItem.quantity += 1
         productItem.totalPricePerItem = productItem.price * productItem.quantity
         this.quantity += 1
+        this.totalCart += 1
       } else {
         this.carts.push({
           id_product: item.apriori_code,
@@ -124,6 +132,7 @@ export default {
           totalPricePerItem: item.price_discount
         });
         this.quantity = 1
+        this.totalCart += 1
       }
 
       localStorage.setItem('my-carts', JSON.stringify(this.carts));
@@ -135,8 +144,10 @@ export default {
           productItem.quantity -= 1
           productItem.totalPricePerItem -= productItem.price
           this.quantity -= 1
+          this.totalCart -= 1
         } else {
           this.quantity = 0
+          this.totalCart -= 1
           this.carts.splice(this.carts.indexOf(productItem), 1);
         }
         localStorage.setItem('my-carts', JSON.stringify(this.carts));

@@ -97,15 +97,17 @@ export default {
       });
     },
     submit(no_transaction) {
-      axios.delete(`${process.env.VUE_APP_SERVICE_URL}/transactions/` + no_transaction, { headers: authHeader() })
-          .then(response => {
-            if(response.data.code === 200) {
-              alert(response.data.status)
-              this.fetchData()
-            }
-          }).catch(error => {
-        console.log(error.response.data.status)
-          })
+      if(confirm("Are you sure to delete this data?")) {
+        axios.delete(`${process.env.VUE_APP_SERVICE_URL}/transactions/` + no_transaction, { headers: authHeader() })
+            .then(response => {
+              if(response.data.code === 200) {
+                alert(response.data.status)
+                this.fetchData()
+              }
+            }).catch(error => {
+          console.log(error.response.data.status)
+        })
+      }
     },
     truncate() {
       axios.delete(`${process.env.VUE_APP_SERVICE_URL}/transactions/truncate`, { headers: authHeader() })
