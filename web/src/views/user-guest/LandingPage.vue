@@ -90,7 +90,7 @@
                 <div class="col-lg-4" v-for="item in apriories" :key="item.id_apriori">
                   <div class="card card-lift--hover shadow border-0">
                     <div class="card-body py-5">
-                      <router-link :to="{ name: 'guest.recommendation.detail', params: { code: item.code, id: item.id_apriori } }" class="display-2 text-dark">{{ item.discount }}%</router-link>
+                      <router-link :to="{ name: 'guest.product.recommendation', params: { code: item.code, id: item.id_apriori } }" class="display-2 text-dark">{{ item.discount }}%</router-link>
                       <p class="text-muted">discount</p>
                       <ul class="list-unstyled my-4">
                         <li v-for="(value,i) in item.item.split(', ')" :key="i">

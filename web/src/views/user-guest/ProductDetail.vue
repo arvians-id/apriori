@@ -14,7 +14,7 @@
           <div class="card card-profile">
             <!-- Card header -->
             <div class="card-header">
-              <h3 class="mb-0">Detail Product {{ product.name }}</h3>
+              <h3 class="mb-0">Detail Produk {{ product.name }}</h3>
             </div>
             <div class="row align-items-center">
               <div class="col-12 col-lg-6 text-center">
@@ -26,11 +26,11 @@
                     <div class="col">
                       <div class="card-profile-stats d-flex justify-content-center">
                         <div>
-                          <span class="heading">Created At</span>
+                          <span class="heading">Dibuat</span>
                           <span class="description">{{ product.created_at }}</span>
                         </div>
                         <div>
-                          <span class="heading">Last Modified</span>
+                          <span class="heading">Terakhir diubah</span>
                           <span class="description">{{ product.updated_at }}</span>
                         </div>
                       </div>
@@ -46,8 +46,9 @@
                     <div>
                       <i class="ni education_hat mr-2"></i> {{ product.description }}
                     </div>
-                    <button class="btn btn-primary mt-3">Tambah ke keranjang</button>
-                    <a :href="send(product.name, product.price)" target="_blank" class="btn btn-success mt-3">Beli sekarang</a>
+                    <button type="button" @click="min(product)" class="btn btn-danger btn-sm mt-3">-</button>
+                    <button class="btn disabled mt-3">{{ quantity }} item</button>
+                    <button type="button" @click="add(product)" class="btn btn-primary btn-sm mt-3">+</button>
                   </div>
                 </div>
               </div>
@@ -56,7 +57,7 @@
           <div class="card">
             <!-- Card header -->
             <div class="card-header d-flex justify-content-between">
-              <h3 class="mb-0">Recommendation Packages For You</h3>
+              <h3 class="mb-0">Rekomendasi Paket Diskon Untuk Kamu</h3>
             </div>
             <!-- Card body -->
             <div class="card-body">
@@ -64,13 +65,13 @@
                 <div class="col-12 col-md-6 col-lg-4 col-xl-3" v-for="item in recommendation" :key="item.apriori_id">
                   <div class="card card-pricing border-0 text-center mb-4">
                     <div class="card-header bg-transparent">
-                      <router-link :to="{ name: 'guest.recommendation.detail', params: { code: item.apriori_code, id: item.apriori_id } }" class="text-uppercase h4 ls-1 text-primary py-3 mb-0">Recommendation pack</router-link>
+                      <router-link :to="{ name: 'guest.product.recommendation', params: { code: item.apriori_code, id: item.apriori_id } }" class="text-uppercase h4 ls-1 text-primary py-3 mb-0">Paket Rekomendasi</router-link>
                     </div>
                     <div class="card-body mx-auto">
                       <div class="display-2">{{ item.apriori_discount }}%</div>
-                      <span class="text-muted h2" style="text-decoration: line-through">Rp. {{ item.product_total_price }}</span>
+                      <span class="text-muted h2" style="text-decoration: line-through">Rp {{ item.product_total_price }}</span>
                       /
-                      <span class="text-muted">Rp. {{ item.price_discount }}</span>
+                      <span class="text-muted">Rp {{ item.price_discount }}</span>
                       <ul class="list-unstyled my-4">
                         <li v-for="(value,i) in item.apriori_item.split(', ')" :key="i">
                           <div class="d-flex align-items-center">
@@ -125,7 +126,9 @@ export default {
   data: function () {
     return {
       product: [],
-      recommendation: []
+      recommendation: [],
+      carts: [],
+      quantity: 0,
     };
   },
   methods: {
@@ -133,6 +136,14 @@ export default {
       axios.get(`${process.env.VUE_APP_SERVICE_URL}/products/${this.$route.params.code}`, { headers: authHeader() }).then((response) => {
         this.product = response.data.data;
       });
+
+      localStorage.getItem("my-carts")
+          ? (this.carts = JSON.parse(localStorage.getItem("my-carts")))
+          : (this.carts = []);
+
+
+      let productItem = this.carts.find(product => product.code === this.$route.params.code);
+      this.quantity = productItem ? productItem.quantity : 0;
     },
     fetchDataRecommendation() {
       axios.get(`${process.env.VUE_APP_SERVICE_URL}/products/${this.$route.params.code}/recommendation`, { headers: authHeader() }).then((response) => {
@@ -162,8 +173,40 @@ export default {
         console.log(error.response.data.status)
       })
     },
-    send(productName, productPrice) {
-      return `whatsapp://send?phone=${process.env.VUE_APP_PHONE_NUMBER}&text=Hallo, saya ingin membeli produk ${productName} seharga Rp${productPrice}. Apakah produk masih tersedia?`
+    add(item) {
+      let productItem = this.carts.find(product => product.code === item.code);
+      if (productItem) {
+        productItem.quantity += 1
+        productItem.totalPricePerItem = productItem.price * productItem.quantity
+        this.quantity += 1
+      } else {
+        this.carts.push({
+          id_product: item.id_product,
+          code: item.code,
+          name: item.name,
+          price: item.price,
+          image: item.image,
+          quantity: 1,
+          totalPricePerItem: item.price
+        });
+        this.quantity = 1
+      }
+
+      localStorage.setItem('my-carts', JSON.stringify(this.carts));
+    },
+    min(item){
+      let productItem = this.carts.find(product => product.code === item.code);
+      if (productItem !== undefined) {
+        if (productItem.quantity > 1) {
+          productItem.quantity -= 1
+          productItem.totalPricePerItem -= productItem.price
+          this.quantity -= 1
+        } else {
+          this.quantity = 0
+          this.carts.splice(this.carts.indexOf(productItem), 1);
+        }
+        localStorage.setItem('my-carts', JSON.stringify(this.carts));
+      }
     }
   }
 }

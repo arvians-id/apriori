@@ -90,8 +90,8 @@ export default {
     getActiveNavLink(name) {
       let classString = "nav-link "
 
-      let routeName = this.$route.name
-      if (routeName === name) {
+      let routeName = this.$route.name.split('.')[1]
+      if (routeName === name.split('.')[1]) {
         classString += "active"
       }
       return classString;

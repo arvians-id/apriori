@@ -14,7 +14,7 @@
           <div class="card card-profile">
             <!-- Card header -->
             <div class="card-header">
-              <h3 class="mb-0">Recommendation Packages</h3>
+              <h3 class="mb-0">Detail Paket Rekomendasi</h3>
             </div>
             <div class="row align-items-center">
               <div class="col-12 col-lg-6 text-center">
@@ -42,12 +42,9 @@
                       </li>
                     </ul>
                     <p>{{ apriori.apriori_description }}</p>
-                    <button class="btn btn-primary mt-3">Tambah ke keranjang</button>
-                    <a :href="send(apriori)" target="_blank" class="btn btn-success mt-3">Beli sekarang</a>
-                  </div>
-                  <div class="card-footer">
-                    <router-link :to="{ name: 'apriori.detail', params: { code: this.$route.params.code } }" class="text-muted">
-                      {{ apriori.apriori_code }}</router-link>
+                    <button type="button" @click="min(apriori)" class="btn btn-danger btn-sm mt-3">-</button>
+                    <button class="btn disabled mt-3">{{ quantity }} item</button>
+                    <button type="button" @click="add(apriori)" class="btn btn-primary btn-sm mt-3">+</button>
                   </div>
                 </div>
               </div>
@@ -82,6 +79,8 @@ export default {
   data: function () {
     return {
       apriori: [],
+      carts: [],
+      quantity: 0,
     };
   },
   methods: {
@@ -89,6 +88,13 @@ export default {
       axios.get(`${process.env.VUE_APP_SERVICE_URL}/apriori/${this.$route.params.code}/detail/${this.$route.params.id}`, { headers: authHeader() }).then((response) => {
         this.apriori = response.data.data;
       });
+
+      localStorage.getItem("my-carts")
+          ? (this.carts = JSON.parse(localStorage.getItem("my-carts")))
+          : (this.carts = []);
+
+      let productItem = this.carts.find(product => product.code == this.$route.params.id);
+      this.quantity = productItem ? productItem.quantity : 0;
     },
     getImage() {
       return this.apriori.apriori_image
@@ -100,6 +106,41 @@ export default {
     },
     send(product) {
       return `whatsapp://send?phone=${process.env.VUE_APP_PHONE_NUMBER}&text=Hallo, saya ingin membeli produk code ${product.apriori_code} dengan paket rekomendasi ${product.apriori_item} seharga Rp${product.price_discount}. Apakah produk masih tersedia?`
+    },
+    add(item) {
+      let productItem = this.carts.find(product => product.code == item.apriori_id);
+      if (productItem) {
+        productItem.quantity += 1
+        productItem.totalPricePerItem = productItem.price * productItem.quantity
+        this.quantity += 1
+      } else {
+        this.carts.push({
+          id_product: item.apriori_code,
+          code: item.apriori_id,
+          name: "Paket Rekomendasi " + this.UpperWord(item.apriori_item),
+          price: item.price_discount,
+          image: item.apriori_image,
+          quantity: 1,
+          totalPricePerItem: item.price_discount
+        });
+        this.quantity = 1
+      }
+
+      localStorage.setItem('my-carts', JSON.stringify(this.carts));
+    },
+    min(item){
+      let productItem = this.carts.find(product => product.code === item.apriori_id);
+      if (productItem !== undefined) {
+        if (productItem.quantity > 1) {
+          productItem.quantity -= 1
+          productItem.totalPricePerItem -= productItem.price
+          this.quantity -= 1
+        } else {
+          this.quantity = 0
+          this.carts.splice(this.carts.indexOf(productItem), 1);
+        }
+        localStorage.setItem('my-carts', JSON.stringify(this.carts));
+      }
     }
   }
 }

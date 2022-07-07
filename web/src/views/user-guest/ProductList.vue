@@ -16,23 +16,31 @@
             <div class="card">
               <!-- Card header -->
               <div class="card-body">
-                <div class="row">
+                <div class="row" v-if="products.length > 0">
                   <div class="col-12 col-md-6 col-lg-4 col-xl-3" v-for="item in products" :key="item.id_product">
                     <div class="card">
                       <div class="embed-responsive embed-responsive-16by9">
                         <img class="card-img-top embed-responsive-item" :src="getImage(item.image)" alt="Preview Image">
                       </div>
                       <ul class="list-group list-group-flush">
-                        <li class="list-group-item text-danger font-weight-bold">Rp{{ numberWithCommas(item.price) }}</li>
+                        <li class="list-group-item text-danger font-weight-bold">Rp {{ numberWithCommas(item.price) }}</li>
                       </ul>
                       <div class="card-body">
                         <router-link :to="{ name: 'guest.product.detail', params: { code: item.code } }" class="card-title mb-3 text-dark">{{ item.name }}</router-link>
                         <p class="card-text mb-4">{{ item.description.length > 35 ? item.description.slice(0, 35) + "..." : item.description }}</p>
                         <div class="d-flex justify-content-between">
-                          <button type="button" @click="add(item)" class="btn btn-primary btn-sm">Tambah</button>
                           <button type="button" @click="min(item)" class="btn btn-danger btn-sm">Kurangi</button>
+                          <button type="button" @click="add(item)" class="btn btn-primary btn-sm">Tambah</button>
                         </div>
                       </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="row" v-else>
+                  <div class="col-12">
+                    <div class="alert alert-secondary">
+                      <h5 class="alert-heading">Oops!</h5>
+                      <p>Tidak ada produk yang tersedia.</p>
                     </div>
                   </div>
                 </div>
@@ -118,13 +126,15 @@ export default {
           : (this.carts = []);
 
       let productItem = this.carts.find(product => product.code === item.code);
-      if (productItem.quantity > 1) {
-        productItem.quantity -= 1
-        productItem.totalPricePerItem -= productItem.price
-      } else {
-        this.carts.splice(this.carts.indexOf(productItem), 1);
+      if(productItem !== undefined) {
+        if (productItem.quantity > 1) {
+          productItem.quantity -= 1
+          productItem.totalPricePerItem -= productItem.price
+        } else {
+          this.carts.splice(this.carts.indexOf(productItem), 1);
+        }
+        localStorage.setItem('my-carts', JSON.stringify(this.carts));
       }
-      localStorage.setItem('my-carts', JSON.stringify(this.carts));
     }
   }
 }

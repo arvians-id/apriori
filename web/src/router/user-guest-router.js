@@ -8,7 +8,7 @@ const userGuestRouter = [
     { path: "/", name: "guest.index", component: LandingPage },
     { path: "/product-list", name: "guest.product", component: ProductList },
     { path: "/product-list/:code", name: "guest.product.detail", component: ProductDetail },
-    { path: "/recommendation/:code/id/:id", name: "guest.recommendation.detail", component: RecommendationDetail },
+    { path: "/recommendation/:code/id/:id", name: "guest.product.recommendation", component: RecommendationDetail },
     { path: "/my-cart", name: "guest.cart", component: Cart },
 ]
 
