@@ -14,6 +14,73 @@
               </div>
             </div>
           </li>
+          <li class="nav-item dropdown">
+            <a class="nav-link" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              {{ totalCart }} <i class="ni ni-cart"></i>
+            </a>
+            <div class="dropdown-menu dropdown-menu-xl dropdown-menu-right py-0 overflow-hidden">
+              <!-- Dropdown header -->
+              <div class="px-3 py-3">
+                <h6 class="text-sm text-muted m-0">Kamu memiliki <strong class="text-primary">{{ totalCart }}</strong> barang dikeranjang.</h6>
+                <a href="javascript:void(0);" class="text-muted text-sm" @click="reloadPage">Refresh halaman</a>
+              </div>
+              <!-- List group -->
+              <div class="list-group list-group-flush" v-if="cart.length > 0">
+                <template v-for="(item,i) in cart" :key="i">
+                  <router-link
+                        :to="{ name: 'guest.product.recommendation', params: { code: item.id_product, id: item.code } }"
+                        v-if="item.name.includes(`Paket Rekomendasi`)"
+                        class="list-group-item list-group-item-action">
+                    <div class="row align-items-center">
+                      <div class="col-auto">
+                        <!-- Avatar -->
+                        <img alt="Image placeholder" :src="getImage(item.image)" class="avatar rounded-circle">
+                      </div>
+                      <div class="col ml--2">
+                        <div class="d-flex justify-content-between align-items-center">
+                          <div>
+                            <h4 class="mb-0 text-sm">{{ item.name.length > 30 ? item.name.slice(0, 30) + "..." : item.name  }}</h4>
+                          </div>
+                          <div class="text-right text-muted">
+                            <small>{{ item.quantity }} item</small>
+                          </div>
+                        </div>
+                        <p class="text-sm mb-0">Rp {{  item.totalPricePerItem }}</p>
+                      </div>
+                    </div>
+                  </router-link>
+                  <router-link :to="{ name: 'guest.product.detail', params: { code: item.code } }" class="list-group-item list-group-item-action" v-else>
+                    <div class="row align-items-center">
+                      <div class="col-auto">
+                        <!-- Avatar -->
+                        <img alt="Image placeholder" :src="getImage(item.image)" class="avatar rounded-circle">
+                      </div>
+                      <div class="col ml--2">
+                        <div class="d-flex justify-content-between align-items-center">
+                          <div>
+                            <h4 class="mb-0 text-sm">{{ item.name.length > 30 ? item.name.slice(0, 30) + "..." : item.name  }}</h4>
+                          </div>
+                          <div class="text-right text-muted">
+                            <small>{{ item.quantity }} item</small>
+                          </div>
+                        </div>
+                        <p class="text-sm mb-0">Rp {{  item.totalPricePerItem }}</p>
+                      </div>
+                    </div>
+                  </router-link>
+                </template>
+              </div>
+              <div class="list-group list-group-flush" v-else>
+                <div class="list-group-item">
+                  <div class="text-center">
+                      <h4 class="mb-0 text-sm text-muted">Keranjang kamu masih kosong.</h4>
+                  </div>
+                </div>
+              </div>
+              <!-- View all -->
+              <router-link :to="{ name: 'guest.cart' }" class="dropdown-item text-center text-primary font-weight-bold py-3">Lihat semua</router-link>
+            </div>
+          </li>
         </ul>
         <ul class="navbar-nav align-items-center ml-auto ml-md-0" v-if="!isLoggedIn">
           <li class="nav-item dropdown">
@@ -53,11 +120,14 @@ export default {
     if(this.isLoggedIn) {
       this.fetchData()
     }
+    this.fetchCart()
   },
   data() {
     return {
       name: "",
-      isLoggedIn: false
+      isLoggedIn: false,
+      cart: [],
+      totalCart: 0,
     }
   },
   methods: {
@@ -74,6 +144,19 @@ export default {
             console.log(error.response.data.status)
           })
     },
+    getImage(image) {
+      return image;
+    },
+    fetchCart(){
+      localStorage.getItem('my-carts') ? this.cart = JSON.parse(localStorage.getItem('my-carts')).slice(0,5) : this.cart = []
+
+      this.totalCart = JSON.parse(localStorage.getItem('my-carts')).reduce((total, item) => {
+        return total + item.quantity
+      }, 0)
+    },
+    reloadPage() {
+      window.location.reload();
+    }
   }
 }
 </script>

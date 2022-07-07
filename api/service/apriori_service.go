@@ -227,7 +227,7 @@ func (service *aprioriService) Create(ctx context.Context, requests []model.Crea
 			Confidence: request.Confidence,
 			RangeDate:  request.RangeDate,
 			IsActive:   false,
-			Image:      fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", os.Getenv("AWS_BUCKET"), os.Getenv("AWS_REGION"), "no-image.png"),
+			Image:      fmt.Sprintf("https://%s.s3.%s.amazonaws.com/assets/%s", os.Getenv("AWS_BUCKET"), os.Getenv("AWS_REGION"), "no-image.png"),
 			CreatedAt:  createdAt,
 		})
 	}

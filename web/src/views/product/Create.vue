@@ -81,7 +81,7 @@ export default {
         description: "",
         image: null
       },
-      previewImage: "https://my-apriori.s3.ap-southeast-1.amazonaws.com/no-image.png"
+      previewImage: "https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/no-image.png"
     }
   },
   methods: {

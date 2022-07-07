@@ -79,7 +79,7 @@ func (controller *ProductController) Create(c *gin.Context) {
 	request.Price = utils.StrToInt(c.PostForm("price"))
 
 	file, header, err := c.Request.FormFile("image")
-	filePath := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", os.Getenv("AWS_BUCKET"), os.Getenv("AWS_REGION"), "no-image.png")
+	filePath := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/assets/%s", os.Getenv("AWS_BUCKET"), os.Getenv("AWS_REGION"), "no-image.png")
 	if err == nil {
 		pathName, err := controller.StorageService.UploadFileS3(file, header)
 		if err != nil {

@@ -57,9 +57,29 @@
                       </div>
                       <div class="col">
                       </div>
-                      <div class="col-auto text-center">
-                        <p>Total harga : Rp {{ numberWithCommas(totalPrice) }}</p>
-                        <a :href="send(carts, totalPrice)" class="btn btn-primary btn-sm">Pesan Sekarang</a>
+                      <div class="col-auto">
+                        <table class="table">
+                          <tr>
+                            <td>Total keseluruhan item</td>
+                            <td>:</td>
+                            <td>{{ totalCart }} item</td>
+                          </tr>
+                          <tr>
+                            <td>Total jenis barang</td>
+                            <td>:</td>
+                            <td>{{ this.carts.length }} barang</td>
+                          </tr>
+                          <tr>
+                            <td>Total harga</td>
+                            <td>:</td>
+                            <td>Rp {{ numberWithCommas(totalPrice) }}</td>
+                          </tr>
+                          <tr>
+                            <td></td>
+                            <td></td>
+                            <td><a :href="send(carts, totalPrice)" class="btn btn-primary btn-sm">Pesan Sekarang</a></td>
+                          </tr>
+                        </table>
                       </div>
                     </div>
                   </li>
@@ -105,6 +125,7 @@ export default {
     return {
       carts: [],
       totalPrice: 0,
+      totalCart: 0,
     }
   },
   mounted() {
@@ -119,6 +140,10 @@ export default {
       this.carts.map(item => {
         this.totalPrice += item.price * item.quantity;
       })
+
+      this.totalCart = this.carts.reduce((total, item) => {
+        return total + item.quantity
+      }, 0)
     },
     getImage(image) {
       return image;
