@@ -3,8 +3,8 @@
     <div class="scrollbar-inner">
       <!-- Brand -->
       <div class="sidenav-header d-flex align-items-center">
-        <router-link class="navbar-brand" :to="{ name: 'guest.index' }">
-          <img src="/frontend/img/brand/blue.png" class="navbar-brand-img" alt="...">
+        <router-link class="navbar-brand" :to="{ name: 'guest.index' }" style="font-family: 'Fugaz One', cursive; color: #6772e5">
+          RYZYOLSHOP
         </router-link>
         <div class="ml-auto">
           <!-- Sidenav toggler -->
@@ -67,6 +67,14 @@
     </div>
   </nav>
 </template>
+
+<style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Fugaz+One&display=swap');
+
+.navbar-brand {
+  font-size: 1.40rem;
+}
+</style>
 
 <script>
 import authHeader from "@/service/auth-header";

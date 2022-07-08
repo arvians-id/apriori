@@ -1,8 +1,8 @@
 <template>
   <nav id="navbar-main" class="navbar navbar-horizontal navbar-transparent navbar-main navbar-expand-lg navbar-light">
     <div class="container">
-      <router-link class="navbar-brand" :to="{ name: 'guest.index' }">
-        <img src="/frontend/img/brand/white.png">
+      <router-link class="navbar-brand" :to="{ name: 'guest.index' }" style="font-family: 'Fugaz One', cursive;">
+        RYZYOLSHOP
       </router-link>
       <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbar-collapse" aria-controls="navbar-collapse" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -44,3 +44,11 @@
     </div>
   </nav>
 </template>
+
+<style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Fugaz+One&display=swap');
+
+.navbar-brand {
+  font-size: 1.50rem;
+}
+</style>
