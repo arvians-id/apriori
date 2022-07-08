@@ -48,6 +48,9 @@
                     </div>
                   </div>
                 </div>
+                <button @click="loadMore" v-if="products.length !== this.totalData" class="btn btn-secondary d-block mx-auto px-5">
+                  Lihat lainnya <i class="ni ni-bold-down"></i>
+                </button>
               </div>
             </div>
           </div>
@@ -66,6 +69,10 @@
                       <img class="card-img-top embed-responsive-item" :src="getImage(item.image)" alt="Preview Image">
                     </div>
                     <div class="card-body pb-3">
+                      <router-link :to="{ name: 'guest.product.recommendation', params: { code: item.code, id: item.id_apriori } }" class="text-dark">
+                        Paket Barang {{ item.item.length > 20 ? UpperWord(item.item.slice(0, 20)) + "..." : UpperWord(item.item) }}
+                      </router-link>
+                       <br>
                       <router-link :to="{ name: 'guest.product.recommendation', params: { code: item.code, id: item.id_apriori } }" class="display-2 text-dark">{{ item.discount }}%</router-link>
                       <p class="text-muted">discount</p>
                       <ul class="list-unstyled my-4">
@@ -131,6 +138,8 @@ export default {
       carts: [],
       totalCart: 0,
       recommendation: [],
+      limitData: 8,
+      totalData: 0,
     };
   },
   methods: {
@@ -140,7 +149,8 @@ export default {
           : (this.carts = []);
 
       axios.get(`${process.env.VUE_APP_SERVICE_URL}/products`).then((response) => {
-        this.products = response.data.data;
+        this.totalData = response.data.data.length;
+        this.products = response.data.data.slice(0, this.limitData);
       });
 
       if(this.carts.length > 0){
@@ -152,6 +162,11 @@ export default {
     fetchDataRecommendation() {
       axios.get(`${process.env.VUE_APP_SERVICE_URL}/apriori/actives`).then((response) => {
         this.recommendation = response.data.data;
+      });
+    },
+    loadMore(){
+      axios.get(`${process.env.VUE_APP_SERVICE_URL}/products`).then((response) => {
+        this.products = response.data.data.slice(0, this.limitData += 8);
       });
     },
     numberWithCommas(x) {

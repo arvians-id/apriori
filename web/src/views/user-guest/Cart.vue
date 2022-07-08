@@ -27,9 +27,18 @@
                     <div class="row align-items-center">
                       <div class="col-auto">
                         <!-- Avatar -->
-                        <a href="#" class="avatar">
+                        <router-link
+                            :to="{ name: 'guest.product.recommendation', params: { code: item.id_product, id: item.code } }"
+                            v-if="item.name.includes(`Paket Rekomendasi`)"
+                            class="avatar">
                           <img alt="Image placeholder" :src="getImage(item.image)">
-                        </a>
+                        </router-link>
+                        <router-link
+                            :to="{ name: 'guest.product.detail', params: { code: item.code } }"
+                            class="avatar"
+                            v-else>
+                          <img alt="Image placeholder" :src="getImage(item.image)">
+                        </router-link>
                       </div>
                       <div class="col ml--2">
                         <h4 class="mb-0">

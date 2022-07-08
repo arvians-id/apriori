@@ -27,7 +27,12 @@
                     <span class="text-muted h2" style="text-decoration: line-through">Rp. {{ apriori.product_total_price }}</span>
                     /
                     <span class="text-muted">Rp. {{ apriori.price_discount }}</span>
-                    <ul class="list-unstyled my-4" v-if="apriori.apriori_item">
+                    <div class="text-center mt-3">
+                      <h5 class="h3 text-uppercase">
+                       Paket rekomendasi {{ apriori.apriori_item }} - {{ apriori.apriori_code }}
+                      </h5>
+                    </div>
+                    <ul class="list-unstyled" v-if="apriori.apriori_item">
                       <li v-for="(value,i) in apriori.apriori_item.split(', ')" :key="i">
                         <div class="d-flex align-items-center justify-content-center">
                           <div>
