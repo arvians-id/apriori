@@ -185,14 +185,14 @@ func (service *aprioriService) ChangeActive(ctx context.Context, code string) er
 		return err
 	}
 
-	err = service.AprioriRepository.ChangeAllStatus(ctx, tx, false)
+	err = service.AprioriRepository.ChangeAllStatus(ctx, tx, 0)
 	if err != nil {
 		return err
 	}
 
-	status := true
-	if rows[0].IsActive == true {
-		status = false
+	status := 1
+	if rows[0].IsActive == 1 {
+		status = 0
 	}
 
 	err = service.AprioriRepository.ChangeStatusByCode(ctx, tx, rows[0].Code, status)
@@ -226,7 +226,7 @@ func (service *aprioriService) Create(ctx context.Context, requests []model.Crea
 			Support:    request.Support,
 			Confidence: request.Confidence,
 			RangeDate:  request.RangeDate,
-			IsActive:   false,
+			IsActive:   0,
 			Image:      fmt.Sprintf("https://%s.s3.%s.amazonaws.com/assets/%s", os.Getenv("AWS_BUCKET"), os.Getenv("AWS_REGION"), "no-image.png"),
 			CreatedAt:  createdAt,
 		})

@@ -33,11 +33,7 @@ var _ = Describe("Product API", func() {
 		// Setup Configuration
 		configuration := config.New("../../.env.test")
 
-		db, err := setup.SuiteSetupMySQL(configuration)
-		if err != nil {
-			panic(err)
-		}
-		router := setup.ModuleSetup(configuration)
+		router, db := setup.ModuleSetup(configuration)
 
 		database = db
 		server = router
@@ -81,13 +77,10 @@ var _ = Describe("Product API", func() {
 	AfterEach(func() {
 		// Setup Configuration
 		configuration := config.New("../../.env.test")
-		db, err := setup.SuiteSetupMySQL(configuration)
-		if err != nil {
-			panic(err)
-		}
+		_, db := setup.ModuleSetup(configuration)
 		defer db.Close()
 
-		err = setup.TearDownTest(db)
+		err := setup.TearDownTest(db)
 		if err != nil {
 			panic(err)
 		}
@@ -382,28 +375,6 @@ var _ = Describe("Product API", func() {
 				Expect(responseBody["data"].(map[string]interface{})["code"]).To(Equal("SK6"))
 				Expect(responseBody["data"].(map[string]interface{})["name"]).To(Equal("Widdy"))
 				Expect(responseBody["data"].(map[string]interface{})["description"]).To(Equal("Test"))
-			})
-		})
-	})
-
-	Describe("Access Product Endpoint", func() {
-		When("the user is not logged in", func() {
-			It("should return error unauthorized response", func() {
-				request := httptest.NewRequest(http.MethodGet, "/api/products", nil)
-				request.Header.Add("Content-Type", "application/json")
-
-				writer := httptest.NewRecorder()
-				server.ServeHTTP(writer, request)
-
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
-				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
-
-				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusUnauthorized))
-				Expect(responseBody["status"]).To(Equal("invalid token"))
-				Expect(responseBody["data"]).To(BeNil())
 			})
 		})
 	})

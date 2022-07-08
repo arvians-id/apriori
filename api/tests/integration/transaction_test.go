@@ -32,11 +32,7 @@ var _ = Describe("Transaction API", func() {
 		// Setup Configuration
 		configuration := config.New("../../.env.test")
 
-		db, err := setup.SuiteSetupMySQL(configuration)
-		if err != nil {
-			panic(err)
-		}
-		router := setup.ModuleSetup(configuration)
+		router, db := setup.ModuleSetup(configuration)
 
 		database = db
 		server = router
@@ -80,13 +76,10 @@ var _ = Describe("Transaction API", func() {
 	AfterEach(func() {
 		// Setup Configuration
 		configuration := config.New("../../.env.test")
-		db, err := setup.SuiteSetupMySQL(configuration)
-		if err != nil {
-			panic(err)
-		}
+		_, db := setup.ModuleSetup(configuration)
 		defer db.Close()
 
-		err = setup.TearDownTest(db)
+		err := setup.TearDownTest(db)
 		if err != nil {
 			panic(err)
 		}

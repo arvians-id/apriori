@@ -13,7 +13,7 @@ func init() {
 
 func main() {
 	configuration := config.New()
-	initialized := route.NewInitializedServer(configuration)
+	initialized, _ := route.NewInitializedServer(configuration)
 
 	// Start App
 	addr := fmt.Sprintf(":%v", configuration.Get("APP_PORT"))

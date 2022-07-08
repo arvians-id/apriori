@@ -10,7 +10,7 @@ type Apriori struct {
 	Support     float64
 	Confidence  float64
 	RangeDate   string
-	IsActive    bool
+	IsActive    int
 	Description *string
 	Image       string
 	CreatedAt   time.Time

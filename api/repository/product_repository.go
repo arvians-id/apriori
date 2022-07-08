@@ -51,7 +51,7 @@ func (repository *productRepository) FindAll(ctx context.Context, tx *sql.Tx) ([
 }
 
 func (repository *productRepository) FindById(ctx context.Context, tx *sql.Tx, productId uint64) (entity.Product, error) {
-	query := "SELECT * FROM products WHERE id_product = ?"
+	query := "SELECT * FROM products WHERE id_product = $1"
 	queryContext, err := tx.QueryContext(ctx, query, productId)
 	if err != nil {
 		return entity.Product{}, err
@@ -77,7 +77,7 @@ func (repository *productRepository) FindById(ctx context.Context, tx *sql.Tx, p
 }
 
 func (repository *productRepository) FindByName(ctx context.Context, tx *sql.Tx, name string) (entity.Product, error) {
-	query := "SELECT * FROM products WHERE name = ?"
+	query := "SELECT * FROM products WHERE name = $1"
 	queryContext, err := tx.QueryContext(ctx, query, name)
 	if err != nil {
 		return entity.Product{}, err
@@ -103,7 +103,7 @@ func (repository *productRepository) FindByName(ctx context.Context, tx *sql.Tx,
 }
 
 func (repository *productRepository) FindByCode(ctx context.Context, tx *sql.Tx, code string) (entity.Product, error) {
-	query := "SELECT * FROM products WHERE code = ?"
+	query := "SELECT * FROM products WHERE code = $1"
 	queryContext, err := tx.QueryContext(ctx, query, code)
 	if err != nil {
 		return entity.Product{}, err
@@ -129,13 +129,10 @@ func (repository *productRepository) FindByCode(ctx context.Context, tx *sql.Tx,
 }
 
 func (repository *productRepository) Create(ctx context.Context, tx *sql.Tx, product entity.Product) (entity.Product, error) {
-	query := "INSERT INTO products (code,name,description,price,image,created_at,updated_at) VALUES(?,?,?,?,?,?,?)"
-	row, err := tx.ExecContext(ctx, query, product.Code, product.Name, product.Description, product.Price, product.Image, product.CreatedAt, product.UpdatedAt)
-	if err != nil {
-		return entity.Product{}, err
-	}
-
-	id, err := row.LastInsertId()
+	id := 0
+	query := "INSERT INTO products (code,name,description,price,image,created_at,updated_at) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING id_product"
+	row := tx.QueryRowContext(ctx, query, product.Code, product.Name, product.Description, product.Price, product.Image, product.CreatedAt, product.UpdatedAt)
+	err := row.Scan(&id)
 	if err != nil {
 		return entity.Product{}, err
 	}
@@ -146,7 +143,7 @@ func (repository *productRepository) Create(ctx context.Context, tx *sql.Tx, pro
 }
 
 func (repository *productRepository) Update(ctx context.Context, tx *sql.Tx, product entity.Product) (entity.Product, error) {
-	query := "UPDATE products SET name = ?, description = ?, price = ?, image = ?, updated_at = ? WHERE code = ?"
+	query := "UPDATE products SET name = $1, description = $2, price = $3, image = $4, updated_at = $5 WHERE code = $6"
 	_, err := tx.ExecContext(ctx, query, product.Name, product.Description, product.Price, product.Image, product.UpdatedAt, product.Code)
 	if err != nil {
 		return entity.Product{}, err
@@ -156,7 +153,7 @@ func (repository *productRepository) Update(ctx context.Context, tx *sql.Tx, pro
 }
 
 func (repository *productRepository) Delete(ctx context.Context, tx *sql.Tx, code string) error {
-	query := "DELETE FROM products WHERE code = ?"
+	query := "DELETE FROM products WHERE code = $1"
 	_, err := tx.ExecContext(ctx, query, code)
 	if err != nil {
 		return err

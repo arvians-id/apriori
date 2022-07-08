@@ -6,13 +6,14 @@ import (
 	"apriori/config"
 	"apriori/repository"
 	"apriori/service"
+	"database/sql"
 	"github.com/gin-gonic/gin"
 )
 
-func NewInitializedServer(configuration config.Config) *gin.Engine {
+func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	// Setup Configuration
 	router := gin.Default()
-	db, err := config.NewMySQL(configuration)
+	db, err := config.NewPostgreSQL(configuration)
 	if err != nil {
 		panic(err)
 	}
@@ -60,5 +61,5 @@ func NewInitializedServer(configuration config.Config) *gin.Engine {
 	transactionController.Route(router)
 	aprioriController.Route(router)
 
-	return router
+	return router, db
 }

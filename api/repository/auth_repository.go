@@ -5,6 +5,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
+
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -20,7 +21,7 @@ func NewAuthRepository() AuthRepository {
 }
 
 func (repository *authRepository) VerifyCredential(ctx context.Context, tx *sql.Tx, email string, password string) (entity.User, error) {
-	query := "SELECT * FROM users WHERE email = ?"
+	query := "SELECT * FROM users WHERE email = $1"
 	rows, err := tx.QueryContext(ctx, query, email)
 	if err != nil {
 		return entity.User{}, err

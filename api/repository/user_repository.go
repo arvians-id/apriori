@@ -51,7 +51,7 @@ func (repository *userRepository) FindAll(ctx context.Context, tx *sql.Tx) ([]en
 }
 
 func (repository *userRepository) FindById(ctx context.Context, tx *sql.Tx, userId uint64) (entity.User, error) {
-	query := "SELECT * FROM users WHERE id_user = ?"
+	query := "SELECT * FROM users WHERE id_user = $1"
 	queryContext, err := tx.QueryContext(ctx, query, userId)
 	if err != nil {
 		return entity.User{}, err
@@ -77,7 +77,7 @@ func (repository *userRepository) FindById(ctx context.Context, tx *sql.Tx, user
 }
 
 func (repository *userRepository) FindByEmail(ctx context.Context, tx *sql.Tx, email string) (entity.User, error) {
-	query := "SELECT * FROM users WHERE email = ?"
+	query := "SELECT * FROM users WHERE email = $1"
 	queryContext, err := tx.QueryContext(ctx, query, email)
 	if err != nil {
 		return entity.User{}, err
@@ -103,13 +103,10 @@ func (repository *userRepository) FindByEmail(ctx context.Context, tx *sql.Tx, e
 }
 
 func (repository *userRepository) Create(ctx context.Context, tx *sql.Tx, user entity.User) (entity.User, error) {
-	query := "INSERT INTO users (name,email,password,created_at,updated_at) VALUES(?,?,?,?,?)"
-	row, err := tx.ExecContext(ctx, query, user.Name, user.Email, user.Password, user.CreatedAt, user.UpdatedAt)
-	if err != nil {
-		return entity.User{}, err
-	}
-
-	id, err := row.LastInsertId()
+	id := 0
+	query := "INSERT INTO users (name,email,password,created_at,updated_at) VALUES($1,$2,$3,$4,$5) RETURNING id_user"
+	row := tx.QueryRowContext(ctx, query, user.Name, user.Email, user.Password, user.CreatedAt, user.UpdatedAt)
+	err := row.Scan(&id)
 	if err != nil {
 		return entity.User{}, err
 	}
@@ -120,7 +117,7 @@ func (repository *userRepository) Create(ctx context.Context, tx *sql.Tx, user e
 }
 
 func (repository *userRepository) Update(ctx context.Context, tx *sql.Tx, user entity.User) (entity.User, error) {
-	query := "UPDATE users SET name = ?, email = ?, password = ?, updated_at = ? WHERE id_user = ?"
+	query := "UPDATE users SET name = $1, email = $2, password = $3, updated_at = $4 WHERE id_user = $5"
 	_, err := tx.ExecContext(ctx, query, user.Name, user.Email, user.Password, user.UpdatedAt, user.IdUser)
 	if err != nil {
 		return entity.User{}, err
@@ -130,7 +127,7 @@ func (repository *userRepository) Update(ctx context.Context, tx *sql.Tx, user e
 }
 
 func (repository *userRepository) UpdatePassword(ctx context.Context, tx *sql.Tx, user entity.User) error {
-	query := "UPDATE users SET password = ?, updated_at = ? WHERE email = ?"
+	query := "UPDATE users SET password = $1, updated_at = $2 WHERE email = $3"
 	_, err := tx.ExecContext(ctx, query, user.Password, user.UpdatedAt, user.Email)
 	if err != nil {
 		return err
@@ -140,7 +137,7 @@ func (repository *userRepository) UpdatePassword(ctx context.Context, tx *sql.Tx
 }
 
 func (repository *userRepository) Delete(ctx context.Context, tx *sql.Tx, userId uint64) error {
-	query := "DELETE FROM users WHERE id_user = ?"
+	query := "DELETE FROM users WHERE id_user = $1"
 	_, err := tx.ExecContext(ctx, query, userId)
 	if err != nil {
 		return err

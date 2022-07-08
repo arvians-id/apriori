@@ -11,7 +11,7 @@ at the same time giving discounts on large datasets using an Apriori Algorithm.
  - Web Frontend : [VueJS](https://vuejs.org/)
  - Validation : [Go-Validator](https://github.com/go-playground/validator)
  - Configuration : [GoDotEnv](https://github.com/joho/godotenv)
- - Database : [MySQL](https://www.mysql.com/)
+ - Database : [PostgreSQL](https://www.postgresql.org/)
  - Authentication : [JWT](https://github.com/dgrijalva/jwt-go)
  - Logging : [Logrus](https://github.com/sirupsen/logrus)
  - Testing : [Ginkgo](https://onsi.github.io/ginkgo/)

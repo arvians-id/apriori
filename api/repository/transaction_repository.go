@@ -27,7 +27,7 @@ func NewTransactionRepository() TransactionRepository {
 }
 
 func (repository *transactionRepository) FindItemSet(ctx context.Context, tx *sql.Tx, startDate string, endDate string) ([]entity.Transaction, error) {
-	query := `SELECT * FROM transactions WHERE DATE(created_at) >= ? AND DATE(created_at) <= ?`
+	query := `SELECT * FROM transactions WHERE DATE(created_at) >= $1 AND DATE(created_at) <= $2`
 
 	rows, err := tx.QueryContext(ctx, query, startDate, endDate)
 	if err != nil {
@@ -100,7 +100,7 @@ func (repository *transactionRepository) FindAll(ctx context.Context, tx *sql.Tx
 }
 
 func (repository *transactionRepository) FindByTransaction(ctx context.Context, tx *sql.Tx, noTransaction string) (entity.Transaction, error) {
-	query := `SELECT * FROM transactions WHERE no_transaction = ? LIMIT 1`
+	query := `SELECT * FROM transactions WHERE no_transaction = $1 LIMIT 1`
 
 	rows, err := tx.QueryContext(ctx, query, noTransaction)
 	if err != nil {
@@ -135,9 +135,9 @@ func (repository *transactionRepository) FindByTransaction(ctx context.Context, 
 }
 
 func (repository *transactionRepository) Create(ctx context.Context, tx *sql.Tx, transaction entity.Transaction) (entity.Transaction, error) {
-	query := "INSERT INTO transactions(product_name,customer_name,no_transaction,created_at,updated_at) VALUES(?,?,?,?,?)"
-
-	row, err := tx.ExecContext(
+	id := 0
+	query := "INSERT INTO transactions(product_name,customer_name,no_transaction,created_at,updated_at) VALUES($1,$2,$3,$4,$5) RETURNING id_transaction"
+	row := tx.QueryRowContext(
 		ctx,
 		query,
 		transaction.ProductName,
@@ -146,11 +146,7 @@ func (repository *transactionRepository) Create(ctx context.Context, tx *sql.Tx,
 		transaction.CreatedAt,
 		transaction.UpdatedAt,
 	)
-	if err != nil {
-		return entity.Transaction{}, err
-	}
-
-	id, err := row.LastInsertId()
+	err := row.Scan(&id)
 	if err != nil {
 		return entity.Transaction{}, err
 	}
@@ -161,30 +157,28 @@ func (repository *transactionRepository) Create(ctx context.Context, tx *sql.Tx,
 }
 
 func (repository *transactionRepository) CreateFromCsv(ctx context.Context, tx *sql.Tx, transactions []entity.Transaction) error {
-	query := `INSERT INTO transactions(product_name,customer_name,no_transaction,created_at,updated_at) VALUES `
-	var values []interface{}
-
-	for _, row := range transactions {
-		productName := strings.ToLower(row.ProductName)
-		query += "(?,?,?,?,?),"
-		values = append(values, productName, row.CustomerName, row.NoTransaction, row.CreatedAt, row.UpdatedAt)
-	}
-
-	query = query[0 : len(query)-1]
-	txNext, _ := tx.PrepareContext(ctx, query)
-	_, err := txNext.ExecContext(
-		ctx,
-		values...,
-	)
-	if err != nil {
-		return err
+	for _, transaction := range transactions {
+		query := `INSERT INTO transactions(product_name,customer_name,no_transaction,created_at,updated_at) VALUES ($1,$2,$3,$4,$5)`
+		productName := strings.ToLower(transaction.ProductName)
+		_, err := tx.ExecContext(
+			ctx,
+			query,
+			productName,
+			transaction.CustomerName,
+			transaction.NoTransaction,
+			transaction.CreatedAt,
+			transaction.UpdatedAt,
+		)
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil
 }
 
 func (repository *transactionRepository) Update(ctx context.Context, tx *sql.Tx, transaction entity.Transaction) (entity.Transaction, error) {
-	query := `UPDATE transactions SET product_name = ?, customer_name = ?, updated_at = ? WHERE no_transaction = ?`
+	query := `UPDATE transactions SET product_name = $1, customer_name = $2, updated_at = $3 WHERE no_transaction = $4`
 
 	_, err := tx.ExecContext(
 		ctx,
@@ -202,7 +196,7 @@ func (repository *transactionRepository) Update(ctx context.Context, tx *sql.Tx,
 }
 
 func (repository *transactionRepository) Delete(ctx context.Context, tx *sql.Tx, noTransaction string) error {
-	query := "DELETE FROM transactions WHERE no_transaction = ?"
+	query := "DELETE FROM transactions WHERE no_transaction = $1"
 
 	_, err := tx.ExecContext(ctx, query, noTransaction)
 	if err != nil {
