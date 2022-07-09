@@ -1,7 +1,6 @@
 package config
 
 import (
-	"github.com/joho/godotenv"
 	log "github.com/sirupsen/logrus"
 	"os"
 )
@@ -24,9 +23,9 @@ func (config *configImpl) Get(key string) string {
 }
 
 func New(filenames ...string) Config {
-	err := godotenv.Load(filenames...)
-	if err != nil {
-		panic(err)
-	}
+	//err := godotenv.Load(filenames...)
+	//if err != nil {
+	//	panic(err)
+	//}
 	return &configImpl{}
 }

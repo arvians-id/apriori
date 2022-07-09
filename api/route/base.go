@@ -44,12 +44,6 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	transactionController := controller.NewTransactionController(&transactionService, &storageService)
 	aprioriController := controller.NewAprioriController(aprioriService, &storageService)
 
-	// Setup Proxies
-	err = router.SetTrustedProxies([]string{configuration.Get("APP_URL")})
-	if err != nil {
-		panic(err)
-	}
-
 	// CORS Middleware
 	router.Use(middleware.SetupCorsMiddleware())
 
