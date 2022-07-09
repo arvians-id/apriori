@@ -8,7 +8,6 @@ import (
 	"context"
 	"database/sql"
 	"strings"
-	"sync"
 	"time"
 )
 
@@ -181,10 +180,6 @@ func (service *productService) Update(ctx context.Context, request model.UpdateP
 	getProduct.Price = request.Price
 	getProduct.UpdatedAt = updatedAt
 	if request.Image != "" {
-		err := service.StorageService.DeleteFileS3(getProduct.Image)
-		if err != nil {
-			return model.GetProductResponse{}, err
-		}
 		getProduct.Image = request.Image
 	}
 
@@ -206,17 +201,6 @@ func (service *productService) Delete(ctx context.Context, code string) error {
 	getProduct, err := service.ProductRepository.FindByCode(ctx, tx, code)
 	if err != nil {
 		return err
-	}
-
-	headerFileName := strings.Split(getProduct.Image, "/")
-	oldFileName := headerFileName[len(headerFileName)-1]
-	if oldFileName != "no-image.png" {
-		var wg sync.WaitGroup
-		err = service.StorageService.WaitDeleteFileS3(oldFileName, &wg)
-		if err != nil {
-			return err
-		}
-		wg.Done()
 	}
 
 	err = service.ProductRepository.Delete(ctx, tx, getProduct.Code)

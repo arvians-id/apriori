@@ -152,10 +152,6 @@ func (service *aprioriService) UpdateApriori(ctx context.Context, request model.
 
 	image := rows.Image
 	if request.Image != "" {
-		err := service.StorageService.DeleteFileS3(rows.Image)
-		if err != nil {
-			return model.GetAprioriResponse{}, err
-		}
 		image = request.Image
 	}
 

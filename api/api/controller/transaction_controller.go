@@ -102,12 +102,6 @@ func (controller *TransactionController) CreateFromCsv(c *gin.Context) {
 		return
 	}
 
-	err = controller.StorageService.DeleteFileS3(pathName)
-	if err != nil {
-		response.ReturnErrorInternalServerError(c, err, nil)
-		return
-	}
-
 	response.ReturnSuccessOK(c, "created", nil)
 }
 

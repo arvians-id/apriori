@@ -9,6 +9,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io"
 	"strings"
 	"time"
@@ -47,7 +48,7 @@ var _ = Describe("Auth API", func() {
 
 		err := setup.TearDownTest(db)
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 	})
 

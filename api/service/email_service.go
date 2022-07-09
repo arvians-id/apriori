@@ -1,6 +1,7 @@
 package service
 
 import (
+	log "github.com/sirupsen/logrus"
 	"gopkg.in/gomail.v2"
 	"os"
 	"strconv"
@@ -27,7 +28,7 @@ func (service *emailService) SendEmailWithText(toEmail string, message string) e
 
 		port, err := strconv.Atoi(os.Getenv("MAIL_PORT"))
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 		dialer := gomail.NewDialer(
 			os.Getenv("MAIL_HOST"),
@@ -38,7 +39,7 @@ func (service *emailService) SendEmailWithText(toEmail string, message string) e
 
 		err = dialer.DialAndSend(mailer)
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 	}()
 

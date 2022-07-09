@@ -8,6 +8,7 @@ import (
 	"apriori/service"
 	"database/sql"
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 )
 
 func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
@@ -15,7 +16,7 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	router := gin.Default()
 	db, err := config.NewPostgreSQL(configuration)
 	if err != nil {
-		panic(err)
+		log.Fatal(err)
 	}
 
 	// Setup Repository

@@ -149,8 +149,10 @@ export default {
           : (this.carts = []);
 
       axios.get(`${process.env.VUE_APP_SERVICE_URL}/products`).then((response) => {
-        this.totalData = response.data.data.length;
-        this.products = response.data.data.slice(0, this.limitData);
+        if(response.data.data != null) {
+          this.totalData = response.data.data.length;
+          this.products = response.data.data.slice(0, this.limitData);
+        }
       });
 
       if(this.carts.length > 0){

@@ -9,6 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/gin-gonic/gin"
+	log "github.com/sirupsen/logrus"
 	"mime/multipart"
 	"strings"
 	"sync"
@@ -18,8 +19,8 @@ type StorageService interface {
 	UploadFile(c *gin.Context, image *multipart.FileHeader) (chan string, error)
 	UploadFileS3(file multipart.File, header *multipart.FileHeader) (string, error)
 	WaitUploadFileS3(file multipart.File, header *multipart.FileHeader, wg *sync.WaitGroup) (string, error)
-	DeleteFileS3(fileName string) error
-	WaitDeleteFileS3(fileName string, wg *sync.WaitGroup) error
+	//DeleteFileS3(fileName string) error
+	//WaitDeleteFileS3(fileName string, wg *sync.WaitGroup) error
 }
 
 type storageService struct {
@@ -60,11 +61,11 @@ func (service *storageService) UploadFile(c *gin.Context, image *multipart.FileH
 
 		path, err := utils.GetPath("/assets/", newFileNames)
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 		err = c.SaveUploadedFile(image, path)
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 		newFileName <- newFileNames
 	}()
@@ -80,7 +81,7 @@ func (service *storageService) WaitUploadFileS3(file multipart.File, header *mul
 
 		sess, err := service.ConnectToAWS()
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 		headerFileName := strings.Split(header.Filename, ".")
 		fileNames := utils.RandomString(10) + "." + headerFileName[len(headerFileName)-1]
@@ -97,7 +98,7 @@ func (service *storageService) WaitUploadFileS3(file multipart.File, header *mul
 		})
 
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 	}()
 
@@ -110,7 +111,7 @@ func (service *storageService) UploadFileS3(file multipart.File, header *multipa
 	go func() {
 		sess, err := service.ConnectToAWS()
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 		headerFileName := strings.Split(header.Filename, ".")
 		fileNames := utils.RandomString(10) + "." + headerFileName[len(headerFileName)-1]
@@ -127,7 +128,7 @@ func (service *storageService) UploadFileS3(file multipart.File, header *multipa
 		})
 
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 	}()
 
@@ -135,52 +136,52 @@ func (service *storageService) UploadFileS3(file multipart.File, header *multipa
 	return filePath, nil
 }
 
-func (service *storageService) DeleteFileS3(fileName string) error {
-	headerFileName := strings.Split(fileName, "/")
-	oldFileName := headerFileName[len(headerFileName)-1]
-	if oldFileName == "no-image.png" {
-		return nil
-	}
-
-	go func() {
-		sess, err := service.ConnectToAWS()
-		if err != nil {
-			panic(err)
-		}
-
-		svc := s3.New(sess)
-
-		_, err = svc.DeleteObject(&s3.DeleteObjectInput{
-			Bucket: aws.String(service.MyBucket),
-			Key:    aws.String(oldFileName),
-		})
-		if err != nil {
-			panic(err)
-		}
-	}()
-
-	return nil
-}
-
-func (service *storageService) WaitDeleteFileS3(oldFileName string, wg *sync.WaitGroup) error {
-	wg.Add(1)
-	go func() {
-		defer wg.Done()
-		sess, err := service.ConnectToAWS()
-		if err != nil {
-			panic(err)
-		}
-
-		svc := s3.New(sess)
-
-		_, err = svc.DeleteObject(&s3.DeleteObjectInput{
-			Bucket: aws.String(service.MyBucket),
-			Key:    aws.String(oldFileName),
-		})
-		if err != nil {
-			panic(err)
-		}
-	}()
-
-	return nil
-}
+//func (service *storageService) DeleteFileS3(fileName string) error {
+//	headerFileName := strings.Split(fileName, "/")
+//	oldFileName := headerFileName[len(headerFileName)-1]
+//	if oldFileName == "no-image.png" {
+//		return nil
+//	}
+//
+//	go func() {
+//		sess, err := service.ConnectToAWS()
+//		if err != nil {
+//			log.Fatal(err)
+//		}
+//
+//		svc := s3.New(sess)
+//
+//		_, err = svc.DeleteObject(&s3.DeleteObjectInput{
+//			Bucket: aws.String(service.MyBucket),
+//			Key:    aws.String(oldFileName),
+//		})
+//		if err != nil {
+//			log.Fatal(err)
+//		}
+//	}()
+//
+//	return nil
+//}
+//
+//func (service *storageService) WaitDeleteFileS3(oldFileName string, wg *sync.WaitGroup) error {
+//	wg.Add(1)
+//	go func() {
+//		defer wg.Done()
+//		sess, err := service.ConnectToAWS()
+//		if err != nil {
+//			log.Fatal(err)
+//		}
+//
+//		svc := s3.New(sess)
+//
+//		_, err = svc.DeleteObject(&s3.DeleteObjectInput{
+//			Bucket: aws.String(service.MyBucket),
+//			Key:    aws.String(oldFileName),
+//		})
+//		if err != nil {
+//			log.Fatal(err)
+//		}
+//	}()
+//
+//	return nil
+//}

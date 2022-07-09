@@ -67,7 +67,7 @@
                       <div class="col">
                       </div>
                       <div class="col-auto">
-                        <table class="table">
+                        <table class="table table-responsive">
                           <tr>
                             <td>Total keseluruhan item</td>
                             <td>:</td>

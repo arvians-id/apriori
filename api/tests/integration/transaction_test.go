@@ -9,6 +9,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	log "github.com/sirupsen/logrus"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -81,7 +82,7 @@ var _ = Describe("Transaction API", func() {
 
 		err := setup.TearDownTest(db)
 		if err != nil {
-			panic(err)
+			log.Fatal(err)
 		}
 	})
 

@@ -35,19 +35,19 @@ func NewMySQL(configuration Config) (*sql.DB, error) {
 	// Limit connection with db pooling
 	setMaxIdleConns, err := strconv.Atoi(configuration.Get("DATABASE_POOL_MIN"))
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	setMaxOpenConns, err := strconv.Atoi(configuration.Get("DATABASE_POOL_MAX"))
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	setConnMaxIdleTime, err := strconv.Atoi(configuration.Get("DATABASE_MAX_IDLE_TIME_SECOND"))
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	setConnMaxLifetime, err := strconv.Atoi(configuration.Get("DATABASE_MAX_LIFE_TIME_SECOND"))
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	db.SetMaxIdleConns(setMaxIdleConns)                                    // minimal connection
@@ -80,19 +80,19 @@ func NewPostgreSQL(configuration Config) (*sql.DB, error) {
 	// Limit connection with db pooling
 	setMaxIdleConns, err := strconv.Atoi(configuration.Get("DATABASE_POOL_MIN"))
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	setMaxOpenConns, err := strconv.Atoi(configuration.Get("DATABASE_POOL_MAX"))
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	setConnMaxIdleTime, err := strconv.Atoi(configuration.Get("DATABASE_MAX_IDLE_TIME_SECOND"))
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 	setConnMaxLifetime, err := strconv.Atoi(configuration.Get("DATABASE_MAX_LIFE_TIME_SECOND"))
 	if err != nil {
-		panic(err)
+		return nil, err
 	}
 
 	db.SetMaxIdleConns(setMaxIdleConns)                                    // minimal connection
