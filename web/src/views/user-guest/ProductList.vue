@@ -135,6 +135,7 @@ export default {
   mounted() {
     this.fetchData()
     this.fetchDataRecommendation()
+    document.getElementsByTagName("body")[0].classList.remove("bg-default");
   },
   data: function () {
     return {

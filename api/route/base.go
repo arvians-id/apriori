@@ -37,6 +37,7 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	productService := service.NewProductService(&productRepository, storageService, &aprioriRepository, db)
 	transactionService := service.NewTransactionService(&transactionRepository, &productRepository, db)
 	aprioriService := service.NewAprioriService(&transactionRepository, storageService, &productRepository, &aprioriRepository, db)
+	paymentService := service.NewPaymentService(configuration)
 
 	// Setup Controller
 	userController := controller.NewUserController(&userService)
@@ -44,6 +45,7 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	productController := controller.NewProductController(&productService, &storageService)
 	transactionController := controller.NewTransactionController(&transactionService, &storageService)
 	aprioriController := controller.NewAprioriController(aprioriService, &storageService)
+	paymentController := controller.NewPaymentController(&paymentService, emailService)
 
 	// CORS Middleware
 	router.Use(middleware.SetupCorsMiddleware())
@@ -54,6 +56,8 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 			"message": "Welcome to Apriori Algorithm API. Created By https://github.com/arvians-id",
 		})
 	})
+
+	paymentController.Route(router)
 
 	// X API KEY Middleware
 	router.Use(middleware.SetupXApiKeyMiddleware())

@@ -93,7 +93,7 @@
                             <td></td>
                             <td>
                               <a href="javascript:void(0);" @click="clearCart" class="btn btn-danger btn-sm">Bersihkan keranjang</a>
-                              <a :href="send(carts, totalPrice)" class="btn btn-primary btn-sm">Pesan Sekarang</a>
+                              <button @click="send" class="btn btn-primary btn-sm">Pesan Sekarang</button>
                             </td>
                           </tr>
                         </table>
@@ -138,6 +138,7 @@ import Sidebar from "@/components/guest/Sidebar.vue"
 import Topbar from "@/components/guest/Topbar.vue"
 import Header from "@/components/guest/Header.vue"
 import Footer from "@/components/guest/Footer.vue"
+import axios from "axios";
 
 export default {
   components: {
@@ -150,11 +151,13 @@ export default {
     return {
       carts: [],
       totalPrice: 0,
-      totalCart: 0,
+      totalCart: 0
     }
   },
   mounted() {
     this.fetchData()
+    this.loadScript()
+    document.getElementsByTagName("body")[0].classList.remove("bg-default");
   },
   methods: {
     fetchData() {
@@ -171,6 +174,22 @@ export default {
           return total + item.quantity
         }, 0)
       }
+    },
+    loadScript(){
+      let midtransJs = "https://api.sandbox.midtrans.com/v2/assets/js/midtrans.min.js"
+      let tagMidtransJs = document.createElement("script");
+      tagMidtransJs.setAttribute("src", midtransJs);
+      document.head.appendChild(tagMidtransJs);
+
+      axios.get(`${process.env.VUE_APP_SERVICE_URL}/pay`).then(response => {
+        let snapJs = "https://app.sandbox.midtrans.com/snap/snap.js"
+        let tagSnapJs = document.createElement("script");
+        tagSnapJs.setAttribute("src", snapJs);
+        tagSnapJs.setAttribute("data-client-key", response.data.data.clientKey);
+        document.head.appendChild(tagSnapJs);
+      }).catch(error => {
+        console.log(error)
+      })
     },
     getImage(image) {
       return image;
@@ -214,9 +233,22 @@ export default {
       this.totalPrice -= productItem.price
       localStorage.setItem('my-carts', JSON.stringify(this.carts));
     },
-    send(item, totalPrice) {
-      let text = `Hallo saya ingin memesan produk-produk berikut : %0a${item.map(item => `${item.name} - ${item.quantity} x`).join('%0a')} %0aTotal harga : Rp ${this.numberWithCommas(totalPrice)}`;
-      return `whatsapp://send/?phone=${process.env.VUE_APP_PHONE_NUMBER}&text=${text}`
+    send() {
+      axios.get(`${process.env.VUE_APP_SERVICE_URL}/pay`).then(response => {
+        window.snap.pay(response.data.data.token, {
+          onSuccess: function(result) {
+            console.log(result)
+          },
+          onPending: function(result) {
+            console.log(result)
+          },
+          onError: function(result) {
+            console.log(result)
+          }
+        })
+      }).catch(error => {
+         console.log(error)
+      })
     },
     clearCart() {
       if(confirm("Apakah anda yakin ingin menghapus semua keranjang belanjaan?")){

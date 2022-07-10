@@ -65,6 +65,9 @@ export default {
       }
     }
   },
+  mounted() {
+    document.getElementsByTagName("body")[0].classList.add("bg-default");
+  },
   methods: {
     submit() {
       axios.post(`${process.env.VUE_APP_SERVICE_URL}/auth/verify?signature=${this.$route.query.signature}`, this.user,{ headers: authHeader() })

@@ -281,8 +281,9 @@ export default {
     Header,
     Topbar
   },
-  created() {
+  mounted() {
     this.fetchData()
+    document.getElementsByTagName("body")[0].classList.remove("bg-default");
   },
   data: function () {
     return {
