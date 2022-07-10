@@ -25,19 +25,19 @@ const router = createRouter({
 });
 
 router.beforeEach( async (to) => {
-  if (Object.keys(authHeader()).length === 0 && to.name.split(".")[0] !== "auth" && to.name.split(".")[0] !== "guest") {
+  if (authHeader()["Authorization"] === undefined && to.name.split(".")[0] !== "auth" && to.name.split(".")[0] !== "guest") {
       return {name: 'auth.login'}
-  } else if (Object.keys(authHeader()).length > 0 && to.name.split(".")[0] === "auth") {
+  } else if (authHeader()["Authorization"] && to.name.split(".")[0] === "auth") {
       return { name: 'admin' }
   }
 
-  if (to.name.split(".")[0] !== "auth" && Object.keys(authHeader()).length > 0) {
+  if (to.name.split(".")[0] !== "auth" && authHeader()["Authorization"]) {
         axios.get(`${process.env.VUE_APP_SERVICE_URL}/auth/token`, { headers: authHeader() })
             .catch(() => {
                 let refreshToken = {
                     refresh_token: localStorage.getItem("refresh-token")
                 }
-                axios.post(`${process.env.VUE_APP_SERVICE_URL}/auth/refresh`,refreshToken)
+                axios.post(`${process.env.VUE_APP_SERVICE_URL}/auth/refresh`,refreshToken,{ headers: authHeader() })
                     .then(response => {
                         let token = response.data.data.access_token
                         let refreshToken = response.data.data.refresh_token

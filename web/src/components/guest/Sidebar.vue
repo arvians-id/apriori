@@ -91,7 +91,7 @@ export default {
   },
   methods: {
     checkLogin() {
-      if(Object.keys(authHeader()).length > 0) {
+      if(authHeader()["Authorization"]) {
         this.isLoggedIn = true
       }
     },
@@ -105,7 +105,7 @@ export default {
       return classString;
     },
     submit() {
-      axios.delete(`${process.env.VUE_APP_SERVICE_URL}/auth/logout`)
+      axios.delete(`${process.env.VUE_APP_SERVICE_URL}/auth/logout`,{ headers: authHeader() })
           .then(response => {
             if(response.data.code === 200) {
               localStorage.removeItem("token")

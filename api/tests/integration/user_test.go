@@ -9,13 +9,14 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
 	"strings"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	gin "github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
@@ -31,10 +32,10 @@ var _ = Describe("User API", func() {
 	var tokenJWT string
 	var row entity.User
 	var cookie *http.Cookie
+	configuration := config.New("../../.env.test")
 
 	BeforeEach(func() {
 		// Setup Configuration
-		configuration := config.New("../../.env.test")
 
 		router, db := setup.ModuleSetup(configuration)
 
@@ -59,6 +60,7 @@ var _ = Describe("User API", func() {
 		requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
 		request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
 		request.Header.Add("Content-Type", "application/json")
+		request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
 		writer := httptest.NewRecorder()
 		server.ServeHTTP(writer, request)
@@ -81,7 +83,6 @@ var _ = Describe("User API", func() {
 
 	AfterEach(func() {
 		// Setup Configuration
-		configuration := config.New("../../.env.test")
 		_, db := setup.ModuleSetup(configuration)
 		defer db.Close()
 
@@ -99,6 +100,7 @@ var _ = Describe("User API", func() {
 					requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password": "Rahasia123"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/users", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
@@ -121,6 +123,7 @@ var _ = Describe("User API", func() {
 					requestBody := strings.NewReader(`{"name":"asdasdsdsasdsfsdsassssssssssd", "email": "widdy@gmail.com","password": "Rahasia123"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/users", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
@@ -145,6 +148,7 @@ var _ = Describe("User API", func() {
 					requestBody := strings.NewReader(`{"name": "Widdy","password": "Rahasia123"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/users", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
@@ -167,6 +171,7 @@ var _ = Describe("User API", func() {
 					requestBody := strings.NewReader(`{"name": "Widdy","email": "Widdys","password": "Rahasia123"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/users", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
@@ -189,6 +194,7 @@ var _ = Describe("User API", func() {
 				//	requestBody := strings.NewReader(`{"name": "Widdy","email": "widdy@gmail.com","password": "Rahasia123"}`)
 				//	request := httptest.NewRequest(http.MethodPost, "/api/users", requestBody)
 				//	request.Header.Add("Content-Type", "application/json")
+				//  request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				//	request.AddCookie(cookie)
 				//	request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 				//
@@ -199,6 +205,7 @@ var _ = Describe("User API", func() {
 				//	requestBody = strings.NewReader(`{"name": "Widdy","email": "widdy@gmail.com","password": "Rahasia123"}`)
 				//	request = httptest.NewRequest(http.MethodPost, "/api/users", requestBody)
 				//	request.Header.Add("Content-Type", "application/json")
+				//  request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				//	request.AddCookie(cookie)
 				//	request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 				//
@@ -220,6 +227,7 @@ var _ = Describe("User API", func() {
 					requestBody := strings.NewReader(`{"name":"wids","email": "sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssddddddddddddddddddddddddddddddddddddddd@gmail.com","password": "Rahasia123"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/users", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
@@ -244,6 +252,7 @@ var _ = Describe("User API", func() {
 					requestBody := strings.NewReader(`{"name": "Widdy","email": "widdy@gmail.com"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/users", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
@@ -266,6 +275,7 @@ var _ = Describe("User API", func() {
 					requestBody := strings.NewReader(`{"name": "Widdy","email": "widdy@gmail.com","password": "as"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/users", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
@@ -291,6 +301,7 @@ var _ = Describe("User API", func() {
 				requestBody := strings.NewReader(`{"name": "Agung","email": "agung@gmail.com","password": "Rahasia123"}`)
 				request := httptest.NewRequest(http.MethodPost, "/api/users", requestBody)
 				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
 				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
@@ -318,6 +329,7 @@ var _ = Describe("User API", func() {
 				requestBody := strings.NewReader(`{"name": "SiGanteng","email": "ganteng@gmail.com","password":"Widdy123"}`)
 				request := httptest.NewRequest(http.MethodPatch, "/api/users/23", requestBody)
 				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
 				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
@@ -343,6 +355,7 @@ var _ = Describe("User API", func() {
 					requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password": "Rahasia123"}`)
 					request := httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(int(row.IdUser)), requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
@@ -365,6 +378,7 @@ var _ = Describe("User API", func() {
 					requestBody := strings.NewReader(`{"name":"asdasdsdsasdsfsdsassssssssssd", "email": "widdy@gmail.com","password": "Rahasia123"}`)
 					request := httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(int(row.IdUser)), requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
@@ -389,6 +403,7 @@ var _ = Describe("User API", func() {
 					requestBody := strings.NewReader(`{"name": "Widdy","password": "Rahasia123"}`)
 					request := httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(int(row.IdUser)), requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
@@ -411,6 +426,7 @@ var _ = Describe("User API", func() {
 					requestBody := strings.NewReader(`{"name": "Widdy","email": "Widdys","password": "Rahasia123"}`)
 					request := httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(int(row.IdUser)), requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
@@ -433,6 +449,7 @@ var _ = Describe("User API", func() {
 					requestBody := strings.NewReader(`{"name":"wids","email": "sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssddddddddddddddddddddddddddddddddddddddd@gmail.com","password": "Rahasia123"}`)
 					request := httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(int(row.IdUser)), requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
@@ -457,6 +474,7 @@ var _ = Describe("User API", func() {
 					requestBody := strings.NewReader(`{"name": "Widdy","email": "widdy@gmail.com","password": "as"}`)
 					request := httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(int(row.IdUser)), requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
@@ -483,6 +501,7 @@ var _ = Describe("User API", func() {
 					requestBody := strings.NewReader(`{"name": "SiGanteng","email": "ganteng@gmail.com"}`)
 					request := httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(int(row.IdUser)), requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
@@ -508,6 +527,7 @@ var _ = Describe("User API", func() {
 					requestBody := strings.NewReader(`{"name": "SiGanteng","email": "ganteng@gmail.com","password":"Widdy123"}`)
 					request := httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(int(row.IdUser)), requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
@@ -535,6 +555,7 @@ var _ = Describe("User API", func() {
 				// Delete User
 				request := httptest.NewRequest(http.MethodDelete, "/api/users/23", nil)
 				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
 				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
@@ -558,6 +579,7 @@ var _ = Describe("User API", func() {
 				// Update User
 				request := httptest.NewRequest(http.MethodDelete, "/api/users/"+strconv.Itoa(int(row.IdUser)), nil)
 				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
 				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
@@ -583,6 +605,7 @@ var _ = Describe("User API", func() {
 				// Delete User
 				request := httptest.NewRequest(http.MethodDelete, "/api/users/"+strconv.Itoa(int(row.IdUser)), nil)
 				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
 				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
@@ -592,6 +615,7 @@ var _ = Describe("User API", func() {
 				// Find All User
 				request = httptest.NewRequest(http.MethodGet, "/api/users", nil)
 				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
 				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
@@ -634,6 +658,7 @@ var _ = Describe("User API", func() {
 				// Find All User
 				request := httptest.NewRequest(http.MethodGet, "/api/users", nil)
 				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
 				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
@@ -670,6 +695,7 @@ var _ = Describe("User API", func() {
 				// Find By Id User
 				request := httptest.NewRequest(http.MethodGet, "/api/users/5", nil)
 				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
 				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
@@ -692,6 +718,7 @@ var _ = Describe("User API", func() {
 				// Find By Id User
 				request := httptest.NewRequest(http.MethodGet, "/api/users/"+strconv.Itoa(int(row.IdUser)), nil)
 				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
 				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
@@ -718,6 +745,7 @@ var _ = Describe("User API", func() {
 				// Find By Id User
 				request := httptest.NewRequest(http.MethodGet, "/api/profile", nil)
 				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
 				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
@@ -743,6 +771,7 @@ var _ = Describe("User API", func() {
 			It("should return error unauthorized response", func() {
 				request := httptest.NewRequest(http.MethodGet, "/api/users", nil)
 				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)

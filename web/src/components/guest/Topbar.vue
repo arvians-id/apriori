@@ -138,7 +138,7 @@ export default {
   },
   methods: {
     checkLogin() {
-      if(Object.keys(authHeader()).length > 0) {
+      if(authHeader()["Authorization"]) {
         this.isLoggedIn = true
       }
     },

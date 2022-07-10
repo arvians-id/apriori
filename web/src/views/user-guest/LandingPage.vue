@@ -273,6 +273,7 @@ import Sidebar from "@/components/guest/Sidebar.vue"
 import Topbar from "@/components/guest/Topbar.vue"
 import Header from "@/components/guest/Header.vue"
 import axios from "axios";
+import authHeader from "@/service/auth-header";
 
 export default {
   components: {
@@ -296,7 +297,7 @@ export default {
           ? (this.carts = JSON.parse(localStorage.getItem("my-carts")))
           : (this.carts = []);
 
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/apriori/actives`).then((response) => {
+      axios.get(`${process.env.VUE_APP_SERVICE_URL}/apriori/actives`,{ headers: authHeader() }).then((response) => {
         this.apriories = response.data.data.slice(0,3);
       });
 

@@ -9,10 +9,11 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"io"
 	"strings"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	gin "github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"
@@ -29,23 +30,17 @@ var _ = Describe("Auth API", func() {
 
 	var server *gin.Engine
 	var database *sql.DB
+	configuration := config.New("../../.env.test")
 
 	BeforeEach(func() {
-		// Setup Configuration
-		configuration := config.New("../../.env.test")
-
 		router, db := setup.ModuleSetup(configuration)
-
 		database = db
 		server = router
 	})
 
 	AfterEach(func() {
-		// Setup Configuration
-		configuration := config.New("../../.env.test")
 		_, db := setup.ModuleSetup(configuration)
 		defer db.Close()
-
 		err := setup.TearDownTest(db)
 		if err != nil {
 			log.Fatal(err)
@@ -59,6 +54,7 @@ var _ = Describe("Auth API", func() {
 					requestBody := strings.NewReader(`{"password":"Rahasia123"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
@@ -77,6 +73,7 @@ var _ = Describe("Auth API", func() {
 					requestBody := strings.NewReader(`{"email":"Widdys","password":"Rahasia123"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
@@ -97,6 +94,7 @@ var _ = Describe("Auth API", func() {
 					requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
@@ -117,6 +115,7 @@ var _ = Describe("Auth API", func() {
 					requestBody := strings.NewReader(`{"email": "widdy@gmail.com"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
@@ -151,6 +150,7 @@ var _ = Describe("Auth API", func() {
 					requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Raha123"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
@@ -187,6 +187,7 @@ var _ = Describe("Auth API", func() {
 				requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
 				request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
 				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
@@ -211,6 +212,7 @@ var _ = Describe("Auth API", func() {
 				requestBody := strings.NewReader(`{"refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoxLCJleHAiOjE2NTM5MjI1MTJ9.6xJ4ZQdem4ZoWPBuZctJTMKNOkqE93Ea0ncKovpqN44"}`)
 				request := httptest.NewRequest(http.MethodPost, "/api/auth/refresh", requestBody)
 				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
@@ -244,6 +246,7 @@ var _ = Describe("Auth API", func() {
 				requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
 				request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
 				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
@@ -260,6 +263,7 @@ var _ = Describe("Auth API", func() {
 				requestBody = strings.NewReader(sign)
 				request = httptest.NewRequest(http.MethodPost, "/api/auth/refresh", requestBody)
 				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
 				writer = httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
@@ -297,6 +301,7 @@ var _ = Describe("Auth API", func() {
 				requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
 				request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
 				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
@@ -309,6 +314,7 @@ var _ = Describe("Auth API", func() {
 				// Logout
 				request = httptest.NewRequest(http.MethodDelete, "/api/auth/logout", nil)
 				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
 				writer = httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
@@ -335,6 +341,7 @@ var _ = Describe("Auth API", func() {
 				requestBody := strings.NewReader(`{}`)
 				request := httptest.NewRequest(http.MethodPost, "/api/auth/forgot-password", requestBody)
 				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
@@ -354,6 +361,7 @@ var _ = Describe("Auth API", func() {
 				requestBody := strings.NewReader(`{"email": "Widdys"}`)
 				request := httptest.NewRequest(http.MethodPost, "/api/auth/forgot-password", requestBody)
 				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
@@ -389,6 +397,7 @@ var _ = Describe("Auth API", func() {
 				requestBody := strings.NewReader(`{"email": "widdy@gmail.com"}`)
 				request := httptest.NewRequest(http.MethodPost, "/api/auth/forgot-password", requestBody)
 				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
@@ -413,6 +422,7 @@ var _ = Describe("Auth API", func() {
 					requestBody := strings.NewReader(`{"password": "Widdy123"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/auth/verify", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
@@ -432,6 +442,7 @@ var _ = Describe("Auth API", func() {
 					requestBody := strings.NewReader(`{"email": "widdyarfiansyah","password": "Widdy123"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/auth/verify", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
@@ -453,6 +464,7 @@ var _ = Describe("Auth API", func() {
 					requestBody := strings.NewReader(`{"email": "widdyarfiansyah@ummi.ac.id"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/auth/verify", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
@@ -472,6 +484,7 @@ var _ = Describe("Auth API", func() {
 					requestBody := strings.NewReader(`{"email": "widdyarfiansyah@ummi.ac.id","password": "Wi"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/auth/verify", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
@@ -494,6 +507,7 @@ var _ = Describe("Auth API", func() {
 					requestBody := strings.NewReader(`{"name": "Widdy","email": "widdy@gmail.com","password": "Rahasia123"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/auth/verify", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
@@ -502,6 +516,7 @@ var _ = Describe("Auth API", func() {
 					requestBody = strings.NewReader(`{"email": "widdy@gmail.com"}`)
 					request = httptest.NewRequest(http.MethodPost, "/api/auth/forgot-password", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
 					writer = httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
@@ -510,6 +525,7 @@ var _ = Describe("Auth API", func() {
 					requestBody = strings.NewReader(`{"email": "widdy@gmail.com","password": "Widdy123"}`)
 					request = httptest.NewRequest(http.MethodPost, "/api/auth/verify?signature=asdsa23sda", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
 					writer = httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
@@ -546,6 +562,7 @@ var _ = Describe("Auth API", func() {
 				requestBody := strings.NewReader(`{"email": "widdy@gmail.com"}`)
 				request := httptest.NewRequest(http.MethodPost, "/api/auth/forgot-password", requestBody)
 				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
@@ -560,6 +577,7 @@ var _ = Describe("Auth API", func() {
 				requestBody = strings.NewReader(`{"email": "widdy@gmail.com","password": "Widdy123"}`)
 				request = httptest.NewRequest(http.MethodPost, "/api/auth/verify?signature="+signature, requestBody)
 				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
 				writer = httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
@@ -582,6 +600,7 @@ var _ = Describe("Auth API", func() {
 					requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password": "Rahasia123"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/auth/register", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
@@ -601,6 +620,7 @@ var _ = Describe("Auth API", func() {
 					requestBody := strings.NewReader(`{"name":"asdasdsdsasdsfsdsassssssssssd", "email": "widdy@gmail.com","password": "Rahasia123"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/auth/register", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
@@ -622,6 +642,7 @@ var _ = Describe("Auth API", func() {
 					requestBody := strings.NewReader(`{"name": "Widdy","password": "Rahasia123"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/auth/register", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
@@ -641,6 +662,7 @@ var _ = Describe("Auth API", func() {
 					requestBody := strings.NewReader(`{"name": "Widdy","email": "Widdys","password": "Rahasia123"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/auth/register", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
@@ -661,6 +683,7 @@ var _ = Describe("Auth API", func() {
 				//	requestBody := strings.NewReader(`{"name": "Widdy","email": "widdy@gmail.com","password": "Rahasia123"}`)
 				//	request := httptest.NewRequest(http.MethodPost, "/api/auth/register", requestBody)
 				//	request.Header.Add("Content-Type", "application/json")
+				//  request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				//
 				//	writer := httptest.NewRecorder()
 				//	server.ServeHTTP(writer, request)
@@ -669,6 +692,7 @@ var _ = Describe("Auth API", func() {
 				//	requestBody = strings.NewReader(`{"name": "Widdy","email": "widdy@gmail.com","password": "Rahasia123"}`)
 				//	request = httptest.NewRequest(http.MethodPost, "/api/auth/register", requestBody)
 				//	request.Header.Add("Content-Type", "application/json")
+				//  request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				//
 				//	writer = httptest.NewRecorder()
 				//	server.ServeHTTP(writer, request)
@@ -687,6 +711,7 @@ var _ = Describe("Auth API", func() {
 					requestBody := strings.NewReader(`{"name":"wids","email": "sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssddddddddddddddddddddddddddddddddddddddd@gmail.com","password": "Rahasia123"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/auth/register", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
@@ -708,6 +733,7 @@ var _ = Describe("Auth API", func() {
 					requestBody := strings.NewReader(`{"name": "Widdy","email": "widdy@gmail.com"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/auth/register", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
@@ -727,6 +753,7 @@ var _ = Describe("Auth API", func() {
 					requestBody := strings.NewReader(`{"name": "Widdy","email": "widdy@gmail.com","password": "as"}`)
 					request := httptest.NewRequest(http.MethodPost, "/api/auth/register", requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
@@ -749,6 +776,7 @@ var _ = Describe("Auth API", func() {
 				requestBody := strings.NewReader(`{"name": "Widdy","email": "widdy@gmail.com","password": "Rahasia123"}`)
 				request := httptest.NewRequest(http.MethodPost, "/api/auth/register", requestBody)
 				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)

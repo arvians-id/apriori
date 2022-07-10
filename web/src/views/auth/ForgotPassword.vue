@@ -41,6 +41,7 @@ import Footer from "@/components/auth/Footer.vue"
 import Navbar from "@/components/auth/Navbar.vue"
 import Header from "@/components/auth/Header.vue"
 import axios from "axios";
+import authHeader from "@/service/auth-header";
 
 export default {
   components: {
@@ -57,7 +58,7 @@ export default {
   },
   methods: {
     submit() {
-      axios.post(`${process.env.VUE_APP_SERVICE_URL}/auth/forgot-password`, this.user)
+      axios.post(`${process.env.VUE_APP_SERVICE_URL}/auth/forgot-password`, this.user,{ headers: authHeader() })
           .then(response => {
             if(response.data.code === 200) {
               alert("Verification has been sent to your mail")

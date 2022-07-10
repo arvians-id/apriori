@@ -48,9 +48,18 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	// CORS Middleware
 	router.Use(middleware.SetupCorsMiddleware())
 
+	// Main Router
+	router.GET("/", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "Welcome to Apriori Algorithm API. Created By https://github.com/arvians-id",
+		})
+	})
+
+	// X API KEY Middleware
+	router.Use(middleware.SetupXApiKeyMiddleware())
+
 	// Setup Router
 	authController.Route(router)
-
 	userController.Route(router)
 	productController.Route(router)
 	transactionController.Route(router)

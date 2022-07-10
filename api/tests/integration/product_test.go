@@ -10,12 +10,13 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
 	"time"
+
+	log "github.com/sirupsen/logrus"
 
 	"github.com/gin-gonic/gin"
 	. "github.com/onsi/ginkgo/v2"
@@ -29,10 +30,10 @@ var _ = Describe("Product API", func() {
 	var database *sql.DB
 	var tokenJWT string
 	var cookie *http.Cookie
+	configuration := config.New("../../.env.test")
 
 	BeforeEach(func() {
 		// Setup Configuration
-		configuration := config.New("../../.env.test")
 
 		router, db := setup.ModuleSetup(configuration)
 
@@ -57,6 +58,7 @@ var _ = Describe("Product API", func() {
 		requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
 		request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
 		request.Header.Add("Content-Type", "application/json")
+		request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
 		writer := httptest.NewRecorder()
 		server.ServeHTTP(writer, request)
@@ -77,7 +79,6 @@ var _ = Describe("Product API", func() {
 
 	AfterEach(func() {
 		// Setup Configuration
-		configuration := config.New("../../.env.test")
 		_, db := setup.ModuleSetup(configuration)
 		defer db.Close()
 
@@ -101,6 +102,7 @@ var _ = Describe("Product API", func() {
 					bodyOne, _ := json.Marshal(requestBody)
 					request := httptest.NewRequest(http.MethodPost, "/api/products", bytes.NewBuffer(bodyOne))
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
@@ -124,6 +126,7 @@ var _ = Describe("Product API", func() {
 				requestBody := strings.NewReader(`{"code": "SK1","name": "Bantal Biasa","description": "Test"}`)
 				request := httptest.NewRequest(http.MethodPatch, "/api/products/SK1", requestBody)
 				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
 				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
@@ -161,6 +164,7 @@ var _ = Describe("Product API", func() {
 					requestBody := strings.NewReader(`{"code": "SK1","name": "Guling Doti","description": "Test Bang"}`)
 					request := httptest.NewRequest(http.MethodPatch, "/api/products/"+row.Code, requestBody)
 					request.Header.Add("Content-Type", "application/json")
+					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
@@ -188,6 +192,7 @@ var _ = Describe("Product API", func() {
 				// Delete Product
 				request := httptest.NewRequest(http.MethodDelete, "/api/products/SK9", nil)
 				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
 				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
@@ -223,6 +228,7 @@ var _ = Describe("Product API", func() {
 				// Delete Product
 				request := httptest.NewRequest(http.MethodDelete, "/api/products/"+row.Code, nil)
 				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
 				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
@@ -248,6 +254,7 @@ var _ = Describe("Product API", func() {
 				// Find All Product
 				request := httptest.NewRequest(http.MethodGet, "/api/products", nil)
 				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
 				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
@@ -289,6 +296,7 @@ var _ = Describe("Product API", func() {
 				// Find All Products
 				request := httptest.NewRequest(http.MethodGet, "/api/products", nil)
 				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
 				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
@@ -325,6 +333,7 @@ var _ = Describe("Product API", func() {
 				// Find By Code Product
 				request := httptest.NewRequest(http.MethodGet, "/api/products/SK5", nil)
 				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
 				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
@@ -359,6 +368,7 @@ var _ = Describe("Product API", func() {
 				// Find By Code Product
 				request := httptest.NewRequest(http.MethodGet, "/api/products/"+row.Code, nil)
 				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
 				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 

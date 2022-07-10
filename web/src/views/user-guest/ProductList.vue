@@ -123,6 +123,7 @@ import Topbar from "@/components/guest/Topbar.vue"
 import Header from "@/components/guest/Header.vue"
 import Footer from "@/components/guest/Footer.vue"
 import axios from "axios";
+import authHeader from "@/service/auth-header";
 
 export default {
   components: {
@@ -151,7 +152,7 @@ export default {
           ? (this.carts = JSON.parse(localStorage.getItem("my-carts")))
           : (this.carts = []);
 
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/products`).then((response) => {
+      axios.get(`${process.env.VUE_APP_SERVICE_URL}/products`,{ headers: authHeader() }).then((response) => {
         if(response.data.data != null) {
           this.totalData = response.data.data.length;
           this.products = response.data.data.slice(0, this.limitData);
@@ -165,12 +166,12 @@ export default {
       }
     },
     fetchDataRecommendation() {
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/apriori/actives`).then((response) => {
+      axios.get(`${process.env.VUE_APP_SERVICE_URL}/apriori/actives`,{ headers: authHeader() }).then((response) => {
         this.recommendation = response.data.data;
       });
     },
     loadMore(){
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/products`).then((response) => {
+      axios.get(`${process.env.VUE_APP_SERVICE_URL}/products`,{ headers: authHeader() }).then((response) => {
         this.products = response.data.data.slice(0, this.limitData += 8);
       });
     },
