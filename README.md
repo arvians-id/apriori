@@ -16,7 +16,7 @@ at the same time giving discounts on large datasets using an Apriori Algorithm.
  - Logging : [Logrus](https://github.com/sirupsen/logrus)
  - Testing : [Ginkgo](https://onsi.github.io/ginkgo)
 
-## Authors
+## Preview
 
 - [Preview Webbsite](https://apriori-frontend.herokuapp.com)
 

@@ -16,8 +16,7 @@
             <div class="card">
               <!-- Card header -->
               <div class="card-header d-flex justify-content-between">
-                <h3 class="mb-0">List of Recommendation Packages </h3>
-                <h3 class="mb-0">{{ getDate }}</h3>
+                <h3 class="mb-0">All Recommendation Packages </h3>
               </div>
               <!-- Card body -->
               <div class="card-body">
@@ -25,7 +24,10 @@
                   <div class="col-12 col-md-6 col-lg-4 col-xl-3" v-for="item in apriories" :key="item.id_apriori">
                     <div class="card card-pricing border-0 text-center mb-4">
                       <div class="card-header bg-transparent">
-                        <h4 class="text-uppercase ls-1 text-primary py-3 mb-0">Recommendation pack</h4>
+
+                        <h4 class="text-uppercase ls-1 text-primary py-3 mb-0">
+                          <router-link :to="{ name: 'apriori.detail', params: { code: item.code } }">Recommendation pack</router-link>
+                        </h4>
                       </div>
                       <div class="card-body mx-auto">
                         <div class="display-2">{{ item.discount }}%</div>
@@ -46,7 +48,7 @@
                         </ul>
                       </div>
                       <div class="card-footer">
-                        <router-link :to="{ name: 'apriori.detail', params: { code: item.code } }" class=" text-muted">{{ item.code }}</router-link>
+                        {{ getDate }}
                       </div>
                     </div>
                   </div>

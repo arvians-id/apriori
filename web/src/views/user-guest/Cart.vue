@@ -40,7 +40,7 @@
                           <img alt="Image placeholder" :src="getImage(item.image)">
                         </router-link>
                       </div>
-                      <div class="col ml--2">
+                      <div class="col ml--4">
                         <h4 class="mb-0">
                           <router-link
                               :to="{ name: 'guest.product.recommendation', params: { code: item.id_product, id: item.code } }"
@@ -53,8 +53,13 @@
                         </h4>
                         <small>Rp {{ numberWithCommas(item.price) }}</small>
                       </div>
-                      <div class="col-auto">
+                      <div class="col-12 d-block d-lg-none">
                         <p>Rp {{ numberWithCommas(item.totalPricePerItem) }} - {{ item.quantity }} item</p>
+                        <button type="button" @click="min(item)" class="btn btn-danger btn-sm">Kurangi</button>
+                        <button type="button" @click="add(item)" class="btn btn-primary btn-sm">Tambah</button>
+                      </div>
+                      <div class="col-auto d-none d-lg-block">
+                        <p class="text-center">Rp {{ numberWithCommas(item.totalPricePerItem) }} - {{ item.quantity }} item</p>
                         <button type="button" @click="min(item)" class="btn btn-danger btn-sm">Kurangi</button>
                         <button type="button" @click="add(item)" class="btn btn-primary btn-sm">Tambah</button>
                       </div>
@@ -67,11 +72,11 @@
                       <div class="col">
                       </div>
                       <div class="col-auto">
-                        <table class="table table-responsive">
+                        <table class="table table-responsive table-borderless">
                           <tr>
-                            <td>Total keseluruhan item</td>
+                            <td>Total keranjang belanja</td>
                             <td>:</td>
-                            <td class="text-right">{{ totalCart }} item</td>
+                            <td class="text-right">{{ totalCart }} keranjang</td>
                           </tr>
                           <tr>
                             <td>Total jenis barang</td>
@@ -118,6 +123,14 @@
 <style scoped>
 .avatar{
   background-color: transparent;
+}
+.table-borderless > tbody > tr > td,
+.table-borderless > tbody > tr > th,
+.table-borderless > tfoot > tr > td,
+.table-borderless > tfoot > tr > th,
+.table-borderless > thead > tr > td,
+.table-borderless > thead > tr > th {
+  border: none;
 }
 </style>
 <script>

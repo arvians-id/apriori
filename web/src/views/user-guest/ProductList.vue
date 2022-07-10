@@ -69,10 +69,13 @@
                       <img class="card-img-top embed-responsive-item" :src="getImage(item.image)" alt="Preview Image">
                     </div>
                     <div class="card-body pb-3">
-                      <router-link :to="{ name: 'guest.product.recommendation', params: { code: item.code, id: item.id_apriori } }" class="text-dark">
+                      <router-link :to="{ name: 'guest.product.recommendation', params: { code: item.code, id: item.id_apriori } }" class="text-dark d-none d-lg-block">
                         Paket Barang {{ item.item.length > 20 ? UpperWord(item.item.slice(0, 20)) + "..." : UpperWord(item.item) }}
                       </router-link>
-                       <br>
+                      <router-link :to="{ name: 'guest.product.recommendation', params: { code: item.code, id: item.id_apriori } }" class="text-dark d-block d-lg-none">
+                        Paket Barang {{ UpperWord(item.item) }}
+                      </router-link>
+                      <br>
                       <router-link :to="{ name: 'guest.product.recommendation', params: { code: item.code, id: item.id_apriori } }" class="display-2 text-dark">{{ item.discount }}%</router-link>
                       <p class="text-muted">discount</p>
                       <ul class="list-unstyled my-4">

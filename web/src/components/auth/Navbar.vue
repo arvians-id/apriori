@@ -11,8 +11,8 @@
         <div class="navbar-collapse-header">
           <div class="row">
             <div class="col-6 collapse-brand">
-              <router-link :to="{ name: 'auth.login' }">
-                <img src="/frontend/img/brand/blue.png">
+              <router-link :to="{ name: 'auth.login' }" style="font-family: 'Fugaz One', cursive;">
+                RYZYOLSHOP
               </router-link>
             </div>
             <div class="col-6 collapse-close">

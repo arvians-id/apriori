@@ -206,40 +206,40 @@ var _ = Describe("Product API", func() {
 			})
 		})
 
-		//	When("product is found", func() {
-		//		It("should return a successful delete product response", func() {
-		//			// Create Product
-		//			tx, _ := database.Begin()
-		//			productRepository := repository.NewProductRepository()
-		//			row, _ := productRepository.Create(context.Background(), tx, entity.Product{
-		//				Code:        "SK6",
-		//				Name:        "Widdy",
-		//				Description: "Test",
-		//				CreatedAt:   time.Now(),
-		//				UpdatedAt:   time.Now(),
-		//			})
-		//			_ = tx.Commit()
-		//
-		//			// Delete Product
-		//			request := httptest.NewRequest(http.MethodDelete, "/api/products/"+row.Code, nil)
-		//			request.Header.Add("Content-Type", "application/json")
-		//			request.AddCookie(cookie)
-		//			request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
-		//
-		//			writer := httptest.NewRecorder()
-		//			server.ServeHTTP(writer, request)
-		//
-		//			response := writer.Result()
-		//
-		//			body, _ := io.ReadAll(response.Body)
-		//			var responseBody map[string]interface{}
-		//			_ = json.Unmarshal(body, &responseBody)
-		//
-		//			Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
-		//			Expect(responseBody["status"]).To(Equal("deleted"))
-		//			Expect(responseBody["data"]).To(BeNil())
-		//		})
-		//	})
+		When("product is found", func() {
+			It("should return a successful delete product response", func() {
+				// Create Product
+				tx, _ := database.Begin()
+				productRepository := repository.NewProductRepository()
+				row, _ := productRepository.Create(context.Background(), tx, entity.Product{
+					Code:        "SK6",
+					Name:        "Widdy",
+					Description: "Test",
+					CreatedAt:   time.Now(),
+					UpdatedAt:   time.Now(),
+				})
+				_ = tx.Commit()
+
+				// Delete Product
+				request := httptest.NewRequest(http.MethodDelete, "/api/products/"+row.Code, nil)
+				request.Header.Add("Content-Type", "application/json")
+				request.AddCookie(cookie)
+				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
+
+				writer := httptest.NewRecorder()
+				server.ServeHTTP(writer, request)
+
+				response := writer.Result()
+
+				body, _ := io.ReadAll(response.Body)
+				var responseBody map[string]interface{}
+				_ = json.Unmarshal(body, &responseBody)
+
+				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
+				Expect(responseBody["status"]).To(Equal("deleted"))
+				Expect(responseBody["data"]).To(BeNil())
+			})
+		})
 	})
 
 	Describe("Find All Product /products", func() {

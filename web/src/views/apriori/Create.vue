@@ -123,7 +123,7 @@
                           {{ i + 1 }}
                         </span>
                       </template>
-                      <div class="timeline-content">
+                      <div class="timeline-content table-responsive">
                         <table class="table align-items-center table-flush">
                           <thead class="thead-light">
                           <tr>
@@ -199,7 +199,7 @@
                       </button>
                     </div>
                     <div class="modal-body">
-                      <p>Association rule atau analisis asosiasi adalah teknik data mining untuk menemukan aturan asosiasi antara suatu kombinasi item</p>
+                      <p>Association rules atau aturan asosiasi adalah teknik data mining untuk menemukan aturan asosiasi antara suatu kombinasi item</p>
                     </div>
                   </div>
                 </div>
