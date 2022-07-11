@@ -1,5 +1,20 @@
 CREATE TABLE IF NOT EXISTS payloads (
     id_payload SERIAL,
-    payload VARCHAR(256) NOT NULL,
+    user_id INTEGER NOT NULL,
+    order_id VARCHAR(256) NOT NULL,
+    transaction_time VARCHAR(256) NOT NULL,
+    transaction_status VARCHAR(256) NOT NULL,
+    transaction_id VARCHAR(256) NOT NULL,
+    status_code VARCHAR(256) NOT NULL,
+    signature_key VARCHAR(256) NOT NULL,
+    settlement_time VARCHAR(256) NOT NULL,
+    payment_type VARCHAR(256) NOT NULL,
+    merchant_id VARCHAR(256) NOT NULL,
+    gross_amount VARCHAR(256) NOT NULL,
+    fraud_status VARCHAR(256) NOT NULL,
+    bank_type VARCHAR(256),
+    va_number VARCHAR(256),
+    biller_code VARCHAR(256),
+    bill_key VARCHAR(256),
     PRIMARY KEY (id_payload)
 )

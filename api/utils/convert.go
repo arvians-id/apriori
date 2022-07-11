@@ -11,6 +11,11 @@ func StrToInt(str string) int {
 	return integer
 }
 
+func IntToStr(number int) string {
+	str := strconv.Itoa(number)
+	return str
+}
+
 func UpperWords(str string) string {
 	str = strings.TrimSpace(str)
 	replace := func(word string) string {

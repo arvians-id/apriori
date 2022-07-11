@@ -3,6 +3,7 @@ package controller
 import (
 	"apriori/api/response"
 	"apriori/service"
+	"apriori/utils"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -24,7 +25,7 @@ func NewPaymentController(paymentService *service.PaymentService, emailService s
 func (controller *PaymentController) Route(router *gin.Engine) *gin.Engine {
 	authorized := router.Group("/api")
 	{
-		authorized.GET("/pay", controller.Pay)
+		authorized.POST("/pay", controller.Pay)
 		authorized.POST("/notification", controller.Notification)
 	}
 
@@ -32,7 +33,10 @@ func (controller *PaymentController) Route(router *gin.Engine) *gin.Engine {
 }
 
 func (controller *PaymentController) Pay(c *gin.Context) {
-	data, err := controller.PaymentService.GetToken(5000)
+	grossAmount := int64(utils.StrToInt(c.PostForm("gross_amount")))
+	items := c.PostFormArray("items")
+	userId := 7
+	data, err := controller.PaymentService.GetToken(grossAmount, userId, items)
 	if err != nil {
 		response.ReturnErrorBadRequest(c, err, nil)
 		return
@@ -50,7 +54,7 @@ func (controller *PaymentController) Notification(c *gin.Context) {
 	}
 
 	encode, _ := json.Marshal(payload)
-	resArray := make(map[string]string)
+	resArray := make(map[string]interface{})
 	err = json.Unmarshal(encode, &resArray)
 
 	// Send email to user

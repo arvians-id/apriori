@@ -181,7 +181,12 @@ export default {
       tagMidtransJs.setAttribute("src", midtransJs);
       document.head.appendChild(tagMidtransJs);
 
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/pay`).then(response => {
+      let formData = new FormData()
+      formData.append("gross_amount", this.totalPrice)
+      formData.append("user_id", "7")
+      formData.append("items", JSON.stringify(this.carts))
+
+      axios.post(`${process.env.VUE_APP_SERVICE_URL}/pay`, formData).then(response => {
         let snapJs = "https://app.sandbox.midtrans.com/snap/snap.js"
         let tagSnapJs = document.createElement("script");
         tagSnapJs.setAttribute("src", snapJs);
@@ -234,7 +239,12 @@ export default {
       localStorage.setItem('my-carts', JSON.stringify(this.carts));
     },
     send() {
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/pay`).then(response => {
+      let formData = new FormData()
+      formData.append("gross_amount", this.totalPrice)
+      formData.append("user_id", "7")
+      formData.append("items", JSON.stringify(this.carts))
+
+      axios.post(`${process.env.VUE_APP_SERVICE_URL}/pay`, formData).then(response => {
         window.snap.pay(response.data.data.token, {
           onSuccess: function(result) {
             console.log(result)
