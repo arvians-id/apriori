@@ -16,9 +16,10 @@ import (
 )
 
 type PaymentService interface {
-	FindAll(ctx context.Context) ([]model.GetPaymentNullableResponse, error)
+	FindAll(ctx context.Context) ([]model.GetPaymentRelationResponse, error)
 	FindAllByUserId(ctx context.Context, userId int) ([]model.GetPaymentNullableResponse, error)
 	FindByOrderId(ctx context.Context, orderId string) (model.GetPaymentNullableResponse, error)
+	Delete(ctx context.Context, orderId string) error
 	GetClient()
 	GetToken(ctx context.Context, amount int64, userId int, customerName string, items []string) (map[string]interface{}, error)
 	CreateOrUpdate(ctx context.Context, request map[string]interface{}) error
@@ -55,7 +56,7 @@ func NewPaymentService(configuration config.Config, paymentRepository *repositor
 	}
 }
 
-func (service *paymentService) FindAll(ctx context.Context) ([]model.GetPaymentNullableResponse, error) {
+func (service *paymentService) FindAll(ctx context.Context) ([]model.GetPaymentRelationResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -67,9 +68,9 @@ func (service *paymentService) FindAll(ctx context.Context) ([]model.GetPaymentN
 		return nil, err
 	}
 
-	var paymentResponse []model.GetPaymentNullableResponse
+	var paymentResponse []model.GetPaymentRelationResponse
 	for _, payment := range payments {
-		paymentResponse = append(paymentResponse, utils.ToPaymentNullableResponse(payment))
+		paymentResponse = append(paymentResponse, utils.ToPaymentRelationResponse(payment))
 	}
 
 	return paymentResponse, nil
@@ -108,6 +109,21 @@ func (service *paymentService) FindByOrderId(ctx context.Context, orderId string
 	}
 
 	return utils.ToPaymentNullableResponse(payment), nil
+}
+
+func (service *paymentService) Delete(ctx context.Context, orderId string) error {
+	tx, err := service.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer utils.CommitOrRollback(tx)
+
+	err = service.PaymentRepository.Delete(ctx, tx, orderId)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (service *paymentService) GetClient() {
@@ -253,7 +269,7 @@ func (service *paymentService) GetToken(ctx context.Context, amount int64, userI
 	paymentRequest := entity.Payment{
 		UserId:            utils.IntToStr(userId),
 		OrderId:           orderID,
-		TransactionStatus: "not finished yet",
+		TransactionStatus: "canceled",
 		TransactionTime:   time.Now().Format("2006-01-02 15:04:05"),
 	}
 	payment, err := service.PaymentRepository.Create(ctx, tx, paymentRequest)

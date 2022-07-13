@@ -14,32 +14,33 @@
         <div class="col">
           <div class="card">
             <!-- Card header -->
-            <div class="card-header">
-              <h3 class="mb-0">Data Product</h3>
+            <div class="card-header d-flex">
+              <h3 class="mb-0">Data User Order</h3>
             </div>
             <div class="table-responsive py-4">
               <table class="table table-flush" id="datatable">
                 <thead class="thead-light">
                 <tr>
                   <th>No</th>
-                  <th>Product Code</th>
-                  <th>Name</th>
-                  <th>Price</th>
-                  <th>Description</th>
+                  <th>Order ID</th>
+                  <th>Transaction Time</th>
+                  <th>Transaction Status</th>
+                  <th>Payment Method</th>
+                  <th>Customer Name</th>
                   <th class="text-center">Action</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr v-for="(item,i) in products" :key="item.id_product">
+                <tr v-for="(item,i) in orders" :key="item.id_payload">
                   <td>{{ (i++) + 1 }}</td>
-                  <td>{{ item.code }}</td>
-                  <td>{{ item.name }}</td>
-                  <td>Rp. {{ item.price }}</td>
-                  <td>{{ item.description.length > 50 ? item.description.slice(0, 50) + "..." : item.description }}</td>
+                  <td>{{ item.order_id }}</td>
+                  <td>{{ item.transaction_time }}</td>
+                  <td>{{ item.transaction_status }}</td>
+                  <td>{{ item.bank_type }}</td>
+                  <td>{{ item.user_name }}</td>
                   <td class="text-center">
-                    <router-link :to="{ name: 'product.detail', params: { code: item.code } }" class="btn btn-secondary btn-sm">Detail</router-link>
-                    <router-link :to="{ name: 'product.edit', params: { code: item.code } }" class="btn btn-primary btn-sm">Edit</router-link>
-                    <form @submit.prevent="submit(item.code)" method="POST" class="d-inline">
+                    <router-link :to="{ name: 'user-order.detail', params: { order_id: item.order_id } }" class="btn btn-secondary btn-sm">Detail</router-link>
+                    <form @submit.prevent="submit(item.order_id)" method="POST" class="d-inline">
                       <button class="btn btn-danger btn-sm">Delete</button>
                     </form>
                   </td>
@@ -77,21 +78,21 @@ export default {
   },
   data: function () {
     return {
-      products: []
+      orders: [],
     };
   },
   methods: {
     fetchData() {
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/products`, { headers: authHeader() }).then((response) => {
-        this.products = response.data.data;
+      axios.get(`${process.env.VUE_APP_SERVICE_URL}/payments`, { headers: authHeader() }).then((response) => {
+        this.orders = response.data.data;
         setTimeout(function(){
           $('#datatable').DataTable();
         }, 0);
       });
     },
-    submit(no_product) {
-      if(confirm("Are you sure to delete this product?")) {
-        axios.delete(`${process.env.VUE_APP_SERVICE_URL}/products/` + no_product, { headers: authHeader() })
+    submit(order_id) {
+      if(confirm("Are you sure to delete this data?")) {
+        axios.delete(`${process.env.VUE_APP_SERVICE_URL}/payments/${order_id}`, { headers: authHeader() })
             .then(response => {
               if(response.data.code === 200) {
                 alert(response.data.status)

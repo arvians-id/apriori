@@ -8,6 +8,7 @@ import ProductRouter from "@/router/product-router";
 import AprioriRouter from "@/router/apriori-router";
 import UserRouter from "@/router/user-router";
 import UserGuestRouter from "@/router/user-guest-router";
+import UserOrder from "@/router/user-order";
 
 const routes = [
     ...UserGuestRouter,
@@ -16,6 +17,7 @@ const routes = [
     ...ProductRouter,
     ...AprioriRouter,
     ...UserRouter,
+    ...UserOrder,
   { path: "/:pathMatch(.*)", name: "NotFound", component: NotFound },
 ];
 
@@ -37,7 +39,8 @@ router.beforeEach( async (to) => {
       to.name.split(".")[0] === "apriori" ||
       to.name.split(".")[0] === "user" ||
       to.name.split(".")[0] === "admin" ||
-      to.name.split(".")[0] === "profile")) {
+      to.name.split(".")[0] === "profile" ||
+      to.name.split(".")[0] === "user-order")) {
       return { name: 'guest.index' }
   }
 

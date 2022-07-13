@@ -20,7 +20,10 @@
                 <h5 class="h3 mb-0">Riwayat Pesanan Saya</h5>
               </div>
               <!-- Card body -->
-              <div class="card-body p-0">
+              <div class="card-body p-0" v-if="isLoading">
+                <p class="p-3 mt-2 text-center">Loading...</p>
+              </div>
+              <div class="card-body p-0" v-else>
                 <!-- List group -->
                 <ul class="list-group list-group-flush" data-toggle="checklist" v-if="orders.length > 0">
                   <li class="checklist-entry list-group-item flex-column align-items-start py-4 px-4" v-for="(item,i) in orders" :key="i">
@@ -81,6 +84,7 @@ export default {
       orders: [],
       limitData: 5,
       totalData: 0,
+      isLoading: true,
     }
   },
   mounted() {
@@ -91,8 +95,8 @@ export default {
     document.getElementsByTagName("body")[0].classList.remove("bg-default");
   },
   methods: {
-    fetchData() {
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/user-order`, { headers: authHeader() }).then(response => {
+    async fetchData() {
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/user-order`, { headers: authHeader() }).then(response => {
         if(response.data.data != null) {
           this.totalData = response.data.data.length;
           this.orders = response.data.data.slice(0, this.limitData);
@@ -108,6 +112,8 @@ export default {
           return total + item.quantity
         }, 0)
       }
+
+      this.isLoading = false
     },
     loadMore(){
       axios.get(`${process.env.VUE_APP_SERVICE_URL}/user-order`,{ headers: authHeader() }).then((response) => {

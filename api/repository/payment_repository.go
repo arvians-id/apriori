@@ -8,11 +8,12 @@ import (
 )
 
 type PaymentRepository interface {
-	FindAll(ctx context.Context, tx *sql.Tx) ([]entity.PaymentNullable, error)
+	FindAll(ctx context.Context, tx *sql.Tx) ([]entity.PaymentRelation, error)
 	FindAllByUserId(ctx context.Context, tx *sql.Tx, userId int) ([]entity.PaymentNullable, error)
 	Create(ctx context.Context, tx *sql.Tx, payment entity.Payment) (entity.Payment, error)
 	FindByOrderId(ctx context.Context, tx *sql.Tx, orderId string) (entity.PaymentNullable, error)
 	Update(ctx context.Context, tx *sql.Tx, payment entity.Payment) error
+	Delete(ctx context.Context, tx *sql.Tx, orderId string) error
 }
 
 type paymentRepository struct {
@@ -22,11 +23,13 @@ func NewPaymentRepository() PaymentRepository {
 	return &paymentRepository{}
 }
 
-func (repository *paymentRepository) FindAll(ctx context.Context, tx *sql.Tx) ([]entity.PaymentNullable, error) {
-	query := "SELECT * FROM payloads ORDER BY settlement_time DESC, bank_type DESC"
+func (repository *paymentRepository) FindAll(ctx context.Context, tx *sql.Tx) ([]entity.PaymentRelation, error) {
+	query := `SELECT payloads.*,users.name FROM payloads
+			  LEFT JOIN users ON users.id_user = payloads.user_id
+			  ORDER BY payloads.settlement_time DESC, payloads.bank_type DESC`
 	queryContext, err := tx.QueryContext(ctx, query)
 	if err != nil {
-		return []entity.PaymentNullable{}, err
+		return []entity.PaymentRelation{}, err
 	}
 	defer func(queryContext *sql.Rows) {
 		err := queryContext.Close()
@@ -35,9 +38,9 @@ func (repository *paymentRepository) FindAll(ctx context.Context, tx *sql.Tx) ([
 		}
 	}(queryContext)
 
-	var payments []entity.PaymentNullable
+	var payments []entity.PaymentRelation
 	for queryContext.Next() {
-		var payment entity.PaymentNullable
+		var payment entity.PaymentRelation
 		err := queryContext.Scan(
 			&payment.IdPayload,
 			&payment.UserId,
@@ -56,9 +59,10 @@ func (repository *paymentRepository) FindAll(ctx context.Context, tx *sql.Tx) ([
 			&payment.VANumber,
 			&payment.BillerCode,
 			&payment.BillKey,
+			&payment.UserName,
 		)
 		if err != nil {
-			return []entity.PaymentNullable{}, err
+			return []entity.PaymentRelation{}, err
 		}
 		payments = append(payments, payment)
 	}
@@ -228,6 +232,16 @@ func (repository *paymentRepository) Update(ctx context.Context, tx *sql.Tx, pay
 		payment.BillKey,
 		payment.OrderId,
 	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repository *paymentRepository) Delete(ctx context.Context, tx *sql.Tx, orderId string) error {
+	query := "DELETE FROM payloads WHERE order_id = $1"
+	_, err := tx.ExecContext(ctx, query, orderId)
 	if err != nil {
 		return err
 	}

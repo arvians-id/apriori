@@ -19,6 +19,9 @@
                 <!-- Title -->
                 <h5 class="h3 mb-0">Semua Produk</h5>
               </div>
+              <div class="card-body" v-if="isLoading">
+                <p class="p-3 mt-2 text-center">Loading...</p>
+              </div>
               <div class="card-body">
                 <div class="row" v-if="products.length > 0">
                   <div class="col-12 col-md-6 col-lg-4 col-xl-3" v-for="item in products" :key="item.id_product">
@@ -60,6 +63,9 @@
             <div class="card-header">
               <!-- Title -->
               <h5 class="h3 mb-0">Rekomendasi Paket Diskon Barang</h5>
+            </div>
+            <div class="card-body" v-if="isLoading2">
+              <p class="p-3 mt-2 text-center">Loading...</p>
             </div>
             <div class="card-body">
               <div class="row" v-if="recommendation.length > 0">
@@ -145,15 +151,17 @@ export default {
       recommendation: [],
       limitData: 8,
       totalData: 0,
+      isLoading: true,
+      isLoading2: true,
     };
   },
   methods: {
-    fetchData() {
+    async fetchData() {
       localStorage.getItem("my-carts")
           ? (this.carts = JSON.parse(localStorage.getItem("my-carts")))
           : (this.carts = []);
 
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/products`,{ headers: authHeader() }).then((response) => {
+     await axios.get(`${process.env.VUE_APP_SERVICE_URL}/products`,{ headers: authHeader() }).then((response) => {
         if(response.data.data != null) {
           this.totalData = response.data.data.length;
           this.products = response.data.data.slice(0, this.limitData);
@@ -165,11 +173,15 @@ export default {
           return total + item.quantity
         }, 0)
       }
+
+      this.isLoading = false
     },
-    fetchDataRecommendation() {
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/apriori/actives`,{ headers: authHeader() }).then((response) => {
+    async fetchDataRecommendation() {
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/apriori/actives`,{ headers: authHeader() }).then((response) => {
         this.recommendation = response.data.data;
       });
+
+      this.isLoading2 = false
     },
     loadMore(){
       axios.get(`${process.env.VUE_APP_SERVICE_URL}/products`,{ headers: authHeader() }).then((response) => {

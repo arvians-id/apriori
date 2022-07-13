@@ -95,6 +95,19 @@
                 </ul>
               </div>
             </li>
+            <li class="nav-item">
+              <a :class="getActiveNavLink('user-order')" href="#navbar-user-order" data-toggle="collapse" role="button" :aria-expanded="getAreaExpandedBool('user-order')" aria-controls="navbar-user-order">
+                <i class="ni ni-spaceship text-blue"></i>
+                <span class="nav-link-text">Order</span>
+              </a>
+              <div :class="getCollapseNavLink('user-order')" id="navbar-user-order">
+                <ul class="nav nav-sm flex-column">
+                  <li class="nav-item">
+                    <router-link :to="{ name: 'user-order' }" class="nav-link">Data</router-link>
+                  </li>
+                </ul>
+              </div>
+            </li>
           </ul>
           <!-- Divider -->
           <hr class="my-3">

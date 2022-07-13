@@ -61,7 +61,6 @@
 </template>
 
 <script>
-import authHeader from "@/service/auth-header";
 import "jquery/dist/jquery.min.js";
 import "datatables.net-dt/js/dataTables.dataTables";
 import "datatables.net-dt/css/jquery.dataTables.min.css";
@@ -71,6 +70,7 @@ import Sidebar from "@/components/admin/Sidebar.vue"
 import Topbar from "@/components/admin/Topbar.vue"
 import Header from "@/components/admin/Header.vue"
 import Footer from "@/components/admin/Footer.vue"
+import authHeader from "@/service/auth-header";
 
 export default {
   components: {

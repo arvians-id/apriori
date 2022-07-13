@@ -4,7 +4,7 @@
   <!-- Main content -->
   <div class="main-content" id="panel">
     <!-- Topnav -->
-    <Topbar :totalCart="totalCart" :carts="carts" />
+    <Topbar />
     <!-- Header -->
     <Header />
     <!-- Page content -->
@@ -44,41 +44,37 @@
               <div class="table-responsive">
                 <table class="table table-bordered">
                   <thead class="thead-light">
-                    <tr class="text-center">
-                      <th>Kuantitas</th>
-                      <th>Produk</th>
-                      <th>Harga Produk</th>
-                      <th>Subtotal</th>
-                    </tr>
+                  <tr class="text-center">
+                    <th>Kuantitas</th>
+                    <th>Produk</th>
+                    <th>Harga Produk</th>
+                    <th>Subtotal</th>
+                  </tr>
                   </thead>
                   <tbody>
-                    <tr v-for="(item, i) in orders" :key="i">
-                      <td class="text-center">{{ item.quantity }}</td>
-                      <td>{{ item.name }}</td>
-                      <td class="text-right">Rp {{ numberWithCommas(item.price) }}</td>
-                      <td class="text-right">Rp {{ numberWithCommas(item.total_price_item) }}</td>
-                    </tr>
-                    <tr class="font-weight-bold">
-                      <td class="text-right" colspan="3">Subtotal</td>
-                      <td class="text-right">Rp {{ numberWithCommas(totalPrice - 5000) }}</td>
-                    </tr>
-                    <tr class="font-weight-bold">
-                      <td class="text-right" colspan="3">Pajak Aplikasi</td>
-                      <td class="text-right">Rp {{ numberWithCommas(5000) }}</td>
-                    </tr>
-                    <tr class="font-weight-bold">
-                      <td class="text-right" colspan="3">Total Pembayaran</td>
-                      <td class="text-right">Rp {{ numberWithCommas(totalPrice) }}</td>
-                    </tr>
+                  <tr v-for="(item, i) in orders" :key="i">
+                    <td class="text-center">{{ item.quantity }}</td>
+                    <td>{{ item.name }}</td>
+                    <td class="text-right">Rp {{ numberWithCommas(item.price) }}</td>
+                    <td class="text-right">Rp {{ numberWithCommas(item.total_price_item) }}</td>
+                  </tr>
+                  <tr class="font-weight-bold">
+                    <td class="text-right" colspan="3">Subtotal</td>
+                    <td class="text-right">Rp {{ numberWithCommas(totalPrice - 5000) }}</td>
+                  </tr>
+                  <tr class="font-weight-bold">
+                    <td class="text-right" colspan="3">Pajak Aplikasi</td>
+                    <td class="text-right">Rp {{ numberWithCommas(5000) }}</td>
+                  </tr>
+                  <tr class="font-weight-bold">
+                    <td class="text-right" colspan="3">Total Pembayaran</td>
+                    <td class="text-right">Rp {{ numberWithCommas(totalPrice) }}</td>
+                  </tr>
                   </tbody>
                 </table>
               </div>
               <div class="justify-content-between d-flex" id="information">
                 <div>
-                  <p class="mt-3 h3">Hubungi Kami untuk informasi selanjutnya</p>
-                  <a :href="send(user, payment)">
-                    <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/wa.png" width="200">
-                  </a>
                 </div>
                 <div class="mt-5">
                   <a href="javascript:void(0);" @click="print">
@@ -97,10 +93,10 @@
 </template>
 
 <script>
-import Sidebar from "@/components/guest/Sidebar.vue"
-import Topbar from "@/components/guest/Topbar.vue"
-import Header from "@/components/guest/Header.vue"
-import Footer from "@/components/guest/Footer.vue"
+import Sidebar from "@/components/admin/Sidebar.vue"
+import Topbar from "@/components/admin/Topbar.vue"
+import Header from "@/components/admin/Header.vue"
+import Footer from "@/components/admin/Footer.vue"
 import axios from "axios";
 import authHeader from "@/service/auth-header";
 
@@ -167,12 +163,14 @@ export default {
           })
         }
 
-        axios.get(`${process.env.VUE_APP_SERVICE_URL}/profile`, { headers: authHeader() }).then(response => {
-          this.user = {
-            name: response.data.data.name,
-            address: response.data.data.address,
-            phone: response.data.data.phone
-          }
+        axios.get(`${process.env.VUE_APP_SERVICE_URL}/payments/${this.$route.params.order_id}`, { headers: authHeader() }).then(response => {
+          axios.get(`${process.env.VUE_APP_SERVICE_URL}/users/${response.data.data.user_id}`, { headers: authHeader() }).then(response => {
+            this.user = {
+              name: response.data.data.name,
+              address: response.data.data.address,
+              phone: response.data.data.phone
+            }
+          })
         }).catch(error => {
           console.log(error)
         })
@@ -180,32 +178,28 @@ export default {
 
       axios.get(`${process.env.VUE_APP_SERVICE_URL}/payments/${this.$route.params.order_id}`, { headers: authHeader() }).then(response => {
         this.payment = {
-            id_payload: response.data.data.id_payload,
-            user_id: response.data.data.user_id,
-            order_id: response.data.data.order_id,
-            transaction_time: response.data.data.transaction_time,
-            transaction_status: response.data.data.transaction_status,
-            transaction_id: response.data.data.transaction_id,
-            status_code: response.data.data.status_code,
-            signature_key: response.data.data.signature_key,
-            settlement_time: response.data.data.settlement_time,
-            payment_type: response.data.data.payment_type,
-            merchant_id: response.data.data.merchant_id,
-            gross_amount: response.data.data.gross_amount,
-            fraud_status: response.data.data.fraud_status,
-            bank_type: response.data.data.bank_type,
-            va_number: response.data.data.va_number,
-            biller_code: response.data.data.biller_code,
-            bill_key: response.data.data.bill_key
+          id_payload: response.data.data.id_payload,
+          user_id: response.data.data.user_id,
+          order_id: response.data.data.order_id,
+          transaction_time: response.data.data.transaction_time,
+          transaction_status: response.data.data.transaction_status,
+          transaction_id: response.data.data.transaction_id,
+          status_code: response.data.data.status_code,
+          signature_key: response.data.data.signature_key,
+          settlement_time: response.data.data.settlement_time,
+          payment_type: response.data.data.payment_type,
+          merchant_id: response.data.data.merchant_id,
+          gross_amount: response.data.data.gross_amount,
+          fraud_status: response.data.data.fraud_status,
+          bank_type: response.data.data.bank_type,
+          va_number: response.data.data.va_number,
+          biller_code: response.data.data.biller_code,
+          bill_key: response.data.data.bill_key
         }
       })
     },
     numberWithCommas(x) {
       return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    },
-    send(user, payment) {
-      let text = `Hallo saya ${user.name} dengan pemesanan order id #${payment.order_id}. Saya ingin menghubungi anda untuk informasi selanjutnya. Terima kasih.`
-      return `whatsapp://send/?phone=${process.env.VUE_APP_PHONE_NUMBER}&text=${text}`
     },
     print(){
       const except = document.getElementById("information");

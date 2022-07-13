@@ -88,6 +88,29 @@ func ToPaymentNullableResponse(payment entity.PaymentNullable) model.GetPaymentN
 	}
 }
 
+func ToPaymentRelationResponse(payment entity.PaymentRelation) model.GetPaymentRelationResponse {
+	return model.GetPaymentRelationResponse{
+		IdPayload:         payment.IdPayload,
+		UserId:            payment.UserId,
+		OrderId:           payment.OrderId,
+		TransactionTime:   payment.TransactionTime,
+		TransactionStatus: payment.TransactionStatus,
+		TransactionId:     payment.TransactionId,
+		StatusCode:        payment.StatusCode,
+		SignatureKey:      payment.SignatureKey,
+		SettlementTime:    payment.SettlementTime,
+		PaymentType:       payment.PaymentType,
+		MerchantId:        payment.MerchantId,
+		GrossAmount:       payment.GrossAmount,
+		FraudStatus:       payment.FraudStatus,
+		BankType:          payment.BankType,
+		VANumber:          payment.VANumber,
+		BillerCode:        payment.BillerCode,
+		BillKey:           payment.BillKey,
+		UserName:          payment.UserName,
+	}
+}
+
 func ToUserOrderResponse(userOrder entity.UserOrder) model.GetUserOrderResponse {
 	return model.GetUserOrderResponse{
 		IdOrder:        userOrder.IdOrder,

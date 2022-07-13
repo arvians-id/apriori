@@ -20,7 +20,7 @@
             <a class="nav-link pr-0" href="javascript:void(0);" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <div class="media align-items-center">
                 <div class="media-body ml-2">
-                  <span class="mb-0 text-sm text-white font-weight-bold">{{ user.name }}</span>
+                  <span class="mb-0 text-sm text-white font-weight-bold">{{ name }}</span>
                 </div>
               </div>
             </a>
@@ -51,9 +51,7 @@ import authHeader from "@/service/auth-header";
 export default {
   data() {
     return {
-      user: {
-        name: ""
-      }
+      name: "",
     }
   },
   mounted() {
@@ -78,7 +76,7 @@ export default {
       })
     },
     fetchData() {
-      this.user.name = localStorage.getItem("name")
+      this.name = localStorage.getItem("name")
     },
   }
 }

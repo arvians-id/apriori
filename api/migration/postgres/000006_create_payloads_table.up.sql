@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS payloads (
     id_payload SERIAL,
-    user_id VARCHAR(10),
+    user_id INTEGER NOT NULL,
     order_id VARCHAR(256),
     transaction_time VARCHAR(256),
     transaction_status VARCHAR(256),
@@ -16,5 +16,6 @@ CREATE TABLE IF NOT EXISTS payloads (
     va_number VARCHAR(256),
     biller_code VARCHAR(256),
     bill_key VARCHAR(256),
-    PRIMARY KEY (id_payload)
+    PRIMARY KEY (id_payload),
+    FOREIGN KEY (user_id) REFERENCES users(id_user) ON DELETE RESTRICT ON UPDATE CASCADE
 )

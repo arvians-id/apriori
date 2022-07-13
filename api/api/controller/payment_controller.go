@@ -29,6 +29,7 @@ func (controller *PaymentController) Route(router *gin.Engine) *gin.Engine {
 		authorized.GET("/payments/:order_id", controller.FindByOrderId, middleware.AuthJwtMiddleware())
 		authorized.POST("/payments/pay", controller.Pay)
 		authorized.POST("/payments/notification", controller.Notification)
+		authorized.DELETE("/payments/:order_id", controller.Delete)
 	}
 
 	return router
@@ -84,6 +85,18 @@ func (controller *PaymentController) Notification(c *gin.Context) {
 
 	//Save to database
 	err = controller.PaymentService.CreateOrUpdate(c.Request.Context(), resArray)
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	response.ReturnSuccessOK(c, "OK", nil)
+}
+
+func (controller *PaymentController) Delete(c *gin.Context) {
+	orderId := c.Param("order_id")
+
+	err := controller.PaymentService.Delete(c.Request.Context(), orderId)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return

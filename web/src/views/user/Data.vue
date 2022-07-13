@@ -56,9 +56,6 @@
 </template>
 
 <script>
-import "jquery/dist/jquery.min.js";
-import "datatables.net-dt/js/dataTables.dataTables";
-import "datatables.net-dt/css/jquery.dataTables.min.css";
 import axios from "axios";
 import $ from "jquery";
 import Sidebar from "@/components/admin/Sidebar.vue"
