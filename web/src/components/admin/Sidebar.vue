@@ -147,6 +147,8 @@ export default {
             if(response.data.code === 200) {
               localStorage.removeItem("token")
               localStorage.removeItem("refresh-token")
+              localStorage.removeItem("user")
+              localStorage.removeItem("name")
               alert(response.data.status)
               this.$router.push({
                 name: 'auth.login'

@@ -26,6 +26,8 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	productRepository := repository.NewProductRepository()
 	transactionRepository := repository.NewTransactionRepository()
 	aprioriRepository := repository.NewAprioriRepository()
+	paymentRepository := repository.NewPaymentRepository()
+	userOrderRepository := repository.NewUserOrderRepository()
 
 	// Setup Service
 	storageService := service.NewStorageService(configuration)
@@ -37,7 +39,8 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	productService := service.NewProductService(&productRepository, storageService, &aprioriRepository, db)
 	transactionService := service.NewTransactionService(&transactionRepository, &productRepository, db)
 	aprioriService := service.NewAprioriService(&transactionRepository, storageService, &productRepository, &aprioriRepository, db)
-	paymentService := service.NewPaymentService(configuration)
+	paymentService := service.NewPaymentService(configuration, &paymentRepository, &userOrderRepository, &transactionRepository, db)
+	userOrderService := service.NewUserOrderService(&paymentRepository, &userOrderRepository, db)
 
 	// Setup Controller
 	userController := controller.NewUserController(&userService)
@@ -46,6 +49,7 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	transactionController := controller.NewTransactionController(&transactionService, &storageService)
 	aprioriController := controller.NewAprioriController(aprioriService, &storageService)
 	paymentController := controller.NewPaymentController(&paymentService, emailService)
+	userOrderController := controller.NewUserOrderController(&paymentService, &userOrderService)
 
 	// CORS Middleware
 	router.Use(middleware.SetupCorsMiddleware())
@@ -68,6 +72,7 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	productController.Route(router)
 	transactionController.Route(router)
 	aprioriController.Route(router)
+	userOrderController.Route(router)
 
 	return router, db
 }

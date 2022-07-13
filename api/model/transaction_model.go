@@ -1,7 +1,7 @@
 package model
 
 type CreateTransactionRequest struct {
-	ProductName  string `json:"product_name" binding:"required,max=256"`
+	ProductName  string `json:"product_name" binding:"required"`
 	CustomerName string `json:"customer_name" binding:"required,max=100"`
 }
 

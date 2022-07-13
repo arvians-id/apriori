@@ -1,11 +1,11 @@
 package controller
 
 import (
+	"apriori/api/middleware"
 	"apriori/api/response"
 	"apriori/service"
 	"apriori/utils"
 	"encoding/json"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/veritrans/go-midtrans"
 )
@@ -25,18 +25,43 @@ func NewPaymentController(paymentService *service.PaymentService, emailService s
 func (controller *PaymentController) Route(router *gin.Engine) *gin.Engine {
 	authorized := router.Group("/api")
 	{
-		authorized.POST("/pay", controller.Pay)
-		authorized.POST("/notification", controller.Notification)
+		authorized.GET("/payments", controller.FindAll, middleware.AuthJwtMiddleware())
+		authorized.GET("/payments/:order_id", controller.FindByOrderId, middleware.AuthJwtMiddleware())
+		authorized.POST("/payments/pay", controller.Pay)
+		authorized.POST("/payments/notification", controller.Notification)
 	}
 
 	return router
 }
 
+func (controller *PaymentController) FindAll(c *gin.Context) {
+	payments, err := controller.PaymentService.FindAll(c.Request.Context())
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	response.ReturnSuccessOK(c, "OK", payments)
+}
+
+func (controller *PaymentController) FindByOrderId(c *gin.Context) {
+	orderId := c.Param("order_id")
+
+	payment, err := controller.PaymentService.FindByOrderId(c.Request.Context(), orderId)
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	response.ReturnSuccessOK(c, "OK", payment)
+}
+
 func (controller *PaymentController) Pay(c *gin.Context) {
 	grossAmount := int64(utils.StrToInt(c.PostForm("gross_amount")))
 	items := c.PostFormArray("items")
-	userId := 7
-	data, err := controller.PaymentService.GetToken(grossAmount, userId, items)
+	userId := utils.StrToInt(c.PostForm("user_id"))
+	customerName := c.PostForm("customer_name")
+	data, err := controller.PaymentService.GetToken(c.Request.Context(), grossAmount, userId, customerName, items)
 	if err != nil {
 		response.ReturnErrorBadRequest(c, err, nil)
 		return
@@ -57,13 +82,12 @@ func (controller *PaymentController) Notification(c *gin.Context) {
 	resArray := make(map[string]interface{})
 	err = json.Unmarshal(encode, &resArray)
 
-	// Send email to user
-	message := fmt.Sprintf("%s", resArray["signature_key"])
-	err = controller.EmailService.SendEmailWithText("widdyarfiansyah@ummi.ac.id", message)
+	//Save to database
+	err = controller.PaymentService.CreateOrUpdate(c.Request.Context(), resArray)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response.ReturnSuccessOK(c, "OK", resArray)
+	response.ReturnSuccessOK(c, "OK", nil)
 }

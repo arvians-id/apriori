@@ -74,14 +74,14 @@
                       <div class="col-auto">
                         <table class="table table-responsive table-borderless">
                           <tr>
-                            <td>Total keranjang belanja</td>
+                            <td>Sub Total</td>
                             <td>:</td>
-                            <td class="text-right">{{ totalCart }} keranjang</td>
+                            <td class="text-right">Rp {{ numberWithCommas(totalPrice - 5000) }}</td>
                           </tr>
                           <tr>
-                            <td>Total jenis barang</td>
+                            <td>Pajak Aplikasi</td>
                             <td>:</td>
-                            <td class="text-right">{{ this.carts.length }} barang</td>
+                            <td class="text-right">Rp {{ numberWithCommas(5000) }}</td>
                           </tr>
                           <tr>
                             <td>Total harga</td>
@@ -139,6 +139,7 @@ import Topbar from "@/components/guest/Topbar.vue"
 import Header from "@/components/guest/Header.vue"
 import Footer from "@/components/guest/Footer.vue"
 import axios from "axios";
+import authHeader from "@/service/auth-header";
 
 export default {
   components: {
@@ -150,13 +151,15 @@ export default {
   data(){
     return {
       carts: [],
-      totalPrice: 0,
+      totalPrice: 5000,
       totalCart: 0
     }
   },
   mounted() {
     this.fetchData()
-    this.loadScript()
+    if(authHeader()["Authorization"] !== undefined) {
+      this.loadScript()
+    }
     document.getElementsByTagName("body")[0].classList.remove("bg-default");
   },
   methods: {
@@ -186,15 +189,11 @@ export default {
       formData.append("user_id", "7")
       formData.append("items", JSON.stringify(this.carts))
 
-      axios.post(`${process.env.VUE_APP_SERVICE_URL}/pay`, formData).then(response => {
-        let snapJs = "https://app.sandbox.midtrans.com/snap/snap.js"
-        let tagSnapJs = document.createElement("script");
-        tagSnapJs.setAttribute("src", snapJs);
-        tagSnapJs.setAttribute("data-client-key", response.data.data.clientKey);
-        document.head.appendChild(tagSnapJs);
-      }).catch(error => {
-        console.log(error)
-      })
+      let snapJs = "https://app.sandbox.midtrans.com/snap/snap.js"
+      let tagSnapJs = document.createElement("script");
+      tagSnapJs.setAttribute("src", snapJs);
+      tagSnapJs.setAttribute("data-client-key", "SB-Mid-client-1WI-DDXBFya0sHp_");
+      document.head.appendChild(tagSnapJs);
     },
     getImage(image) {
       return image;
@@ -239,26 +238,32 @@ export default {
       localStorage.setItem('my-carts', JSON.stringify(this.carts));
     },
     send() {
-      let formData = new FormData()
-      formData.append("gross_amount", this.totalPrice)
-      formData.append("user_id", "7")
-      formData.append("items", JSON.stringify(this.carts))
+      if(authHeader()["Authorization"] === undefined) {
+        this.$router.push({ name: 'auth.login' })
+      } else {
+        let formData = new FormData()
+        formData.append("gross_amount", this.totalPrice)
+        formData.append("user_id", localStorage.getItem("user"))
+        formData.append("customer_name", localStorage.getItem("name"))
+        formData.append("items", JSON.stringify(this.carts))
 
-      axios.post(`${process.env.VUE_APP_SERVICE_URL}/pay`, formData).then(response => {
-        window.snap.pay(response.data.data.token, {
-          onSuccess: function(result) {
-            console.log(result)
-          },
-          onPending: function(result) {
-            console.log(result)
-          },
-          onError: function(result) {
-            console.log(result)
-          }
+        axios.post(`${process.env.VUE_APP_SERVICE_URL}/payments/pay`, formData).then(response => {
+          window.snap.pay(response.data.data.token, {
+            onSuccess: function(result) {
+              console.log(result)
+            },
+            onPending: function(result) {
+              console.log(result)
+            },
+            onError: function(result) {
+              console.log(result)
+            }
+          })
+        }).catch(error => {
+          console.log(error)
         })
-      }).catch(error => {
-         console.log(error)
-      })
+      }
+
     },
     clearCart() {
       if(confirm("Apakah anda yakin ingin menghapus semua keranjang belanjaan?")){

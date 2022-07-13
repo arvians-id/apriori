@@ -80,8 +80,24 @@ export default {
               let refreshToken = response.data.data.refresh_token
               localStorage.setItem("token", token)
               localStorage.setItem("refresh-token", refreshToken)
-              this.$router.push({
-                name: 'admin'
+
+              axios.get(`${process.env.VUE_APP_SERVICE_URL}/profile`, { headers: authHeader() })
+                  .then(response => {
+                    localStorage.setItem("user", response.data.data.id_user)
+                    localStorage.setItem("name", response.data.data.name)
+                    localStorage.setItem("role", response.data.data.role)
+
+                    if(response.data.data.role === 1) {
+                      this.$router.push({
+                        name: 'admin'
+                      })
+                    } else {
+                      this.$router.push({
+                        name: 'guest.index'
+                      })
+                    }
+                  }).catch(error => {
+                console.log(error.response.data.status)
               })
             }
           }).catch(error => {

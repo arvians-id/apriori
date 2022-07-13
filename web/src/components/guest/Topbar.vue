@@ -94,7 +94,7 @@
         </ul>
         <ul class="navbar-nav align-items-center ml-auto ml-md-0" v-if="isLoggedIn">
           <li class="nav-item dropdown">
-            <router-link class="nav-link pr-0" :to="{ name: 'admin' }" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <router-link class="nav-link pr-0" :to="route" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <div class="media align-items-center">
                 <div class="media-body ml-2">
                   <span class="mb-0 text-sm text-white font-weight-bold">{{ name }}</span>
@@ -111,7 +111,6 @@
 <script>
 
 import authHeader from "@/service/auth-header";
-import axios from "axios";
 
 export default {
   props: {
@@ -129,11 +128,13 @@ export default {
     if(this.isLoggedIn) {
       this.fetchData()
     }
+    this.checkRole()
   },
   data() {
     return {
       name: "",
       isLoggedIn: false,
+      route: { name: 'guest.profile' },
     }
   },
   methods: {
@@ -142,13 +143,13 @@ export default {
         this.isLoggedIn = true
       }
     },
+    checkRole(){
+      if(localStorage.getItem("role") === "1") {
+        this.route = { name: 'profile' }
+      }
+    },
     fetchData() {
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/profile`, { headers: authHeader() })
-          .then(response => {
-            this.name = response.data.data.name
-          }).catch(error => {
-            console.log(error.response.data.status)
-          })
+      this.name = localStorage.getItem("name")
     },
     getImage(image) {
       return image;

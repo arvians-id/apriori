@@ -86,8 +86,11 @@ func (service *userService) Create(ctx context.Context, request model.CreateUser
 	}
 
 	createUser := entity.User{
+		Role:      2,
 		Name:      request.Name,
 		Email:     request.Email,
+		Address:   request.Address,
+		Phone:     request.Phone,
 		Password:  string(password),
 		CreatedAt: timeNow,
 		UpdatedAt: timeNow,
@@ -130,6 +133,8 @@ func (service *userService) Update(ctx context.Context, request model.UpdateUser
 
 	getUser.Name = request.Name
 	getUser.Email = request.Email
+	getUser.Address = request.Address
+	getUser.Phone = request.Phone
 	getUser.Password = newPassword
 	getUser.UpdatedAt = updatedAt
 

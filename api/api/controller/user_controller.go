@@ -5,6 +5,7 @@ import (
 	"apriori/api/response"
 	"apriori/model"
 	"apriori/service"
+	"apriori/utils"
 	"errors"
 	"github.com/gin-gonic/gin"
 	"strconv"
@@ -128,12 +129,7 @@ func (controller *UserController) Update(c *gin.Context) {
 		return
 	}
 
-	params := c.Param("userId")
-	id, err := strconv.Atoi(params)
-	if err != nil {
-		response.ReturnErrorInternalServerError(c, err, nil)
-		return
-	}
+	id := utils.StrToInt(c.Param("userId"))
 
 	request.IdUser = uint64(id)
 

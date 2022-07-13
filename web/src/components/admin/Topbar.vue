@@ -66,6 +66,8 @@ export default {
             if(response.data.code === 200) {
               localStorage.removeItem("token")
               localStorage.removeItem("refresh-token")
+              localStorage.removeItem("user")
+              localStorage.removeItem("name")
               alert(response.data.status)
               this.$router.push({
                 name: 'auth.login'
@@ -76,15 +78,7 @@ export default {
       })
     },
     fetchData() {
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/profile`, { headers: authHeader() })
-          .then(response => {
-            this.user = {
-              name: response.data.data.name,
-              email: response.data.data.email,
-            }
-          }).catch(error => {
-        console.log(error.response.data.status)
-      })
+      this.user.name = localStorage.getItem("name")
     },
   }
 }

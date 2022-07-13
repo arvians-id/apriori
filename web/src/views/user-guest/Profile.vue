@@ -4,7 +4,7 @@
   <!-- Main content -->
   <div class="main-content" id="panel">
     <!-- Topnav -->
-    <Topbar />
+    <Topbar :totalCart="totalCart" :carts="carts" />
     <!-- Header -->
     <Header />
     <!-- Page content -->
@@ -69,10 +69,10 @@
 </template>
 
 <script>
-import Sidebar from "@/components/admin/Sidebar.vue"
-import Topbar from "@/components/admin/Topbar.vue"
-import Header from "@/components/admin/Header.vue"
-import Footer from "@/components/admin/Footer.vue"
+import Sidebar from "@/components/guest/Sidebar.vue"
+import Topbar from "@/components/guest/Topbar.vue"
+import Header from "@/components/guest/Header.vue"
+import Footer from "@/components/guest/Footer.vue"
 import axios from "axios";
 import authHeader from "@/service/auth-header";
 
@@ -85,6 +85,8 @@ export default {
   },
   data(){
     return {
+      carts: [],
+      totalCart: 0,
       user: {
         name: "",
         email: "",
@@ -104,7 +106,7 @@ export default {
             if(response.data.code === 200) {
               alert(response.data.status)
               this.$router.push({
-                name: 'profile'
+                name: 'guest.profile'
               })
             }
           }).catch(error => {
@@ -112,15 +114,25 @@ export default {
       })
     },
     fetchData() {
+      localStorage.getItem("my-carts")
+          ? (this.carts = JSON.parse(localStorage.getItem("my-carts")))
+          : (this.carts = []);
+
+      if(this.carts.length > 0){
+        this.totalCart = JSON.parse(localStorage.getItem('my-carts')).reduce((total, item) => {
+          return total + item.quantity
+        }, 0)
+      }
+
       axios.get(`${process.env.VUE_APP_SERVICE_URL}/profile`, { headers: authHeader() })
           .then(response => {
-              this.user = {
-                name: response.data.data.name,
-                email: response.data.data.email,
-                address: response.data.data.address,
-                phone: response.data.data.phone,
-                password: response.data.data.password,
-              }
+            this.user = {
+              name: response.data.data.name,
+              email: response.data.data.email,
+              address: response.data.data.address,
+              phone: response.data.data.phone,
+              password: response.data.data.password,
+            }
           }).catch(error => {
         console.log(error.response.data.status)
       })

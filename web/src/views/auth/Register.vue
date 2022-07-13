@@ -19,7 +19,7 @@
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="ni ni-single-02"></i></span>
                     </div>
-                    <input class="form-control" placeholder="Full Name" type="text" v-model="user.name" required>
+                    <input class="form-control" placeholder="Full Name" type="text" name="name" v-model="user.name" required>
                   </div>
                 </div>
                 <div class="form-group mb-3">
@@ -27,7 +27,23 @@
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="ni ni-email-83"></i></span>
                     </div>
-                    <input class="form-control" placeholder="Email" type="email" v-model="user.email" required>
+                    <input class="form-control" placeholder="Email" type="email" name="email" v-model="user.email" required>
+                  </div>
+                </div>
+                <div class="form-group mb-3">
+                  <div class="input-group input-group-merge input-group-alternative">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text"><i class="ni ni-building"></i></span>
+                    </div>
+                    <input class="form-control" placeholder="Address" type="text" name="address" v-model="user.address" required>
+                  </div>
+                </div>
+                <div class="form-group mb-3">
+                  <div class="input-group input-group-merge input-group-alternative">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text"><i class="ni ni-collection"></i></span>
+                    </div>
+                    <input class="form-control" placeholder="Phone Number" type="text" name="phone" v-model="user.phone" required>
                   </div>
                 </div>
                 <div class="form-group">
@@ -35,7 +51,7 @@
                     <div class="input-group-prepend">
                       <span class="input-group-text"><i class="ni ni-lock-circle-open"></i></span>
                     </div>
-                    <input class="form-control" placeholder="Password" type="password" v-model="user.password" required>
+                    <input class="form-control" placeholder="Password" type="password" name="password" v-model="user.password" required>
                   </div>
                 </div>
                 <div class="text-center">
@@ -70,6 +86,8 @@ export default {
       user: {
         name: "",
         email: "",
+        address: "",
+        phone: "",
         password: "",
       }
     }

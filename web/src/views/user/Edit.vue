@@ -23,15 +23,28 @@
                 <form @submit.prevent="submit" method="POST">
                   <div class="form-group">
                     <label class="form-control-label">Full Name</label> <small class="text-danger">*</small>
-                    <input type="text" class="form-control" v-model="user.name" required>
+                    <input type="text" class="form-control" name="name" v-model="user.name" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-control-label">Role</label> <small class="text-danger">*</small>
+                    <input type="number" min="1" max="2" class="form-control" v-model="user.role" required>
+                    <span class="text-danger text-sm">*1 Admin and *2 Member</span>
                   </div>
                   <div class="form-group">
                     <label class="form-control-label">Email</label> <small class="text-danger">*</small>
-                    <input type="email" class="form-control" v-model="user.email" required>
+                    <input type="email" class="form-control" name="email" v-model="user.email" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-control-label">Address</label> <small class="text-danger">*</small>
+                    <input type="text" class="form-control" name="address" v-model="user.address" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-control-label">Phone Number</label> <small class="text-danger">*</small>
+                    <input type="text" class="form-control" name="phone" v-model="user.phone" required>
                   </div>
                   <div class="form-group">
                     <label class="form-control-label">Password</label>
-                    <input type="password" class="form-control" v-model="user.password">
+                    <input type="password" class="form-control" name="password" v-model="user.password">
                   </div>
                   <button class="btn btn-primary" type="submit">Submit form</button>
                 </form>
@@ -67,8 +80,11 @@ export default {
   data: function () {
     return {
       user: {
+        role: 2,
         name: "",
         email: "",
+        address: "",
+        phone: "",
         password: "",
       }
     };
@@ -90,8 +106,11 @@ export default {
     fetchData() {
       axios.get(`${process.env.VUE_APP_SERVICE_URL}/users/${this.$route.params.id}`, { headers: authHeader() }).then(response => {
         this.user = {
+          role: response.data.data.role,
           name: response.data.data.name,
           email: response.data.data.email,
+          address: response.data.data.address,
+          phone: response.data.data.phone,
         };
       });
     }

@@ -40,7 +40,7 @@ func (repository *userRepository) FindAll(ctx context.Context, tx *sql.Tx) ([]en
 	var users []entity.User
 	for queryContext.Next() {
 		var user entity.User
-		err := queryContext.Scan(&user.IdUser, &user.Name, &user.Email, &user.Password, &user.CreatedAt, &user.UpdatedAt)
+		err := queryContext.Scan(&user.IdUser, &user.Role, &user.Name, &user.Email, &user.Address, &user.Phone, &user.Password, &user.CreatedAt, &user.UpdatedAt)
 		if err != nil {
 			return []entity.User{}, err
 		}
@@ -65,7 +65,7 @@ func (repository *userRepository) FindById(ctx context.Context, tx *sql.Tx, user
 
 	var user entity.User
 	if queryContext.Next() {
-		err := queryContext.Scan(&user.IdUser, &user.Name, &user.Email, &user.Password, &user.CreatedAt, &user.UpdatedAt)
+		err := queryContext.Scan(&user.IdUser, &user.Role, &user.Name, &user.Email, &user.Address, &user.Phone, &user.Password, &user.CreatedAt, &user.UpdatedAt)
 		if err != nil {
 			return entity.User{}, err
 		}
@@ -91,7 +91,7 @@ func (repository *userRepository) FindByEmail(ctx context.Context, tx *sql.Tx, e
 
 	var user entity.User
 	if queryContext.Next() {
-		err := queryContext.Scan(&user.IdUser, &user.Name, &user.Email, &user.Password, &user.CreatedAt, &user.UpdatedAt)
+		err := queryContext.Scan(&user.IdUser, &user.Role, &user.Name, &user.Email, &user.Address, &user.Phone, &user.Password, &user.CreatedAt, &user.UpdatedAt)
 		if err != nil {
 			return entity.User{}, err
 		}
@@ -104,8 +104,8 @@ func (repository *userRepository) FindByEmail(ctx context.Context, tx *sql.Tx, e
 
 func (repository *userRepository) Create(ctx context.Context, tx *sql.Tx, user entity.User) (entity.User, error) {
 	id := 0
-	query := "INSERT INTO users (name,email,password,created_at,updated_at) VALUES($1,$2,$3,$4,$5) RETURNING id_user"
-	row := tx.QueryRowContext(ctx, query, user.Name, user.Email, user.Password, user.CreatedAt, user.UpdatedAt)
+	query := "INSERT INTO users (role,name,email,address,phone,password,created_at,updated_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id_user"
+	row := tx.QueryRowContext(ctx, query, user.Role, user.Name, user.Email, user.Address, user.Phone, user.Password, user.CreatedAt, user.UpdatedAt)
 	err := row.Scan(&id)
 	if err != nil {
 		return entity.User{}, err
@@ -117,8 +117,8 @@ func (repository *userRepository) Create(ctx context.Context, tx *sql.Tx, user e
 }
 
 func (repository *userRepository) Update(ctx context.Context, tx *sql.Tx, user entity.User) (entity.User, error) {
-	query := "UPDATE users SET name = $1, email = $2, password = $3, updated_at = $4 WHERE id_user = $5"
-	_, err := tx.ExecContext(ctx, query, user.Name, user.Email, user.Password, user.UpdatedAt, user.IdUser)
+	query := "UPDATE users SET name = $1, email = $2, address = $3, phone = $4, password = $5, updated_at = $6 WHERE id_user = $7"
+	_, err := tx.ExecContext(ctx, query, user.Name, user.Email, user.Address, user.Phone, user.Password, user.UpdatedAt, user.IdUser)
 	if err != nil {
 		return entity.User{}, err
 	}
