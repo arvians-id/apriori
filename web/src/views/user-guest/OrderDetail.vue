@@ -78,10 +78,12 @@
               </div>
               <div class="justify-content-between d-flex" id="information">
                 <div>
-                  <p class="mt-3 h3">Hubungi Kami untuk informasi selanjutnya</p>
-                  <a :href="send(user, payment)">
-                    <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/wa.png" width="200">
-                  </a>
+                  <div v-if="payment.transaction_status === `settlement`">
+                    <p class="mt-3 h3">Hubungi Kami untuk informasi selanjutnya</p>
+                    <a :href="send(user, payment)">
+                      <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/wa.png" width="200">
+                    </a>
+                  </div>
                 </div>
                 <div class="mt-5">
                   <a href="javascript:void(0);" @click="print">
@@ -210,7 +212,7 @@ export default {
       return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     },
     send(user, payment) {
-      let text = `Hallo saya ${user.name} dengan pemesanan order id #${payment.order_id}. Saya ingin menghubungi anda untuk informasi selanjutnya. Terima kasih.`
+      let text = `Hallo saya ${user.name} pelanggan anda dengan order id ${payment.order_id} %0aSaya ingin menghubungi anda untuk informasi selanjutnya. Terima kasih.`
       return `whatsapp://send/?phone=${process.env.VUE_APP_PHONE_NUMBER}&text=${text}`
     },
     print(){
