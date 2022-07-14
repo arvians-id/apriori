@@ -16,7 +16,10 @@
             <div class="card-header">
               <h3 class="mb-0">Recommendation Packages</h3>
             </div>
-            <div class="row align-items-center">
+            <div class="row align-items-center mx-auto" v-if="isLoading">
+              <p class="p-3 mt-2 text-center">Loading...</p>
+            </div>
+            <div class="row align-items-center" v-else>
               <div class="col-12 col-lg-6 text-center">
                 <img :src="getImage()" class="img-fluid my-5" width="500">
               </div>
@@ -85,13 +88,16 @@ export default {
   data: function () {
     return {
       apriori: [],
+      isLoading: true
     };
   },
   methods: {
-    fetchData() {
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/apriori/${this.$route.params.code}/detail/${this.$route.params.id}`, { headers: authHeader() }).then((response) => {
+    async fetchData() {
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/apriori/${this.$route.params.code}/detail/${this.$route.params.id}`, { headers: authHeader() }).then((response) => {
         this.apriori = response.data.data;
       });
+
+      this.isLoading = false;
     },
     getImage() {
       return this.apriori.apriori_image

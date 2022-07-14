@@ -19,7 +19,10 @@
                 <h3 class="mb-0">All Recommendation Packages </h3>
               </div>
               <!-- Card body -->
-              <div class="card-body">
+              <div class="card-body" v-if="isLoading">
+                <p class="mt-2 text-center">Loading...</p>
+              </div>
+              <div class="card-body" v-else>
                 <div class="row">
                   <div class="col-12 col-md-6 col-lg-4 col-xl-3" v-for="item in apriories" :key="item.id_apriori">
                     <div class="card card-pricing border-0 text-center mb-4">
@@ -87,15 +90,18 @@ export default {
   data: function () {
     return {
       apriories: [],
-      getDate: "No date found"
+      getDate: "No date found",
+      isLoading: true,
     };
   },
   methods: {
-    fetchData() {
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/apriori/actives`, { headers: authHeader() }).then((response) => {
+    async fetchData() {
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/apriori/actives`, { headers: authHeader() }).then((response) => {
         this.apriories = response.data.data;
         this.getDate = `${this.apriories[0].range_date}`
       });
+
+      this.isLoading = false
     },
     UpperWord(str) {
       return str.toLowerCase().replace(/\b[a-z]/g, function (letter) {

@@ -12,7 +12,10 @@
       <div class="row">
         <div class="col-xl-4 order-xl-2">
           <div class="card card-profile">
-            <div class="card-body pt-0">
+            <div class="card-body" v-if="isLoading">
+              <p class="mt-2 text-center">Loading...</p>
+            </div>
+            <div class="card-body pt-0" v-else>
               <div class="text-center">
                 <h5 class="h3 mt-4">
                   {{ user.name }}
@@ -34,7 +37,10 @@
                 </div>
               </div>
             </div>
-            <div class="card-body">
+            <div class="card-body" v-if="isLoading">
+              <p class="mt-2 text-center">Loading...</p>
+            </div>
+            <div class="card-body" v-else>
               <form @submit.prevent="submit" method="POST">
                 <div class="form-group">
                   <label class="form-control-label">Full Name</label> <small class="text-danger">*</small>
@@ -93,7 +99,8 @@ export default {
         address: "",
         phone: "",
         password: "",
-      }
+      },
+      isLoading: true,
     }
   },
   mounted() {
@@ -106,14 +113,14 @@ export default {
             if(response.data.code === 200) {
               alert(response.data.status)
               this.$router.push({
-                name: 'guest.profile'
+                name: 'member.profile'
               })
             }
           }).catch(error => {
         console.log(error.response.data.status)
       })
     },
-    fetchData() {
+    async fetchData() {
       localStorage.getItem("my-carts")
           ? (this.carts = JSON.parse(localStorage.getItem("my-carts")))
           : (this.carts = []);
@@ -124,7 +131,7 @@ export default {
         }, 0)
       }
 
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/profile`, { headers: authHeader() })
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/profile`, { headers: authHeader() })
           .then(response => {
             this.user = {
               name: response.data.data.name,
@@ -136,6 +143,8 @@ export default {
           }).catch(error => {
         console.log(error.response.data.status)
       })
+
+      this.isLoading = false
     }
   }
 }

@@ -17,7 +17,10 @@
             <div class="card-header">
               <h3 class="mb-0">Data Apriori</h3>
             </div>
-            <div class="table-responsive py-4">
+            <div class="table-responsive py-3" v-if="isLoading">
+              <p class="mt-2 text-center">Loading...</p>
+            </div>
+            <div class="table-responsive py-4" v-else>
               <table class="table table-flush" id="datatable">
                 <thead class="thead-light">
                 <tr>
@@ -80,16 +83,19 @@ export default {
   data: function () {
     return {
       apriories: [],
+      isLoading: true
     };
   },
   methods: {
-    fetchData() {
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/apriori`, { headers: authHeader() }).then((response) => {
+    async fetchData() {
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/apriori`, { headers: authHeader() }).then((response) => {
         this.apriories = response.data.data;
         setTimeout(function(){
           $('#datatable').DataTable();
         }, 0);
       });
+
+      this.isLoading = false;
     },
     submit(code) {
       if(confirm("Are you sure to delete this data?")) {

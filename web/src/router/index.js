@@ -44,37 +44,17 @@ router.beforeEach( async (to) => {
       return { name: 'guest.index' }
   }
 
-  setTimeout(() => {
-      if (to.name.split(".")[0] !== "auth" && authHeader()["Authorization"]) {
-          axios.get(`${process.env.VUE_APP_SERVICE_URL}/auth/token`, { headers: authHeader() })
-              .catch(() => {
-                  let refreshToken = {
-                      refresh_token: localStorage.getItem("refresh-token")
-                  }
-                  axios.post(`${process.env.VUE_APP_SERVICE_URL}/auth/refresh`,refreshToken,{ headers: authHeader() })
-                      .then(response => {
-                          let token = response.data.data.access_token
-                          let refreshToken = response.data.data.refresh_token
-                          localStorage.setItem("token", token)
-                          localStorage.setItem("refresh-token", refreshToken)
-
-                          axios.get(`${process.env.VUE_APP_SERVICE_URL}/profile`, { headers: authHeader() })
-                              .then(response => {
-                                  localStorage.setItem("user", response.data.data.id_user)
-                                  localStorage.setItem("name", response.data.data.name)
-                              }).catch(error => {
-                              console.log(error.response.data.status)
-                          })
-                      }).catch(() => {
-                      localStorage.removeItem("token")
-                      localStorage.removeItem("refresh-token")
-                      localStorage.removeItem("user")
-                      localStorage.removeItem("name")
-                      this.$router.push({ name: 'auth.login' })
-                  })
-              })
-      }
-  }, 5000);
+  if (to.name.split(".")[0] !== "auth" && to.name.split(".")[0] !== "guest" && authHeader()["Authorization"]) {
+      axios.get(`${process.env.VUE_APP_SERVICE_URL}/auth/token`, { headers: authHeader() })
+          .catch(() => {
+              alert("You are not authorized to access this page, please login again");
+              localStorage.removeItem("token")
+              localStorage.removeItem("refresh-token")
+              localStorage.removeItem("user")
+              localStorage.removeItem("name")
+              window.location.reload()
+          })
+  }
 })
 
 export default router;

@@ -19,7 +19,10 @@
                 <h3 class="mb-0">{{ this.$route.params.code }}</h3>
               </div>
               <!-- Light table -->
-              <div class="table-responsive">
+              <div class="table-responsive py-3" v-if="isLoading">
+                <p class="mt-2 text-center">Loading...</p>
+              </div>
+              <div class="table-responsive" v-else>
                 <table class="table align-items-center table-flush">
                   <thead class="thead-light">
                     <tr>
@@ -106,13 +109,16 @@ export default {
   data: function () {
     return {
       apriories: [],
+      isLoading: true
     };
   },
   methods: {
-    fetchData() {
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/apriori/${this.$route.params.code}`, { headers: authHeader() }).then((response) => {
+    async fetchData() {
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/apriori/${this.$route.params.code}`, { headers: authHeader() }).then((response) => {
         this.apriories = response.data.data;
       });
+
+      this.isLoading = false;
     }
   }
 }

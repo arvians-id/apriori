@@ -148,7 +148,7 @@ export default {
     return {
       name: "",
       isLoggedIn: false,
-      route: { name: 'guest.profile' },
+      route: { name: 'member.profile' },
     }
   },
   methods: {

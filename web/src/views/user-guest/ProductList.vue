@@ -20,9 +20,9 @@
                 <h5 class="h3 mb-0">Semua Produk</h5>
               </div>
               <div class="card-body" v-if="isLoading">
-                <p class="p-3 mt-2 text-center">Loading...</p>
+                <p class="mt-2 text-center">Loading...</p>
               </div>
-              <div class="card-body">
+              <div class="card-body" v-else>
                 <div class="row" v-if="products.length > 0">
                   <div class="col-12 col-md-6 col-lg-4 col-xl-3" v-for="item in products" :key="item.id_product">
                     <div class="card">
@@ -65,9 +65,9 @@
               <h5 class="h3 mb-0">Rekomendasi Paket Diskon Barang</h5>
             </div>
             <div class="card-body" v-if="isLoading2">
-              <p class="p-3 mt-2 text-center">Loading...</p>
+              <p class="mt-2 text-center">Loading...</p>
             </div>
-            <div class="card-body">
+            <div class="card-body" v-else>
               <div class="row" v-if="recommendation.length > 0">
                 <div class="col-12 col-md-6 col-lg-4 col-xl-3" v-for="item in recommendation" :key="item.apriori_id">
                   <div class="card card-pricing border-0 mb-4">

@@ -16,7 +16,10 @@
             <div class="card-header">
               <h3 class="mb-0">Detail Paket Rekomendasi</h3>
             </div>
-            <div class="row align-items-center">
+            <div class="row align-items-center mx-auto" v-if="isLoading">
+              <p class="p-3 mt-2 text-center">Loading...</p>
+            </div>
+            <div class="row align-items-center" v-else>
               <div class="col-12 col-lg-6 text-center">
                 <img :src="getImage()" class="img-fluid my-5" width="500">
               </div>
@@ -88,15 +91,16 @@ export default {
       carts: [],
       totalCart: 0,
       quantity: 0,
+      isLoading: true,
     };
   },
   methods: {
-    fetchData() {
+    async fetchData() {
       localStorage.getItem("my-carts")
           ? (this.carts = JSON.parse(localStorage.getItem("my-carts")))
           : (this.carts = []);
 
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/apriori/${this.$route.params.code}/detail/${this.$route.params.id}`, { headers: authHeader() }).then((response) => {
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/apriori/${this.$route.params.code}/detail/${this.$route.params.id}`, { headers: authHeader() }).then((response) => {
         this.apriori = response.data.data;
       });
 
@@ -108,6 +112,8 @@ export default {
 
       let productItem = this.carts.find(product => product.code == this.$route.params.id);
       this.quantity = productItem ? productItem.quantity : 0;
+
+      this.isLoading = false
     },
     getImage() {
       return this.apriori.apriori_image

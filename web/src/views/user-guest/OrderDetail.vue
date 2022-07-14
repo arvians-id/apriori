@@ -18,7 +18,10 @@
               <h3 class="mb-0">{{ payment.transaction_status.toUpperCase() }}</h3>
             </div>
             <!-- Card body -->
-            <div class="card-body">
+            <div class="card-body" v-if="isLoading">
+              <p class="mt-2 text-center">Loading...</p>
+            </div>
+            <div class="card-body" v-else>
               <h3>Nota Pesanan</h3>
               <div class="bg-secondary p-3 rounded">
                 <p>Nama Pembeli : {{ user.name }}</p>
@@ -144,11 +147,12 @@ export default {
         va_number: "",
         biller_code: "",
         bill_key: ""
-      }
+      },
+      isLoading: true,
     };
   },
   methods: {
-    fetchData() {
+    async fetchData() {
       localStorage.getItem("my-carts")
           ? (this.carts = JSON.parse(localStorage.getItem("my-carts")))
           : (this.carts = []);
@@ -159,26 +163,26 @@ export default {
         }, 0)
       }
 
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/user-order/${this.$route.params.order_id}`, { headers: authHeader() }).then(response => {
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/user-order/${this.$route.params.order_id}`, { headers: authHeader() }).then(response => {
         this.orders = response.data.data
         if(response.data.data != null) {
           response.data.data.map(item => {
             this.totalPrice += item.total_price_item;
           })
         }
-
-        axios.get(`${process.env.VUE_APP_SERVICE_URL}/profile`, { headers: authHeader() }).then(response => {
-          this.user = {
-            name: response.data.data.name,
-            address: response.data.data.address,
-            phone: response.data.data.phone
-          }
-        }).catch(error => {
-          console.log(error)
-        })
       })
 
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/payments/${this.$route.params.order_id}`, { headers: authHeader() }).then(response => {
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/profile`, { headers: authHeader() }).then(response => {
+        this.user = {
+          name: response.data.data.name,
+          address: response.data.data.address,
+          phone: response.data.data.phone
+        }
+      }).catch(error => {
+        console.log(error)
+      })
+
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/payments/${this.$route.params.order_id}`, { headers: authHeader() }).then(response => {
         this.payment = {
             id_payload: response.data.data.id_payload,
             user_id: response.data.data.user_id,
@@ -199,6 +203,8 @@ export default {
             bill_key: response.data.data.bill_key
         }
       })
+
+      this.isLoading = false;
     },
     numberWithCommas(x) {
       return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");

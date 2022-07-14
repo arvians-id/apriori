@@ -19,7 +19,10 @@
                 <h3 class="mb-0">Edit Apriori</h3>
               </div>
               <!-- Card body -->
-              <div class="card-body">
+              <div class="card-body" v-if="isLoading">
+                <p class="mt-2 text-center">Loading...</p>
+              </div>
+              <div class="card-body" v-else>
                 <form @submit.prevent="submit" method="POST">
                   <div class="form-group">
                     <label class="form-control-label">Description</label>
@@ -69,7 +72,8 @@ export default {
         description: "",
         image: null
       },
-      previewImage: "https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/no-image.png"
+      previewImage: "https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/no-image.png",
+      isLoading: true
     };
   },
   methods: {
@@ -100,13 +104,15 @@ export default {
         console.log(error.response.data.status)
       })
     },
-    fetchData() {
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/apriori/${this.$route.params.code}/detail/${this.$route.params.id}`, { headers: authHeader() }).then(response => {
+    async fetchData() {
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/apriori/${this.$route.params.code}/detail/${this.$route.params.id}`, { headers: authHeader() }).then(response => {
         this.apriori = {
           description: response.data.data.apriori_description,
         }
         this.previewImage = response.data.data.apriori_image
       });
+
+      this.isLoading = false
     },
     uploadImage(e) {
       let files = e.target.files[0]

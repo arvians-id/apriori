@@ -19,7 +19,10 @@
                 <h3 class="mb-0">Edit User</h3>
               </div>
               <!-- Card body -->
-              <div class="card-body">
+              <div class="card-body" v-if="isLoading">
+                <p class="mt-2 text-center">Loading...</p>
+              </div>
+              <div class="card-body" v-else>
                 <form @submit.prevent="submit" method="POST">
                   <div class="form-group">
                     <label class="form-control-label">Full Name</label> <small class="text-danger">*</small>
@@ -86,7 +89,8 @@ export default {
         address: "",
         phone: "",
         password: "",
-      }
+      },
+      isLoading: true
     };
   },
   methods: {
@@ -103,8 +107,8 @@ export default {
         console.log(error.response.data.status)
       })
     },
-    fetchData() {
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/users/${this.$route.params.id}`, { headers: authHeader() }).then(response => {
+    async fetchData() {
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/users/${this.$route.params.id}`, { headers: authHeader() }).then(response => {
         this.user = {
           role: response.data.data.role,
           name: response.data.data.name,
@@ -113,6 +117,8 @@ export default {
           phone: response.data.data.phone,
         };
       });
+
+      this.isLoading = false;
     }
   }
 }

@@ -41,7 +41,7 @@
               </router-link>
             </li>
             <li class="nav-item" v-if="isLoggedIn">
-              <router-link :class="getActiveNavLink('guest.order')" :to="{ name: 'guest.order' }">
+              <router-link :class="getActiveNavLink('member.order')" :to="{ name: 'member.order' }">
                 <i class="ni ni-delivery-fast text-dark"></i>
                 <span class="nav-link-text">My Order</span>
               </router-link>
@@ -55,7 +55,7 @@
             <!-- Navigation -->
             <ul class="navbar-nav mb-md-3">
               <li class="nav-item">
-                <router-link class="nav-link" :to="{ name: 'guest.profile' }" v-if="role">
+                <router-link class="nav-link" :to="{ name: 'member.profile' }" v-if="role">
                   <i class="ni ni-single-02"></i>
                   <span class="nav-link-text">My Account</span>
                 </router-link>

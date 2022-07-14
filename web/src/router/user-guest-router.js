@@ -13,9 +13,9 @@ const userGuestRouter = [
     { path: "/product-list/:code", name: "guest.product.detail", component: ProductDetail },
     { path: "/recommendation/:code/id/:id", name: "guest.product.recommendation", component: RecommendationDetail },
     { path: "/my-cart", name: "guest.cart", component: Cart },
-    { path: "/my-order", name: "guest.order", component: Order },
-    { path: "/my-order/:order_id", name: "guest.order.detail", component: OrderDetail },
-    { path: "/my-profile", name: "guest.profile", component: Profile },
+    { path: "/my-order", name: "member.order", component: Order },
+    { path: "/my-order/:order_id", name: "member.order.detail", component: OrderDetail },
+    { path: "/my-profile", name: "member.profile", component: Profile },
 ]
 
 export default userGuestRouter;

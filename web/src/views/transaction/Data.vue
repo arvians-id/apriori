@@ -20,7 +20,10 @@
                 <button class="btn btn-danger btn-sm" type="submit">Clear Data</button>
               </form>
             </div>
-            <div class="table-responsive py-4">
+            <div class="table-responsive py-3" v-if="isLoading">
+              <p class="mt-2 text-center">Loading...</p>
+            </div>
+            <div class="table-responsive py-4" v-else>
               <table class="table table-flush" id="datatable">
                 <thead class="thead-light">
                   <tr>
@@ -85,16 +88,19 @@ export default {
   data: function () {
     return {
       transactions: [],
+      isLoading: true
     };
   },
   methods: {
-    fetchData() {
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/transactions`, { headers: authHeader() }).then((response) => {
+    async fetchData() {
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/transactions`, { headers: authHeader() }).then((response) => {
         this.transactions = response.data.data;
         setTimeout(function(){
           $('#datatable').DataTable();
         }, 0);
       });
+
+      this.isLoading = false;
     },
     submit(no_transaction) {
       if(confirm("Are you sure to delete this data?")) {

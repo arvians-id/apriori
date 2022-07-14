@@ -14,9 +14,12 @@
           <div class="card card-profile">
             <!-- Card header -->
             <div class="card-header">
-              <h3 class="mb-0">Detail Produk {{ product.name }}</h3>
+              <h3 class="mb-0">Detail Produk</h3>
             </div>
-            <div class="row align-items-center">
+            <div class="row align-items-center mx-auto" v-if="isLoading">
+              <p class="p-3 mt-2 text-center">Loading...</p>
+            </div>
+            <div class="row align-items-center" v-else>
               <div class="col-12 col-lg-6 text-center">
                 <img :src="getImage()" class="img-fluid my-5" width="500">
               </div>
@@ -59,8 +62,11 @@
             <div class="card-header d-flex justify-content-between">
               <h3 class="mb-0">Rekomendasi Paket Diskon Untuk Kamu</h3>
             </div>
+            <div class="card-body" v-if="isLoading2">
+              <p class="mt-2 text-center">Loading...</p>
+            </div>
             <!-- Card body -->
-            <div class="card-body">
+            <div class="card-body" v-else>
               <div class="row">
                 <div class="col-12 col-md-6 col-lg-4 col-xl-3" v-for="item in recommendation" :key="item.apriori_id">
                   <div class="card card-pricing border-0 text-center mb-4">
@@ -131,15 +137,17 @@ export default {
       carts: [],
       totalCart: 0,
       quantity: 0,
+      isLoading: true,
+      isLoading2: true,
     };
   },
   methods: {
-    fetchData() {
+    async fetchData() {
       localStorage.getItem("my-carts")
           ? (this.carts = JSON.parse(localStorage.getItem("my-carts")))
           : (this.carts = []);
 
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/products/${this.$route.params.code}`, { headers: authHeader() }).then((response) => {
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/products/${this.$route.params.code}`, { headers: authHeader() }).then((response) => {
         this.product = response.data.data;
       });
 
@@ -151,13 +159,17 @@ export default {
 
       let productItem = this.carts.find(product => product.code === this.$route.params.code);
       this.quantity = productItem ? productItem.quantity : 0;
+
+      this.isLoading = false
     },
-    fetchDataRecommendation() {
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/products/${this.$route.params.code}/recommendation`, { headers: authHeader() }).then((response) => {
+    async fetchDataRecommendation() {
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/products/${this.$route.params.code}/recommendation`, { headers: authHeader() }).then((response) => {
         if(response.data.data != null) {
           this.recommendation = response.data.data;
         }
       });
+
+      this.isLoading2 = false
     },
     getImage() {
       return this.product.image

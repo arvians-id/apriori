@@ -29,7 +29,7 @@
                   <li class="checklist-entry list-group-item flex-column align-items-start py-4 px-4" v-for="(item,i) in orders" :key="i">
                     <div :class="getColor(`checklist-item checklist-item-`, item.transaction_status)">
                       <div class="checklist-info">
-                        <router-link :to="{ name: 'guest.order.detail', params: { order_id: item.order_id } }">
+                        <router-link :to="{ name: 'member.order.detail', params: { order_id: item.order_id } }">
                           <h5 class="checklist-title mb-0">Order ID #{{ item.order_id }}</h5>
                         </router-link>
                         <small>{{ item.transaction_time }}</small>

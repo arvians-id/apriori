@@ -17,7 +17,10 @@
             <div class="card-header d-flex">
               <h3 class="mb-0">Data User Order</h3>
             </div>
-            <div class="table-responsive py-4">
+            <div class="table-responsive py-3" v-if="isLoading">
+              <p class="mt-2 text-center">Loading...</p>
+            </div>
+            <div class="table-responsive py-4" v-else>
               <table class="table table-flush" id="datatable">
                 <thead class="thead-light">
                 <tr>
@@ -79,16 +82,19 @@ export default {
   data: function () {
     return {
       orders: [],
+      isLoading: true
     };
   },
   methods: {
-    fetchData() {
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/payments`, { headers: authHeader() }).then((response) => {
+    async fetchData() {
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/payments`, { headers: authHeader() }).then((response) => {
         this.orders = response.data.data;
         setTimeout(function(){
           $('#datatable').DataTable();
         }, 0);
       });
+
+      this.isLoading = false;
     },
     submit(order_id) {
       if(confirm("Are you sure to delete this data?")) {
