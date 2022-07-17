@@ -16,7 +16,10 @@
             <div class="card-header">
               <h3 class="mb-0">Detail Product</h3>
             </div>
-            <div class="row align-items-center">
+            <div class="row align-items-center mx-auto" v-if="isLoading">
+              <p class="p-3 mt-2 text-center">Loading...</p>
+            </div>
+            <div class="row align-items-center" v-else>
               <div class="col-12 col-lg-6 text-center">
                 <img :src="getImage()" class="img-fluid my-5" width="500">
               </div>
@@ -65,7 +68,10 @@
               <h3 class="mb-0">Recommendation Packages For You</h3>
             </div>
             <!-- Card body -->
-            <div class="card-body">
+            <div class="card-body" v-if="isLoading2">
+              <p class="mt-2 text-center">Loading...</p>
+            </div>
+            <div class="card-body" v-else>
               <div class="row">
                 <div class="col-12 col-md-6 col-lg-4 col-xl-3" v-for="item in recommendation" :key="item.apriori_id">
                   <div class="card card-pricing border-0 text-center mb-4">
@@ -131,21 +137,27 @@ export default {
   data: function () {
     return {
       product: [],
-      recommendation: []
+      recommendation: [],
+      isLoading: true,
+      isLoading2: true,
     };
   },
   methods: {
-    fetchData() {
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/products/${this.$route.params.code}`, { headers: authHeader() }).then((response) => {
+    async fetchData() {
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/products/${this.$route.params.code}`, { headers: authHeader() }).then((response) => {
         this.product = response.data.data;
       });
+
+      this.isLoading = false
     },
-    fetchDataRecommendation() {
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/products/${this.$route.params.code}/recommendation`, { headers: authHeader() }).then((response) => {
+    async fetchDataRecommendation() {
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/products/${this.$route.params.code}/recommendation`, { headers: authHeader() }).then((response) => {
         if(response.data.data != null) {
           this.recommendation = response.data.data;
         }
       });
+
+      this.isLoading2 = false
     },
     getImage() {
       return this.product.image

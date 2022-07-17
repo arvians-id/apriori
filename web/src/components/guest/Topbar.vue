@@ -81,23 +81,36 @@
             </div>
           </li>
         </ul>
-        <ul class="navbar-nav align-items-center ml-auto ml-md-0" v-if="!isLoggedIn">
+        <ul class="navbar-nav align-items-center ml-auto ml-md-0" v-if="isLoggedIn">
+          <li class="nav-item dropdown">
+            <a class="nav-link pr-0" href="javascript:void(0);" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              <div class="media align-items-center">
+                <div class="media-body ml-2">
+                  <span class="mb-0 text-sm text-white font-weight-bold">{{ name }}</span>
+                </div>
+              </div>
+            </a>
+            <div class="dropdown-menu dropdown-menu-right">
+              <div class="dropdown-header noti-title">
+                <h6 class="text-overflow m-0">Welcome!</h6>
+              </div>
+              <router-link :to="route" class="dropdown-item">
+                <i class="ni ni-single-02"></i>
+                <span>My profile</span>
+              </router-link>
+              <form @submit.prevent="submit" method="POST" class="dropdown-item">
+                <i class="ni ni-user-run"></i>
+                <button class="btn btn-link text-dark" style="padding: 0; font-weight: normal;" type="submit">Logout</button>
+              </form>
+            </div>
+          </li>
+        </ul>
+        <ul class="navbar-nav align-items-center ml-auto ml-md-0" v-else>
           <li class="nav-item dropdown">
             <router-link class="nav-link pr-0" :to="{ name: 'auth.login' }" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <div class="media align-items-center">
                 <div class="media-body ml-2">
                   <span class="mb-0 text-sm text-white font-weight-bold">Login</span>
-                </div>
-              </div>
-            </router-link>
-          </li>
-        </ul>
-        <ul class="navbar-nav align-items-center ml-auto ml-md-0" v-if="isLoggedIn">
-          <li class="nav-item dropdown">
-            <router-link class="nav-link pr-0" :to="{ name: 'admin' }" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-              <div class="media align-items-center">
-                <div class="media-body ml-2">
-                  <span class="mb-0 text-sm text-white font-weight-bold">{{ name }}</span>
                 </div>
               </div>
             </router-link>
@@ -129,26 +142,45 @@ export default {
     if(this.isLoggedIn) {
       this.fetchData()
     }
+    this.checkRole()
   },
   data() {
     return {
       name: "",
       isLoggedIn: false,
+      route: { name: 'member.profile' },
     }
   },
   methods: {
+    submit() {
+      axios.delete(`${process.env.VUE_APP_SERVICE_URL}/auth/logout`,{ headers: authHeader() })
+          .then(response => {
+            if(response.data.code === 200) {
+              localStorage.removeItem("token")
+              localStorage.removeItem("refresh-token")
+              localStorage.removeItem("user")
+              localStorage.removeItem("name")
+              alert(response.data.status)
+              this.$router.push({
+                name: 'auth.login'
+              })
+            }
+          }).catch(error => {
+        console.log(error.response.data.status)
+      })
+    },
     checkLogin() {
       if(authHeader()["Authorization"]) {
         this.isLoggedIn = true
       }
     },
+    checkRole(){
+      if(localStorage.getItem("role") === "1") {
+        this.route = { name: 'profile' }
+      }
+    },
     fetchData() {
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/profile`, { headers: authHeader() })
-          .then(response => {
-            this.name = response.data.data.name
-          }).catch(error => {
-            console.log(error.response.data.status)
-          })
+      this.name = localStorage.getItem("name")
     },
     getImage(image) {
       return image;

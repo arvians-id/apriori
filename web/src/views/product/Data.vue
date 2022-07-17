@@ -17,7 +17,10 @@
             <div class="card-header">
               <h3 class="mb-0">Data Product</h3>
             </div>
-            <div class="table-responsive py-4">
+            <div class="table-responsive py-3" v-if="isLoading">
+              <p class="mt-2 text-center">Loading...</p>
+            </div>
+            <div class="table-responsive py-4" v-else>
               <table class="table table-flush" id="datatable">
                 <thead class="thead-light">
                 <tr>
@@ -57,9 +60,6 @@
 </template>
 
 <script>
-import "jquery/dist/jquery.min.js";
-import "datatables.net-dt/js/dataTables.dataTables";
-import "datatables.net-dt/css/jquery.dataTables.min.css";
 import axios from "axios";
 import $ from "jquery";
 import Sidebar from "@/components/admin/Sidebar.vue"
@@ -80,17 +80,20 @@ export default {
   },
   data: function () {
     return {
-      products: []
+      products: [],
+      isLoading: true
     };
   },
   methods: {
-    fetchData() {
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/products`, { headers: authHeader() }).then((response) => {
+    async fetchData() {
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/products`, { headers: authHeader() }).then((response) => {
         this.products = response.data.data;
         setTimeout(function(){
           $('#datatable').DataTable();
         }, 0);
       });
+
+      this.isLoading = false;
     },
     submit(no_product) {
       if(confirm("Are you sure to delete this product?")) {

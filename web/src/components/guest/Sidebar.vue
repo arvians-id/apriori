@@ -40,6 +40,12 @@
                 <span class="nav-link-text">My Carts</span>
               </router-link>
             </li>
+            <li class="nav-item" v-if="isLoggedIn">
+              <router-link :class="getActiveNavLink('member.order')" :to="{ name: 'member.order' }">
+                <i class="ni ni-delivery-fast text-dark"></i>
+                <span class="nav-link-text">My Order</span>
+              </router-link>
+            </li>
           </ul>
           <template v-if="isLoggedIn">
             <!-- Divider -->
@@ -49,9 +55,9 @@
             <!-- Navigation -->
             <ul class="navbar-nav mb-md-3">
               <li class="nav-item">
-                <router-link class="nav-link" :to="{ name: 'admin' }">
+                <router-link class="nav-link" :to="{ name: 'member.profile' }" v-if="role">
                   <i class="ni ni-single-02"></i>
-                  <span class="nav-link-text">Back to Admin</span>
+                  <span class="nav-link-text">My Account</span>
                 </router-link>
               </li>
               <li class="nav-item">
@@ -83,16 +89,23 @@ import axios from "axios";
 export default {
   mounted() {
     this.checkLogin()
+    this.checkRole()
   },
   data() {
     return {
-      isLoggedIn : false
+      isLoggedIn : false,
+      role: false
     }
   },
   methods: {
     checkLogin() {
       if(authHeader()["Authorization"]) {
         this.isLoggedIn = true
+      }
+    },
+    checkRole() {
+      if(localStorage.getItem("role") === "2") {
+        this.role = true
       }
     },
     getActiveNavLink(name) {
@@ -110,6 +123,8 @@ export default {
             if(response.data.code === 200) {
               localStorage.removeItem("token")
               localStorage.removeItem("refresh-token")
+              localStorage.removeItem("user")
+              localStorage.removeItem("name")
               alert(response.data.status)
               this.$router.push({
                 name: 'auth.login'

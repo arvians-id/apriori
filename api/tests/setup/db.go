@@ -5,23 +5,32 @@ import (
 )
 
 func TearDownTest(db *sql.DB) error {
-	_, err := db.Exec(`TRUNCATE TABLE users;`)
+	_, err := db.Exec(`DELETE FROM users;`)
 	if err != nil {
 		return err
 	}
-	_, err = db.Exec(`TRUNCATE TABLE password_resets;`)
+	_, err = db.Exec(`DELETE FROM password_resets;`)
 	if err != nil {
 		return err
 	}
-	_, err = db.Exec(`TRUNCATE TABLE apriories;`)
+	_, err = db.Exec(`DELETE FROM apriories;`)
 	if err != nil {
 		return err
 	}
-	_, err = db.Exec(`TRUNCATE TABLE products;`)
+	_, err = db.Exec(`DELETE FROM products;`)
 	if err != nil {
 		return err
 	}
-	_, err = db.Exec(`TRUNCATE TABLE transactions;`)
+	_, err = db.Exec(`DELETE FROM transactions;`)
+	if err != nil {
+		return err
+	}
+	_, err = db.Exec(`DELETE FROM transactions;`)
+	if err != nil {
+		return err
+	}
+
+	_, err = db.Exec(`DELETE FROM transactions;`)
 	if err != nil {
 		return err
 	}

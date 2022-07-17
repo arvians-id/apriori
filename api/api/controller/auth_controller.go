@@ -63,7 +63,7 @@ func (controller *AuthController) Login(c *gin.Context) {
 	}
 
 	expiredTimeAccess, _ := strconv.Atoi(os.Getenv("JWT_ACCESS_EXPIRED_TIME"))
-	expirationTime := time.Now().Add(time.Duration(expiredTimeAccess) * time.Minute)
+	expirationTime := time.Now().Add(time.Duration(expiredTimeAccess) * 24 * time.Hour)
 	token, err := controller.JwtService.GenerateToken(user.IdUser, expirationTime)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
@@ -101,7 +101,7 @@ func (controller *AuthController) Refresh(c *gin.Context) {
 	}
 
 	expiredTimeAccess, _ := strconv.Atoi(os.Getenv("JWT_ACCESS_EXPIRED_TIME"))
-	expirationTime := time.Now().Add(time.Duration(expiredTimeAccess) * time.Minute)
+	expirationTime := time.Now().Add(time.Duration(expiredTimeAccess) * 24 * time.Hour)
 	http.SetCookie(c.Writer, &http.Cookie{
 		Name:     "token",
 		Value:    url.QueryEscape(token.AccessToken),

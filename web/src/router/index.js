@@ -8,6 +8,7 @@ import ProductRouter from "@/router/product-router";
 import AprioriRouter from "@/router/apriori-router";
 import UserRouter from "@/router/user-router";
 import UserGuestRouter from "@/router/user-guest-router";
+import UserOrder from "@/router/user-order";
 
 const routes = [
     ...UserGuestRouter,
@@ -16,6 +17,7 @@ const routes = [
     ...ProductRouter,
     ...AprioriRouter,
     ...UserRouter,
+    ...UserOrder,
   { path: "/:pathMatch(.*)", name: "NotFound", component: NotFound },
 ];
 
@@ -26,29 +28,33 @@ const router = createRouter({
 
 router.beforeEach( async (to) => {
   if (authHeader()["Authorization"] === undefined && to.name.split(".")[0] !== "auth" && to.name.split(".")[0] !== "guest") {
-      return {name: 'auth.login'}
+      return { name: 'auth.login'}
   } else if (authHeader()["Authorization"] && to.name.split(".")[0] === "auth") {
       return { name: 'admin' }
   }
 
-  if (to.name.split(".")[0] !== "auth" && authHeader()["Authorization"]) {
-        axios.get(`${process.env.VUE_APP_SERVICE_URL}/auth/token`, { headers: authHeader() })
-            .catch(() => {
-                let refreshToken = {
-                    refresh_token: localStorage.getItem("refresh-token")
-                }
-                axios.post(`${process.env.VUE_APP_SERVICE_URL}/auth/refresh`,refreshToken,{ headers: authHeader() })
-                    .then(response => {
-                        let token = response.data.data.access_token
-                        let refreshToken = response.data.data.refresh_token
-                        localStorage.setItem("token", token)
-                        localStorage.setItem("refresh-token", refreshToken)
-                    }).catch(() => {
-                    localStorage.removeItem("token")
-                    localStorage.removeItem("refresh-token")
-                })
-            })
-    }
+  if (localStorage.getItem("role") === "2" &&
+      (to.name.split(".")[0] === "transaction" ||
+      to.name.split(".")[0] === "product" ||
+      to.name.split(".")[0] === "apriori" ||
+      to.name.split(".")[0] === "user" ||
+      to.name.split(".")[0] === "admin" ||
+      to.name.split(".")[0] === "profile" ||
+      to.name.split(".")[0] === "user-order")) {
+      return { name: 'guest.index' }
+  }
+
+  if (to.name.split(".")[0] !== "auth" && to.name.split(".")[0] !== "guest" && authHeader()["Authorization"]) {
+      axios.get(`${process.env.VUE_APP_SERVICE_URL}/auth/token`, { headers: authHeader() })
+          .catch(() => {
+              alert("You are not authorized to access this page, please login again");
+              localStorage.removeItem("token")
+              localStorage.removeItem("refresh-token")
+              localStorage.removeItem("user")
+              localStorage.removeItem("name")
+              window.location.reload()
+          })
+  }
 })
 
 export default router;

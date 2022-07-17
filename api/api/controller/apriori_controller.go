@@ -100,6 +100,7 @@ func (controller *AprioriController) UpdateApriori(c *gin.Context) {
 	}
 
 	var request model.UpdateAprioriRequest
+
 	request.IdApriori = uint64(id)
 	request.Code = code
 	request.Description = description

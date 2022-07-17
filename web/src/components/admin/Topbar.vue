@@ -20,7 +20,7 @@
             <a class="nav-link pr-0" href="javascript:void(0);" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               <div class="media align-items-center">
                 <div class="media-body ml-2">
-                  <span class="mb-0 text-sm text-white font-weight-bold">{{ user.name }}</span>
+                  <span class="mb-0 text-sm text-white font-weight-bold">{{ name }}</span>
                 </div>
               </div>
             </a>
@@ -51,9 +51,7 @@ import authHeader from "@/service/auth-header";
 export default {
   data() {
     return {
-      user: {
-        name: ""
-      }
+      name: "",
     }
   },
   mounted() {
@@ -66,6 +64,8 @@ export default {
             if(response.data.code === 200) {
               localStorage.removeItem("token")
               localStorage.removeItem("refresh-token")
+              localStorage.removeItem("user")
+              localStorage.removeItem("name")
               alert(response.data.status)
               this.$router.push({
                 name: 'auth.login'
@@ -76,15 +76,7 @@ export default {
       })
     },
     fetchData() {
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/profile`, { headers: authHeader() })
-          .then(response => {
-            this.user = {
-              name: response.data.data.name,
-              email: response.data.data.email,
-            }
-          }).catch(error => {
-        console.log(error.response.data.status)
-      })
+      this.name = localStorage.getItem("name")
     },
   }
 }

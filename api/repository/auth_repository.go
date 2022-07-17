@@ -35,7 +35,7 @@ func (repository *authRepository) VerifyCredential(ctx context.Context, tx *sql.
 
 	var user entity.User
 	if rows.Next() {
-		err := rows.Scan(&user.IdUser, &user.Name, &user.Email, &user.Password, &user.CreatedAt, &user.UpdatedAt)
+		err := rows.Scan(&user.IdUser, &user.Role, &user.Name, &user.Email, &user.Address, &user.Phone, &user.Password, &user.CreatedAt, &user.UpdatedAt)
 		if err != nil {
 			return entity.User{}, err
 		}

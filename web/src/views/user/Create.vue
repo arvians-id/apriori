@@ -23,15 +23,28 @@
                 <form @submit.prevent="submit" method="POST">
                   <div class="form-group">
                     <label class="form-control-label">Full Name</label> <small class="text-danger">*</small>
-                    <input type="text" class="form-control" v-model="user.name" required>
+                    <input type="text" class="form-control" name="name" v-model="user.name" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-control-label">Role</label> <small class="text-danger">*</small>
+                    <input type="number" min="1" max="2" class="form-control" v-model="user.role" required>
+                    <span class="text-danger text-sm">*1 Admin and *2 Member</span>
                   </div>
                   <div class="form-group">
                     <label class="form-control-label">Email</label> <small class="text-danger">*</small>
-                    <input type="email" class="form-control" v-model="user.email" required>
+                    <input type="email" class="form-control" name="email" v-model="user.email" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-control-label">Address</label> <small class="text-danger">*</small>
+                    <input type="text" class="form-control" name="address" v-model="user.address" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-control-label">Phone Number</label> <small class="text-danger">*</small>
+                    <input type="text" class="form-control" name="phone" v-model="user.phone" required>
                   </div>
                    <div class="form-group">
                      <label class="form-control-label">Password</label> <small class="text-danger">*</small>
-                     <input type="password" class="form-control" v-model="user.password" required>
+                     <input type="password" class="form-control" name="password" v-model="user.password" required>
                    </div>
                   <button class="btn btn-primary" type="submit">Submit form</button>
                 </form>
@@ -64,8 +77,11 @@ export default {
   data(){
     return {
       user: {
+        role: 2,
         name: "",
         email: "",
+        address: "",
+        phone: "",
         password: "",
       }
     }

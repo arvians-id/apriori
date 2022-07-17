@@ -19,7 +19,10 @@
                 <h3 class="mb-0">Edit Transaction</h3>
               </div>
               <!-- Card body -->
-              <div class="card-body">
+              <div class="card-body" v-if="isLoading">
+                <p class="mt-2 text-center">Loading...</p>
+              </div>
+              <div class="card-body" v-else>
                 <form @submit.prevent="submit" method="POST">
                   <div class="form-group">
                     <label class="form-control-label">Product Name</label> <small class="text-danger">*use ctrl for selecting the product</small>
@@ -60,14 +63,16 @@ export default {
     Header,
     Topbar
   },
-  mounted() {
-    axios.get(`${process.env.VUE_APP_SERVICE_URL}/products`, { headers: authHeader() }).then((response) => {
+  async mounted() {
+    await axios.get(`${process.env.VUE_APP_SERVICE_URL}/products`, { headers: authHeader() }).then((response) => {
       this.products = response.data.data;
       setTimeout(function(){
         $('#datatable').DataTable();
       }, 0);
     });
     this.fetchData()
+
+    this.isLoading = false;
   },
   data: function () {
     return {
@@ -75,7 +80,8 @@ export default {
       transaction: {
         product_name: [],
         customer_name: ""
-      }
+      },
+      isLoading: true
     };
   },
   methods: {
@@ -97,8 +103,8 @@ export default {
         console.log(error.response.data.status)
       })
     },
-    fetchData() {
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/transactions/${this.$route.params.no_transaction}`, { headers: authHeader() }).then(response => {
+    async fetchData() {
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/transactions/${this.$route.params.no_transaction}`, { headers: authHeader() }).then(response => {
         let productName = response.data.data.product_name
         this.transaction = {
           product_name: productName.split(", "),

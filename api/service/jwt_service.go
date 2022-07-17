@@ -121,7 +121,7 @@ func (service *jwtService) RefreshToken(refreshToken string) (*TokenDetails, err
 
 	// Create new pairs of refresh and access tokens
 	expiredTimeAccess, _ := strconv.Atoi(os.Getenv("JWT_ACCESS_EXPIRED_TIME"))
-	tokens, err := service.GenerateToken(userId, time.Now().Add(time.Duration(expiredTimeAccess)*time.Minute))
+	tokens, err := service.GenerateToken(userId, time.Now().Add(time.Duration(expiredTimeAccess)*24*time.Hour))
 	if err != nil {
 		return nil, err
 	}

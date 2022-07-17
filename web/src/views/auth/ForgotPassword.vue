@@ -56,6 +56,9 @@ export default {
       }
     }
   },
+  mounted() {
+    document.getElementsByTagName("body")[0].classList.add("bg-default");
+  },
   methods: {
     submit() {
       axios.post(`${process.env.VUE_APP_SERVICE_URL}/auth/forgot-password`, this.user,{ headers: authHeader() })

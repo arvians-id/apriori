@@ -225,12 +225,6 @@
       </section>
       <section class="py-7 section-nucleo-icons bg-white overflow-hidden">
         <div class="container">
-          <div class="row justify-content-center mb-4">
-            <div class="col-lg-8 text-center">
-              <h2 class="display-3">Location</h2>
-            </div>
-          </div>
-          <iframe style="border:0; width: 100%; height: 500px;" src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3960.6284786670853!2d106.92297871536643!3d-6.934929869812916!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e68483d6bc7fd39%3A0x1a614cda347252be!2sSD%20Aisyiyah!5e0!3m2!1sid!2sid!4v1624032096504!5m2!1sid!2sid" frameborder="0" allowfullscreen></iframe>
           <div class="text-center">
             <h4 class="display-4 mb-5 mt-5">Also Available on these E-Commerce</h4>
             <div class="row justify-content-center">
@@ -281,8 +275,9 @@ export default {
     Header,
     Topbar
   },
-  created() {
+  mounted() {
     this.fetchData()
+    document.getElementsByTagName("body")[0].classList.remove("bg-default");
   },
   data: function () {
     return {
