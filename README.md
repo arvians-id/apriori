@@ -18,7 +18,7 @@ at the same time giving discounts on large datasets using an Apriori Algorithm.
 
 ## Preview
 
-- [Preview Webbsite](https://apriori-frontend.herokuapp.com)
+- [Preview Website](https://apriori-frontend.herokuapp.com)
 
 ## Authors
 
