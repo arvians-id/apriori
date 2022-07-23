@@ -178,7 +178,11 @@ export default {
     },
     async fetchDataRecommendation() {
       await axios.get(`${process.env.VUE_APP_SERVICE_URL}/apriori/actives`,{ headers: authHeader() }).then((response) => {
-        this.recommendation = response.data.data;
+        if(response.data.data != null) {
+          this.recommendation = response.data.data;
+        }
+      }).catch((error) => {
+        console.log(error)
       });
 
       this.isLoading2 = false

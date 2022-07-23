@@ -15,6 +15,7 @@ at the same time giving discounts on large datasets using an Apriori Algorithm.
  - Payment Gateway : [Midtrans](https://midtrans.com)
  - Deployment : [Heroku](https://heroku.com)
  - Docker : [Docker](https://www.docker.com/)
+ - Cache : [Redis](https://redis.io/)
 
 ## Preview
 

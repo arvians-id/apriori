@@ -99,6 +99,8 @@ export default {
       await axios.get(`${process.env.VUE_APP_SERVICE_URL}/apriori/actives`, { headers: authHeader() }).then((response) => {
         this.apriories = response.data.data;
         this.getDate = `${this.apriories[0].range_date}`
+      }).catch((error) => {
+        console.log(error);
       });
 
       this.isLoading = false
