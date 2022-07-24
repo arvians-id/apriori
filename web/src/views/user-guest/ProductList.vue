@@ -19,10 +19,12 @@
                 <!-- Title -->
                 <h5 class="h3 mb-0">Semua Produk</h5>
               </div>
+              <!-- Card body -->
               <div class="card-body" v-if="isLoading">
                 <p class="mt-2 text-center">Loading...</p>
               </div>
               <div class="card-body" v-else>
+                <!-- List group -->
                 <div class="row" v-if="products.length > 0">
                   <div class="col-12 col-md-6 col-lg-4 col-xl-3" v-for="item in products" :key="item.id_product">
                     <div class="card">

@@ -3,22 +3,27 @@ package controller
 import (
 	"apriori/api/middleware"
 	"apriori/api/response"
+	"apriori/cache"
 	"apriori/model"
 	"apriori/service"
 	"apriori/utils"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v8"
 	"strings"
 )
 
 type AprioriController struct {
 	AprioriService service.AprioriService
 	StorageService service.StorageService
+	AprioriCache   cache.AprioriCache
 }
 
-func NewAprioriController(aprioriService service.AprioriService, storageService *service.StorageService) *AprioriController {
+func NewAprioriController(aprioriService service.AprioriService, storageService *service.StorageService, aprioriCache *cache.AprioriCache) *AprioriController {
 	return &AprioriController{
 		AprioriService: aprioriService,
 		StorageService: *storageService,
+		AprioriCache:   *aprioriCache,
 	}
 }
 
@@ -173,11 +178,27 @@ func (controller *AprioriController) Generate(c *gin.Context) {
 		return
 	}
 
-	transactions, err := controller.AprioriService.Generate(c.Request.Context(), request)
-	if err != nil {
+	key := fmt.Sprintf("%v%v%s%s", request.MinimumSupport, request.MinimumConfidence, request.StartDate, request.EndDate)
+	aprioriCache, err := controller.AprioriCache.Get(c, key)
+	if err == redis.Nil {
+		apriori, err := controller.AprioriService.Generate(c.Request.Context(), request)
+		if err != nil {
+			response.ReturnErrorInternalServerError(c, err, nil)
+			return
+		}
+
+		err = controller.AprioriCache.Set(c.Request.Context(), key, apriori)
+		if err != nil {
+			response.ReturnErrorInternalServerError(c, err, nil)
+			return
+		}
+
+		response.ReturnSuccessOK(c, "OK", apriori)
+		return
+	} else if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response.ReturnSuccessOK(c, "OK", transactions)
+	response.ReturnSuccessOK(c, "OK", aprioriCache)
 }

@@ -3,25 +3,25 @@ package controller
 import (
 	"apriori/api/middleware"
 	"apriori/api/response"
+	"apriori/cache"
 	"apriori/model"
 	"apriori/service"
 	"apriori/utils"
 	"github.com/gin-gonic/gin"
-	"github.com/go-redis/redis/v8"
 	"sync"
 )
 
 type TransactionController struct {
 	TransactionService service.TransactionService
 	StorageService     service.StorageService
-	CacheService       service.CacheService
+	TransactionCache   cache.TransactionCache
 }
 
-func NewTransactionController(transactionService *service.TransactionService, storageService *service.StorageService, cacheService *service.CacheService) *TransactionController {
+func NewTransactionController(transactionService *service.TransactionService, storageService *service.StorageService, cacheService *cache.TransactionCache) *TransactionController {
 	return &TransactionController{
 		TransactionService: *transactionService,
 		StorageService:     *storageService,
-		CacheService:       *cacheService,
+		TransactionCache:   *cacheService,
 	}
 }
 
@@ -44,23 +44,6 @@ func (controller *TransactionController) FindAll(c *gin.Context) {
 	transaction, err := controller.TransactionService.FindAll(c.Request.Context())
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
-		return
-	}
-
-	transactionCache, err := controller.CacheService.Get(c, "transaction")
-	if err == redis.Nil {
-		err = controller.CacheService.Set(c.Request.Context(), "transaction", transaction)
-		if err != nil {
-			response.ReturnErrorInternalServerError(c, err, nil)
-			return
-		}
-	} else if err != nil {
-		response.ReturnErrorInternalServerError(c, err, nil)
-		return
-	}
-
-	if transactionCache != nil {
-		response.ReturnSuccessOK(c, "OK", transactionCache)
 		return
 	}
 

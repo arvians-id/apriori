@@ -3,6 +3,7 @@ package route
 import (
 	"apriori/api/controller"
 	"apriori/api/middleware"
+	"apriori/cache"
 	"apriori/config"
 	"apriori/repository"
 	"apriori/service"
@@ -34,7 +35,6 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	userService := service.NewUserService(&userRepository, db)
 	authService := service.NewAuthService(&userRepository, &authRepository, db)
 	jwtService := service.NewJwtService()
-	cacheService := service.NewCacheService(configuration)
 	emailService := service.NewEmailService()
 	passwordResetService := service.NewPasswordResetService(&passwordRepository, &userRepository, db)
 	productService := service.NewProductService(&productRepository, storageService, &aprioriRepository, db)
@@ -43,12 +43,16 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	paymentService := service.NewPaymentService(configuration, &paymentRepository, &userOrderRepository, &transactionRepository, db)
 	userOrderService := service.NewUserOrderService(&paymentRepository, &userOrderRepository, db)
 
+	// Setup Cache
+	transactionCache := cache.NewTransactionCache(configuration)
+	aprioriCache := cache.NewAprioriCache(configuration)
+
 	// Setup Controller
 	userController := controller.NewUserController(&userService)
 	authController := controller.NewAuthController(&authService, &userService, jwtService, emailService, &passwordResetService)
 	productController := controller.NewProductController(&productService, &storageService)
-	transactionController := controller.NewTransactionController(&transactionService, &storageService, &cacheService)
-	aprioriController := controller.NewAprioriController(aprioriService, &storageService)
+	transactionController := controller.NewTransactionController(&transactionService, &storageService, &transactionCache)
+	aprioriController := controller.NewAprioriController(aprioriService, &storageService, &aprioriCache)
 	paymentController := controller.NewPaymentController(&paymentService, emailService)
 	userOrderController := controller.NewUserOrderController(&paymentService, &userOrderService)
 
