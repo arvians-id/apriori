@@ -47,6 +47,7 @@
 <script>
 import axios from "axios";
 import authHeader from "@/service/auth-header";
+import getRoles from "@/service/get-roles";
 
 export default {
   data() {
@@ -64,8 +65,6 @@ export default {
             if(response.data.code === 200) {
               localStorage.removeItem("token")
               localStorage.removeItem("refresh-token")
-              localStorage.removeItem("user")
-              localStorage.removeItem("name")
               alert(response.data.status)
               this.$router.push({
                 name: 'auth.login'
@@ -75,8 +74,9 @@ export default {
         console.log(error.response.data.status)
       })
     },
-    fetchData() {
-      this.name = localStorage.getItem("name")
+    async fetchData() {
+      let getRole = await getRoles();
+      this.name = getRole.name
     },
   }
 }

@@ -83,10 +83,6 @@ export default {
 
               axios.get(`${process.env.VUE_APP_SERVICE_URL}/profile`, { headers: authHeader() })
                   .then(response => {
-                    localStorage.setItem("user", response.data.data.id_user)
-                    localStorage.setItem("name", response.data.data.name)
-                    localStorage.setItem("role", response.data.data.role)
-
                     if(response.data.data.role === 1) {
                       this.$router.push({
                         name: 'admin'

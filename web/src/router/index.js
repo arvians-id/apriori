@@ -9,6 +9,7 @@ import AprioriRouter from "@/router/apriori-router";
 import UserRouter from "@/router/user-router";
 import UserGuestRouter from "@/router/user-guest-router";
 import UserOrder from "@/router/user-order";
+import getRoles from "@/service/get-roles";
 
 const routes = [
     ...UserGuestRouter,
@@ -33,14 +34,15 @@ router.beforeEach( async (to) => {
       return { name: 'admin' }
   }
 
-  if (localStorage.getItem("role") === "2" &&
+  let getRole = await getRoles();
+  if (getRole != null && (getRole.role == "2" &&
       (to.name.split(".")[0] === "transaction" ||
-      to.name.split(".")[0] === "product" ||
-      to.name.split(".")[0] === "apriori" ||
-      to.name.split(".")[0] === "user" ||
-      to.name.split(".")[0] === "admin" ||
-      to.name.split(".")[0] === "profile" ||
-      to.name.split(".")[0] === "user-order")) {
+          to.name.split(".")[0] === "product" ||
+          to.name.split(".")[0] === "apriori" ||
+          to.name.split(".")[0] === "user" ||
+          to.name.split(".")[0] === "admin" ||
+          to.name.split(".")[0] === "profile" ||
+          to.name.split(".")[0] === "user-order"))) {
       return { name: 'guest.index' }
   }
 
@@ -50,8 +52,6 @@ router.beforeEach( async (to) => {
               alert("You are not authorized to access this page, please login again");
               localStorage.removeItem("token")
               localStorage.removeItem("refresh-token")
-              localStorage.removeItem("user")
-              localStorage.removeItem("name")
               window.location.reload()
           })
   }

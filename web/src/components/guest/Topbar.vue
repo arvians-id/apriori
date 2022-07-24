@@ -125,6 +125,7 @@
 
 import authHeader from "@/service/auth-header";
 import axios from "axios";
+import getRoles from "@/service/get-roles";
 
 export default {
   props: {
@@ -158,8 +159,6 @@ export default {
             if(response.data.code === 200) {
               localStorage.removeItem("token")
               localStorage.removeItem("refresh-token")
-              localStorage.removeItem("user")
-              localStorage.removeItem("name")
               alert(response.data.status)
               this.$router.push({
                 name: 'auth.login'
@@ -174,13 +173,17 @@ export default {
         this.isLoggedIn = true
       }
     },
-    checkRole(){
-      if(localStorage.getItem("role") === "1") {
-        this.route = { name: 'profile' }
+    async checkRole(){
+      let getRole = await getRoles();
+      if(getRole != null) {
+        if(getRole.role == "1") {
+          this.route = {name: 'profile'}
+        }
       }
     },
-    fetchData() {
-      this.name = localStorage.getItem("name")
+    async fetchData() {
+      let getRole = await getRoles();
+      this.name = getRole.name
     },
     getImage(image) {
       return image;

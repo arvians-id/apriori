@@ -140,6 +140,7 @@ import Header from "@/components/guest/Header.vue"
 import Footer from "@/components/guest/Footer.vue"
 import axios from "axios";
 import authHeader from "@/service/auth-header";
+import getRoles from "@/service/get-roles";
 
 export default {
   components: {
@@ -237,33 +238,35 @@ export default {
       this.totalPrice -= productItem.price
       localStorage.setItem('my-carts', JSON.stringify(this.carts));
     },
-    send() {
+    async send() {
       if(authHeader()["Authorization"] === undefined) {
         this.$router.push({ name: 'auth.login' })
       } else {
-        let formData = new FormData()
-        formData.append("gross_amount", this.totalPrice)
-        formData.append("user_id", localStorage.getItem("user"))
-        formData.append("customer_name", localStorage.getItem("name"))
-        formData.append("items", JSON.stringify(this.carts))
+        getRoles().then(response => {
+          let formData = new FormData()
 
-        axios.post(`${process.env.VUE_APP_SERVICE_URL}/payments/pay`, formData).then(response => {
-          window.snap.pay(response.data.data.token, {
-            onSuccess: function(result) {
-              console.log(result)
-            },
-            onPending: function(result) {
-              console.log(result)
-            },
-            onError: function(result) {
-              console.log(result)
-            }
+          formData.append("gross_amount", this.totalPrice)
+          formData.append("user_id", response.id_user)
+          formData.append("customer_name", response.name)
+          formData.append("items", JSON.stringify(this.carts))
+
+          axios.post(`${process.env.VUE_APP_SERVICE_URL}/payments/pay`, formData).then(response => {
+            window.snap.pay(response.data.data.token, {
+              onSuccess: function(result) {
+                console.log(result)
+              },
+              onPending: function(result) {
+                console.log(result)
+              },
+              onError: function(result) {
+                console.log(result)
+              }
+            })
+          }).catch(error => {
+            console.log(error)
           })
-        }).catch(error => {
-          console.log(error)
         })
       }
-
     },
     clearCart() {
       if(confirm("Apakah anda yakin ingin menghapus semua keranjang belanjaan?")){
