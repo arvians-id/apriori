@@ -5,7 +5,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	log "github.com/sirupsen/logrus"
 )
 
 type AprioriRepository interface {
@@ -230,7 +229,6 @@ func (repository *aprioriRepository) Create(ctx context.Context, tx *sql.Tx, apr
 			apriori.CreatedAt,
 		)
 		if err != nil {
-			log.Println(err)
 			return err
 		}
 	}

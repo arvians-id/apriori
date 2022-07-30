@@ -20,7 +20,7 @@
                 <h5 class="h3 mb-0">Keranjang Belanja</h5>
               </div>
               <!-- Card body -->
-              <div class="card-body p-0">
+              <div class="card-body">
                 <!-- List group -->
                 <ul class="list-group list-group-flush list my--3" v-if="carts.length > 0">
                   <li class="list-group-item px-0" v-for="(item, i) in carts" :key="i">
@@ -101,7 +101,7 @@
                     </div>
                   </li>
                 </ul>
-                <ul class="list-group list-group-flush list" v-else>
+                <ul class="list-group list-group-flush list my--3 mx--3" v-else>
                   <li class="list-group-item">
                     <div class="alert alert-secondary">
                       <h5 class="alert-heading">Oops!</h5>

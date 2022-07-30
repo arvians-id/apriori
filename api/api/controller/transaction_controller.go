@@ -8,6 +8,7 @@ import (
 	"apriori/service"
 	"apriori/utils"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v8"
 	"sync"
 )
 
@@ -41,13 +42,28 @@ func (controller *TransactionController) Route(router *gin.Engine) *gin.Engine {
 }
 
 func (controller *TransactionController) FindAll(c *gin.Context) {
-	transaction, err := controller.TransactionService.FindAll(c.Request.Context())
-	if err != nil {
+	transactionCache, err := controller.TransactionCache.Get(c, "all-transaction")
+	if err == redis.Nil {
+		transaction, err := controller.TransactionService.FindAll(c.Request.Context())
+		if err != nil {
+			response.ReturnErrorInternalServerError(c, err, nil)
+			return
+		}
+
+		err = controller.TransactionCache.Set(c.Request.Context(), "all-transaction", transaction)
+		if err != nil {
+			response.ReturnErrorInternalServerError(c, err, nil)
+			return
+		}
+
+		response.ReturnSuccessOK(c, "OK", transaction)
+		return
+	} else if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response.ReturnSuccessOK(c, "OK", transaction)
+	response.ReturnSuccessOK(c, "OK", transactionCache)
 }
 
 func (controller *TransactionController) FindByTransaction(c *gin.Context) {
@@ -74,6 +90,9 @@ func (controller *TransactionController) Create(c *gin.Context) {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
+
+	// Recover cache
+	_ = controller.TransactionCache.RecoverCache(c.Request.Context(), "all-transaction")
 
 	response.ReturnSuccessOK(c, "created", transaction)
 }
@@ -105,6 +124,9 @@ func (controller *TransactionController) CreateFromCsv(c *gin.Context) {
 		return
 	}
 
+	// Recover cache
+	_ = controller.TransactionCache.RecoverCache(c.Request.Context(), "all-transaction")
+
 	response.ReturnSuccessOK(c, "created", nil)
 }
 
@@ -125,6 +147,9 @@ func (controller *TransactionController) Update(c *gin.Context) {
 		return
 	}
 
+	// Recover cache
+	_ = controller.TransactionCache.RecoverCache(c.Request.Context(), "all-transaction")
+
 	response.ReturnSuccessOK(c, "updated", transaction)
 }
 
@@ -136,6 +161,9 @@ func (controller *TransactionController) Delete(c *gin.Context) {
 		return
 	}
 
+	// Recover cache
+	_ = controller.TransactionCache.RecoverCache(c.Request.Context(), "all-transaction")
+
 	response.ReturnSuccessOK(c, "deleted", nil)
 }
 
@@ -146,5 +174,8 @@ func (controller *TransactionController) Truncate(c *gin.Context) {
 		return
 	}
 
+	// Recover cache
+	_ = controller.TransactionCache.RecoverCache(c.Request.Context(), "all-transaction")
+	
 	response.ReturnSuccessOK(c, "deleted", nil)
 }

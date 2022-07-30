@@ -167,6 +167,8 @@ export default {
         if(response.data.data != null) {
           this.recommendation = response.data.data;
         }
+      }).catch((error) => {
+        console.log(error);
       });
 
       this.isLoading2 = false

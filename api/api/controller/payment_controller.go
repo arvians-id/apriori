@@ -3,9 +3,11 @@ package controller
 import (
 	"apriori/api/middleware"
 	"apriori/api/response"
+	"apriori/cache"
 	"apriori/service"
 	"apriori/utils"
 	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/veritrans/go-midtrans"
 )
@@ -13,12 +15,16 @@ import (
 type PaymentController struct {
 	PaymentService service.PaymentService
 	EmailService   service.EmailService
+	UserOrderCache cache.UserOrderCache
+	PaymentCache   cache.PaymentCache
 }
 
-func NewPaymentController(paymentService *service.PaymentService, emailService service.EmailService) *PaymentController {
+func NewPaymentController(paymentService *service.PaymentService, emailService service.EmailService, userOrderCache *cache.UserOrderCache, PaymentCache *cache.PaymentCache) *PaymentController {
 	return &PaymentController{
 		PaymentService: *paymentService,
 		EmailService:   emailService,
+		UserOrderCache: *userOrderCache,
+		PaymentCache:   *PaymentCache,
 	}
 }
 
@@ -62,11 +68,16 @@ func (controller *PaymentController) Pay(c *gin.Context) {
 	items := c.PostFormArray("items")
 	userId := utils.StrToInt(c.PostForm("user_id"))
 	customerName := c.PostForm("customer_name")
+
 	data, err := controller.PaymentService.GetToken(c.Request.Context(), grossAmount, userId, customerName, items)
 	if err != nil {
 		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
+
+	// recover cache user order in payload
+	key := fmt.Sprintf("user-order-payment-%v", userId)
+	_ = controller.PaymentCache.RecoverCache(c.Request.Context(), key, userId)
 
 	response.ReturnSuccessOK(c, "OK", data)
 }
@@ -89,6 +100,11 @@ func (controller *PaymentController) Notification(c *gin.Context) {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
+
+	// recover cache user order
+	orderId := resArray["order_id"].(string)
+	key := fmt.Sprintf("user-order-id-%s", orderId)
+	_ = controller.UserOrderCache.RecoverCache(c.Request.Context(), key, orderId)
 
 	response.ReturnSuccessOK(c, "OK", nil)
 }

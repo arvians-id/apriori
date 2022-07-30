@@ -3,23 +3,27 @@ package controller
 import (
 	"apriori/api/middleware"
 	"apriori/api/response"
+	"apriori/cache"
 	"apriori/model"
 	"apriori/service"
 	"apriori/utils"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v8"
 	"os"
 )
 
 type ProductController struct {
 	ProductService service.ProductService
 	StorageService service.StorageService
+	ProductCache   cache.ProductCache
 }
 
-func NewProductController(productService *service.ProductService, storageService *service.StorageService) *ProductController {
+func NewProductController(productService *service.ProductService, storageService *service.StorageService, productCache *cache.ProductCache) *ProductController {
 	return &ProductController{
 		ProductService: *productService,
 		StorageService: *storageService,
+		ProductCache:   *productCache,
 	}
 }
 
@@ -38,13 +42,28 @@ func (controller *ProductController) Route(router *gin.Engine) *gin.Engine {
 }
 
 func (controller *ProductController) FindAll(c *gin.Context) {
-	products, err := controller.ProductService.FindAll(c.Request.Context())
-	if err != nil {
+	productsCache, err := controller.ProductCache.Get(c, "all-product")
+	if err == redis.Nil {
+		products, err := controller.ProductService.FindAll(c.Request.Context())
+		if err != nil {
+			response.ReturnErrorInternalServerError(c, err, nil)
+			return
+		}
+
+		err = controller.ProductCache.Set(c.Request.Context(), "all-product", products)
+		if err != nil {
+			response.ReturnErrorInternalServerError(c, err, nil)
+			return
+		}
+
+		response.ReturnSuccessOK(c, "OK", products)
+		return
+	} else if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response.ReturnSuccessOK(c, "OK", products)
+	response.ReturnSuccessOK(c, "OK", productsCache)
 }
 
 func (controller *ProductController) FindAllRecommendation(c *gin.Context) {
@@ -62,13 +81,29 @@ func (controller *ProductController) FindAllRecommendation(c *gin.Context) {
 func (controller *ProductController) FindById(c *gin.Context) {
 	params := c.Param("code")
 
-	product, err := controller.ProductService.FindByCode(c.Request.Context(), params)
-	if err != nil {
+	key := fmt.Sprintf("product-%s", params)
+	productCache, err := controller.ProductCache.SingleGet(c, key)
+	if err == redis.Nil {
+		product, err := controller.ProductService.FindByCode(c.Request.Context(), params)
+		if err != nil {
+			response.ReturnErrorInternalServerError(c, err, nil)
+			return
+		}
+
+		err = controller.ProductCache.SingleSet(c.Request.Context(), key, product)
+		if err != nil {
+			response.ReturnErrorInternalServerError(c, err, nil)
+			return
+		}
+
+		response.ReturnSuccessOK(c, "OK", product)
+		return
+	} else if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response.ReturnSuccessOK(c, "OK", product)
+	response.ReturnSuccessOK(c, "OK", productCache)
 }
 
 func (controller *ProductController) Create(c *gin.Context) {
@@ -95,6 +130,9 @@ func (controller *ProductController) Create(c *gin.Context) {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
+
+	// Recover cache
+	_ = controller.ProductCache.RecoverCache(c.Request.Context(), "all-product")
 
 	response.ReturnSuccessOK(c, "created", product)
 }
@@ -125,6 +163,9 @@ func (controller *ProductController) Update(c *gin.Context) {
 		return
 	}
 
+	// Recover cache
+	_ = controller.ProductCache.RecoverCache(c.Request.Context(), "all-product")
+
 	response.ReturnSuccessOK(c, "updated", product)
 }
 
@@ -132,6 +173,18 @@ func (controller *ProductController) Delete(c *gin.Context) {
 	params := c.Param("code")
 
 	err := controller.ProductService.Delete(c.Request.Context(), params)
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	// Setup cache
+	products, err := controller.ProductService.FindAll(c.Request.Context())
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+	err = controller.ProductCache.Set(c.Request.Context(), "all-product", products)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return

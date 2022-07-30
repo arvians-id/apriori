@@ -46,15 +46,18 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	// Setup Cache
 	transactionCache := cache.NewTransactionCache(configuration)
 	aprioriCache := cache.NewAprioriCache(configuration)
+	productCache := cache.NewProductCache(configuration)
+	paymentCache := cache.NewPaymentCache(configuration)
+	userOrderCache := cache.NewUserOrderCache(configuration)
 
 	// Setup Controller
 	userController := controller.NewUserController(&userService)
 	authController := controller.NewAuthController(&authService, &userService, jwtService, emailService, &passwordResetService)
-	productController := controller.NewProductController(&productService, &storageService)
+	productController := controller.NewProductController(&productService, &storageService, &productCache)
 	transactionController := controller.NewTransactionController(&transactionService, &storageService, &transactionCache)
 	aprioriController := controller.NewAprioriController(aprioriService, &storageService, &aprioriCache)
-	paymentController := controller.NewPaymentController(&paymentService, emailService)
-	userOrderController := controller.NewUserOrderController(&paymentService, &userOrderService)
+	paymentController := controller.NewPaymentController(&paymentService, emailService, &userOrderCache, &paymentCache)
+	userOrderController := controller.NewUserOrderController(&paymentService, &userOrderService, &userOrderCache, &paymentCache)
 
 	// CORS Middleware
 	router.Use(middleware.SetupCorsMiddleware())
@@ -69,7 +72,7 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	paymentController.Route(router)
 
 	// X API KEY Middleware
-	router.Use(middleware.SetupXApiKeyMiddleware())
+	//router.Use(middleware.SetupXApiKeyMiddleware())
 
 	// Setup Router
 	authController.Route(router)
