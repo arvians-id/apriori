@@ -29,6 +29,12 @@ func New(filenames ...string) Config {
 		if err != nil {
 			panic(err)
 		}
+	} else {
+		err := godotenv.Load()
+		if err != nil {
+			panic(err)
+		}
 	}
+
 	return &configImpl{}
 }
