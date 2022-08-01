@@ -1,5 +1,17 @@
+import axios from "axios";
+
 export default function authHeader() {
     let token = localStorage.getItem('token');
+
+    if (token) {
+        axios.get(`${process.env.VUE_APP_SERVICE_URL}/auth/token`, { headers: { Authorization: `Bearer ${token}` } }).catch(() => {
+            alert("You are not authorized to access this page, please login again");
+            localStorage.removeItem("token")
+            localStorage.removeItem("refresh-token")
+            window.location.reload()
+        })
+    }
+
     if (token) {
         return {
             'Authorization': 'Bearer ' + token,
