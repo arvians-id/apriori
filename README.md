@@ -1,25 +1,25 @@
-
 # Go-Lang with Apriori Algorithm
 
 This project is about finding the frequent of item-set and 
 at the same time giving discounts on large datasets using an Apriori Algorithm.
 
-
 ## Technology Used
 
  - Web Backend : [Golang Gin-Gonic](https://gin-gonic.com)
  - Web Frontend : [Javascript VueJS](https://vuejs.org)
- - Database : [PostgreSQL](https://www.postgresql.org)
- - Storage : [AWS S3](https://aws.amazon.com/id/s3/)
+ - Database : [AWS RDS PostgreSQL](https://aws.amazon.com/rds)
+ - Storage : [AWS S3](https://aws.amazon.com/s3/)
  - Authentication : [JWT](https://github.com/dgrijalva/jwt-go)
  - Payment Gateway : [Midtrans](https://midtrans.com)
- - Deployment : [Heroku](https://heroku.com)
- - Docker : [Docker](https://www.docker.com/)
- - Cache : [Redis](https://redis.io/)
+ - Deployment FrontEnd : [Heroku](https://heroku.com)
+ - Deployment BackEnd : [AWS EC2](https://aws.amazon.com/ec2)
+ - Development : [Docker](https://www.docker.com)
+ - Cache : [AWS ElastiCache Redis](https://aws.amazon.com/elasticache)
 
 ## Preview
 
 - [Preview Website](https://apriori-frontend.herokuapp.com)
+- [Preview API](http://18.139.84.176:8080)
 
 ## Authors
 
