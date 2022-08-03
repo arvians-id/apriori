@@ -3,8 +3,10 @@ package controller
 import (
 	"apriori/api/middleware"
 	"apriori/api/response"
-	"apriori/cache"
+	"apriori/model"
 	"apriori/service"
+	"bytes"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -14,16 +16,14 @@ import (
 type UserOrderController struct {
 	PaymentService   service.PaymentService
 	UserOrderService service.UserOrderService
-	UserOrderCache   cache.UserOrderCache
-	PaymentCache     cache.PaymentCache
+	CacheService     service.CacheService
 }
 
-func NewUserOrderController(paymentService *service.PaymentService, UserOrderService *service.UserOrderService, userOrderCache *cache.UserOrderCache, PaymentCache *cache.PaymentCache) *UserOrderController {
+func NewUserOrderController(paymentService *service.PaymentService, UserOrderService *service.UserOrderService, cacheService *service.CacheService) *UserOrderController {
 	return &UserOrderController{
 		PaymentService:   *paymentService,
 		UserOrderService: *UserOrderService,
-		UserOrderCache:   *userOrderCache,
-		PaymentCache:     *PaymentCache,
+		CacheService:     *cacheService,
 	}
 }
 
@@ -45,7 +45,7 @@ func (controller *UserOrderController) FindAll(c *gin.Context) {
 	}
 
 	key := fmt.Sprintf("user-order-payment-%v", int(id.(float64)))
-	paymentsCache, err := controller.PaymentCache.Get(c, key)
+	paymentsCache, err := controller.CacheService.Get(c, key)
 	if err == redis.Nil {
 		payments, err := controller.PaymentService.FindAllByUserId(c.Request.Context(), int(id.(float64)))
 		if err != nil {
@@ -53,7 +53,7 @@ func (controller *UserOrderController) FindAll(c *gin.Context) {
 			return
 		}
 
-		err = controller.PaymentCache.Set(c.Request.Context(), key, payments)
+		err = controller.CacheService.Set(c.Request.Context(), key, payments)
 		if err != nil {
 			response.ReturnErrorInternalServerError(c, err, nil)
 			return
@@ -66,14 +66,21 @@ func (controller *UserOrderController) FindAll(c *gin.Context) {
 		return
 	}
 
-	response.ReturnSuccessOK(c, "OK", paymentsCache)
+	var payment []model.GetPaymentNullableResponse
+	err = json.Unmarshal(bytes.NewBufferString(paymentsCache).Bytes(), &payment)
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	response.ReturnSuccessOK(c, "OK", payment)
 }
 
 func (controller *UserOrderController) FindById(c *gin.Context) {
 	orderId := c.Param("order_id")
 
 	key := fmt.Sprintf("user-order-id-%v", orderId)
-	userOrdersCache, err := controller.UserOrderCache.Get(c, key)
+	userOrdersCache, err := controller.CacheService.Get(c, key)
 	if err == redis.Nil {
 		payment, err := controller.PaymentService.FindByOrderId(c.Request.Context(), orderId)
 		if err != nil {
@@ -86,7 +93,7 @@ func (controller *UserOrderController) FindById(c *gin.Context) {
 			return
 		}
 
-		err = controller.UserOrderCache.Set(c.Request.Context(), key, userOrder)
+		err = controller.CacheService.Set(c.Request.Context(), key, userOrder)
 		if err != nil {
 			response.ReturnErrorInternalServerError(c, err, nil)
 			return
@@ -99,5 +106,12 @@ func (controller *UserOrderController) FindById(c *gin.Context) {
 		return
 	}
 
-	response.ReturnSuccessOK(c, "OK", userOrdersCache)
+	var userOrder []model.GetUserOrderResponse
+	err = json.Unmarshal(bytes.NewBufferString(userOrdersCache).Bytes(), &userOrder)
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	response.ReturnSuccessOK(c, "OK", userOrder)
 }

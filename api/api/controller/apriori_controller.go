@@ -3,10 +3,11 @@ package controller
 import (
 	"apriori/api/middleware"
 	"apriori/api/response"
-	"apriori/cache"
 	"apriori/model"
 	"apriori/service"
 	"apriori/utils"
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
@@ -16,14 +17,14 @@ import (
 type AprioriController struct {
 	AprioriService service.AprioriService
 	StorageService service.StorageService
-	AprioriCache   cache.AprioriCache
+	CacheService   service.CacheService
 }
 
-func NewAprioriController(aprioriService service.AprioriService, storageService *service.StorageService, aprioriCache *cache.AprioriCache) *AprioriController {
+func NewAprioriController(aprioriService service.AprioriService, storageService *service.StorageService, cacheService *service.CacheService) *AprioriController {
 	return &AprioriController{
 		AprioriService: aprioriService,
 		StorageService: *storageService,
-		AprioriCache:   *aprioriCache,
+		CacheService:   *cacheService,
 	}
 }
 
@@ -179,7 +180,7 @@ func (controller *AprioriController) Generate(c *gin.Context) {
 	}
 
 	key := fmt.Sprintf("%v%v%s%s", request.MinimumSupport, request.MinimumConfidence, request.StartDate, request.EndDate)
-	aprioriCache, err := controller.AprioriCache.Get(c, key)
+	aprioriCache, err := controller.CacheService.Get(c, key)
 	if err == redis.Nil {
 		apriori, err := controller.AprioriService.Generate(c.Request.Context(), request)
 		if err != nil {
@@ -187,7 +188,7 @@ func (controller *AprioriController) Generate(c *gin.Context) {
 			return
 		}
 
-		err = controller.AprioriCache.Set(c.Request.Context(), key, apriori)
+		err = controller.CacheService.Set(c.Request.Context(), key, apriori)
 		if err != nil {
 			response.ReturnErrorInternalServerError(c, err, nil)
 			return
@@ -200,5 +201,12 @@ func (controller *AprioriController) Generate(c *gin.Context) {
 		return
 	}
 
-	response.ReturnSuccessOK(c, "OK", aprioriCache)
+	var apriori []model.GetGenerateAprioriResponse
+	err = json.Unmarshal(bytes.NewBufferString(aprioriCache).Bytes(), &apriori)
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	response.ReturnSuccessOK(c, "OK", apriori)
 }

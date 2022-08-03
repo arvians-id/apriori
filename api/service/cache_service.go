@@ -1,8 +1,7 @@
-package cache
+package service
 
 import (
 	"apriori/config"
-	"apriori/model"
 	"apriori/utils"
 	"bytes"
 	"context"
@@ -12,30 +11,32 @@ import (
 	"time"
 )
 
-type TransactionCache interface {
-	Get(ctx context.Context, key string) ([]model.GetTransactionResponse, error)
-	Set(ctx context.Context, key string, value []model.GetTransactionResponse) error
+type CacheService interface {
+	GetClient(ctx context.Context) (*redis.Client, error)
+	Get(ctx context.Context, key string) (string, error)
+	Set(ctx context.Context, key string, value interface{}) error
+	Del(ctx context.Context, key ...string) error
 	FlushDB(ctx context.Context) error
 }
 
-type transactionCache struct {
+type cacheService struct {
 	Addr     string
 	Password string
 	DB       int
 }
 
-func NewTransactionCache(configuration config.Config) TransactionCache {
+func NewCacheService(configuration config.Config) CacheService {
 	host := fmt.Sprintf("%s:%s", configuration.Get("REDIS_HOST"), configuration.Get("REDIS_PORT"))
 	db := utils.StrToInt(configuration.Get("REDIS_DB"))
 
-	return &transactionCache{
+	return &cacheService{
 		Addr:     host,
 		Password: configuration.Get("REDIS_PASSWORD"),
 		DB:       db,
 	}
 }
 
-func (cache *transactionCache) GetClient(ctx context.Context) (*redis.Client, error) {
+func (cache *cacheService) GetClient(ctx context.Context) (*redis.Client, error) {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     cache.Addr,
 		Password: cache.Password,
@@ -49,27 +50,21 @@ func (cache *transactionCache) GetClient(ctx context.Context) (*redis.Client, er
 	return rdb, nil
 }
 
-func (cache *transactionCache) Get(ctx context.Context, key string) ([]model.GetTransactionResponse, error) {
+func (cache *cacheService) Get(ctx context.Context, key string) (string, error) {
 	rdb, err := cache.GetClient(ctx)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
 	value, err := rdb.Get(ctx, key).Result()
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 
-	var transaction []model.GetTransactionResponse
-	err = json.Unmarshal(bytes.NewBufferString(value).Bytes(), &transaction)
-	if err != nil {
-		return nil, err
-	}
-
-	return transaction, nil
+	return value, nil
 }
 
-func (cache *transactionCache) Set(ctx context.Context, key string, value []model.GetTransactionResponse) error {
+func (cache *cacheService) Set(ctx context.Context, key string, value interface{}) error {
 	rdb, err := cache.GetClient(ctx)
 	if err != nil {
 		return err
@@ -88,7 +83,23 @@ func (cache *transactionCache) Set(ctx context.Context, key string, value []mode
 	return nil
 }
 
-func (cache *transactionCache) FlushDB(ctx context.Context) error {
+func (cache *cacheService) Del(ctx context.Context, key ...string) error {
+	rdb, err := cache.GetClient(ctx)
+	if err != nil {
+		return err
+	}
+
+	for _, k := range key {
+		err = rdb.Del(ctx, k).Err()
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+func (cache *cacheService) FlushDB(ctx context.Context) error {
 	rdb, err := cache.GetClient(ctx)
 	if err != nil {
 		return err

@@ -3,7 +3,6 @@ package controller
 import (
 	"apriori/api/middleware"
 	"apriori/api/response"
-	"apriori/cache"
 	"apriori/service"
 	"apriori/utils"
 	"encoding/json"
@@ -16,17 +15,15 @@ type PaymentController struct {
 	PaymentService   service.PaymentService
 	UserOrderService service.UserOrderService
 	EmailService     service.EmailService
-	PaymentCache     cache.PaymentCache
-	UserOrderCache   cache.UserOrderCache
+	CacheService     service.CacheService
 }
 
-func NewPaymentController(paymentService *service.PaymentService, userOrderService *service.UserOrderService, emailService service.EmailService, PaymentCache *cache.PaymentCache, userOrderCache *cache.UserOrderCache) *PaymentController {
+func NewPaymentController(paymentService *service.PaymentService, userOrderService *service.UserOrderService, emailService service.EmailService, cacheService *service.CacheService) *PaymentController {
 	return &PaymentController{
 		PaymentService:   *paymentService,
 		UserOrderService: *userOrderService,
 		EmailService:     emailService,
-		PaymentCache:     *PaymentCache,
-		UserOrderCache:   *userOrderCache,
+		CacheService:     *cacheService,
 	}
 }
 
@@ -77,10 +74,9 @@ func (controller *PaymentController) Pay(c *gin.Context) {
 		return
 	}
 
-	// recover cache user order in payload
+	// delete previous cache
 	key := fmt.Sprintf("user-order-payment-%v", userId)
-	order, _ := controller.PaymentService.FindAllByUserId(c.Request.Context(), userId)
-	_ = controller.PaymentCache.Set(c.Request.Context(), key, order)
+	_ = controller.CacheService.Del(c.Request.Context(), key)
 
 	response.ReturnSuccessOK(c, "OK", data)
 }
@@ -104,16 +100,10 @@ func (controller *PaymentController) Notification(c *gin.Context) {
 		return
 	}
 
-	// recover cache user order
-	payloadId := utils.StrToInt(resArray["custom_field2"].(string))
-	key := fmt.Sprintf("user-order-id-%v", payloadId)
-	paymentByOrderId, _ := controller.UserOrderService.FindAllByPayload(c.Request.Context(), payloadId)
-	_ = controller.UserOrderCache.Set(c.Request.Context(), key, paymentByOrderId)
-
-	userId := utils.StrToInt(resArray["custom_field1"].(string))
-	key2 := fmt.Sprintf("user-order-payment-%v", userId)
-	paymentByUserId, _ := controller.PaymentService.FindAllByUserId(c.Request.Context(), userId)
-	_ = controller.PaymentCache.Set(c.Request.Context(), key2, paymentByUserId)
+	// delete previous cache
+	key := fmt.Sprintf("user-order-id-%v", utils.StrToInt(resArray["custom_field2"].(string)))
+	key2 := fmt.Sprintf("user-order-payment-%v", utils.StrToInt(resArray["custom_field1"].(string)))
+	_ = controller.CacheService.Del(c.Request.Context(), key, key2)
 
 	response.ReturnSuccessOK(c, "OK", nil)
 }

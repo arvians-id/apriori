@@ -3,10 +3,11 @@ package controller
 import (
 	"apriori/api/middleware"
 	"apriori/api/response"
-	"apriori/cache"
 	"apriori/model"
 	"apriori/service"
 	"apriori/utils"
+	"bytes"
+	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 	"sync"
@@ -15,14 +16,14 @@ import (
 type TransactionController struct {
 	TransactionService service.TransactionService
 	StorageService     service.StorageService
-	TransactionCache   cache.TransactionCache
+	CacheService       service.CacheService
 }
 
-func NewTransactionController(transactionService *service.TransactionService, storageService *service.StorageService, cacheService *cache.TransactionCache) *TransactionController {
+func NewTransactionController(transactionService *service.TransactionService, storageService *service.StorageService, cacheService *service.CacheService) *TransactionController {
 	return &TransactionController{
 		TransactionService: *transactionService,
 		StorageService:     *storageService,
-		TransactionCache:   *cacheService,
+		CacheService:       *cacheService,
 	}
 }
 
@@ -42,7 +43,7 @@ func (controller *TransactionController) Route(router *gin.Engine) *gin.Engine {
 }
 
 func (controller *TransactionController) FindAll(c *gin.Context) {
-	transactionCache, err := controller.TransactionCache.Get(c, "all-transaction")
+	transactionCache, err := controller.CacheService.Get(c, "all-transaction")
 	if err == redis.Nil {
 		transaction, err := controller.TransactionService.FindAll(c.Request.Context())
 		if err != nil {
@@ -50,7 +51,7 @@ func (controller *TransactionController) FindAll(c *gin.Context) {
 			return
 		}
 
-		err = controller.TransactionCache.Set(c.Request.Context(), "all-transaction", transaction)
+		err = controller.CacheService.Set(c.Request.Context(), "all-transaction", transaction)
 		if err != nil {
 			response.ReturnErrorInternalServerError(c, err, nil)
 			return
@@ -63,7 +64,14 @@ func (controller *TransactionController) FindAll(c *gin.Context) {
 		return
 	}
 
-	response.ReturnSuccessOK(c, "OK", transactionCache)
+	var transaction []model.GetTransactionResponse
+	err = json.Unmarshal(bytes.NewBufferString(transactionCache).Bytes(), &transaction)
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	response.ReturnSuccessOK(c, "OK", transaction)
 }
 
 func (controller *TransactionController) FindByTransaction(c *gin.Context) {
@@ -91,9 +99,8 @@ func (controller *TransactionController) Create(c *gin.Context) {
 		return
 	}
 
-	// Recover cache
-	dataProduct, _ := controller.TransactionService.FindAll(c.Request.Context())
-	_ = controller.TransactionCache.Set(c.Request.Context(), "all-transaction", dataProduct)
+	// delete previous cache
+	_ = controller.CacheService.Del(c.Request.Context(), "all-transaction")
 
 	response.ReturnSuccessOK(c, "created", transaction)
 }
@@ -125,9 +132,8 @@ func (controller *TransactionController) CreateFromCsv(c *gin.Context) {
 		return
 	}
 
-	// Recover cache
-	dataProduct, _ := controller.TransactionService.FindAll(c.Request.Context())
-	_ = controller.TransactionCache.Set(c.Request.Context(), "all-transaction", dataProduct)
+	// delete previous cache
+	_ = controller.CacheService.Del(c.Request.Context(), "all-transaction")
 
 	response.ReturnSuccessOK(c, "created", nil)
 }
@@ -149,9 +155,8 @@ func (controller *TransactionController) Update(c *gin.Context) {
 		return
 	}
 
-	// Recover cache
-	dataProduct, _ := controller.TransactionService.FindAll(c.Request.Context())
-	_ = controller.TransactionCache.Set(c.Request.Context(), "all-transaction", dataProduct)
+	// delete previous cache
+	_ = controller.CacheService.Del(c.Request.Context(), "all-transaction")
 
 	response.ReturnSuccessOK(c, "updated", transaction)
 }
@@ -164,9 +169,8 @@ func (controller *TransactionController) Delete(c *gin.Context) {
 		return
 	}
 
-	// Recover cache
-	dataProduct, _ := controller.TransactionService.FindAll(c.Request.Context())
-	_ = controller.TransactionCache.Set(c.Request.Context(), "all-transaction", dataProduct)
+	// delete previous cache
+	_ = controller.CacheService.Del(c.Request.Context(), "all-transaction")
 
 	response.ReturnSuccessOK(c, "deleted", nil)
 }
@@ -178,9 +182,8 @@ func (controller *TransactionController) Truncate(c *gin.Context) {
 		return
 	}
 
-	// Recover cache
-	dataProduct, _ := controller.TransactionService.FindAll(c.Request.Context())
-	_ = controller.TransactionCache.Set(c.Request.Context(), "all-transaction", dataProduct)
+	// delete previous cache
+	_ = controller.CacheService.Del(c.Request.Context(), "all-transaction")
 
 	response.ReturnSuccessOK(c, "deleted", nil)
 }

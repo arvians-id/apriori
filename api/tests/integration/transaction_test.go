@@ -1,10 +1,10 @@
 package integration
 
 import (
-	"apriori/cache"
 	"apriori/config"
 	"apriori/entity"
 	"apriori/repository"
+	"apriori/service"
 	"apriori/tests/setup"
 	"context"
 	"database/sql"
@@ -81,7 +81,7 @@ var _ = Describe("Transaction API", func() {
 		_, db := setup.ModuleSetup(configuration)
 		defer db.Close()
 
-		transactionCache := cache.NewTransactionCache(configuration)
+		transactionCache := service.NewCacheService(configuration)
 		_ = transactionCache.FlushDB(context.Background())
 
 		err := setup.TearDownTest(db)

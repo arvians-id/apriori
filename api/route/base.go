@@ -3,7 +3,6 @@ package route
 import (
 	"apriori/api/controller"
 	"apriori/api/middleware"
-	"apriori/cache"
 	"apriori/config"
 	"apriori/repository"
 	"apriori/service"
@@ -42,22 +41,16 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	aprioriService := service.NewAprioriService(&transactionRepository, storageService, &productRepository, &aprioriRepository, db)
 	paymentService := service.NewPaymentService(configuration, &paymentRepository, &userOrderRepository, &transactionRepository, db)
 	userOrderService := service.NewUserOrderService(&paymentRepository, &userOrderRepository, db)
-
-	// Setup Cache
-	transactionCache := cache.NewTransactionCache(configuration)
-	aprioriCache := cache.NewAprioriCache(configuration)
-	productCache := cache.NewProductCache(configuration)
-	paymentCache := cache.NewPaymentCache(configuration)
-	userOrderCache := cache.NewUserOrderCache(configuration)
+	cacheService := service.NewCacheService(configuration)
 
 	// Setup Controller
 	userController := controller.NewUserController(&userService)
 	authController := controller.NewAuthController(&authService, &userService, jwtService, emailService, &passwordResetService)
-	productController := controller.NewProductController(&productService, &storageService, &productCache)
-	transactionController := controller.NewTransactionController(&transactionService, &storageService, &transactionCache)
-	aprioriController := controller.NewAprioriController(aprioriService, &storageService, &aprioriCache)
-	paymentController := controller.NewPaymentController(&paymentService, &userOrderService, emailService, &paymentCache, &userOrderCache)
-	userOrderController := controller.NewUserOrderController(&paymentService, &userOrderService, &userOrderCache, &paymentCache)
+	productController := controller.NewProductController(&productService, &storageService, &cacheService)
+	transactionController := controller.NewTransactionController(&transactionService, &storageService, &cacheService)
+	aprioriController := controller.NewAprioriController(aprioriService, &storageService, &cacheService)
+	paymentController := controller.NewPaymentController(&paymentService, &userOrderService, emailService, &cacheService)
+	userOrderController := controller.NewUserOrderController(&paymentService, &userOrderService, &cacheService)
 
 	// CORS Middleware
 	router.Use(middleware.SetupCorsMiddleware())

@@ -1,10 +1,10 @@
 package integration
 
 import (
-	"apriori/cache"
 	"apriori/config"
 	"apriori/entity"
 	"apriori/repository"
+	"apriori/service"
 	"apriori/tests/setup"
 	"bytes"
 	"context"
@@ -83,7 +83,7 @@ var _ = Describe("Product API", func() {
 		_, db := setup.ModuleSetup(configuration)
 		defer db.Close()
 
-		productCache := cache.NewProductCache(configuration)
+		productCache := service.NewCacheService(configuration)
 		_ = productCache.FlushDB(context.Background())
 
 		err := setup.TearDownTest(db)

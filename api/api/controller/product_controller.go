@@ -3,10 +3,11 @@ package controller
 import (
 	"apriori/api/middleware"
 	"apriori/api/response"
-	"apriori/cache"
 	"apriori/model"
 	"apriori/service"
 	"apriori/utils"
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
@@ -16,14 +17,14 @@ import (
 type ProductController struct {
 	ProductService service.ProductService
 	StorageService service.StorageService
-	ProductCache   cache.ProductCache
+	CacheService   service.CacheService
 }
 
-func NewProductController(productService *service.ProductService, storageService *service.StorageService, productCache *cache.ProductCache) *ProductController {
+func NewProductController(productService *service.ProductService, storageService *service.StorageService, cacheService *service.CacheService) *ProductController {
 	return &ProductController{
 		ProductService: *productService,
 		StorageService: *storageService,
-		ProductCache:   *productCache,
+		CacheService:   *cacheService,
 	}
 }
 
@@ -42,7 +43,7 @@ func (controller *ProductController) Route(router *gin.Engine) *gin.Engine {
 }
 
 func (controller *ProductController) FindAll(c *gin.Context) {
-	productsCache, err := controller.ProductCache.Get(c, "all-product")
+	productsCache, err := controller.CacheService.Get(c, "all-product")
 	if err == redis.Nil {
 		products, err := controller.ProductService.FindAll(c.Request.Context())
 		if err != nil {
@@ -50,7 +51,7 @@ func (controller *ProductController) FindAll(c *gin.Context) {
 			return
 		}
 
-		err = controller.ProductCache.Set(c.Request.Context(), "all-product", products)
+		err = controller.CacheService.Set(c.Request.Context(), "all-product", products)
 		if err != nil {
 			response.ReturnErrorInternalServerError(c, err, nil)
 			return
@@ -63,7 +64,14 @@ func (controller *ProductController) FindAll(c *gin.Context) {
 		return
 	}
 
-	response.ReturnSuccessOK(c, "OK", productsCache)
+	var product []model.GetProductResponse
+	err = json.Unmarshal(bytes.NewBufferString(productsCache).Bytes(), &product)
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	response.ReturnSuccessOK(c, "OK", product)
 }
 
 func (controller *ProductController) FindAllRecommendation(c *gin.Context) {
@@ -82,7 +90,7 @@ func (controller *ProductController) FindById(c *gin.Context) {
 	params := c.Param("code")
 
 	key := fmt.Sprintf("product-%s", params)
-	productCache, err := controller.ProductCache.SingleGet(c, key)
+	productCache, err := controller.CacheService.Get(c, key)
 	if err == redis.Nil {
 		product, err := controller.ProductService.FindByCode(c.Request.Context(), params)
 		if err != nil {
@@ -90,7 +98,7 @@ func (controller *ProductController) FindById(c *gin.Context) {
 			return
 		}
 
-		err = controller.ProductCache.SingleSet(c.Request.Context(), key, product)
+		err = controller.CacheService.Set(c.Request.Context(), key, product)
 		if err != nil {
 			response.ReturnErrorInternalServerError(c, err, nil)
 			return
@@ -103,7 +111,14 @@ func (controller *ProductController) FindById(c *gin.Context) {
 		return
 	}
 
-	response.ReturnSuccessOK(c, "OK", productCache)
+	var product model.GetProductResponse
+	err = json.Unmarshal(bytes.NewBufferString(productCache).Bytes(), &product)
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	response.ReturnSuccessOK(c, "OK", product)
 }
 
 func (controller *ProductController) Create(c *gin.Context) {
@@ -131,9 +146,8 @@ func (controller *ProductController) Create(c *gin.Context) {
 		return
 	}
 
-	// Recover cache
-	dataProduct, _ := controller.ProductService.FindAll(c.Request.Context())
-	_ = controller.ProductCache.Set(c.Request.Context(), "all-product", dataProduct)
+	// delete previous cache
+	_ = controller.CacheService.Del(c.Request.Context(), "all-product")
 
 	response.ReturnSuccessOK(c, "created", product)
 }
@@ -164,11 +178,8 @@ func (controller *ProductController) Update(c *gin.Context) {
 		return
 	}
 
-	// Recover cache
-	dataProduct, _ := controller.ProductService.FindAll(c.Request.Context())
-	singleProduct := fmt.Sprintf("product-%s", product.Code)
-	_ = controller.ProductCache.Set(c.Request.Context(), "all-product", dataProduct)
-	_ = controller.ProductCache.SingleSet(c.Request.Context(), singleProduct, product)
+	// delete previous cache
+	_ = controller.CacheService.Del(c.Request.Context(), "all-product", fmt.Sprintf("product-%s", product.Code))
 
 	response.ReturnSuccessOK(c, "updated", product)
 }
@@ -182,9 +193,8 @@ func (controller *ProductController) Delete(c *gin.Context) {
 		return
 	}
 
-	// Recover cache
-	dataProduct, _ := controller.ProductService.FindAll(c.Request.Context())
-	_ = controller.ProductCache.Set(c.Request.Context(), "all-product", dataProduct)
+	// delete previous cache
+	_ = controller.CacheService.Del(c.Request.Context(), "all-product")
 
 	response.ReturnSuccessOK(c, "deleted", nil)
 }
