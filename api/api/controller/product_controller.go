@@ -132,7 +132,8 @@ func (controller *ProductController) Create(c *gin.Context) {
 	}
 
 	// Recover cache
-	_ = controller.ProductCache.RecoverCache(c.Request.Context(), "all-product")
+	dataProduct, _ := controller.ProductService.FindAll(c.Request.Context())
+	_ = controller.ProductCache.Set(c.Request.Context(), "all-product", dataProduct)
 
 	response.ReturnSuccessOK(c, "created", product)
 }
@@ -164,7 +165,10 @@ func (controller *ProductController) Update(c *gin.Context) {
 	}
 
 	// Recover cache
-	_ = controller.ProductCache.RecoverCache(c.Request.Context(), "all-product")
+	dataProduct, _ := controller.ProductService.FindAll(c.Request.Context())
+	singleProduct := fmt.Sprintf("product-%s", product.Code)
+	_ = controller.ProductCache.Set(c.Request.Context(), "all-product", dataProduct)
+	_ = controller.ProductCache.SingleSet(c.Request.Context(), singleProduct, product)
 
 	response.ReturnSuccessOK(c, "updated", product)
 }
@@ -178,17 +182,9 @@ func (controller *ProductController) Delete(c *gin.Context) {
 		return
 	}
 
-	// Setup cache
-	products, err := controller.ProductService.FindAll(c.Request.Context())
-	if err != nil {
-		response.ReturnErrorInternalServerError(c, err, nil)
-		return
-	}
-	err = controller.ProductCache.Set(c.Request.Context(), "all-product", products)
-	if err != nil {
-		response.ReturnErrorInternalServerError(c, err, nil)
-		return
-	}
+	// Recover cache
+	dataProduct, _ := controller.ProductService.FindAll(c.Request.Context())
+	_ = controller.ProductCache.Set(c.Request.Context(), "all-product", dataProduct)
 
 	response.ReturnSuccessOK(c, "deleted", nil)
 }

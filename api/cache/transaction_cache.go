@@ -15,7 +15,6 @@ import (
 type TransactionCache interface {
 	Get(ctx context.Context, key string) ([]model.GetTransactionResponse, error)
 	Set(ctx context.Context, key string, value []model.GetTransactionResponse) error
-	RecoverCache(ctx context.Context, key string) error
 }
 
 type transactionCache struct {
@@ -85,9 +84,5 @@ func (cache *transactionCache) Set(ctx context.Context, key string, value []mode
 		return err
 	}
 
-	return nil
-}
-
-func (cache *transactionCache) RecoverCache(ctx context.Context, key string) error {
 	return nil
 }

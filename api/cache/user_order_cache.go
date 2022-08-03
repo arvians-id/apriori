@@ -17,7 +17,6 @@ type UserOrderCache interface {
 	Get(ctx context.Context, key string) ([]model.GetUserOrderResponse, error)
 	Set(ctx context.Context, key string, value []model.GetUserOrderResponse) error
 	SingleSet(ctx context.Context, key string, value model.GetUserOrderResponse) error
-	RecoverCache(ctx context.Context, key string, orderId string) error
 }
 
 type userOrderCache struct {
@@ -126,9 +125,5 @@ func (cache *userOrderCache) SingleSet(ctx context.Context, key string, value mo
 		return err
 	}
 
-	return nil
-}
-
-func (cache *userOrderCache) RecoverCache(ctx context.Context, key string, orderId string) error {
 	return nil
 }

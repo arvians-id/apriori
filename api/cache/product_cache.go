@@ -17,7 +17,6 @@ type ProductCache interface {
 	Get(ctx context.Context, key string) ([]model.GetProductResponse, error)
 	Set(ctx context.Context, key string, value []model.GetProductResponse) error
 	SingleSet(ctx context.Context, key string, value model.GetProductResponse) error
-	RecoverCache(ctx context.Context, key string) error
 }
 
 type productCache struct {
@@ -126,9 +125,5 @@ func (cache *productCache) SingleSet(ctx context.Context, key string, value mode
 		return err
 	}
 
-	return nil
-}
-
-func (cache *productCache) RecoverCache(ctx context.Context, key string) error {
 	return nil
 }

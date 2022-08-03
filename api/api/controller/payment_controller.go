@@ -15,15 +15,13 @@ import (
 type PaymentController struct {
 	PaymentService service.PaymentService
 	EmailService   service.EmailService
-	UserOrderCache cache.UserOrderCache
 	PaymentCache   cache.PaymentCache
 }
 
-func NewPaymentController(paymentService *service.PaymentService, emailService service.EmailService, userOrderCache *cache.UserOrderCache, PaymentCache *cache.PaymentCache) *PaymentController {
+func NewPaymentController(paymentService *service.PaymentService, emailService service.EmailService, PaymentCache *cache.PaymentCache) *PaymentController {
 	return &PaymentController{
 		PaymentService: *paymentService,
 		EmailService:   emailService,
-		UserOrderCache: *userOrderCache,
 		PaymentCache:   *PaymentCache,
 	}
 }
@@ -77,7 +75,8 @@ func (controller *PaymentController) Pay(c *gin.Context) {
 
 	// recover cache user order in payload
 	key := fmt.Sprintf("user-order-payment-%v", userId)
-	_ = controller.PaymentCache.RecoverCache(c.Request.Context(), key, userId)
+	order, _ := controller.PaymentService.FindAllByUserId(c.Request.Context(), userId)
+	_ = controller.PaymentCache.Set(c.Request.Context(), key, order)
 
 	response.ReturnSuccessOK(c, "OK", data)
 }
@@ -104,7 +103,8 @@ func (controller *PaymentController) Notification(c *gin.Context) {
 	// recover cache user order
 	orderId := resArray["order_id"].(string)
 	key := fmt.Sprintf("user-order-id-%s", orderId)
-	_ = controller.UserOrderCache.RecoverCache(c.Request.Context(), key, orderId)
+	order, _ := controller.PaymentService.FindByOrderId(c.Request.Context(), orderId)
+	_ = controller.PaymentCache.SingleSet(c.Request.Context(), key, order)
 
 	response.ReturnSuccessOK(c, "OK", nil)
 }

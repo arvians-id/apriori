@@ -56,7 +56,7 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	productController := controller.NewProductController(&productService, &storageService, &productCache)
 	transactionController := controller.NewTransactionController(&transactionService, &storageService, &transactionCache)
 	aprioriController := controller.NewAprioriController(aprioriService, &storageService, &aprioriCache)
-	paymentController := controller.NewPaymentController(&paymentService, emailService, &userOrderCache, &paymentCache)
+	paymentController := controller.NewPaymentController(&paymentService, emailService, &paymentCache)
 	userOrderController := controller.NewUserOrderController(&paymentService, &userOrderService, &userOrderCache, &paymentCache)
 
 	// CORS Middleware

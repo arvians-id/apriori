@@ -92,7 +92,8 @@ func (controller *TransactionController) Create(c *gin.Context) {
 	}
 
 	// Recover cache
-	_ = controller.TransactionCache.RecoverCache(c.Request.Context(), "all-transaction")
+	dataProduct, _ := controller.TransactionService.FindAll(c.Request.Context())
+	_ = controller.TransactionCache.Set(c.Request.Context(), "all-transaction", dataProduct)
 
 	response.ReturnSuccessOK(c, "created", transaction)
 }
@@ -125,7 +126,8 @@ func (controller *TransactionController) CreateFromCsv(c *gin.Context) {
 	}
 
 	// Recover cache
-	_ = controller.TransactionCache.RecoverCache(c.Request.Context(), "all-transaction")
+	dataProduct, _ := controller.TransactionService.FindAll(c.Request.Context())
+	_ = controller.TransactionCache.Set(c.Request.Context(), "all-transaction", dataProduct)
 
 	response.ReturnSuccessOK(c, "created", nil)
 }
@@ -148,7 +150,8 @@ func (controller *TransactionController) Update(c *gin.Context) {
 	}
 
 	// Recover cache
-	_ = controller.TransactionCache.RecoverCache(c.Request.Context(), "all-transaction")
+	dataProduct, _ := controller.TransactionService.FindAll(c.Request.Context())
+	_ = controller.TransactionCache.Set(c.Request.Context(), "all-transaction", dataProduct)
 
 	response.ReturnSuccessOK(c, "updated", transaction)
 }
@@ -162,7 +165,8 @@ func (controller *TransactionController) Delete(c *gin.Context) {
 	}
 
 	// Recover cache
-	_ = controller.TransactionCache.RecoverCache(c.Request.Context(), "all-transaction")
+	dataProduct, _ := controller.TransactionService.FindAll(c.Request.Context())
+	_ = controller.TransactionCache.Set(c.Request.Context(), "all-transaction", dataProduct)
 
 	response.ReturnSuccessOK(c, "deleted", nil)
 }
@@ -175,7 +179,8 @@ func (controller *TransactionController) Truncate(c *gin.Context) {
 	}
 
 	// Recover cache
-	_ = controller.TransactionCache.RecoverCache(c.Request.Context(), "all-transaction")
-	
+	dataProduct, _ := controller.TransactionService.FindAll(c.Request.Context())
+	_ = controller.TransactionCache.Set(c.Request.Context(), "all-transaction", dataProduct)
+
 	response.ReturnSuccessOK(c, "deleted", nil)
 }
