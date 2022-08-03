@@ -15,6 +15,7 @@ import (
 type TransactionCache interface {
 	Get(ctx context.Context, key string) ([]model.GetTransactionResponse, error)
 	Set(ctx context.Context, key string, value []model.GetTransactionResponse) error
+	FlushDB(ctx context.Context) error
 }
 
 type transactionCache struct {
@@ -80,6 +81,20 @@ func (cache *transactionCache) Set(ctx context.Context, key string, value []mode
 	}
 
 	err = rdb.Set(ctx, key, bytes.NewBuffer(b).Bytes(), time.Duration(60)*time.Second).Err()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (cache *transactionCache) FlushDB(ctx context.Context) error {
+	rdb, err := cache.GetClient(ctx)
+	if err != nil {
+		return err
+	}
+
+	err = rdb.FlushDB(ctx).Err()
 	if err != nil {
 		return err
 	}

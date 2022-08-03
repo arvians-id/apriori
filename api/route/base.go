@@ -72,7 +72,7 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	paymentController.Route(router)
 
 	// X API KEY Middleware
-	//router.Use(middleware.SetupXApiKeyMiddleware())
+	router.Use(middleware.SetupXApiKeyMiddleware())
 
 	// Setup Router
 	authController.Route(router)

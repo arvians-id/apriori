@@ -25,12 +25,11 @@ func TearDownTest(db *sql.DB) error {
 	if err != nil {
 		return err
 	}
-	_, err = db.Exec(`DELETE FROM transactions;`)
+	_, err = db.Exec(`DELETE FROM payloads;`)
 	if err != nil {
 		return err
 	}
-
-	_, err = db.Exec(`DELETE FROM transactions;`)
+	_, err = db.Exec(`DELETE FROM user_orders;`)
 	if err != nil {
 		return err
 	}

@@ -17,6 +17,7 @@ type ProductCache interface {
 	Get(ctx context.Context, key string) ([]model.GetProductResponse, error)
 	Set(ctx context.Context, key string, value []model.GetProductResponse) error
 	SingleSet(ctx context.Context, key string, value model.GetProductResponse) error
+	FlushDB(ctx context.Context) error
 }
 
 type productCache struct {
@@ -121,6 +122,20 @@ func (cache *productCache) SingleSet(ctx context.Context, key string, value mode
 	}
 
 	err = rdb.Set(ctx, key, bytes.NewBuffer(b).Bytes(), time.Duration(60)*time.Second).Err()
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (cache *productCache) FlushDB(ctx context.Context) error {
+	rdb, err := cache.GetClient(ctx)
+	if err != nil {
+		return err
+	}
+
+	err = rdb.FlushDB(ctx).Err()
 	if err != nil {
 		return err
 	}
