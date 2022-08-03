@@ -13,16 +13,20 @@ import (
 )
 
 type PaymentController struct {
-	PaymentService service.PaymentService
-	EmailService   service.EmailService
-	PaymentCache   cache.PaymentCache
+	PaymentService   service.PaymentService
+	UserOrderService service.UserOrderService
+	EmailService     service.EmailService
+	PaymentCache     cache.PaymentCache
+	UserOrderCache   cache.UserOrderCache
 }
 
-func NewPaymentController(paymentService *service.PaymentService, emailService service.EmailService, PaymentCache *cache.PaymentCache) *PaymentController {
+func NewPaymentController(paymentService *service.PaymentService, userOrderService *service.UserOrderService, emailService service.EmailService, PaymentCache *cache.PaymentCache, userOrderCache *cache.UserOrderCache) *PaymentController {
 	return &PaymentController{
-		PaymentService: *paymentService,
-		EmailService:   emailService,
-		PaymentCache:   *PaymentCache,
+		PaymentService:   *paymentService,
+		UserOrderService: *userOrderService,
+		EmailService:     emailService,
+		PaymentCache:     *PaymentCache,
+		UserOrderCache:   *userOrderCache,
 	}
 }
 
@@ -101,10 +105,15 @@ func (controller *PaymentController) Notification(c *gin.Context) {
 	}
 
 	// recover cache user order
-	orderId := resArray["order_id"].(string)
-	key := fmt.Sprintf("user-order-id-%s", orderId)
-	order, _ := controller.PaymentService.FindByOrderId(c.Request.Context(), orderId)
-	_ = controller.PaymentCache.SingleSet(c.Request.Context(), key, order)
+	payloadId := utils.StrToInt(resArray["custom_field2"].(string))
+	key := fmt.Sprintf("user-order-id-%v", payloadId)
+	paymentByOrderId, _ := controller.UserOrderService.FindAllByPayload(c.Request.Context(), payloadId)
+	_ = controller.UserOrderCache.Set(c.Request.Context(), key, paymentByOrderId)
+
+	userId := utils.StrToInt(resArray["custom_field1"].(string))
+	key2 := fmt.Sprintf("user-order-payment-%v", userId)
+	paymentByUserId, _ := controller.PaymentService.FindAllByUserId(c.Request.Context(), userId)
+	_ = controller.PaymentCache.Set(c.Request.Context(), key2, paymentByUserId)
 
 	response.ReturnSuccessOK(c, "OK", nil)
 }
