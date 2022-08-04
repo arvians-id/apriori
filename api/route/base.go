@@ -4,7 +4,7 @@ import (
 	"apriori/api/controller"
 	"apriori/api/middleware"
 	"apriori/config"
-	"apriori/repository"
+	repository "apriori/repository/postgres"
 	"apriori/service"
 	"database/sql"
 	"github.com/gin-gonic/gin"
@@ -55,7 +55,7 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	// CORS Middleware
 	router.Use(middleware.SetupCorsMiddleware())
 
-	// Main Router
+	// Main Route
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "Welcome to Apriori Algorithm API. Created By https://github.com/arvians-id",

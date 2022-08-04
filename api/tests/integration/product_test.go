@@ -3,7 +3,7 @@ package integration
 import (
 	"apriori/config"
 	"apriori/entity"
-	"apriori/repository"
+	repository "apriori/repository/postgres"
 	"apriori/service"
 	"apriori/tests/setup"
 	"bytes"

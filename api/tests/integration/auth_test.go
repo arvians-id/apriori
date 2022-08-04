@@ -3,7 +3,7 @@ package integration_test
 import (
 	"apriori/config"
 	"apriori/entity"
-	"apriori/repository"
+	repository "apriori/repository/postgres"
 	"apriori/tests/setup"
 	"context"
 	"database/sql"
