@@ -11,6 +11,16 @@
     <div class="container-fluid mt--6">
       <div class="row">
         <div class="col-12">
+          <div class="card">
+            <div class="card-body">
+              <form @submit="submitSearch" method="GET">
+                <div class="form-group">
+                  <input type="text" class="form-control" name="search" v-model="search" placeholder="contoh: Bantal Polkadot">
+                </div>
+                <button class="btn btn-primary">Search</button>
+              </form>
+            </div>
+          </div>
           <div class="card-wrapper">
             <!-- Custom form validation -->
             <div class="card">
@@ -53,7 +63,7 @@
                     </div>
                   </div>
                 </div>
-                <button @click="loadMore" v-if="products.length !== this.totalData" class="btn btn-secondary d-block mx-auto px-5">
+                <button @click="loadMore()" v-if="products.length !== this.totalData" class="btn btn-secondary d-block mx-auto px-5">
                   Lihat lainnya <i class="ni ni-bold-down"></i>
                 </button>
               </div>
@@ -155,15 +165,28 @@ export default {
       totalData: 0,
       isLoading: true,
       isLoading2: true,
+      search: ""
     };
   },
   methods: {
+    submitSearch(){
+      axios.get(`${process.env.VUE_APP_SERVICE_URL}/products?search=${this.search}`,{ headers: authHeader() }).then((response) => {
+        if(response.data.data != null) {
+          this.totalData = response.data.data.length;
+          this.products = response.data.data.slice(0, this.limitData);
+        }
+      });
+    },
     async fetchData() {
       localStorage.getItem("my-carts")
           ? (this.carts = JSON.parse(localStorage.getItem("my-carts")))
           : (this.carts = []);
 
-     await axios.get(`${process.env.VUE_APP_SERVICE_URL}/products`,{ headers: authHeader() }).then((response) => {
+      let search = this.$route.query.search
+      if (search === undefined) {
+        search = ""
+      }
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/products?search=${search}`,{ headers: authHeader() }).then((response) => {
         if(response.data.data != null) {
           this.totalData = response.data.data.length;
           this.products = response.data.data.slice(0, this.limitData);
@@ -190,7 +213,12 @@ export default {
       this.isLoading2 = false
     },
     loadMore(){
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/products`,{ headers: authHeader() }).then((response) => {
+      let search = this.$route.query.search
+      if (search === undefined) {
+        search = ""
+      }
+
+      axios.get(`${process.env.VUE_APP_SERVICE_URL}/products?search=${search}`,{ headers: authHeader() }).then((response) => {
         this.products = response.data.data.slice(0, this.limitData += 8);
       });
     },

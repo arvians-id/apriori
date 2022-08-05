@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 	"os"
+	"strings"
 )
 
 type ProductController struct {
@@ -29,29 +30,39 @@ func NewProductController(productService *service.ProductService, storageService
 }
 
 func (controller *ProductController) Route(router *gin.Engine) *gin.Engine {
-	authorized := router.Group("/api")
+	authorized := router.Group("/api", middleware.AuthJwtMiddleware())
 	{
-		authorized.GET("/products", controller.FindAll)
-		authorized.GET("/products/:code", controller.FindById)
-		authorized.POST("/products", controller.Create, middleware.AuthJwtMiddleware())
-		authorized.PATCH("/products/:code", controller.Update, middleware.AuthJwtMiddleware())
-		authorized.DELETE("/products/:code", controller.Delete, middleware.AuthJwtMiddleware())
-		authorized.GET("/products/:code/recommendation", controller.FindAllRecommendation)
+		authorized.POST("/products", controller.Create)
+		authorized.PATCH("/products/:code", controller.Update)
+		authorized.DELETE("/products/:code", controller.Delete)
+	}
+
+	notAuthorized := router.Group("/api")
+	{
+		notAuthorized.GET("/products/:code/recommendation", controller.FindAllRecommendation)
+		notAuthorized.GET("/products", controller.FindAll)
+		notAuthorized.GET("/products/:code", controller.FindById)
 	}
 
 	return router
 }
 
 func (controller *ProductController) FindAll(c *gin.Context) {
-	productsCache, err := controller.CacheService.Get(c, "all-product")
+	search := strings.ToLower(c.Query("search"))
+	searchKey := search
+	if search == "" {
+		searchKey = "all"
+	}
+	key := fmt.Sprintf("%s-product", searchKey)
+	productsCache, err := controller.CacheService.Get(c, key)
 	if err == redis.Nil {
-		products, err := controller.ProductService.FindAll(c.Request.Context())
+		products, err := controller.ProductService.FindAll(c.Request.Context(), search)
 		if err != nil {
 			response.ReturnErrorInternalServerError(c, err, nil)
 			return
 		}
 
-		err = controller.CacheService.Set(c.Request.Context(), "all-product", products)
+		err = controller.CacheService.Set(c.Request.Context(), key, products)
 		if err != nil {
 			response.ReturnErrorInternalServerError(c, err, nil)
 			return

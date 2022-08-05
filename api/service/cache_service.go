@@ -23,6 +23,7 @@ type cacheService struct {
 	Addr     string
 	Password string
 	DB       int
+	Expired  int
 }
 
 func NewCacheService(configuration config.Config) CacheService {
@@ -33,6 +34,7 @@ func NewCacheService(configuration config.Config) CacheService {
 		Addr:     host,
 		Password: configuration.Get("REDIS_PASSWORD"),
 		DB:       db,
+		Expired:  utils.StrToInt(configuration.Get("REDIS_EXPIRED")),
 	}
 }
 
@@ -75,7 +77,7 @@ func (cache *cacheService) Set(ctx context.Context, key string, value interface{
 		return err
 	}
 
-	err = rdb.Set(ctx, key, bytes.NewBuffer(b).Bytes(), time.Duration(60)*time.Second).Err()
+	err = rdb.Set(ctx, key, bytes.NewBuffer(b).Bytes(), time.Duration(cache.Expired)*time.Minute).Err()
 	if err != nil {
 		return err
 	}

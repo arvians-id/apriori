@@ -12,7 +12,7 @@ import (
 )
 
 type ProductService interface {
-	FindAll(ctx context.Context) ([]model.GetProductResponse, error)
+	FindAll(ctx context.Context, search string) ([]model.GetProductResponse, error)
 	FindAllRecommendation(ctx context.Context, code string) ([]model.GetProductRecommendationResponse, error)
 	FindByCode(ctx context.Context, code string) (model.GetProductResponse, error)
 	Create(ctx context.Context, request model.CreateProductRequest) (model.GetProductResponse, error)
@@ -38,14 +38,14 @@ func NewProductService(productRepository *repository.ProductRepository, storageS
 	}
 }
 
-func (service *productService) FindAll(ctx context.Context) ([]model.GetProductResponse, error) {
+func (service *productService) FindAll(ctx context.Context, search string) ([]model.GetProductResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return []model.GetProductResponse{}, err
 	}
 	defer utils.CommitOrRollback(tx)
 
-	products, err := service.ProductRepository.FindAll(ctx, tx)
+	products, err := service.ProductRepository.FindAll(ctx, tx, search)
 	if err != nil {
 		return []model.GetProductResponse{}, err
 	}

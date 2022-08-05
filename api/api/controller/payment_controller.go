@@ -28,13 +28,17 @@ func NewPaymentController(paymentService *service.PaymentService, userOrderServi
 }
 
 func (controller *PaymentController) Route(router *gin.Engine) *gin.Engine {
-	authorized := router.Group("/api")
+	authorized := router.Group("/api", middleware.AuthJwtMiddleware())
 	{
-		authorized.GET("/payments", controller.FindAll, middleware.AuthJwtMiddleware())
-		authorized.GET("/payments/:order_id", controller.FindByOrderId, middleware.AuthJwtMiddleware())
-		authorized.POST("/payments/pay", controller.Pay)
-		authorized.POST("/payments/notification", controller.Notification)
-		authorized.DELETE("/payments/:order_id", controller.Delete)
+		authorized.GET("/payments", controller.FindAll)
+		authorized.GET("/payments/:order_id", controller.FindByOrderId)
+	}
+
+	notAuthorized := router.Group("/api")
+	{
+		notAuthorized.POST("/payments/pay", controller.Pay)
+		notAuthorized.POST("/payments/notification", controller.Notification)
+		notAuthorized.DELETE("/payments/:order_id", controller.Delete)
 	}
 
 	return router

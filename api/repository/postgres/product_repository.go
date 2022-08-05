@@ -15,9 +15,9 @@ func NewProductRepository() repository.ProductRepository {
 	return &productRepository{}
 }
 
-func (repository *productRepository) FindAll(ctx context.Context, tx *sql.Tx) ([]entity.Product, error) {
-	query := "SELECT * FROM products ORDER BY id_product DESC"
-	queryContext, err := tx.QueryContext(ctx, query)
+func (repository *productRepository) FindAll(ctx context.Context, tx *sql.Tx, search string) ([]entity.Product, error) {
+	query := "SELECT * FROM products WHERE LOWER(name) LIKE $1 ORDER BY id_product DESC"
+	queryContext, err := tx.QueryContext(ctx, query, "%"+search+"%")
 	if err != nil {
 		return []entity.Product{}, err
 	}

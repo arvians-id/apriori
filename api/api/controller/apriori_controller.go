@@ -38,10 +38,13 @@ func (controller *AprioriController) Route(router *gin.Engine) *gin.Engine {
 		authorized.POST("/apriori/generate", controller.Generate)
 	}
 
-	router.GET("/api/apriori", controller.FindAll)
-	router.GET("/api/apriori/:code", controller.FindByCode)
-	router.GET("/api/apriori/:code/detail/:id", controller.FindAprioriById)
-	router.GET("/api/apriori/actives", controller.FindByActive)
+	notAuthorized := router.Group("/api")
+	{
+		notAuthorized.GET("/apriori", controller.FindAll)
+		notAuthorized.GET("/apriori/:code", controller.FindByCode)
+		notAuthorized.GET("/apriori/:code/detail/:id", controller.FindAprioriById)
+		notAuthorized.GET("/apriori/actives", controller.FindByActive)
+	}
 
 	return router
 }

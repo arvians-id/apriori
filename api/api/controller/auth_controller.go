@@ -34,15 +34,19 @@ func NewAuthController(authService *service.AuthService, userService *service.Us
 }
 
 func (controller *AuthController) Route(router *gin.Engine) *gin.Engine {
-	authorized := router.Group("/api/auth")
+	authorized := router.Group("/api/auth", middleware.AuthJwtMiddleware())
 	{
-		authorized.POST("/login", controller.Login)
-		authorized.POST("/refresh", controller.Refresh)
-		authorized.POST("/forgot-password", controller.ForgotPassword)
-		authorized.POST("/verify", controller.VerifyResetPassword)
-		authorized.POST("/register", controller.Register)
-		authorized.DELETE("/logout", controller.Logout)
-		authorized.GET("/token", middleware.AuthJwtMiddleware(), controller.Token)
+		authorized.GET("/token", controller.Token)
+	}
+
+	notAuthorized := router.Group("/api/auth")
+	{
+		notAuthorized.POST("/login", controller.Login)
+		notAuthorized.POST("/refresh", controller.Refresh)
+		notAuthorized.POST("/forgot-password", controller.ForgotPassword)
+		notAuthorized.POST("/verify", controller.VerifyResetPassword)
+		notAuthorized.POST("/register", controller.Register)
+		notAuthorized.DELETE("/logout", controller.Logout)
 	}
 
 	return router
