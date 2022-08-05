@@ -39,8 +39,8 @@ func (controller *ProductController) Route(router *gin.Engine) *gin.Engine {
 
 	notAuthorized := router.Group("/api")
 	{
-		notAuthorized.GET("/products/:code/recommendation", controller.FindAllRecommendation)
 		notAuthorized.GET("/products", controller.FindAll)
+		notAuthorized.GET("/products/:code/recommendation", controller.FindAllRecommendation)
 		notAuthorized.GET("/products/:code", controller.FindById)
 	}
 

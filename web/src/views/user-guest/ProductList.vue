@@ -13,7 +13,7 @@
         <div class="col-12">
           <div class="card">
             <div class="card-body">
-              <form @submit="submitSearch" method="GET">
+              <form @submit.prevent="submitSearch" method="GET">
                 <div class="form-group">
                   <input type="text" class="form-control" name="search" v-model="search" placeholder="contoh: Bantal Polkadot">
                 </div>
@@ -213,12 +213,7 @@ export default {
       this.isLoading2 = false
     },
     loadMore(){
-      let search = this.$route.query.search
-      if (search === undefined) {
-        search = ""
-      }
-
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/products?search=${search}`,{ headers: authHeader() }).then((response) => {
+      axios.get(`${process.env.VUE_APP_SERVICE_URL}/products?search=${this.search}`,{ headers: authHeader() }).then((response) => {
         this.products = response.data.data.slice(0, this.limitData += 8);
       });
     },
