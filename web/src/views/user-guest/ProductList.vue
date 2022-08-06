@@ -151,7 +151,6 @@ export default {
     Topbar
   },
   mounted() {
-    console.log("asu")
     this.fetchData()
     this.fetchDataRecommendation()
     document.getElementsByTagName("body")[0].classList.remove("bg-default");
@@ -159,6 +158,7 @@ export default {
   data: function () {
     return {
       products: [],
+      allProducts: [],
       carts: [],
       totalCart: 0,
       recommendation: [],
@@ -175,6 +175,7 @@ export default {
       axios.get(`${process.env.VUE_APP_SERVICE_URL}/products?search=${this.search}`,{ headers: authHeader() }).then((response) => {
         if(response.data.data != null) {
           this.totalData = response.data.data.length;
+          this.allProducts = response.data.data;
           this.products = response.data.data.slice(0, this.limitData);
         }
       });
@@ -191,6 +192,7 @@ export default {
       await axios.get(`${process.env.VUE_APP_SERVICE_URL}/products?search=${search}`,{ headers: authHeader() }).then((response) => {
         if(response.data.data != null) {
           this.totalData = response.data.data.length;
+          this.allProducts = response.data.data;
           this.products = response.data.data.slice(0, this.limitData);
         }
       });
@@ -215,13 +217,7 @@ export default {
       this.isLoading2 = false
     },
     loadMore(){
-      let search = this.$route.query.search
-      if (search === undefined) {
-        search = ""
-      }
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/products?search=${search}`,{ headers: authHeader() }).then((response) => {
-        this.products = response.data.data.slice(0, this.limitData += 8);
-      });
+      this.products = this.allProducts.slice(0, this.limitData += 8);
     },
     numberWithCommas(x) {
       return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
