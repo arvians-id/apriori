@@ -2,7 +2,6 @@ package service
 
 import (
 	"apriori/entity"
-	"apriori/lib"
 	"apriori/model"
 	"apriori/repository"
 	"apriori/utils"
@@ -272,10 +271,10 @@ func (service *aprioriService) Generate(ctx context.Context, request model.Gener
 	}
 
 	// Find first item set
-	transactions, productName, propertyProduct := lib.FindFirstItemSet(transactionsSet, request.MinimumSupport)
+	transactions, productName, propertyProduct := utils.FindFirstItemSet(transactionsSet, request.MinimumSupport)
 
 	// Handle random maps problem
-	oneSet, support, totalTransaction, isEligible, cleanSet := lib.HandleMapsProblem(propertyProduct, request.MinimumSupport)
+	oneSet, support, totalTransaction, isEligible, cleanSet := utils.HandleMapsProblem(propertyProduct, request.MinimumSupport)
 
 	// Get one item set
 	for i := 0; i < len(oneSet); i++ {
@@ -310,17 +309,17 @@ func (service *aprioriService) Generate(ctx context.Context, request model.Gener
 		// Filter when the slice has duplicate values
 		var cleanValues [][]string
 		for i := 0; i < len(dataTemp); i++ {
-			if isDuplicate := lib.IsDuplicate(dataTemp[i]); !isDuplicate {
+			if isDuplicate := utils.IsDuplicate(dataTemp[i]); !isDuplicate {
 				cleanValues = append(cleanValues, dataTemp[i])
 			}
 		}
 		dataTemp = cleanValues
 		// Filter candidates by comparing slice to slice
-		dataTemp = lib.FilterCandidateInSlice(dataTemp)
+		dataTemp = utils.FilterCandidateInSlice(dataTemp)
 
 		// Find item set by minimum support
 		for i := 0; i < len(dataTemp); i++ {
-			countCandidates := lib.FindCandidate(dataTemp[i], transactions)
+			countCandidates := utils.FindCandidate(dataTemp[i], transactions)
 			result := float64(countCandidates) / float64(len(transactionsSet)) * 100
 			if result >= request.MinimumSupport {
 				apriori = append(apriori, model.GetGenerateAprioriResponse{
@@ -388,10 +387,10 @@ func (service *aprioriService) Generate(ctx context.Context, request model.Gener
 
 	// Find Association rules
 	// Set confidence
-	confidence := lib.FindConfidence(apriori, productName, request.MinimumSupport, request.MinimumConfidence)
+	confidence := utils.FindConfidence(apriori, productName, request.MinimumSupport, request.MinimumConfidence)
 
 	// Set discount
-	discount := lib.FindDiscount(confidence, float64(request.MinimumDiscount), float64(request.MaximumDiscount))
+	discount := utils.FindDiscount(confidence, float64(request.MinimumDiscount), float64(request.MaximumDiscount))
 
 	//// Remove last element in apriori as many association rules
 	//for i := 0; i < len(discount); i++ {

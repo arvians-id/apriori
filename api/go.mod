@@ -16,6 +16,7 @@ require (
 )
 
 require (
+	github.com/brianvoe/gofakeit/v6 v6.18.0 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/cheekybits/is v0.0.0-20150225183255-68e9c0620927 // indirect
 	github.com/dgryski/go-rendezvous v0.0.0-20200823014737-9f7001d12a5f // indirect

@@ -151,6 +151,7 @@ export default {
     Topbar
   },
   mounted() {
+    console.log("asu")
     this.fetchData()
     this.fetchDataRecommendation()
     document.getElementsByTagName("body")[0].classList.remove("bg-default");
@@ -170,6 +171,7 @@ export default {
   },
   methods: {
     submitSearch(){
+      this.$router.replace({ name: "guest.product", query: { search: this.search } })
       axios.get(`${process.env.VUE_APP_SERVICE_URL}/products?search=${this.search}`,{ headers: authHeader() }).then((response) => {
         if(response.data.data != null) {
           this.totalData = response.data.data.length;
@@ -213,7 +215,11 @@ export default {
       this.isLoading2 = false
     },
     loadMore(){
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/products?search=${this.search}`,{ headers: authHeader() }).then((response) => {
+      let search = this.$route.query.search
+      if (search === undefined) {
+        search = ""
+      }
+      axios.get(`${process.env.VUE_APP_SERVICE_URL}/products?search=${search}`,{ headers: authHeader() }).then((response) => {
         this.products = response.data.data.slice(0, this.limitData += 8);
       });
     },
