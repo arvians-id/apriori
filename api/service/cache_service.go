@@ -12,7 +12,7 @@ import (
 )
 
 type CacheService interface {
-	GetClient(ctx context.Context) (*redis.Client, error)
+	GetClient() (*redis.Client, error)
 	Get(ctx context.Context, key string) (string, error)
 	Set(ctx context.Context, key string, value interface{}) error
 	Del(ctx context.Context, key ...string) error
@@ -38,22 +38,18 @@ func NewCacheService(configuration config.Config) CacheService {
 	}
 }
 
-func (cache *cacheService) GetClient(ctx context.Context) (*redis.Client, error) {
+func (cache *cacheService) GetClient() (*redis.Client, error) {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     cache.Addr,
 		Password: cache.Password,
 		DB:       cache.DB,
 	})
 
-	if _, err := rdb.Ping(ctx).Result(); err != nil {
-		return nil, err
-	}
-
 	return rdb, nil
 }
 
 func (cache *cacheService) Get(ctx context.Context, key string) (string, error) {
-	rdb, err := cache.GetClient(ctx)
+	rdb, err := cache.GetClient()
 	if err != nil {
 		return "", err
 	}
@@ -67,7 +63,7 @@ func (cache *cacheService) Get(ctx context.Context, key string) (string, error) 
 }
 
 func (cache *cacheService) Set(ctx context.Context, key string, value interface{}) error {
-	rdb, err := cache.GetClient(ctx)
+	rdb, err := cache.GetClient()
 	if err != nil {
 		return err
 	}
@@ -86,7 +82,7 @@ func (cache *cacheService) Set(ctx context.Context, key string, value interface{
 }
 
 func (cache *cacheService) Del(ctx context.Context, key ...string) error {
-	rdb, err := cache.GetClient(ctx)
+	rdb, err := cache.GetClient()
 	if err != nil {
 		return err
 	}
@@ -102,7 +98,7 @@ func (cache *cacheService) Del(ctx context.Context, key ...string) error {
 }
 
 func (cache *cacheService) FlushDB(ctx context.Context) error {
-	rdb, err := cache.GetClient(ctx)
+	rdb, err := cache.GetClient()
 	if err != nil {
 		return err
 	}
