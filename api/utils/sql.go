@@ -2,7 +2,7 @@ package utils
 
 import (
 	"database/sql"
-	log "github.com/sirupsen/logrus"
+	"log"
 )
 
 func CommitOrRollback(tx *sql.Tx) {

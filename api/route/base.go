@@ -9,10 +9,16 @@ import (
 	"apriori/service"
 	"database/sql"
 	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
+	"io"
+	"log"
+	"os"
 )
 
 func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
+	// Write log to file
+	f, _ := os.Create("gin.log")
+	gin.DefaultWriter = io.MultiWriter(f, os.Stdout)
+
 	// Setup Configuration
 	router := gin.Default()
 	db, err := config.NewPostgreSQL(configuration)
@@ -54,7 +60,7 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	userOrderController := controller.NewUserOrderController(&paymentService, &userOrderService, &cacheService)
 
 	// CORS Middleware
-	router.Use(middleware.SetupCorsMiddleware())
+	router.Use(middleware.SetupCorsMiddleware(), middleware.SetupLoggerMiddleware())
 
 	// Main Route
 	router.GET("/", func(c *gin.Context) {

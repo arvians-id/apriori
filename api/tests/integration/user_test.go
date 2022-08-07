@@ -16,7 +16,7 @@ import (
 	"strings"
 	"time"
 
-	log "github.com/sirupsen/logrus"
+	"log"
 
 	gin "github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"

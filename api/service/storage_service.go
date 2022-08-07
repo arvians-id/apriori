@@ -9,7 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/gin-gonic/gin"
-	log "github.com/sirupsen/logrus"
+	"log"
 	"mime/multipart"
 	"strings"
 	"sync"

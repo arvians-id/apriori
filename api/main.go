@@ -3,12 +3,8 @@ package main
 import (
 	"apriori/config"
 	"apriori/route"
-	log "github.com/sirupsen/logrus"
+	"log"
 )
-
-func init() {
-	config.SetupConfiguration()
-}
 
 func main() {
 	configuration := config.New()

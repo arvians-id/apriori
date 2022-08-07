@@ -13,7 +13,7 @@ import (
 	"strings"
 	"time"
 
-	log "github.com/sirupsen/logrus"
+	"log"
 
 	gin "github.com/gin-gonic/gin"
 	"golang.org/x/crypto/bcrypt"

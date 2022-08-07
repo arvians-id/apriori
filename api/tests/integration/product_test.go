@@ -17,7 +17,7 @@ import (
 	"strings"
 	"time"
 
-	log "github.com/sirupsen/logrus"
+	"log"
 
 	"github.com/gin-gonic/gin"
 	. "github.com/onsi/ginkgo/v2"

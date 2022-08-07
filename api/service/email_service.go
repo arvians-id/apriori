@@ -1,8 +1,8 @@
 package service
 
 import (
-	log "github.com/sirupsen/logrus"
 	"gopkg.in/gomail.v2"
+	"log"
 	"os"
 	"strconv"
 )
