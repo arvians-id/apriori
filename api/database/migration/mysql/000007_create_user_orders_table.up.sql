@@ -1,4 +1,4 @@
-CREATE TABLE IF NOT EXISTS user_orders (
+CREATE TABLE IF NOT EXISTS `user_orders` (
     `id_order` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
     `payload_id` BIGINT(20) UNSIGNED NOT NULL,
     `code` VARCHAR(256),

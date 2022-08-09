@@ -74,3 +74,11 @@ type UserRepository interface {
 	UpdatePassword(ctx context.Context, tx *sql.Tx, user entity.User) error
 	Delete(ctx context.Context, tx *sql.Tx, userId uint64) error
 }
+
+type CategoryRepository interface {
+	FindAll(ctx context.Context, tx *sql.Tx) ([]entity.Category, error)
+	FindById(ctx context.Context, tx *sql.Tx, categoryId int) (entity.Category, error)
+	Create(ctx context.Context, tx *sql.Tx, category entity.Category) (entity.Category, error)
+	Update(ctx context.Context, tx *sql.Tx, category entity.Category) (entity.Category, error)
+	Delete(ctx context.Context, tx *sql.Tx, categoryId int) error
+}

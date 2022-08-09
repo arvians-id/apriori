@@ -27,7 +27,7 @@ services:
       - ./api/database/migration/postgres:/migrations
     command: ["-path", "/migrations", "-database", "postgres://root:root@apriori-db-1:5432/apriori?sslmode=disable", "-verbose", "up"]
     depends_on:
-      - api
+      - db
     networks:
       - thesis
 

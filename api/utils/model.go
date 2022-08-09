@@ -123,3 +123,12 @@ func ToUserOrderResponse(userOrder entity.UserOrder) model.GetUserOrderResponse 
 		TotalPriceItem: userOrder.TotalPriceItem,
 	}
 }
+
+func ToCategoryResponse(category entity.Category) model.GetCategoryResponse {
+	return model.GetCategoryResponse{
+		IdCategory: category.IdCategory,
+		Name:       category.Name,
+		CreatedAt:  category.CreatedAt.String(),
+		UpdatedAt:  category.UpdatedAt.String(),
+	}
+}

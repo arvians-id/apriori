@@ -16,6 +16,10 @@ CREATE TABLE IF NOT EXISTS payloads (
     va_number VARCHAR(256),
     biller_code VARCHAR(256),
     bill_key VARCHAR(256),
+    receipt_number VARCHAR(256),
+    address VARCHAR(256),
+    courier VARCHAR(20),
+    service_courier VARCHAR(20),
     PRIMARY KEY (id_payload),
     FOREIGN KEY (user_id) REFERENCES users(id_user) ON DELETE RESTRICT ON UPDATE CASCADE
 )

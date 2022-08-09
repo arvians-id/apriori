@@ -35,6 +35,7 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	aprioriRepository := repository.NewAprioriRepository()
 	paymentRepository := repository.NewPaymentRepository()
 	userOrderRepository := repository.NewUserOrderRepository()
+	categoryRepository := repository.NewCategoryRepository()
 
 	// Setup Service
 	storageService := service.NewStorageService(configuration)
@@ -49,6 +50,7 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	paymentService := service.NewPaymentService(configuration, &paymentRepository, &userOrderRepository, &transactionRepository, db)
 	userOrderService := service.NewUserOrderService(&paymentRepository, &userOrderRepository, db)
 	cacheService := service.NewCacheService(configuration)
+	categoryService := service.NewCategoryService(&categoryRepository, db)
 
 	// Setup Controller
 	userController := controller.NewUserController(&userService)
@@ -58,6 +60,7 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	aprioriController := controller.NewAprioriController(aprioriService, &storageService, &cacheService)
 	paymentController := controller.NewPaymentController(&paymentService, &userOrderService, emailService, &cacheService)
 	userOrderController := controller.NewUserOrderController(&paymentService, &userOrderService, &cacheService)
+	categoryController := controller.NewCategoryController(&categoryService)
 
 	// CORS Middleware
 	router.Use(middleware.SetupCorsMiddleware(), middleware.SetupLoggerMiddleware())
@@ -88,6 +91,7 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	transactionController.Route(router)
 	aprioriController.Route(router)
 	userOrderController.Route(router)
+	categoryController.Route(router)
 
 	return router, db
 }
