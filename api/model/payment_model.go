@@ -18,6 +18,10 @@ type GetPaymentNullableResponse struct {
 	VANumber          *string `json:"va_number,omitempty"`
 	BillerCode        *string `json:"biller_code,omitempty"`
 	BillKey           *string `json:"bill_key,omitempty"`
+	ReceiptNumber     *string `json:"receipt_number,omitempty"`
+	Address           *string `json:"address,omitempty"`
+	Courier           *string `json:"courier,omitempty"`
+	CourierService    *string `json:"courier_service,omitempty"`
 }
 
 type GetPaymentRelationResponse struct {
@@ -38,5 +42,9 @@ type GetPaymentRelationResponse struct {
 	VANumber          *string `json:"va_number,omitempty"`
 	BillerCode        *string `json:"biller_code,omitempty"`
 	BillKey           *string `json:"bill_key,omitempty"`
+	ReceiptNumber     *string `json:"receipt_number,omitempty"`
+	Address           *string `json:"address,omitempty"`
+	Courier           *string `json:"courier,omitempty"`
+	CourierService    *string `json:"courier_service,omitempty"`
 	UserName          *string `json:"user_name,omitempty"`
 }

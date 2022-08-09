@@ -4,7 +4,7 @@ CREATE TABLE IF NOT EXISTS products (
     name VARCHAR(100) NOT NULL,
     description TEXT,
     price INTEGER NOT NULL,
-    category VARCHAR(100),
+    category VARCHAR(100) NOT NULL,
     is_empty INTEGER NOT NULL DEFAULT 0,
     mass INTEGER NOT NULL,
     image TEXT,

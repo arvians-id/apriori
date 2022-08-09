@@ -146,6 +146,9 @@ func (service *productService) Create(ctx context.Context, request model.CreateP
 		Description: request.Description,
 		Price:       request.Price,
 		Image:       request.Image,
+		Category:    utils.UpperWords(request.Category),
+		IsEmpty:     0,
+		Mass:        request.Mass,
 		CreatedAt:   createdAt,
 		UpdatedAt:   updatedAt,
 	}
@@ -178,6 +181,9 @@ func (service *productService) Update(ctx context.Context, request model.UpdateP
 	getProduct.Name = utils.UpperWords(request.Name)
 	getProduct.Description = request.Description
 	getProduct.Price = request.Price
+	getProduct.Category = utils.UpperWords(request.Category)
+	getProduct.IsEmpty = request.IsEmpty
+	getProduct.Mass = request.Mass
 	getProduct.UpdatedAt = updatedAt
 	if request.Image != "" {
 		getProduct.Image = request.Image

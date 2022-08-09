@@ -57,17 +57,7 @@
 [GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
 Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
 [GIN-debug] Listening and serving HTTP on :8080
-::1 - [Tue, 09 Aug 2022 14:38:46 +07] "PATCH /api/categories/1 HTTP/1.1 200 10.9896ms" PostmanRuntime/7.29.2 
-[GIN] 2022/08/09 - 14:38:46 | 200 |     10.9896ms |             ::1 | PATCH    "/api/categories/1"
-::1 - [Tue, 09 Aug 2022 14:38:49 +07] "PATCH /api/categories/1s HTTP/1.1 500 3.9133ms" PostmanRuntime/7.29.2 
-[GIN] 2022/08/09 - 14:38:49 | 500 |       4.081ms |             ::1 | PATCH    "/api/categories/1s"
-::1 - [Tue, 09 Aug 2022 14:38:52 +07] "PATCH /api/categories/1 HTTP/1.1 200 5.302ms" PostmanRuntime/7.29.2 
-[GIN] 2022/08/09 - 14:38:52 | 200 |      5.9436ms |             ::1 | PATCH    "/api/categories/1"
-::1 - [Tue, 09 Aug 2022 14:39:08 +07] "GET /api/categories/1 HTTP/1.1 200 2.8507ms" PostmanRuntime/7.29.2 
-[GIN] 2022/08/09 - 14:39:08 | 200 |      2.9373ms |             ::1 | GET      "/api/categories/1"
-::1 - [Tue, 09 Aug 2022 14:39:11 +07] "DELETE /api/categories/1 HTTP/1.1 200 7.4702ms" PostmanRuntime/7.29.2 
-[GIN] 2022/08/09 - 14:39:11 | 200 |      8.2348ms |             ::1 | DELETE   "/api/categories/1"
-::1 - [Tue, 09 Aug 2022 14:39:13 +07] "GET /api/categories HTTP/1.1 200 2.6222ms" PostmanRuntime/7.29.2 
-[GIN] 2022/08/09 - 14:39:13 | 200 |      2.6222ms |             ::1 | GET      "/api/categories"
-::1 - [Tue, 09 Aug 2022 14:39:15 +07] "GET /api/categories/1 HTTP/1.1 500 3.0388ms" PostmanRuntime/7.29.2 
-[GIN] 2022/08/09 - 14:39:15 | 500 |      3.1421ms |             ::1 | GET      "/api/categories/1"
+::1 - [Tue, 09 Aug 2022 16:49:41 +07] "POST /api/products HTTP/1.1 200 16.2952ms" PostmanRuntime/7.29.2 
+[GIN] 2022/08/09 - 16:49:41 | 200 |     16.2952ms |             ::1 | POST     "/api/products"
+::1 - [Tue, 09 Aug 2022 16:49:50 +07] "POST /api/products HTTP/1.1 200 9.5553ms" PostmanRuntime/7.29.2 
+[GIN] 2022/08/09 - 16:49:50 | 200 |      9.5553ms |             ::1 | POST     "/api/products"

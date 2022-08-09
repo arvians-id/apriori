@@ -18,6 +18,10 @@ type Payment struct {
 	VANumber          string
 	BillerCode        string
 	BillKey           string
+	ReceiptNumber     string
+	Address           string
+	Courier           string
+	CourierService    string
 }
 
 type PaymentNullable struct {
@@ -38,6 +42,10 @@ type PaymentNullable struct {
 	VANumber          *string
 	BillerCode        *string
 	BillKey           *string
+	ReceiptNumber     *string
+	Address           *string
+	Courier           *string
+	CourierService    *string
 }
 
 type PaymentRelation struct {
@@ -58,5 +66,9 @@ type PaymentRelation struct {
 	VANumber          *string
 	BillerCode        *string
 	BillKey           *string
+	ReceiptNumber     *string
+	Address           *string
+	Courier           *string
+	CourierService    *string
 	UserName          *string
 }

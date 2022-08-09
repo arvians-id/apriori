@@ -101,6 +101,8 @@ var _ = Describe("Product API", func() {
 						"code":        "SK6",
 						"name":        "Bantal Biasa",
 						"description": "Test",
+						"category":    "Bantal, Kasur",
+						"mass":        1000,
 						"price":       7000,
 					}
 					bodyOne, _ := json.Marshal(requestBody)
@@ -127,7 +129,7 @@ var _ = Describe("Product API", func() {
 		When("the product is not found", func() {
 			It("should return error not found", func() {
 				// Update Product
-				requestBody := strings.NewReader(`{"code": "SK1","name": "Bantal Biasa","description": "Test"}`)
+				requestBody := strings.NewReader(`{"code": "SK1","name": "Bantal Biasa","description": "Test","category": "Bantal, Kasur","mass":1000}`)
 				request := httptest.NewRequest(http.MethodPatch, "/api/products/SK1", requestBody)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
@@ -165,7 +167,7 @@ var _ = Describe("Product API", func() {
 					_ = tx.Commit()
 
 					// Update Product
-					requestBody := strings.NewReader(`{"code": "SK1","name": "Guling Doti","description": "Test Bang"}`)
+					requestBody := strings.NewReader(`{"code": "SK1","name": "Guling Doti","description": "Test Bang","category": "Bantal, Kasur","mass":1000}`)
 					request := httptest.NewRequest(http.MethodPatch, "/api/products/"+row.Code, requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
@@ -285,6 +287,8 @@ var _ = Describe("Product API", func() {
 					Code:        "SK6",
 					Name:        "Guling",
 					Description: "Test",
+					Category:    "Bantal, Kasur",
+					Mass:        1000,
 					CreatedAt:   time.Now(),
 					UpdatedAt:   time.Now(),
 				})
@@ -292,6 +296,8 @@ var _ = Describe("Product API", func() {
 					Code:        "SK1",
 					Name:        "Bantal",
 					Description: "Test Bang",
+					Category:    "Bantal, Kasur",
+					Mass:        1000,
 					CreatedAt:   time.Now(),
 					UpdatedAt:   time.Now(),
 				})
@@ -364,6 +370,8 @@ var _ = Describe("Product API", func() {
 					Code:        "SK6",
 					Name:        "Widdy",
 					Description: "Test",
+					Category:    "Bantal, Kasur",
+					Mass:        1000,
 					CreatedAt:   time.Now(),
 					UpdatedAt:   time.Now(),
 				})

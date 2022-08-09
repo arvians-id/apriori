@@ -51,6 +51,10 @@ func (repository *paymentRepository) FindAll(ctx context.Context, tx *sql.Tx) ([
 			&payment.VANumber,
 			&payment.BillerCode,
 			&payment.BillKey,
+			&payment.ReceiptNumber,
+			&payment.Address,
+			&payment.Courier,
+			&payment.CourierService,
 			&payment.UserName,
 		)
 		if err != nil {
@@ -96,6 +100,10 @@ func (repository *paymentRepository) FindAllByUserId(ctx context.Context, tx *sq
 			&payment.VANumber,
 			&payment.BillerCode,
 			&payment.BillKey,
+			&payment.ReceiptNumber,
+			&payment.Address,
+			&payment.Courier,
+			&payment.CourierService,
 		)
 		if err != nil {
 			return []entity.PaymentNullable{}, err
@@ -108,8 +116,8 @@ func (repository *paymentRepository) FindAllByUserId(ctx context.Context, tx *sq
 
 func (repository *paymentRepository) Create(ctx context.Context, tx *sql.Tx, payment entity.Payment) (entity.Payment, error) {
 	id := 0
-	query := `INSERT INTO payloads(user_id,order_id,transaction_time,transaction_status,transaction_id,status_code,signature_key,settlement_time,payment_type,merchant_id,gross_amount,fraud_status,bank_type,va_number,biller_code,bill_key) 
-			  VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16)  RETURNING id_payload`
+	query := `INSERT INTO payloads(user_id,order_id,transaction_time,transaction_status,transaction_id,status_code,signature_key,settlement_time,payment_type,merchant_id,gross_amount,fraud_status,bank_type,va_number,biller_code,bill_key,receipt_number,address,courier,courier_service) 
+			  VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)  RETURNING id_payload`
 	row := tx.QueryRowContext(
 		ctx,
 		query,
@@ -128,6 +136,10 @@ func (repository *paymentRepository) Create(ctx context.Context, tx *sql.Tx, pay
 		payment.VANumber,
 		payment.BillerCode,
 		payment.BillKey,
+		payment.ReceiptNumber,
+		payment.Address,
+		payment.Courier,
+		payment.CourierService,
 	)
 	err := row.Scan(&id)
 	if err != nil {
@@ -172,6 +184,10 @@ func (repository *paymentRepository) FindByOrderId(ctx context.Context, tx *sql.
 			&payment.VANumber,
 			&payment.BillerCode,
 			&payment.BillKey,
+			&payment.ReceiptNumber,
+			&payment.Address,
+			&payment.Courier,
+			&payment.CourierService,
 		)
 		if err != nil {
 			return entity.PaymentNullable{}, err
@@ -201,7 +217,11 @@ func (repository *paymentRepository) Update(ctx context.Context, tx *sql.Tx, pay
 		 	      bank_type = $13,
          	      va_number = $14,
          	      biller_code = $15,
-         	      bill_key = $16
+         	      bill_key = $16,
+         	      receipt_number = $17,
+         	      address = $18,
+         	      courier = $19,
+         	      courier_service = $20
 			  WHERE order_id = $17`
 	_, err := tx.ExecContext(
 		ctx,
@@ -222,6 +242,10 @@ func (repository *paymentRepository) Update(ctx context.Context, tx *sql.Tx, pay
 		payment.VANumber,
 		payment.BillerCode,
 		payment.BillKey,
+		payment.ReceiptNumber,
+		payment.Address,
+		payment.Courier,
+		payment.CourierService,
 		payment.OrderId,
 	)
 	if err != nil {

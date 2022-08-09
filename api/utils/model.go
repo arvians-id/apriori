@@ -26,16 +26,19 @@ func ToPasswordResetResponse(reset entity.PasswordReset) model.GetPasswordResetR
 	}
 }
 
-func ToProductResponse(user entity.Product) model.GetProductResponse {
+func ToProductResponse(product entity.Product) model.GetProductResponse {
 	return model.GetProductResponse{
-		IdProduct:   user.IdProduct,
-		Code:        user.Code,
-		Name:        user.Name,
-		Description: user.Description,
-		Price:       user.Price,
-		Image:       user.Image,
-		CreatedAt:   user.CreatedAt.String(),
-		UpdatedAt:   user.UpdatedAt.String(),
+		IdProduct:   product.IdProduct,
+		Code:        product.Code,
+		Name:        product.Name,
+		Description: product.Description,
+		Price:       product.Price,
+		Category:    product.Category,
+		IsEmpty:     product.IsEmpty,
+		Mass:        product.Mass,
+		Image:       product.Image,
+		CreatedAt:   product.CreatedAt.String(),
+		UpdatedAt:   product.UpdatedAt.String(),
 	}
 }
 
@@ -85,6 +88,10 @@ func ToPaymentNullableResponse(payment entity.PaymentNullable) model.GetPaymentN
 		VANumber:          payment.VANumber,
 		BillerCode:        payment.BillerCode,
 		BillKey:           payment.BillKey,
+		ReceiptNumber:     payment.ReceiptNumber,
+		Address:           payment.Address,
+		Courier:           payment.Courier,
+		CourierService:    payment.CourierService,
 	}
 }
 
@@ -107,6 +114,10 @@ func ToPaymentRelationResponse(payment entity.PaymentRelation) model.GetPaymentR
 		VANumber:          payment.VANumber,
 		BillerCode:        payment.BillerCode,
 		BillKey:           payment.BillKey,
+		ReceiptNumber:     payment.ReceiptNumber,
+		Address:           payment.Address,
+		Courier:           payment.Courier,
+		CourierService:    payment.CourierService,
 		UserName:          payment.UserName,
 	}
 }

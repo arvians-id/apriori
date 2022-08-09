@@ -19,7 +19,7 @@ CREATE TABLE IF NOT EXISTS payloads (
     receipt_number VARCHAR(256),
     address VARCHAR(256),
     courier VARCHAR(20),
-    service_courier VARCHAR(20),
+    courier_service VARCHAR(20),
     PRIMARY KEY (id_payload),
     FOREIGN KEY (user_id) REFERENCES users(id_user) ON DELETE RESTRICT ON UPDATE CASCADE
 )
