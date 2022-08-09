@@ -17,7 +17,7 @@
                 <div class="form-group">
                   <input type="text" class="form-control" name="search" v-model="search" placeholder="contoh: Bantal Polkadot">
                 </div>
-                <button class="btn btn-primary">Search</button>
+                <button class="btn btn-primary">Cari barang</button>
               </form>
             </div>
           </div>
@@ -171,12 +171,22 @@ export default {
   },
   methods: {
     submitSearch(){
-      this.$router.replace({ name: "guest.product", query: { search: this.search } })
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/products?search=${this.search}`,{ headers: authHeader() }).then((response) => {
+      let search = ""
+      if(this.search !== ""){
+        this.$router.replace({ name: "guest.product", query: { search: this.search } })
+        search = "?search=" + this.search
+      } else {
+        this.$router.replace({ name: "guest.product" })
+      }
+      axios.get(`${process.env.VUE_APP_SERVICE_URL}/products${search}`,{ headers: authHeader() }).then((response) => {
         if(response.data.data != null) {
           this.totalData = response.data.data.length;
           this.allProducts = response.data.data;
           this.products = response.data.data.slice(0, this.limitData);
+        } else {
+          this.totalData = 0;
+          this.allProducts = [];
+          this.products = [];
         }
       });
     },
