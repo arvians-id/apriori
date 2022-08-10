@@ -37,13 +37,13 @@
             <li class="nav-item">
               <router-link :class="getActiveNavLink('guest.cart')" :to="{ name: 'guest.cart' }">
                 <i class="ni ni-cart text-danger"></i>
-                <span class="nav-link-text">My Carts</span>
+                <span class="nav-link-text">My Order</span>
               </router-link>
             </li>
             <li class="nav-item" v-if="isLoggedIn">
               <router-link :class="getActiveNavLink('member.order')" :to="{ name: 'member.order' }">
                 <i class="ni ni-delivery-fast text-dark"></i>
-                <span class="nav-link-text">My Order</span>
+                <span class="nav-link-text">History Order</span>
               </router-link>
             </li>
           </ul>

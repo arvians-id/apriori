@@ -12,7 +12,7 @@ const userGuestRouter = [
     { path: "/product-list", name: "guest.product", component: ProductList },
     { path: "/product-list/:code", name: "guest.product.detail", component: ProductDetail },
     { path: "/recommendation/:code/id/:id", name: "guest.product.recommendation", component: RecommendationDetail },
-    { path: "/my-cart", name: "guest.cart", component: Cart },
+    { path: "/checkout", name: "guest.cart", component: Cart },
     { path: "/my-order", name: "member.order", component: Order },
     { path: "/my-order/:order_id", name: "member.order.detail", component: OrderDetail },
     { path: "/my-profile", name: "member.profile", component: Profile },

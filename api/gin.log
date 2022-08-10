@@ -54,10 +54,462 @@
 [GIN-debug] POST   /api/categories           --> apriori/api/controller.(*categoryController).Create-fm (7 handlers)
 [GIN-debug] PATCH  /api/categories/:id       --> apriori/api/controller.(*categoryController).Update-fm (7 handlers)
 [GIN-debug] DELETE /api/categories/:id       --> apriori/api/controller.(*categoryController).Delete-fm (7 handlers)
+[GIN-debug] GET    /api/raja-ongkir/:place   --> apriori/api/controller.(*rajaOngkirController).FindAll-fm (6 handlers)
+[GIN-debug] POST   /api/raja-ongkir/cost     --> apriori/api/controller.(*rajaOngkirController).GetCost-fm (6 handlers)
 [GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
 Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
 [GIN-debug] Listening and serving HTTP on :8080
-::1 - [Tue, 09 Aug 2022 16:49:41 +07] "POST /api/products HTTP/1.1 200 16.2952ms" PostmanRuntime/7.29.2 
-[GIN] 2022/08/09 - 16:49:41 | 200 |     16.2952ms |             ::1 | POST     "/api/products"
-::1 - [Tue, 09 Aug 2022 16:49:50 +07] "POST /api/products HTTP/1.1 200 9.5553ms" PostmanRuntime/7.29.2 
-[GIN] 2022/08/09 - 16:49:50 | 200 |      9.5553ms |             ::1 | POST     "/api/products"
+[GIN] 2022/08/10 - 18:55:30 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 18:55:30 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 18:55:30 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 18:55:30 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 18:55:30 | 204 |            0s |             ::1 | OPTIONS  "/api/profile"
+::1 - [Wed, 10 Aug 2022 18:55:30 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:55:30 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:55:30 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:55:30 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:55:30 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:55:30 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:55:30 +07] "GET /api/auth/token HTTP/1.1 200 532.4µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:55:30 | 200 |       532.4µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:55:30 +07] "GET /api/profile HTTP/1.1 200 6.3875ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:55:30 | 200 |      6.3875ms |             ::1 | GET      "/api/profile"
+::1 - [Wed, 10 Aug 2022 18:55:30 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:55:30 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:55:30 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:55:30 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:55:30 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:55:30 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:55:30 +07] "GET /api/auth/token HTTP/1.1 200 535.6µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:55:30 | 200 |       535.6µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:55:30 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:55:30 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:55:30 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:55:30 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:55:30 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:55:30 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:55:30 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:55:30 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:55:30 +07] "GET /api/auth/token HTTP/1.1 200 529.4µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:55:30 | 200 |       529.4µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:55:30 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:55:30 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:55:30 +07] "GET /api/profile HTTP/1.1 200 4.3524ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:55:30 | 200 |      4.3524ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/10 - 18:55:30 | 204 |            0s |             ::1 | OPTIONS  "/api/raja-ongkir/province"
+::1 - [Wed, 10 Aug 2022 18:55:30 +07] "GET /api/profile HTTP/1.1 200 33.0737ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:55:30 | 200 |     33.0737ms |             ::1 | GET      "/api/profile"
+::1 - [Wed, 10 Aug 2022 18:55:30 +07] "GET /api/profile HTTP/1.1 200 32.9467ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:55:30 | 200 |     32.9467ms |             ::1 | GET      "/api/profile"
+::1 - [Wed, 10 Aug 2022 18:55:31 +07] "GET /api/raja-ongkir/province HTTP/1.1 200 1.1267007s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:55:31 | 200 |    1.1267007s |             ::1 | GET      "/api/raja-ongkir/province"
+::1 - [Wed, 10 Aug 2022 18:55:32 +07] "GET /api/auth/token HTTP/1.1 200 297.2µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:55:32 | 200 |       297.2µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/10 - 18:55:32 | 204 |            0s |             ::1 | OPTIONS  "/api/raja-ongkir/city?province=4"
+::1 - [Wed, 10 Aug 2022 18:55:32 +07] "GET /api/raja-ongkir/city?province=4 HTTP/1.1 200 471.6107ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:55:32 | 200 |    471.6107ms |             ::1 | GET      "/api/raja-ongkir/city?province=4"
+[GIN] 2022/08/10 - 18:55:37 | 204 |            0s |             ::1 | OPTIONS  "/api/raja-ongkir/cost"
+[GIN] 2022/08/10 - 18:55:37 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:55:37 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:55:37 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:55:38 +07] "POST /api/raja-ongkir/cost HTTP/1.1 200 544.161ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:55:38 | 200 |     544.161ms |             ::1 | POST     "/api/raja-ongkir/cost"
+::1 - [Wed, 10 Aug 2022 18:55:40 +07] "GET /api/auth/token HTTP/1.1 200 994.6µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:55:40 | 200 |       994.6µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:55:40 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:55:40 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:55:40 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:55:40 | 200 |       532.5µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/10 - 18:55:40 | 204 |            0s |             ::1 | OPTIONS  "/api/profile"
+::1 - [Wed, 10 Aug 2022 18:55:40 +07] "GET /api/profile HTTP/1.1 200 3.1691ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:55:40 | 200 |      3.1691ms |             ::1 | GET      "/api/profile"
+::1 - [Wed, 10 Aug 2022 18:55:41 +07] "POST /api/payments/pay HTTP/1.1 400 720.2273ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:55:41 | 400 |     720.944ms |             ::1 | POST     "/api/payments/pay"
+[GIN] 2022/08/10 - 18:55:52 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 18:55:52 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 18:55:52 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 18:55:52 | 204 |            0s |             ::1 | OPTIONS  "/api/profile"
+::1 - [Wed, 10 Aug 2022 18:55:52 +07] "GET /api/auth/token HTTP/1.1 200 886.1µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:55:52 | 200 |       886.1µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:55:52 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:55:52 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:55:52 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:55:52 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:55:52 +07] "GET /api/profile HTTP/1.1 200 3.6763ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:55:52 | 200 |      3.9538ms |             ::1 | GET      "/api/profile"
+::1 - [Wed, 10 Aug 2022 18:55:52 +07] "POST /api/payments/pay HTTP/1.1 400 241.4432ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:55:52 | 400 |    242.1246ms |             ::1 | POST     "/api/payments/pay"
+[GIN] 2022/08/10 - 18:56:21 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 18:56:21 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 18:56:21 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 18:56:21 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 18:56:21 | 204 |            0s |             ::1 | OPTIONS  "/api/profile"
+::1 - [Wed, 10 Aug 2022 18:56:21 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+::1 - [Wed, 10 Aug 2022 18:56:21 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:56:21 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/10 - 18:56:21 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:56:21 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:56:21 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:56:21 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:56:21 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:56:21 +07] "GET /api/profile HTTP/1.1 200 3.7167ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:56:21 | 200 |      3.7167ms |             ::1 | GET      "/api/profile"
+::1 - [Wed, 10 Aug 2022 18:56:21 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:56:21 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:56:21 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+::1 - [Wed, 10 Aug 2022 18:56:21 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:56:21 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/10 - 18:56:21 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:56:21 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:56:21 | 200 |       527.1µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:56:21 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:56:21 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:56:21 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:56:21 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:56:21 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:56:21 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:56:21 +07] "GET /api/auth/token HTTP/1.1 200 506.6µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:56:21 | 200 |       506.6µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:56:21 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:56:21 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:56:21 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:56:21 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:56:21 +07] "GET /api/profile HTTP/1.1 200 4.8897ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:56:21 | 200 |      4.8897ms |             ::1 | GET      "/api/profile"
+::1 - [Wed, 10 Aug 2022 18:56:21 +07] "GET /api/profile HTTP/1.1 200 4.9552ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:56:21 | 200 |      4.9552ms |             ::1 | GET      "/api/profile"
+::1 - [Wed, 10 Aug 2022 18:56:21 +07] "GET /api/profile HTTP/1.1 200 4.408ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:56:21 | 200 |       4.408ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/10 - 18:56:21 | 204 |            0s |             ::1 | OPTIONS  "/api/raja-ongkir/province"
+::1 - [Wed, 10 Aug 2022 18:56:22 +07] "GET /api/raja-ongkir/province HTTP/1.1 200 1.1692834s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:56:22 | 200 |    1.1692834s |             ::1 | GET      "/api/raja-ongkir/province"
+[GIN] 2022/08/10 - 18:57:19 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 18:57:19 | 204 |            0s |             ::1 | OPTIONS  "/api/profile"
+[GIN] 2022/08/10 - 18:57:19 | 204 |       114.3µs |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 18:57:19 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:57:19 +07] "GET /api/auth/token HTTP/1.1 200 525.6µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:57:19 | 200 |       525.6µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:57:19 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:57:19 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:57:19 +07] "GET /api/auth/token HTTP/1.1 200 530.8µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:57:19 | 200 |       530.8µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:57:19 +07] "GET /api/profile HTTP/1.1 200 4.766ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:57:19 | 200 |      5.2993ms |             ::1 | GET      "/api/profile"
+::1 - [Wed, 10 Aug 2022 18:57:19 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:57:19 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:57:19 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:57:19 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:57:19 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:57:19 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:57:19 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:57:19 | 200 |       525.6µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:57:19 +07] "GET /api/auth/token HTTP/1.1 200 531µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:57:19 | 200 |         531µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:57:19 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:57:19 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:57:19 +07] "GET /api/profile HTTP/1.1 200 4.3203ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:57:19 | 200 |      4.3203ms |             ::1 | GET      "/api/profile"
+::1 - [Wed, 10 Aug 2022 18:57:19 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:57:19 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:57:19 +07] "GET /api/auth/token HTTP/1.1 200 585.2µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:57:19 | 200 |       585.2µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:57:19 +07] "GET /api/profile HTTP/1.1 200 4.8324ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:57:19 | 200 |      4.8324ms |             ::1 | GET      "/api/profile"
+::1 - [Wed, 10 Aug 2022 18:57:19 +07] "GET /api/auth/token HTTP/1.1 200 525.1µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:57:19 | 200 |       525.1µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:57:19 +07] "GET /api/profile HTTP/1.1 200 3.1727ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+::1 - [Wed, 10 Aug 2022 18:57:19 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:57:19 | 200 |      3.1727ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/10 - 18:57:19 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:57:19 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:57:19 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/10 - 18:57:19 | 204 |            0s |             ::1 | OPTIONS  "/api/raja-ongkir/province"
+::1 - [Wed, 10 Aug 2022 18:57:22 +07] "GET /api/raja-ongkir/province HTTP/1.1 200 3.227862s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:57:22 | 200 |     3.227862s |             ::1 | GET      "/api/raja-ongkir/province"
+::1 - [Wed, 10 Aug 2022 18:57:23 +07] "GET /api/auth/token HTTP/1.1 200 921.1µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:57:23 | 200 |       921.1µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/10 - 18:57:23 | 204 |            0s |             ::1 | OPTIONS  "/api/raja-ongkir/city?province=3"
+::1 - [Wed, 10 Aug 2022 18:57:24 +07] "GET /api/raja-ongkir/city?province=3 HTTP/1.1 200 390.4652ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:57:24 | 200 |    390.4652ms |             ::1 | GET      "/api/raja-ongkir/city?province=3"
+[GIN] 2022/08/10 - 18:57:26 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 18:57:26 | 204 |            0s |             ::1 | OPTIONS  "/api/raja-ongkir/cost"
+::1 - [Wed, 10 Aug 2022 18:57:26 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:57:26 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:57:26 +07] "POST /api/raja-ongkir/cost HTTP/1.1 200 375.3957ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:57:26 | 200 |    375.3957ms |             ::1 | POST     "/api/raja-ongkir/cost"
+::1 - [Wed, 10 Aug 2022 18:57:29 +07] "GET /api/auth/token HTTP/1.1 200 506.7µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:57:29 | 200 |       506.7µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:57:29 +07] "GET /api/auth/token HTTP/1.1 200 436.2µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:57:29 | 200 |       436.2µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:57:29 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:57:29 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/10 - 18:57:29 | 204 |            0s |             ::1 | OPTIONS  "/api/profile"
+::1 - [Wed, 10 Aug 2022 18:57:29 +07] "GET /api/profile HTTP/1.1 200 3.7107ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:57:29 | 200 |      3.7107ms |             ::1 | GET      "/api/profile"
+::1 - [Wed, 10 Aug 2022 18:57:29 +07] "POST /api/payments/pay HTTP/1.1 400 329.6209ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:57:29 | 400 |    330.5912ms |             ::1 | POST     "/api/payments/pay"
+[GIN] 2022/08/10 - 18:59:35 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 18:59:35 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 18:59:35 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 18:59:35 | 204 |            0s |             ::1 | OPTIONS  "/api/profile"
+[GIN] 2022/08/10 - 18:59:35 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:59:35 +07] "GET /api/auth/token HTTP/1.1 200 529.3µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:59:35 | 200 |       529.3µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:59:35 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:59:35 | 200 |       522.6µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:59:35 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:59:35 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:59:35 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:59:35 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:59:35 +07] "GET /api/profile HTTP/1.1 200 4.2293ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:59:35 | 200 |      4.2293ms |             ::1 | GET      "/api/profile"
+::1 - [Wed, 10 Aug 2022 18:59:35 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:59:35 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:59:35 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:59:35 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:59:35 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:59:35 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:59:35 +07] "GET /api/auth/token HTTP/1.1 200 546.5µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:59:35 | 200 |       546.5µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:59:35 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:59:35 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:59:35 +07] "GET /api/auth/token HTTP/1.1 200 531.7µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:59:35 | 200 |       531.7µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:59:35 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:59:35 | 200 |       515.1µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:59:35 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:59:35 | 200 |       583.7µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:59:35 +07] "GET /api/profile HTTP/1.1 200 4.2756ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:59:35 | 200 |      4.2756ms |             ::1 | GET      "/api/profile"
+::1 - [Wed, 10 Aug 2022 18:59:35 +07] "GET /api/profile HTTP/1.1 200 3.7611ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:59:35 | 200 |      3.7611ms |             ::1 | GET      "/api/profile"
+::1 - [Wed, 10 Aug 2022 18:59:35 +07] "GET /api/profile HTTP/1.1 200 3.7238ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:59:35 | 200 |      3.7238ms |             ::1 | GET      "/api/profile"
+::1 - [Wed, 10 Aug 2022 18:59:35 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:59:35 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:59:35 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:59:35 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/10 - 18:59:35 | 204 |            0s |             ::1 | OPTIONS  "/api/raja-ongkir/province"
+::1 - [Wed, 10 Aug 2022 18:59:36 +07] "GET /api/raja-ongkir/province HTTP/1.1 200 1.1257972s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:59:36 | 200 |    1.1257972s |             ::1 | GET      "/api/raja-ongkir/province"
+::1 - [Wed, 10 Aug 2022 18:59:37 +07] "GET /api/auth/token HTTP/1.1 200 999.4µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:59:37 | 200 |       999.4µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/10 - 18:59:37 | 204 |            0s |             ::1 | OPTIONS  "/api/raja-ongkir/city?province=4"
+::1 - [Wed, 10 Aug 2022 18:59:38 +07] "GET /api/raja-ongkir/city?province=4 HTTP/1.1 200 344.847ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:59:38 | 200 |     344.847ms |             ::1 | GET      "/api/raja-ongkir/city?province=4"
+[GIN] 2022/08/10 - 18:59:41 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 18:59:41 | 204 |            0s |             ::1 | OPTIONS  "/api/raja-ongkir/cost"
+::1 - [Wed, 10 Aug 2022 18:59:41 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:59:41 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 18:59:41 +07] "POST /api/raja-ongkir/cost HTTP/1.1 200 373.6524ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 18:59:41 | 200 |    373.6524ms |             ::1 | POST     "/api/raja-ongkir/cost"
+[GIN] 2022/08/10 - 19:00:15 | 204 |       685.7µs |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 19:00:15 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 19:00:15 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:15 +07] "GET /api/auth/token HTTP/1.1 200 527.3µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:15 | 200 |       527.3µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/10 - 19:00:15 | 204 |            0s |             ::1 | OPTIONS  "/api/profile"
+[GIN] 2022/08/10 - 19:00:15 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 19:00:15 | 204 |       526.6µs |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 19:00:15 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 19:00:15 | 204 |            0s |             ::1 | OPTIONS  "/api/profile"
+[GIN] 2022/08/10 - 19:00:15 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 19:00:15 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 19:00:15 | 204 |            0s |             ::1 | OPTIONS  "/api/profile"
+[GIN] 2022/08/10 - 19:00:15 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 19:00:15 | 204 |       526.6µs |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 19:00:15 | 204 |            0s |             ::1 | OPTIONS  "/api/raja-ongkir/province"
+::1 - [Wed, 10 Aug 2022 19:00:15 +07] "GET /api/auth/token HTTP/1.1 200 518.4µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:15 | 200 |       518.4µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:15 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:15 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:15 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:15 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:15 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:15 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:15 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:15 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:15 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:15 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:15 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:15 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:15 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:15 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:15 +07] "GET /api/auth/token HTTP/1.1 200 533.8µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:15 | 200 |       533.8µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:15 +07] "GET /api/profile HTTP/1.1 200 4.9166ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:15 | 200 |      4.9166ms |             ::1 | GET      "/api/profile"
+::1 - [Wed, 10 Aug 2022 19:00:15 +07] "GET /api/profile HTTP/1.1 200 4.9166ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:15 | 200 |      4.9166ms |             ::1 | GET      "/api/profile"
+::1 - [Wed, 10 Aug 2022 19:00:15 +07] "GET /api/profile HTTP/1.1 200 3.7314ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:15 | 200 |      3.7314ms |             ::1 | GET      "/api/profile"
+::1 - [Wed, 10 Aug 2022 19:00:16 +07] "GET /api/raja-ongkir/province HTTP/1.1 200 1.3820728s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:16 | 200 |    1.3820728s |             ::1 | GET      "/api/raja-ongkir/province"
+::1 - [Wed, 10 Aug 2022 19:00:19 +07] "GET /api/auth/token HTTP/1.1 200 389.7µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:19 | 200 |       389.7µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:19 +07] "GET /api/auth/token HTTP/1.1 200 521.2µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:19 | 200 |       521.2µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:19 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:19 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:19 +07] "GET /api/auth/token HTTP/1.1 200 574.3µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:19 | 200 |       574.3µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:19 +07] "GET /api/profile HTTP/1.1 200 3.6293ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:19 | 200 |      3.6293ms |             ::1 | GET      "/api/profile"
+::1 - [Wed, 10 Aug 2022 19:00:19 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+::1 - [Wed, 10 Aug 2022 19:00:19 +07] "GET /api/auth/token HTTP/1.1 200 932.6µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:19 | 200 |       932.6µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/10 - 19:00:19 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:19 +07] "GET /api/auth/token HTTP/1.1 200 576.6µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:19 | 200 |       576.6µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:19 +07] "GET /api/auth/token HTTP/1.1 200 147µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:19 | 200 |         147µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:19 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:19 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:19 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:19 | 200 |       506.6µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:19 +07] "GET /api/profile HTTP/1.1 200 4.1529ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:19 | 200 |      4.1529ms |             ::1 | GET      "/api/profile"
+::1 - [Wed, 10 Aug 2022 19:00:19 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:19 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:19 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:19 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:19 +07] "GET /api/profile HTTP/1.1 200 3.5064ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:19 | 200 |      4.2683ms |             ::1 | GET      "/api/profile"
+::1 - [Wed, 10 Aug 2022 19:00:19 +07] "GET /api/profile HTTP/1.1 200 3.8247ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:19 | 200 |      4.1064ms |             ::1 | GET      "/api/profile"
+::1 - [Wed, 10 Aug 2022 19:00:19 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:19 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:19 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:19 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:19 +07] "GET /api/raja-ongkir/province HTTP/1.1 200 360.0879ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:19 | 200 |    360.6206ms |             ::1 | GET      "/api/raja-ongkir/province"
+[GIN] 2022/08/10 - 19:00:22 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 19:00:22 | 204 |       540.4µs |             ::1 | OPTIONS  "/api/raja-ongkir/city?province=2"
+::1 - [Wed, 10 Aug 2022 19:00:22 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:22 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:22 +07] "GET /api/raja-ongkir/city?province=2 HTTP/1.1 200 418.9202ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:22 | 200 |    418.9202ms |             ::1 | GET      "/api/raja-ongkir/city?province=2"
+::1 - [Wed, 10 Aug 2022 19:00:24 +07] "GET /api/auth/token HTTP/1.1 200 701.4µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:24 | 200 |       701.4µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/10 - 19:00:24 | 204 |            0s |             ::1 | OPTIONS  "/api/raja-ongkir/cost"
+::1 - [Wed, 10 Aug 2022 19:00:24 +07] "POST /api/raja-ongkir/cost HTTP/1.1 200 402.1765ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:24 | 200 |    402.1765ms |             ::1 | POST     "/api/raja-ongkir/cost"
+[GIN] 2022/08/10 - 19:00:40 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 19:00:40 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 19:00:40 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 19:00:40 | 204 |            0s |             ::1 | OPTIONS  "/api/profile"
+[GIN] 2022/08/10 - 19:00:40 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:40 +07] "GET /api/auth/token HTTP/1.1 200 525.9µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:40 | 200 |       525.9µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:40 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:40 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:40 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:40 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:40 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:40 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:40 +07] "GET /api/profile HTTP/1.1 200 4.8669ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:40 | 200 |      4.8669ms |             ::1 | GET      "/api/profile"
+::1 - [Wed, 10 Aug 2022 19:00:41 +07] "GET /api/auth/token HTTP/1.1 200 508.8µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:41 | 200 |       508.8µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:41 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:41 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:41 +07] "GET /api/auth/token HTTP/1.1 200 95µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:41 | 200 |          95µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:41 +07] "GET /api/auth/token HTTP/1.1 200 222.8µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:41 | 200 |       222.8µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:41 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+::1 - [Wed, 10 Aug 2022 19:00:41 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:41 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/10 - 19:00:41 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:41 +07] "GET /api/profile HTTP/1.1 200 3.356ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:41 | 200 |      3.5073ms |             ::1 | GET      "/api/profile"
+::1 - [Wed, 10 Aug 2022 19:00:41 +07] "GET /api/auth/token HTTP/1.1 200 340.6µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:41 | 200 |       340.6µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:41 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:41 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:41 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:41 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:41 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:41 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:41 +07] "GET /api/profile HTTP/1.1 200 3.7113ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:41 | 200 |      4.1347ms |             ::1 | GET      "/api/profile"
+::1 - [Wed, 10 Aug 2022 19:00:41 +07] "GET /api/profile HTTP/1.1 200 3.2878ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:41 | 200 |      3.6871ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/10 - 19:00:41 | 204 |       259.5µs |             ::1 | OPTIONS  "/api/raja-ongkir/province"
+::1 - [Wed, 10 Aug 2022 19:00:42 +07] "GET /api/raja-ongkir/province HTTP/1.1 200 1.2314938s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:42 | 200 |    1.2314938s |             ::1 | GET      "/api/raja-ongkir/province"
+::1 - [Wed, 10 Aug 2022 19:00:44 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:44 | 200 |      1.4053ms |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/10 - 19:00:44 | 204 |            0s |             ::1 | OPTIONS  "/api/raja-ongkir/city?province=5"
+::1 - [Wed, 10 Aug 2022 19:00:45 +07] "GET /api/raja-ongkir/city?province=5 HTTP/1.1 200 368.4771ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:45 | 200 |     369.001ms |             ::1 | GET      "/api/raja-ongkir/city?province=5"
+[GIN] 2022/08/10 - 19:00:47 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 19:00:47 | 204 |            0s |             ::1 | OPTIONS  "/api/raja-ongkir/cost"
+::1 - [Wed, 10 Aug 2022 19:00:47 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:47 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:00:47 +07] "POST /api/raja-ongkir/cost HTTP/1.1 200 378.936ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:00:47 | 200 |     378.936ms |             ::1 | POST     "/api/raja-ongkir/cost"
+[GIN] 2022/08/10 - 19:01:01 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 19:01:01 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 19:01:01 | 204 |            0s |             ::1 | OPTIONS  "/api/profile"
+[GIN] 2022/08/10 - 19:01:01 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:01:01 +07] "GET /api/auth/token HTTP/1.1 200 440µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:01:01 | 200 |         440µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:01:01 +07] "GET /api/auth/token HTTP/1.1 200 663.4µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:01:01 | 200 |       663.4µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:01:01 +07] "GET /api/auth/token HTTP/1.1 200 505.4µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:01:01 | 200 |       505.4µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:01:01 +07] "GET /api/profile HTTP/1.1 200 3.3134ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:01:01 | 200 |      3.9229ms |             ::1 | GET      "/api/profile"
+::1 - [Wed, 10 Aug 2022 19:01:01 +07] "POST /api/payments/pay HTTP/1.1 200 341.5873ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:01:01 | 200 |    342.2486ms |             ::1 | POST     "/api/payments/pay"
+[GIN] 2022/08/10 - 19:01:51 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 19:01:51 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 19:01:51 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 19:01:51 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/10 - 19:01:51 | 204 |            0s |             ::1 | OPTIONS  "/api/profile"
+::1 - [Wed, 10 Aug 2022 19:01:51 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:01:51 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:01:51 +07] "GET /api/auth/token HTTP/1.1 200 536.3µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:01:51 | 200 |       536.3µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:01:51 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:01:51 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:01:51 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:01:51 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:01:51 +07] "GET /api/profile HTTP/1.1 200 4.412ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:01:51 | 200 |       4.412ms |             ::1 | GET      "/api/profile"
+::1 - [Wed, 10 Aug 2022 19:01:51 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:01:51 | 200 |       568.2µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:01:51 +07] "GET /api/auth/token HTTP/1.1 200 537µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:01:51 | 200 |         537µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:01:52 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:01:52 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:01:52 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+::1 - [Wed, 10 Aug 2022 19:01:52 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:01:52 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/10 - 19:01:52 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:01:52 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:01:52 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:01:52 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:01:52 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:01:52 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:01:52 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:01:52 +07] "GET /api/auth/token HTTP/1.1 200 633.4µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:01:52 | 200 |       633.4µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:01:52 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:01:52 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:01:52 +07] "GET /api/auth/token HTTP/1.1 200 529µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:01:52 | 200 |         529µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:01:52 +07] "GET /api/profile HTTP/1.1 200 3.8198ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:01:52 | 200 |      3.8198ms |             ::1 | GET      "/api/profile"
+::1 - [Wed, 10 Aug 2022 19:01:52 +07] "GET /api/profile HTTP/1.1 200 3.7119ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:01:52 | 200 |      3.7119ms |             ::1 | GET      "/api/profile"
+::1 - [Wed, 10 Aug 2022 19:01:52 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:01:52 | 200 |         529µs |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:01:52 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:01:52 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Wed, 10 Aug 2022 19:01:52 +07] "GET /api/profile HTTP/1.1 200 3.7485ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:01:52 | 200 |      3.7485ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/10 - 19:01:52 | 204 |            0s |             ::1 | OPTIONS  "/api/user-order"
+::1 - [Wed, 10 Aug 2022 19:01:52 +07] "GET /api/user-order HTTP/1.1 200 12.1336ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/10 - 19:01:52 | 200 |     12.2033ms |             ::1 | GET      "/api/user-order"

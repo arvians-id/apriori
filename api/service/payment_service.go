@@ -21,7 +21,7 @@ type PaymentService interface {
 	FindByOrderId(ctx context.Context, orderId string) (model.GetPaymentNullableResponse, error)
 	Delete(ctx context.Context, orderId string) error
 	GetClient()
-	GetToken(ctx context.Context, amount int64, userId int, customerName string, items []string) (map[string]interface{}, error)
+	GetToken(ctx context.Context, amount int64, userId int, customerName string, items []string, rajaShipping model.GetRajaOngkirResponse) (map[string]interface{}, error)
 	CreateOrUpdate(ctx context.Context, request map[string]interface{}) error
 }
 
@@ -219,7 +219,7 @@ func (service *paymentService) CreateOrUpdate(ctx context.Context, request map[s
 	return nil
 }
 
-func (service *paymentService) GetToken(ctx context.Context, amount int64, userId int, customerName string, items []string) (map[string]interface{}, error) {
+func (service *paymentService) GetToken(ctx context.Context, amount int64, userId int, customerName string, items []string, rajaShipping model.GetRajaOngkirResponse) (map[string]interface{}, error) {
 	service.GetClient()
 
 	var test []map[string]interface{}
@@ -248,6 +248,13 @@ func (service *paymentService) GetToken(ctx context.Context, amount int64, userI
 		Qty:   1,
 	})
 
+	request = append(request, midtrans.ItemDetail{
+		ID:    request[len(request)-1].ID,
+		Name:  "Ongkos Kirim",
+		Price: rajaShipping.ShippingCost,
+		Qty:   1,
+	})
+
 	orderID := utils.RandomString(20)
 	var snapRequest midtrans.SnapReq
 	snapRequest.TransactionDetails.OrderID = orderID
@@ -271,6 +278,9 @@ func (service *paymentService) GetToken(ctx context.Context, amount int64, userI
 		OrderId:           orderID,
 		TransactionStatus: "canceled",
 		TransactionTime:   time.Now().Format("2006-01-02 15:04:05"),
+		Address:           rajaShipping.Address,
+		Courier:           rajaShipping.Courier,
+		CourierService:    rajaShipping.CourierService,
 	}
 	payment, err := service.PaymentRepository.Create(ctx, tx, paymentRequest)
 	if err != nil {

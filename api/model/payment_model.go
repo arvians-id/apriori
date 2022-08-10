@@ -48,3 +48,10 @@ type GetPaymentRelationResponse struct {
 	CourierService    *string `json:"courier_service,omitempty"`
 	UserName          *string `json:"user_name,omitempty"`
 }
+
+type GetRajaOngkirResponse struct {
+	Address        string
+	Courier        string
+	CourierService string
+	ShippingCost   int64
+}

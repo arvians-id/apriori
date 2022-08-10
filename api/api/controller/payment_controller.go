@@ -3,6 +3,7 @@ package controller
 import (
 	"apriori/api/middleware"
 	"apriori/api/response"
+	"apriori/model"
 	"apriori/service"
 	"apriori/utils"
 	"encoding/json"
@@ -72,7 +73,13 @@ func (controller *PaymentController) Pay(c *gin.Context) {
 	userId := utils.StrToInt(c.PostForm("user_id"))
 	customerName := c.PostForm("customer_name")
 
-	data, err := controller.PaymentService.GetToken(c.Request.Context(), grossAmount, userId, customerName, items)
+	var rajaShipping model.GetRajaOngkirResponse
+	rajaShipping.Address = c.PostForm("address")
+	rajaShipping.Courier = c.PostForm("courier")
+	rajaShipping.CourierService = c.PostForm("courier_service")
+	rajaShipping.ShippingCost = int64(utils.StrToInt(c.PostForm("shipping_cost")))
+
+	data, err := controller.PaymentService.GetToken(c.Request.Context(), grossAmount, userId, customerName, items, rajaShipping)
 	if err != nil {
 		response.ReturnErrorBadRequest(c, err, nil)
 		return

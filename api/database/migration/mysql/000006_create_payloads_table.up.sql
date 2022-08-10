@@ -18,8 +18,8 @@ CREATE TABLE IF NOT EXISTS `payloads` (
     `bill_key` VARCHAR(256),
     `receipt_number` VARCHAR(256),
     `address` VARCHAR(256),
-    `courier` VARCHAR(20),
-    `courier_service` VARCHAR(20),
+    `courier` VARCHAR(30),
+    `courier_service` VARCHAR(100),
     PRIMARY KEY (`id_payload`),
     FOREIGN KEY (`user_id`) REFERENCES users(`id_user`) ON DELETE RESTRICT ON UPDATE CASCADE
 )

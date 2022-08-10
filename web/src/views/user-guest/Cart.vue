@@ -10,19 +10,83 @@
     <!-- Page content -->
     <div class="container-fluid mt--6">
       <div class="row">
-        <div class="col-12">
+        <div class="col-12 col-md-6">
           <div class="card-wrapper">
             <!-- Custom form validation -->
             <div class="card">
               <!-- Card header -->
               <div class="card-header">
                 <!-- Title -->
-                <h5 class="h3 mb-0">Keranjang Belanja</h5>
+                <h5 class="h3 mb-0">Konfirmasi Pemesanan</h5>
               </div>
               <!-- Card body -->
               <div class="card-body">
                 <!-- List group -->
-                <ul class="list-group list-group-flush list my--3" v-if="carts.length > 0">
+                <form @submit.prevent="submit" method="POST">
+                  <div class="row">
+                    <div class="col-6">
+                      <div class="form-group">
+                        <label class="form-control-label">Nama Depan</label> <small class="text-danger">*</small>
+                        <input type="text" class="form-control" name="first_name" v-model="checkout.first_name" required>
+                      </div>
+                    </div>
+                    <div class="col-6">
+                      <div class="form-group">
+                        <label class="form-control-label">Nama Belakang</label> <small class="text-danger">*</small>
+                        <input type="text" class="form-control" name="last_name" v-model="checkout.last_name" required>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-control-label">Provinsi</label> <small class="text-danger">*</small>
+                    <select class="form-control" v-model="province_id" @change="getCity" required>
+                      <option value="" disabled selected>Select</option>
+                      <option v-for="province in provinces" :value="province.province_id" :key="province.province_id">{{ province.province }}</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-control-label">Kota/Kabupaten</label> <small class="text-danger">*</small>
+                    <select class="form-control" v-model="city_id" required>
+                      <option value="" disabled selected>Select</option>
+                      <option v-for="city in cities" :value="city.city_id" :key="city.city_id">{{ city.type + " " + city.city_name + ", " + city.postal_code }}</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-control-label">Alamat Lengkap</label> <small class="text-danger">*</small>
+                    <input type="text" class="form-control" name="full_address" v-model="checkout.address" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-control-label">Jasa Ekspedisi</label> <small class="text-danger">*</small>
+                    <select class="form-control" v-model="checkout.courier" @change="getCost" required>
+                      <option value="" disabled selected>Select</option>
+                      <option value="jne">JNE</option>
+                      <option value="tiki">TIKI</option>
+                      <option value="pos">POS Indonesia</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-control-label">Layanan Pengiriman</label> <small class="text-danger">*</small>
+                    <select class="form-control" v-model="totalCost" @change="getTotalPrice" required>
+                      <option value="" disabled selected>Select</option>
+                      <template v-if="costs.results !== undefined">
+                        <option v-for="(cost,i) in costs.results[0].costs" :value="getCourierService(cost.service,cost.description,cost.cost[0].etd,cost.cost[0].value)" :key="i">{{ cost.service + " ("+ cost.description +") | " + cost.cost[0].etd + " (day) | Rp." + cost.cost[0].value }}</option>
+                      </template>
+                    </select>
+                  </div>
+                  <button class="btn btn-primary">Pesan</button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col-12 col-md-6">
+          <div class="card-wrapper">
+            <!-- Custom form validation -->
+            <div class="card">
+              <!-- Card body -->
+              <div class="card-body">
+                <!-- List group -->
+                <ul class="list-group list-group-flush list my--3 p-3" v-if="carts.length > 0">
                   <li class="list-group-item px-0" v-for="(item, i) in carts" :key="i">
                     <div class="row align-items-center">
                       <div class="col-auto">
@@ -66,38 +130,23 @@
                     </div>
                   </li>
                   <li class="list-group-item px-0">
-                    <div class="row align-items-center">
-                      <div class="col-auto">
+                    <div class="d-flex justify-content-between">
+                      <div>
+                        <div class="p-0 my-2">Subtotal</div>
+                        <div class="p-0 my-2">Pajak</div>
+                        <div class="p-0 my-2">Ongkos Kirim</div>
                       </div>
-                      <div class="col">
+                      <div class="text-right">
+                        <div class="p-0 my-2">Rp {{ numberWithCommas(totalPrice - 5000 - totalCost) }}</div>
+                        <div class="p-0 my-2">Rp {{ numberWithCommas(5000) }}</div>
+                        <div class="p-0 my-2">{{ numberWithCommas(totalCost) == 0 ? "Kurir belum ditentukan." : "Rp " + numberWithCommas(totalCost) }}</div>
                       </div>
-                      <div class="col-auto">
-                        <table class="table table-responsive table-borderless">
-                          <tr>
-                            <td>Sub Total</td>
-                            <td>:</td>
-                            <td class="text-right">Rp {{ numberWithCommas(totalPrice - 5000) }}</td>
-                          </tr>
-                          <tr>
-                            <td>Pajak Aplikasi</td>
-                            <td>:</td>
-                            <td class="text-right">Rp {{ numberWithCommas(5000) }}</td>
-                          </tr>
-                          <tr>
-                            <td>Total harga</td>
-                            <td>:</td>
-                            <td class="text-right font-weight-bold"><h3>Rp {{ numberWithCommas(totalPrice) }}</h3></td>
-                          </tr>
-                          <tr>
-                            <td></td>
-                            <td></td>
-                            <td>
-                              <a href="javascript:void(0);" @click="clearCart" class="btn btn-danger btn-sm">Bersihkan keranjang</a>
-                              <button @click="send" class="btn btn-primary btn-sm">Pesan Sekarang</button>
-                            </td>
-                          </tr>
-                        </table>
-                      </div>
+                    </div>
+                  </li>
+                  <li class="list-group-item px-0">
+                    <div class="d-flex justify-content-between">
+                      <div>Total</div>
+                      <div class="font-weight-bold">Rp {{ numberWithCommas(totalPrice) }}</div>
                     </div>
                   </li>
                 </ul>
@@ -153,7 +202,20 @@ export default {
     return {
       carts: [],
       totalPrice: 5000,
-      totalCart: 0
+      totalCart: 0,
+      checkout: {
+        first_name: "",
+        last_name: "",
+        courier: "",
+        address: "",
+        courier_service: ""
+      },
+      province_id: "",
+      city_id: "",
+      provinces: [],
+      cities: [],
+      costs: [],
+      totalCost: 0,
     }
   },
   mounted() {
@@ -161,9 +223,58 @@ export default {
     if(authHeader()["Authorization"] !== undefined) {
       this.loadScript()
     }
+    this.getProvinces()
     document.getElementsByTagName("body")[0].classList.remove("bg-default");
   },
   methods: {
+    getProvinces(){
+      axios.get(`${process.env.VUE_APP_SERVICE_URL}/raja-ongkir/province`, { headers: authHeader() })
+          .then(response => {
+            this.provinces = response.data.data.rajaongkir.results
+          }).catch(error => {
+            console.log(error);
+          });
+    },
+    getCity(){
+      axios.get(`${process.env.VUE_APP_SERVICE_URL}/raja-ongkir/city?province=${this.province_id}`, { headers: authHeader() })
+          .then(response => {
+            this.cities = response.data.data.rajaongkir.results
+          }).catch(error => {
+            console.log(error);
+          });
+    },
+    getCost(){
+      let headers = {
+        headers: {
+          "Content-Type": "application/x-www-form-urlencoded",
+          ...authHeader()
+        }
+      }
+
+      let formData = new FormData()
+      formData.append("origin", 457)
+      formData.append("destination", this.city_id)
+      formData.append("weight", 1200)
+      formData.append("courier", this.checkout.courier)
+
+      axios.post(`${process.env.VUE_APP_SERVICE_URL}/raja-ongkir/cost`, formData, headers)
+          .then(response => {
+            this.costs = response.data.data.rajaongkir
+          }).catch(error => {
+            console.log(error);
+          });
+    },
+    getTotalPrice(){
+      this.totalPrice = 5000
+      this.carts.map(item => {
+        this.totalPrice += item.price * item.quantity;
+      })
+      this.totalPrice += this.totalCost
+    },
+    getCourierService(service, note, etd, cost){
+      this.checkout.courier_service = service + " ("+ note +") | " + etd + " (day) | Rp." + cost
+      return cost
+    },
     fetchData() {
       localStorage.getItem("my-carts")
         ? (this.carts = JSON.parse(localStorage.getItem("my-carts")))
@@ -238,7 +349,7 @@ export default {
       this.totalPrice -= productItem.price
       localStorage.setItem('my-carts', JSON.stringify(this.carts));
     },
-    async send() {
+    async submit() {
       if(authHeader()["Authorization"] === undefined) {
         this.$router.push({ name: 'auth.login' })
       } else {
@@ -247,8 +358,12 @@ export default {
 
           formData.append("gross_amount", this.totalPrice)
           formData.append("user_id", response.id_user)
-          formData.append("customer_name", response.name)
+          formData.append("customer_name", this.checkout.first_name + " " + this.checkout.last_name)
           formData.append("items", JSON.stringify(this.carts))
+          formData.append("address", this.checkout.address)
+          formData.append("courier", this.checkout.courier)
+          formData.append("courier_service", this.checkout.courier_service)
+          formData.append("shipping_cost", this.totalCost)
 
           axios.post(`${process.env.VUE_APP_SERVICE_URL}/payments/pay`, formData).then(response => {
             window.snap.pay(response.data.data.token, {

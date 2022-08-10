@@ -61,6 +61,7 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	paymentController := controller.NewPaymentController(&paymentService, &userOrderService, emailService, &cacheService)
 	userOrderController := controller.NewUserOrderController(&paymentService, &userOrderService, &cacheService)
 	categoryController := controller.NewCategoryController(&categoryService)
+	rajaOngkirController := controller.NewRajaOngkirController()
 
 	// CORS Middleware
 	router.Use(middleware.SetupCorsMiddleware(), middleware.SetupLoggerMiddleware())
@@ -92,6 +93,7 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	aprioriController.Route(router)
 	userOrderController.Route(router)
 	categoryController.Route(router)
+	rajaOngkirController.Route(router)
 
 	return router, db
 }
