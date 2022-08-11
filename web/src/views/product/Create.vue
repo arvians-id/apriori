@@ -33,6 +33,17 @@
                      <label class="form-control-label">Price</label>
                      <input type="number" class="form-control" v-model="product.price" required>
                    </div>
+                   <div class="form-group">
+                     <label class="form-control-label">Category Name</label> <small class="text-danger">*use ctrl for selecting the category</small>
+                     <select class="form-control" v-model="product.category" multiple required>
+                        <option value="">Select Category</option>
+                        <option v-for="(category, i) in categories" :value="category.name" :key="i">{{ category.name }}</option>
+                     </select>
+                   </div>
+                   <div class="form-group">
+                     <label class="form-control-label">Mass (gram)</label>
+                     <input type="number" class="form-control" v-model="product.mass" required>
+                   </div>
                   <div class="form-group">
                     <label class="form-control-label">Description</label>
                     <textarea class="form-control" v-model="product.description" rows="5"></textarea>
@@ -78,13 +89,28 @@ export default {
         code: "",
         name: "",
         price: 0,
+        category: [],
+        mass: 0,
         description: "",
         image: null
       },
+      categories: [],
       previewImage: "https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/no-image.png"
     }
   },
+  mounted() {
+    this.fetchCategories();
+  },
   methods: {
+    async fetchCategories(){
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/categories`, { headers: authHeader() })
+      .then(response => {
+        this.categories = response.data.data;
+      })
+      .catch(error => {
+        console.log(error);
+      });
+    },
     submit() {
       const config = {
         headers: {
@@ -98,6 +124,12 @@ export default {
       formData.append("price", this.product.price)
       formData.append("description", this.product.description)
       formData.append("image", this.product.image)
+      formData.append("mass", this.product.mass)
+      if (this.product.category.length > 0) {
+        let categoryName = this.product.category
+        this.product.category = categoryName.join(", ")
+        formData.append("category", this.product.category)
+      }
 
       axios.post(`${process.env.VUE_APP_SERVICE_URL}/products`, formData, config)
           .then(response => {

@@ -73,7 +73,7 @@
                       </template>
                     </select>
                   </div>
-                  <button class="btn btn-primary">Pesan</button>
+                  <button class="btn btn-primary" :disabled="carts.length < 1">Pesan</button>
                 </form>
               </div>
             </div>
@@ -148,6 +148,9 @@
                       <div>Total</div>
                       <div class="font-weight-bold">Rp {{ numberWithCommas(totalPrice) }}</div>
                     </div>
+                  </li>
+                  <li class="list-group-item px-0">
+                    <a href="javascript:void(0);" @click="clearCart" class="btn btn-danger btn-sm">Bersihkan pesanan</a>
                   </li>
                 </ul>
                 <ul class="list-group list-group-flush list my--3 mx--3" v-else>
@@ -384,7 +387,7 @@ export default {
       }
     },
     clearCart() {
-      if(confirm("Apakah anda yakin ingin menghapus semua keranjang belanjaan?")){
+      if(confirm("Apakah anda yakin ingin menghapus semua pesanan?")){
         this.carts = []
         localStorage.setItem('my-carts', JSON.stringify([]));
         this.totalCart = 0

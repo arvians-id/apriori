@@ -13,45 +13,68 @@
         <div class="col-xl-12 order-xl-2">
           <div class="card card-profile">
             <!-- Card header -->
-            <div class="card-header">
-              <h3 class="mb-0">Detail Produk</h3>
-            </div>
-            <div class="row align-items-center mx-auto" v-if="isLoading">
-              <p class="p-3 mt-2 text-center">Loading...</p>
-            </div>
-            <div class="row align-items-center" v-else>
-              <div class="col-12 col-lg-6 text-center">
-                <img :src="getImage()" class="img-fluid my-5" width="500">
+            <div class="card-body mt-5">
+              <div class="row align-items-center mx-auto" v-if="isLoading">
+                <p class="p-3 mt-2 text-center">Loading...</p>
               </div>
-              <div class="col-12 col-lg-6">
-                <div class="card-body pt-0">
-                  <div class="row">
-                    <div class="col">
-                      <div class="card-profile-stats d-flex justify-content-center">
-                        <div>
-                          <span class="heading">Dibuat</span>
-                          <span class="description">{{ product.created_at }}</span>
+              <div class="row d-flex justify-content-center" v-else>
+                <div class="col-12 col-lg-4 text-center mb-2">
+                  <img :src="getImage()" class="img-fluid mb-2" width="500">
+                </div>
+                <div class="col-12 col-lg-4">
+                  <div class="text-left">
+                    <h5 class="h2 text-uppercase p-0 m-0">{{ product.name }}</h5>
+                    <p class="p-0 m-0">code : {{ product.code }}</p>
+                    <div class="h1 font-weight-bold">Rp. {{ product.price }}</div>
+                    <hr class="m-2">
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                      <li class="nav-item">
+                        <a class="nav-link active" id="detail-tab" data-toggle="tab" href="#detail" role="tab" aria-controls="detail" aria-selected="true">Detail</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" id="other-detail-tab" data-toggle="tab" href="#other-detail" role="tab" aria-controls="other-detail" aria-selected="false">Lainnya</a>
+                      </li>
+                    </ul>
+                    <div class="tab-content" id="myTabContent">
+                      <div class="tab-pane fade show active" id="detail" role="tabpanel" aria-labelledby="detail-tab">
+                        <p class="font-weight-bold mb-0 mt-2">Kondisi</p>
+                        <p>Original baru</p>
+                        <p class="font-weight-bold mb-0 mt-2">Kategori</p>
+                        <p>{{ product.category }}</p>
+                        <p class="font-weight-bold mb-0 mt-2">Berat Satuan</p>
+                        <p>{{ product.mass }} gram</p>
+                        <p class="font-weight-bold mb-0 mt-2">Deskripsi</p>
+                        <p>{{ product.description == "" ? "Tidak ada deskripsi" : product.description }}</p>
+                        <hr class="m-0 mb-3">
+                        <div class="media">
+                          <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/ryzy.jpg" width="53" class="mr-3" alt="...">
+                          <div class="media-body">
+                            <h3 class="mt-0 mb-0">Toko Ryzy Olshop</h3>
+                            <p>Produk Original Berkualitas dan Terpercaya..</p>
+                          </div>
                         </div>
-                        <div>
-                          <span class="heading">Terakhir diubah</span>
-                          <span class="description">{{ product.updated_at }}</span>
-                        </div>
+                        <hr class="m-0 mb-3">
+                        <p class="font-weight-bold mb-0 mt-2">Pengiriman</p>
+                        <p class="mb-1"><i class="ni ni-pin-3"></i> Dikirim dari Tanggerang, Banten</p>
+                        <p><i class="ni ni-delivery-fast"></i> Tersedia pengiriman dengan TIKI, JNE dan POS Indonesia</p>
+                      </div>
+                      <div class="tab-pane fade" id="other-detail" role="tabpanel" aria-labelledby="other-detail-tab">
+                        <p class="font-weight-bold mb-0 mt-2">Tanggal Dibuat</p>
+                        <p>{{ product.created_at }}</p>
+                        <p class="font-weight-bold mb-0 mt-2">Terakhir Diubah</p>
+                        <p>{{ product.updated_at }}</p>
                       </div>
                     </div>
                   </div>
-                  <div class="text-center">
-                    <h5 class="h3 text-uppercase">
-                      {{ product.name }} - {{ product.code }}
-                    </h5>
-                    <div class="h5 font-weight-300">
-                      <i class="ni location_pin mr-2"></i>Rp. {{ product.price }}
-                    </div>
+                </div>
+                <div class="col-12 col-lg-3">
+                  <div class="border p-3 rounded text-center" style="color: #525f7f">
+                    <p class="mb-0">Atur jumlah yang pembelian</p>
                     <div>
-                      <i class="ni education_hat mr-2"></i> {{ product.description }}
+                      <button type="button" @click="min(product)" class="btn btn-danger btn-sm">-</button>
+                      <button class="btn disabled">{{ quantity }} item</button>
+                      <button type="button" @click="add(product)" class="btn btn-primary btn-sm">+</button>
                     </div>
-                    <button type="button" @click="min(product)" class="btn btn-danger btn-sm mt-3">-</button>
-                    <button class="btn disabled mt-3">{{ quantity }} item</button>
-                    <button type="button" @click="add(product)" class="btn btn-primary btn-sm mt-3">+</button>
                   </div>
                 </div>
               </div>
@@ -126,6 +149,7 @@ export default {
     Topbar
   },
   mounted() {
+    this.fetchCategories()
     this.fetchData()
     this.fetchDataRecommendation()
     document.getElementsByTagName("body")[0].classList.remove("bg-default");
@@ -139,9 +163,19 @@ export default {
       quantity: 0,
       isLoading: true,
       isLoading2: true,
+      categories: [],
     };
   },
   methods: {
+    async fetchCategories(){
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/categories`, { headers: authHeader() })
+        .then(response => {
+          this.categories = response.data.data
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    },
     async fetchData() {
       localStorage.getItem("my-carts")
           ? (this.carts = JSON.parse(localStorage.getItem("my-carts")))
@@ -179,19 +213,6 @@ export default {
     UpperWord(str) {
       return str.toLowerCase().replace(/\b[a-z]/g, function (letter) {
         return letter.toUpperCase();
-      })
-    },
-    submit(no_product) {
-      axios.delete(`${process.env.VUE_APP_SERVICE_URL}/products/` + no_product, { headers: authHeader() })
-          .then(response => {
-            if(response.data.code === 200) {
-              alert(response.data.status)
-              this.$router.push({
-                name: 'product'
-              })
-            }
-          }).catch(error => {
-        console.log(error.response.data.status)
       })
     },
     add(item) {

@@ -14,46 +14,42 @@
           <div class="card card-profile">
             <!-- Card header -->
             <div class="card-header">
-              <h3 class="mb-0">Recommendation Packages</h3>
+              <h3 class="mb-0">Detail Recommendation</h3>
             </div>
-            <div class="row align-items-center mx-auto" v-if="isLoading">
-              <p class="p-3 mt-2 text-center">Loading...</p>
-            </div>
-            <div class="row align-items-center" v-else>
-              <div class="col-12 col-lg-6 text-center">
-                <img :src="getImage()" class="img-fluid my-5" width="500">
+            <div class="card-body">
+              <div class="row align-items-center mx-auto" v-if="isLoading">
+                <p class="p-3 mt-2 text-center">Loading...</p>
               </div>
-              <div class="col-12 col-lg-6">
-                <div class="card-header text-center border-0 pt-8 pt-md-4 pb-0 pb-md-4">
-                  <div class="d-flex justify-content-between">
-                    <router-link :to="{ name: 'apriori.edit', params: { code: this.$route.params.code, id: this.$route.params.id } }"  class="btn btn-sm btn-default float-right">Edit</router-link>
-                  </div>
+              <div class="row d-flex justify-content-center" v-else>
+                <div class="col-12 col-lg-4 text-center mb-2">
+                  <img :src="getImage()" class="img-fluid mb-2" width="500">
+                  <router-link :to="{ name: 'apriori.edit', params: { code: apriori.apriori_code, id: this.$route.params.id } }"  class="btn btn-primary btn-block mb-2">Edit</router-link>
                 </div>
-                <div class="card-pricing border-0 text-center mb-4">
-                  <div class="card-body px-lg-7">
-                    <div class="display-2">{{ apriori.apriori_discount }}%</div>
-                    <span class="text-muted h2" style="text-decoration: line-through">Rp. {{ apriori.product_total_price }}</span>
-                    /
-                    <span class="text-muted">Rp. {{ apriori.price_discount }}</span>
-                    <ul class="list-unstyled my-4" v-if="apriori.apriori_item">
-                      <li v-for="(value,i) in apriori.apriori_item.split(', ')" :key="i">
-                        <div class="d-flex align-items-center justify-content-center">
-                          <div>
-                            <div class="icon icon-xs icon-shape bg-gradient-primary text-white shadow rounded-circle">
-                              <i class="ni ni-basket"></i>
-                            </div>
-                          </div>
-                          <div>
-                            <span class="pl-2 text-sm">{{ UpperWord(value) }}</span>
-                          </div>
-                        </div>
+                <div class="col-12 col-lg-4">
+                  <div class="text-left">
+                    <h5 class="h2 text-uppercase p-0 m-0">Paket rekomendasi {{ apriori.apriori_item }}</h5>
+                    <p class="p-0 m-0">code : {{ apriori.apriori_code }}</p>
+                    <div class="h1 font-weight-bold">Rp. {{ apriori.price_discount }}</div>
+                    <small class="p-1 d-inline rounded font-weight-bold" style="background-color: #ffeaef;; color: #ff5c84">{{ apriori.apriori_discount }}%</small>
+                    <p class="d-inline ml-2" style="text-decoration: line-through">Rp. {{ apriori.product_total_price }}</p>
+                    <hr class="m-2">
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                      <li class="nav-item">
+                        <a class="nav-link active" id="detail-tab" data-toggle="tab" href="#detail" role="tab" aria-controls="detail" aria-selected="true">Detail</a>
                       </li>
                     </ul>
-                    <p>{{ apriori.apriori_description }}</p>
-                  </div>
-                  <div class="card-footer">
-                    <router-link :to="{ name: 'apriori.detail', params: { code: this.$route.params.code } }" class="text-muted">
-                      {{ apriori.apriori_code }}</router-link>
+                    <div class="tab-content" id="myTabContent">
+                      <div class="tab-pane fade show active" id="detail" role="tabpanel" aria-labelledby="detail-tab">
+                        <p class="font-weight-bold mb-0 mt-2">Kondisi</p>
+                        <p>Original baru</p>
+                        <p class="font-weight-bold mb-0 mt-2">Jumlah Barang</p>
+                        <p>{{ apriori.apriori_item.split(", ").length }}</p>
+                        <p class="font-weight-bold mb-0 mt-2">Nama Barang</p>
+                        <p>{{ UpperWord(apriori.apriori_item) }}</p>
+                        <p class="font-weight-bold mb-0 mt-2">Deskripsi</p>
+                        <p>{{ apriori.apriori_description == undefined ? "Tidak ada deskripsi" : apriori.apriori_description }}</p>
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>

@@ -22,11 +22,15 @@ func NewCategoryController(categoryService *service.CategoryService) *categoryCo
 func (controller *categoryController) Route(router *gin.Engine) *gin.Engine {
 	authorized := router.Group("/api", middleware.AuthJwtMiddleware())
 	{
-		authorized.GET("/categories", controller.FindAll)
 		authorized.GET("/categories/:id", controller.FindById)
 		authorized.POST("/categories", controller.Create)
 		authorized.PATCH("/categories/:id", controller.Update)
 		authorized.DELETE("/categories/:id", controller.Delete)
+	}
+
+	notAuthorized := router.Group("/api")
+	{
+		notAuthorized.GET("/categories", controller.FindAll)
 	}
 
 	return router

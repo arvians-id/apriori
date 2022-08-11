@@ -32,6 +32,7 @@ func NewProductController(productService *service.ProductService, storageService
 func (controller *ProductController) Route(router *gin.Engine) *gin.Engine {
 	authorized := router.Group("/api", middleware.AuthJwtMiddleware())
 	{
+		authorized.GET("/products-admin", controller.FindAllOnAdmin)
 		authorized.POST("/products", controller.Create)
 		authorized.PATCH("/products/:code", controller.Update)
 		authorized.DELETE("/products/:code", controller.Delete)
@@ -45,6 +46,16 @@ func (controller *ProductController) Route(router *gin.Engine) *gin.Engine {
 	}
 
 	return router
+}
+
+func (controller *ProductController) FindAllOnAdmin(c *gin.Context) {
+	products, err := controller.ProductService.FindAllOnAdmin(c.Request.Context())
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	response.ReturnSuccessOK(c, "OK", products)
 }
 
 func (controller *ProductController) FindAll(c *gin.Context) {

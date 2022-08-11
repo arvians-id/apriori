@@ -33,6 +33,24 @@
                     <input type="number" class="form-control" v-model="product.price" required>
                   </div>
                   <div class="form-group">
+                    <label class="form-control-label">Category Name</label> <small class="text-danger">*use ctrl for selecting the category</small>
+                    <select class="form-control" v-model="product.category" multiple required>
+                      <option v-for="(category, i) in categories" :value="category.name" :key="i">{{ category.name }}</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-control-label">Mass (gram)</label>
+                    <input type="number" class="form-control" v-model="product.mass" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-control-label">Status</label>
+                    <select class="form-control" v-model="product.is_empty" required>
+                      <option value="" disabled selected>Select</option>
+                      <option value="0" v-bind:selected="product.is_empty == 0">Activate</option>
+                      <option value="1" v-bind:selected="product.is_empty == 1">Nonactivate</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
                     <label class="form-control-label">Description</label>
                     <textarea class="form-control" v-model="product.description" rows="5"></textarea>
                   </div>
@@ -73,15 +91,20 @@ export default {
   },
   mounted() {
     this.fetchData()
+    this.fetchCategories()
   },
   data: function () {
     return {
       product: {
         name: "",
         price: 0,
+        category: [],
+        mass: 0,
+        is_empty: 0,
         description: "",
         image: null
       },
+      categories: [],
       previewImage: "https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/no-image.png",
       isLoading: true
     };
@@ -99,6 +122,13 @@ export default {
       formData.append("price", this.product.price)
       formData.append("description", this.product.description)
       formData.append("image", this.product.image)
+      formData.append("mass", this.product.mass)
+      formData.append("is_empty", this.product.is_empty)
+      if (this.product.category.length > 0) {
+        let categoryName = this.product.category
+        this.product.category = categoryName.join(", ")
+        formData.append("category", this.product.category)
+      }
 
       axios.patch(`${process.env.VUE_APP_SERVICE_URL}/products/${this.$route.params.code}`, formData, config)
           .then(response => {
@@ -112,11 +142,23 @@ export default {
             console.log(error.response.data.status)
           })
     },
+    async fetchCategories(){
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/categories`, { headers: authHeader() })
+          .then(response => {
+            this.categories = response.data.data;
+          })
+          .catch(error => {
+            console.log(error);
+          });
+    },
     async fetchData() {
       await axios.get(`${process.env.VUE_APP_SERVICE_URL}/products/${this.$route.params.code}`, { headers: authHeader() }).then(response => {
         this.product = {
           name: response.data.data.name,
           price: response.data.data.price,
+          category: response.data.data.category,
+          mass: response.data.data.mass,
+          is_empty: response.data.data.is_empty,
           description: response.data.data.description,
         }
         this.previewImage = response.data.data.image

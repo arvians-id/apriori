@@ -64,6 +64,22 @@
               </div>
             </li>
             <li class="nav-item">
+              <a :class="getActiveNavLink('category')" href="#navbar-category" data-toggle="collapse" role="button" :aria-expanded="getAreaExpandedBool('category')" aria-controls="navbar-category">
+                <i class="ni ni-tag text-dark"></i>
+                <span class="nav-link-text">Category</span>
+              </a>
+              <div :class="getCollapseNavLink('category')" id="navbar-category">
+                <ul class="nav nav-sm flex-column">
+                  <li class="nav-item">
+                    <router-link :to="{ name: 'category' }" class="nav-link">Data</router-link>
+                  </li>
+                  <li class="nav-item">
+                    <router-link :to="{ name: 'category.create' }" class="nav-link">Create</router-link>
+                  </li>
+                </ul>
+              </div>
+            </li>
+            <li class="nav-item">
               <a :class="getActiveNavLink('apriori')" href="#navbar-forms" data-toggle="collapse" role="button" :aria-expanded="getAreaExpandedBool('apriori')" aria-controls="navbar-forms">
                 <i class="ni ni-ungroup text-pink"></i>
                 <span class="nav-link-text">Apriori</span>

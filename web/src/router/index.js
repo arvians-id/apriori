@@ -5,6 +5,7 @@ import axios from "axios";
 import AuthRouter from "@/router/auth-router";
 import TransactionRouter from "@/router/transaction-router";
 import ProductRouter from "@/router/product-router";
+import CategoryRouter from "@/router/category-router";
 import AprioriRouter from "@/router/apriori-router";
 import UserRouter from "@/router/user-router";
 import UserGuestRouter from "@/router/user-guest-router";
@@ -16,6 +17,7 @@ const routes = [
     ...AuthRouter,
     ...TransactionRouter,
     ...ProductRouter,
+    ...CategoryRouter,
     ...AprioriRouter,
     ...UserRouter,
     ...UserOrder,

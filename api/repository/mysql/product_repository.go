@@ -15,6 +15,44 @@ func NewProductRepository() repository.ProductRepository {
 	return &productRepository{}
 }
 
+func (repository *productRepository) FindAllOnAdmin(ctx context.Context, tx *sql.Tx) ([]entity.Product, error) {
+	query := "SELECT * FROM products ORDER BY id_product DESC"
+	queryContext, err := tx.QueryContext(ctx, query)
+	if err != nil {
+		return []entity.Product{}, err
+	}
+	defer func(queryContext *sql.Rows) {
+		err := queryContext.Close()
+		if err != nil {
+			return
+		}
+	}(queryContext)
+
+	var products []entity.Product
+	for queryContext.Next() {
+		var product entity.Product
+		err := queryContext.Scan(
+			&product.IdProduct,
+			&product.Code,
+			&product.Name,
+			&product.Description,
+			&product.Price,
+			&product.Category,
+			&product.IsEmpty,
+			&product.Mass,
+			&product.Image,
+			&product.CreatedAt,
+			&product.UpdatedAt,
+		)
+		if err != nil {
+			return []entity.Product{}, err
+		}
+		products = append(products, product)
+	}
+
+	return products, nil
+}
+
 func (repository *productRepository) FindAll(ctx context.Context, tx *sql.Tx, search string) ([]entity.Product, error) {
 	query := "SELECT * FROM products WHERE name LIKE ? ORDER BY id_product DESC"
 	queryContext, err := tx.QueryContext(ctx, query, "%"+search+"%")

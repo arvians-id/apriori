@@ -13,46 +13,61 @@
         <div class="col-xl-12 order-xl-2">
           <div class="card card-profile">
             <!-- Card header -->
-            <div class="card-header">
-              <h3 class="mb-0">Detail Paket Rekomendasi</h3>
-            </div>
-            <div class="row align-items-center mx-auto" v-if="isLoading">
-              <p class="p-3 mt-2 text-center">Loading...</p>
-            </div>
-            <div class="row align-items-center" v-else>
-              <div class="col-12 col-lg-6 text-center">
-                <img :src="getImage()" class="img-fluid my-5" width="500">
+            <div class="card-body mt-5">
+              <div class="row align-items-center mx-auto" v-if="isLoading">
+                <p class="p-3 mt-2 text-center">Loading...</p>
               </div>
-              <div class="col-12 col-lg-6">
-                <div class="card-pricing border-0 text-center mb-4">
-                  <div class="card-body px-lg-7">
-                    <div class="display-2">{{ apriori.apriori_discount }}%</div>
-                    <span class="text-muted h2" style="text-decoration: line-through">Rp. {{ apriori.product_total_price }}</span>
-                    /
-                    <span class="text-muted">Rp. {{ apriori.price_discount }}</span>
-                    <div class="text-center mt-3">
-                      <h5 class="h3 text-uppercase">
-                       Paket rekomendasi {{ apriori.apriori_item }} - {{ apriori.apriori_code }}
-                      </h5>
-                    </div>
-                    <ul class="list-unstyled" v-if="apriori.apriori_item">
-                      <li v-for="(value,i) in apriori.apriori_item.split(', ')" :key="i">
-                        <div class="d-flex align-items-center justify-content-center">
-                          <div>
-                            <div class="icon icon-xs icon-shape bg-gradient-primary text-white shadow rounded-circle">
-                              <i class="ni ni-basket"></i>
-                            </div>
-                          </div>
-                          <div>
-                            <span class="pl-2 text-sm">{{ UpperWord(value) }}</span>
-                          </div>
-                        </div>
+              <div class="row d-flex justify-content-center" v-else>
+                <div class="col-12 col-lg-4 text-center mb-2">
+                  <img :src="getImage()" class="img-fluid mb-2" width="500">
+                </div>
+                <div class="col-12 col-lg-4">
+                  <div class="text-left">
+                    <h5 class="h2 text-uppercase p-0 m-0">Paket rekomendasi {{ apriori.apriori_item }}</h5>
+                    <p class="p-0 m-0">code : {{ apriori.apriori_code }}</p>
+                    <div class="h1 font-weight-bold">Rp. {{ apriori.price_discount }}</div>
+                    <small class="p-1 d-inline rounded font-weight-bold" style="background-color: #ffeaef;; color: #ff5c84">{{ apriori.apriori_discount }}%</small>
+                    <p class="d-inline ml-2" style="text-decoration: line-through">Rp. {{ apriori.product_total_price }}</p>
+                    <hr class="m-2">
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                      <li class="nav-item">
+                        <a class="nav-link active" id="detail-tab" data-toggle="tab" href="#detail" role="tab" aria-controls="detail" aria-selected="true">Detail</a>
                       </li>
                     </ul>
-                    <p>{{ apriori.apriori_description }}</p>
-                    <button type="button" @click="min(apriori)" class="btn btn-danger btn-sm mt-3">-</button>
-                    <button class="btn disabled mt-3">{{ quantity }} item</button>
-                    <button type="button" @click="add(apriori)" class="btn btn-primary btn-sm mt-3">+</button>
+                    <div class="tab-content" id="myTabContent">
+                      <div class="tab-pane fade show active" id="detail" role="tabpanel" aria-labelledby="detail-tab">
+                        <p class="font-weight-bold mb-0 mt-2">Kondisi</p>
+                        <p>Original baru</p>
+                        <p class="font-weight-bold mb-0 mt-2">Jumlah Barang</p>
+                        <p>{{ apriori.apriori_item.split(", ").length }}</p>
+                        <p class="font-weight-bold mb-0 mt-2">Nama Barang</p>
+                        <p>{{ UpperWord(apriori.apriori_item) }}</p>
+                        <p class="font-weight-bold mb-0 mt-2">Deskripsi</p>
+                        <p>{{ apriori.apriori_description == undefined ? "Tidak ada deskripsi" : apriori.apriori_description }}</p>
+                        <hr class="m-0 mb-3">
+                        <div class="media">
+                          <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/ryzy.jpg" width="53" class="mr-3" alt="...">
+                          <div class="media-body">
+                            <h3 class="mt-0 mb-0">Toko Ryzy Olshop</h3>
+                            <p>Produk Original Berkualitas dan Terpercaya..</p>
+                          </div>
+                        </div>
+                        <hr class="m-0 mb-3">
+                        <p class="font-weight-bold mb-0 mt-2">Pengiriman</p>
+                        <p class="mb-1"><i class="ni ni-pin-3"></i> Dikirim dari Tanggerang, Banten</p>
+                        <p><i class="ni ni-delivery-fast"></i> Tersedia pengiriman dengan TIKI, JNE dan POS Indonesia</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-lg-3">
+                  <div class="border p-3 rounded text-center" style="color: #525f7f">
+                    <p class="mb-0">Atur jumlah yang pembelian</p>
+                    <div>
+                      <button type="button" @click="min(apriori)" class="btn btn-danger btn-sm">-</button>
+                      <button class="btn disabled">{{ quantity }} item</button>
+                      <button type="button" @click="add(apriori)" class="btn btn-primary btn-sm">+</button>
+                    </div>
                   </div>
                 </div>
               </div>

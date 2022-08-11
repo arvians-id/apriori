@@ -12,6 +12,7 @@ import (
 )
 
 type ProductService interface {
+	FindAllOnAdmin(ctx context.Context) ([]model.GetProductResponse, error)
 	FindAll(ctx context.Context, search string) ([]model.GetProductResponse, error)
 	FindAllRecommendation(ctx context.Context, code string) ([]model.GetProductRecommendationResponse, error)
 	FindByCode(ctx context.Context, code string) (model.GetProductResponse, error)
@@ -36,6 +37,26 @@ func NewProductService(productRepository *repository.ProductRepository, storageS
 		DB:                db,
 		date:              "2006-01-02 15:04:05",
 	}
+}
+
+func (service *productService) FindAllOnAdmin(ctx context.Context) ([]model.GetProductResponse, error) {
+	tx, err := service.DB.Begin()
+	if err != nil {
+		return []model.GetProductResponse{}, err
+	}
+	defer utils.CommitOrRollback(tx)
+
+	products, err := service.ProductRepository.FindAllOnAdmin(ctx, tx)
+	if err != nil {
+		return []model.GetProductResponse{}, err
+	}
+
+	var productResponse []model.GetProductResponse
+	for _, product := range products {
+		productResponse = append(productResponse, utils.ToProductResponse(product))
+	}
+
+	return productResponse, nil
 }
 
 func (service *productService) FindAll(ctx context.Context, search string) ([]model.GetProductResponse, error) {

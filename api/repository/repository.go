@@ -7,6 +7,7 @@ import (
 )
 
 type ProductRepository interface {
+	FindAllOnAdmin(ctx context.Context, tx *sql.Tx) ([]entity.Product, error)
 	FindAll(ctx context.Context, tx *sql.Tx, search string) ([]entity.Product, error)
 	FindById(ctx context.Context, tx *sql.Tx, productId uint64) (entity.Product, error)
 	FindByCode(ctx context.Context, tx *sql.Tx, code string) (entity.Product, error)

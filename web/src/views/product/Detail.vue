@@ -16,46 +16,51 @@
             <div class="card-header">
               <h3 class="mb-0">Detail Product</h3>
             </div>
-            <div class="row align-items-center mx-auto" v-if="isLoading">
-              <p class="p-3 mt-2 text-center">Loading...</p>
-            </div>
-            <div class="row align-items-center" v-else>
-              <div class="col-12 col-lg-6 text-center">
-                <img :src="getImage()" class="img-fluid my-5" width="500">
+            <div class="card-body">
+              <div class="row align-items-center mx-auto" v-if="isLoading">
+                <p class="p-3 mt-2 text-center">Loading...</p>
               </div>
-              <div class="col-12 col-lg-6">
-                <div class="card-header text-center border-0 pt-8 pt-md-4 pb-0 pb-md-4">
-                  <div class="d-flex justify-content-between">
-                    <router-link :to="{ name: 'product.edit', params: { code: this.$route.params.code } }"  class="btn btn-sm btn-default float-right">Edit</router-link>
-                    <form @submit.prevent="submit(this.$route.params.code)" method="POST" class="d-inline">
-                      <button class="btn btn-danger btn-sm">Delete</button>
-                    </form>
-                  </div>
+              <div class="row d-flex justify-content-center" v-else>
+                <div class="col-12 col-lg-4 text-center mb-2">
+                  <img :src="getImage()" class="img-fluid mb-2" width="500">
+                  <router-link :to="{ name: 'product.edit', params: { code: this.$route.params.code } }"  class="btn btn-primary btn-block mb-2">Edit</router-link>
+                  <form @submit.prevent="submit(this.$route.params.code)" method="POST" class="d-inline">
+                    <button class="btn btn-danger btn-block">Delete</button>
+                  </form>
                 </div>
-                <div class="card-body pt-0">
-                  <div class="row">
-                    <div class="col">
-                      <div class="card-profile-stats d-flex justify-content-center">
-                        <div>
-                          <span class="heading">Created At</span>
-                          <span class="description">{{ product.created_at }}</span>
-                        </div>
-                        <div>
-                          <span class="heading">Last Modified</span>
-                          <span class="description">{{ product.updated_at }}</span>
-                        </div>
+                <div class="col-12 col-lg-4">
+                  <div class="text-left">
+                    <h5 class="h2 text-uppercase p-0 m-0">{{ product.name }}</h5>
+                    <p class="p-0 m-0">code : {{ product.code }}</p>
+                    <div class="h1 font-weight-bold">Rp. {{ product.price }}</div>
+                    <hr class="m-2">
+                    <ul class="nav nav-tabs" id="myTab" role="tablist">
+                      <li class="nav-item">
+                        <a class="nav-link active" id="detail-tab" data-toggle="tab" href="#detail" role="tab" aria-controls="detail" aria-selected="true">Detail</a>
+                      </li>
+                      <li class="nav-item">
+                        <a class="nav-link" id="other-detail-tab" data-toggle="tab" href="#other-detail" role="tab" aria-controls="other-detail" aria-selected="false">Lainnya</a>
+                      </li>
+                    </ul>
+                    <div class="tab-content" id="myTabContent">
+                      <div class="tab-pane fade show active" id="detail" role="tabpanel" aria-labelledby="detail-tab">
+                        <p class="font-weight-bold mb-0 mt-2">Kondisi</p>
+                        <p>Original baru</p>
+                        <p class="font-weight-bold mb-0 mt-2">Kategori</p>
+                        <p>{{ product.category }}</p>
+                        <p class="font-weight-bold mb-0 mt-2">Berat Satuan</p>
+                        <p>{{ product.mass }} gram</p>
+                        <p class="font-weight-bold mb-0 mt-2">Deskripsi</p>
+                        <p>{{ product.description }}</p>
                       </div>
-                    </div>
-                  </div>
-                  <div class="text-center">
-                    <h5 class="h3 text-uppercase">
-                      {{ product.name }} - {{ product.code }}
-                    </h5>
-                    <div class="h5 font-weight-300">
-                      <i class="ni location_pin mr-2"></i>Rp. {{ product.price }}
-                    </div>
-                    <div>
-                      <i class="ni education_hat mr-2"></i> {{ product.description }}
+                      <div class="tab-pane fade" id="other-detail" role="tabpanel" aria-labelledby="other-detail-tab">
+                        <p class="font-weight-bold mb-0 mt-2">Tanggal Dibuat</p>
+                        <p>{{ product.created_at }}</p>
+                        <p class="font-weight-bold mb-0 mt-2">Terakhir Diubah</p>
+                        <p>{{ product.updated_at }}</p>
+                        <p class="font-weight-bold mb-0 mt-2">Status Produk</p>
+                        <p>{{ product.is_empty == 0 ? "Produk aktif" : "Produk tidak aktif" }}</p>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -65,7 +70,7 @@
           <div class="card">
             <!-- Card header -->
             <div class="card-header d-flex justify-content-between">
-              <h3 class="mb-0">Recommendation Packages For You</h3>
+              <h3 class="mb-0">Recommendation Packages</h3>
             </div>
             <!-- Card body -->
             <div class="card-body" v-if="isLoading2">
@@ -155,7 +160,9 @@ export default {
         if(response.data.data != null) {
           this.recommendation = response.data.data;
         }
-      });
+      }).catch((error) => {
+        console.log(error)
+      })
 
       this.isLoading2 = false
     },
