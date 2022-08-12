@@ -26,6 +26,7 @@ type GetAprioriResponse struct {
 	RangeDate   string  `json:"range_date"`
 	IsActive    int     `json:"is_active"`
 	Description *string `json:"description,omitempty"`
+	Mass        *int    `json:"mass,omitempty"`
 	Image       string  `json:"image"`
 	CreatedAt   string  `json:"created_at"`
 }

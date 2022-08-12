@@ -120,6 +120,7 @@ func (service *productService) FindAllRecommendation(ctx context.Context, code s
 				AprioriDiscount:    apriori.Discount,
 				ProductTotalPrice:  totalPrice,
 				PriceAfterDiscount: totalPrice - (totalPrice * int(apriori.Discount) / 100),
+				Image:              apriori.Image,
 			})
 		}
 	}

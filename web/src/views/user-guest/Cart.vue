@@ -119,13 +119,9 @@
                       </div>
                       <div class="col-12 d-block d-lg-none">
                         <p>Rp {{ numberWithCommas(item.totalPricePerItem) }} - {{ item.quantity }} item</p>
-                        <button type="button" @click="min(item)" class="btn btn-danger btn-sm">Kurangi</button>
-                        <button type="button" @click="add(item)" class="btn btn-primary btn-sm">Tambah</button>
                       </div>
                       <div class="col-auto d-none d-lg-block">
                         <p class="text-center">Rp {{ numberWithCommas(item.totalPricePerItem) }} - {{ item.quantity }} item</p>
-                        <button type="button" @click="min(item)" class="btn btn-danger btn-sm">Kurangi</button>
-                        <button type="button" @click="add(item)" class="btn btn-primary btn-sm">Tambah</button>
                       </div>
                     </div>
                   </li>
@@ -148,9 +144,6 @@
                       <div>Total</div>
                       <div class="font-weight-bold">Rp {{ numberWithCommas(totalPrice) }}</div>
                     </div>
-                  </li>
-                  <li class="list-group-item px-0">
-                    <a href="javascript:void(0);" @click="clearCart" class="btn btn-danger btn-sm">Bersihkan pesanan</a>
                   </li>
                 </ul>
                 <ul class="list-group list-group-flush list my--3 mx--3" v-else>
@@ -254,10 +247,14 @@ export default {
         }
       }
 
+      let getWeight = this.carts.map(item => {
+        return item.mass * item.quantity
+      }).reduce((a, b) => a + b, 0)
+
       let formData = new FormData()
       formData.append("origin", 457)
       formData.append("destination", this.city_id)
-      formData.append("weight", 1200)
+      formData.append("weight", getWeight)
       formData.append("courier", this.checkout.courier)
 
       axios.post(`${process.env.VUE_APP_SERVICE_URL}/raja-ongkir/cost`, formData, headers)
@@ -316,42 +313,6 @@ export default {
     numberWithCommas(x) {
       return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
     },
-    add(item) {
-      let productItem = this.carts.find(product => product.code === item.code);
-      if (productItem) {
-        productItem.quantity += 1
-        productItem.totalPricePerItem = productItem.price * productItem.quantity
-        this.totalPrice += productItem.price
-        this.totalCart += 1
-      } else {
-        this.carts.push({
-          id_product: item.id_product,
-          code: item.code,
-          name: item.name,
-          price: item.price,
-          image: item.image,
-          quantity: 1,
-          totalPricePerItem: item.price
-        });
-        this.totalCart += 1
-      }
-
-      localStorage.setItem('my-carts', JSON.stringify(this.carts));
-    },
-    min(item){
-      let productItem = this.carts.find(product => product.code === item.code);
-      if (productItem.quantity > 1) {
-        productItem.quantity -= 1
-        productItem.totalPricePerItem -= productItem.price
-        this.totalCart -= 1
-      } else {
-        this.carts.splice(this.carts.indexOf(productItem), 1);
-        this.totalCart -= 1
-      }
-
-      this.totalPrice -= productItem.price
-      localStorage.setItem('my-carts', JSON.stringify(this.carts));
-    },
     async submit() {
       if(authHeader()["Authorization"] === undefined) {
         this.$router.push({ name: 'auth.login' })
@@ -384,14 +345,6 @@ export default {
             console.log(error)
           })
         })
-      }
-    },
-    clearCart() {
-      if(confirm("Apakah anda yakin ingin menghapus semua pesanan?")){
-        this.carts = []
-        localStorage.setItem('my-carts', JSON.stringify([]));
-        this.totalCart = 0
-        this.totalPrice = 0
       }
     }
   }

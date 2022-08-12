@@ -42,6 +42,8 @@
                         <p>{{ apriori.apriori_item.split(", ").length }}</p>
                         <p class="font-weight-bold mb-0 mt-2">Nama Barang</p>
                         <p>{{ UpperWord(apriori.apriori_item) }}</p>
+                        <p class="font-weight-bold mb-0 mt-2">Berat Barang</p>
+                        <p>{{ apriori.mass == undefined ? 0 : apriori.mass }} gram</p>
                         <p class="font-weight-bold mb-0 mt-2">Deskripsi</p>
                         <p>{{ apriori.apriori_description == undefined ? "Tidak ada deskripsi" : apriori.apriori_description }}</p>
                         <hr class="m-0 mb-3">
@@ -154,6 +156,7 @@ export default {
           code: item.apriori_id,
           name: "Paket Rekomendasi " + this.UpperWord(item.apriori_item),
           price: item.price_discount,
+          mass: item.mass == undefined ? 0 : item.mass,
           image: item.apriori_image,
           quantity: 1,
           totalPricePerItem: item.price_discount

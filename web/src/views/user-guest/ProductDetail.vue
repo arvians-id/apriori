@@ -82,46 +82,54 @@
           </div>
           <div class="card">
             <!-- Card header -->
-            <div class="card-header d-flex justify-content-between">
-              <h3 class="mb-0">Rekomendasi Paket Diskon Untuk Kamu</h3>
+            <div class="card-header">
+              <!-- Title -->
+              <h5 class="h3 mb-0">Rekomendasi Paket Diskon Barang</h5>
             </div>
             <div class="card-body" v-if="isLoading2">
               <p class="mt-2 text-center">Loading...</p>
             </div>
-            <!-- Card body -->
             <div class="card-body" v-else>
-              <div class="row">
-                <div class="col-12 col-md-6 col-lg-4 col-xl-3" v-for="item in recommendation" :key="item.apriori_id">
-                  <div class="card card-pricing border-0 text-center mb-4">
-                    <div class="card-header bg-transparent">
-                      <router-link :to="{ name: 'guest.product.recommendation', params: { code: item.apriori_code, id: item.apriori_id } }" class="text-uppercase h4 ls-1 text-primary py-3 mb-0">Paket Rekomendasi</router-link>
+              <div class="row" v-if="recommendation.length > 0">
+                <div class="col-12 col-md-6 col-lg-3" v-for="item in recommendation" :key="item.apriori_id">
+                  <div class="card card-pricing border-0 mb-4">
+                    <div class="embed-responsive embed-responsive-16by9">
+                      <img class="card-img-top embed-responsive-item" :src="getImage(item.image)" alt="Preview Image">
                     </div>
-                    <div class="card-body mx-auto">
-                      <div class="display-2">{{ item.apriori_discount }}%</div>
-                      <span class="text-muted h2" style="text-decoration: line-through">Rp {{ item.product_total_price }}</span>
-                      /
-                      <span class="text-muted">Rp {{ item.price_discount }}</span>
-                      <ul class="list-unstyled my-4">
+                    <div class="card-body pb-3">
+                      <router-link :to="{ name: 'guest.product.recommendation', params: { code: item.apriori_code, id: item.apriori_id } }" class="text-dark d-none d-lg-block">
+                        Paket Barang {{ item.apriori_item.length > 20 ? UpperWord(item.apriori_item.slice(0, 20)) + "..." : UpperWord(item.apriori_item) }}
+                      </router-link>
+                      <router-link :to="{ name: 'guest.product.recommendation', params: { code: item.apriori_code, id: item.apriori_id } }" class="text-dark d-block d-lg-none">
+                        Paket Barang {{ UpperWord(item.apriori_item) }}
+                      </router-link>
+                      <ul class="list-unstyled">
                         <li v-for="(value,i) in item.apriori_item.split(', ')" :key="i">
                           <div class="d-flex align-items-center">
-                            <div>
-                              <div class="icon icon-xs icon-shape bg-gradient-primary text-white shadow rounded-circle">
-                                <i class="ni ni-basket"></i>
-                              </div>
+                            <div class="icon icon-xs icon-shape bg-gradient-primary text-white shadow rounded-circle">
+                              <i class="ni ni-basket"></i>
                             </div>
-                            <div>
-                              <span class="pl-2 text-sm">{{ UpperWord(value) }}</span>
-                            </div>
+                            <span class="pl-2 text-sm">{{ UpperWord(value) }}</span>
                           </div>
                         </li>
                       </ul>
-                    </div>
-                    <div class="card-footer">
-                      <h3>Rp. {{ item.price_discount }}</h3>
+                      <div class="card-footer p-0 pt-2 text-center m-0">
+                        <router-link :to="{ name: 'guest.product.recommendation', params: { code: item.apriori_code, id: item.apriori_id } }" class="font-weight-bold">
+                          {{ item.apriori_discount }}%
+                        </router-link>
+                        <small class="text-muted mb-0">diskon</small>
+                      </div>
                     </div>
                   </div>
                 </div>
-                <p v-if="recommendation.length === 0" class="mx-auto">No Recommendation Found</p>
+              </div>
+              <div class="row" v-else>
+                <div class="col-12">
+                  <div class="alert alert-secondary">
+                    <h5 class="alert-heading">Oops!</h5>
+                    <p>Tidak ada rekomendasi yang tersedia.</p>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -228,6 +236,7 @@ export default {
           code: item.code,
           name: item.name,
           price: item.price,
+          mass: item.mass,
           image: item.image,
           quantity: 1,
           totalPricePerItem: item.price

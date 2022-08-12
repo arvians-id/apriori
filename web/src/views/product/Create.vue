@@ -36,7 +36,6 @@
                    <div class="form-group">
                      <label class="form-control-label">Category Name</label> <small class="text-danger">*use ctrl for selecting the category</small>
                      <select class="form-control" v-model="product.category" multiple required>
-                        <option value="">Select Category</option>
                         <option v-for="(category, i) in categories" :value="category.name" :key="i">{{ category.name }}</option>
                      </select>
                    </div>

@@ -44,6 +44,7 @@ type GetProductRecommendationResponse struct {
 	ProductTotalPrice  int     `json:"product_total_price"`
 	PriceAfterDiscount int     `json:"price_discount"`
 	Image              string  `json:"apriori_image,omitempty"`
+	Mass               int     `json:"mass,omitempty"`
 	Description        string  `json:"apriori_description,omitempty"`
 }
 

@@ -118,11 +118,12 @@ func (service *aprioriService) FindAprioriById(ctx context.Context, code string,
 		return model.GetProductRecommendationResponse{}, err
 	}
 
-	var totalPrice int
+	var totalPrice, mass int
 	items := strings.Split(rows.Item, ",")
 	for _, nameProduct := range items {
 		filterProduct, _ := service.ProductRepository.FindByName(ctx, tx, utils.UpperWords(nameProduct))
 		totalPrice += filterProduct.Price
+		mass += filterProduct.Mass
 	}
 
 	return model.GetProductRecommendationResponse{
@@ -133,6 +134,7 @@ func (service *aprioriService) FindAprioriById(ctx context.Context, code string,
 		ProductTotalPrice:  totalPrice,
 		PriceAfterDiscount: totalPrice - (totalPrice * int(rows.Discount) / 100),
 		Image:              rows.Image,
+		Mass:               mass,
 		Description:        *rows.Description,
 	}, nil
 }
