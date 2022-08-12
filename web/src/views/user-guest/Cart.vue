@@ -141,7 +141,7 @@
                   </li>
                   <li class="list-group-item px-0">
                     <div class="d-flex justify-content-between">
-                      <div>Total</div>
+                      <div>Total Pembayaran</div>
                       <div class="font-weight-bold">Rp {{ numberWithCommas(totalPrice) }}</div>
                     </div>
                   </li>
@@ -259,6 +259,7 @@ export default {
 
       axios.post(`${process.env.VUE_APP_SERVICE_URL}/raja-ongkir/cost`, formData, headers)
           .then(response => {
+            console.log(response.data.rajaongkir)
             this.costs = response.data.data.rajaongkir
           }).catch(error => {
             console.log(error);

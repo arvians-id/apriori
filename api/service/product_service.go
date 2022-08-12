@@ -13,7 +13,7 @@ import (
 
 type ProductService interface {
 	FindAllOnAdmin(ctx context.Context) ([]model.GetProductResponse, error)
-	FindAll(ctx context.Context, search string) ([]model.GetProductResponse, error)
+	FindAll(ctx context.Context, search string, category string) ([]model.GetProductResponse, error)
 	FindAllRecommendation(ctx context.Context, code string) ([]model.GetProductRecommendationResponse, error)
 	FindByCode(ctx context.Context, code string) (model.GetProductResponse, error)
 	Create(ctx context.Context, request model.CreateProductRequest) (model.GetProductResponse, error)
@@ -59,14 +59,14 @@ func (service *productService) FindAllOnAdmin(ctx context.Context) ([]model.GetP
 	return productResponse, nil
 }
 
-func (service *productService) FindAll(ctx context.Context, search string) ([]model.GetProductResponse, error) {
+func (service *productService) FindAll(ctx context.Context, search string, category string) ([]model.GetProductResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return []model.GetProductResponse{}, err
 	}
 	defer utils.CommitOrRollback(tx)
 
-	products, err := service.ProductRepository.FindAll(ctx, tx, search)
+	products, err := service.ProductRepository.FindAll(ctx, tx, search, category)
 	if err != nil {
 		return []model.GetProductResponse{}, err
 	}

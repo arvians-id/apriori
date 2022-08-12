@@ -2,6 +2,7 @@ package controller
 
 import (
 	"apriori/api/response"
+	"apriori/utils"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -54,7 +55,8 @@ func (controller *rajaOngkirController) FindAll(c *gin.Context) {
 }
 
 func (controller *rajaOngkirController) GetCost(c *gin.Context) {
-	payload := fmt.Sprintf("origin=%v&destination=%v&weight=%v&courier=%v", c.PostForm("origin"), c.PostForm("destination"), c.PostForm("weight"), c.PostForm("courier"))
+	weight := utils.StrToInt(c.PostForm("weight"))
+	payload := fmt.Sprintf("origin=%v&destination=%v&weight=%v&courier=%v", c.PostForm("origin"), c.PostForm("destination"), weight, c.PostForm("courier"))
 	data := strings.NewReader(payload)
 	req, _ := http.NewRequest("POST", "https://api.rajaongkir.com/starter/cost", data)
 	req.Header.Add("key", "f0ce254d5bbf3bf0303efcfb5e20d0fe")

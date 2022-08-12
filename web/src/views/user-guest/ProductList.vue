@@ -32,17 +32,31 @@
                     <h5 class="h3 mb-0">Semua Kategori</h5>
                   </div>
                   <div class="card-body">
-                    <div class="form-check mb-1" v-for="category in categories" :key="category.id_category">
-                      <input class="form-check-input" type="radio" name="inlineRadioOptions" :id="category.id_category">
-                      <label class="form-check-label" :for="category.id_category">{{ category.name }}</label>
-                    </div>
+                    <ul class="list-group">
+                      <li class="list-group-item d-flex justify-content-between align-items-center" v-for="category in categories" :key="category.id_category">
+                        <a href="javascript:void(0);" @click.prevent="pushToCategory(category.name)" class="text-dark">{{ category.name }}</a>
+                      </li>
+                    </ul>
                   </div>
                 </div>
                 <div class="col-12 col-lg-9">
                   <!-- Card header -->
-                  <div class="card-header">
+                  <div class="card-header d-lg-none justify-content-between">
                     <!-- Title -->
                     <h5 class="h3 mb-0"><span class="text-primary">{{ allProducts.length }}</span> Produk ditemukan</h5>
+                    <div>
+                      <button class="btn btn-white btn-sm mb-2" v-for="(query, i) in this.$route.query" :key="i">{{ UpperWord(i) + " : " + UpperWord(query) }}</button>
+                      <button class="btn btn-danger btn-sm mb-2" @click="reset()" v-if="Object.keys(this.$route.query).length > 0">Reset Pencarian</button>
+                    </div>
+                  </div>
+                  <!-- Card header -->
+                  <div class="card-header d-lg-flex d-none justify-content-between">
+                    <!-- Title -->
+                    <h5 class="h3 mb-0"><span class="text-primary">{{ allProducts.length }}</span> Produk ditemukan</h5>
+                    <div>
+                      <button class="btn btn-white btn-sm" v-for="(query, i) in this.$route.query" :key="i">{{ UpperWord(i) + " : " + UpperWord(query) }}</button>
+                      <button class="btn btn-danger btn-sm" @click="reset()" v-if="Object.keys(this.$route.query).length > 0">Reset Pencarian</button>
+                    </div>
                   </div>
                   <!-- Card body -->
                   <div class="card-body" v-if="isLoading">
@@ -185,11 +199,34 @@ export default {
     };
   },
   methods: {
+    async pushToCategory(category){
+      this.$router.push({ name: "guest.product", query: { category: category } })
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/products?category=${category}`,{ headers: authHeader() }).then((response) => {
+        if(response.data.data != null) {
+          this.totalData = response.data.data.length;
+          this.allProducts = response.data.data;
+          this.products = response.data.data.slice(0, this.limitData);
+        }
+      });
+    },
+    async reset(){
+      this.$router.push({ name: "guest.product" })
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/products`,{ headers: authHeader() }).then((response) => {
+        if(response.data.data != null) {
+          this.totalData = response.data.data.length;
+          this.allProducts = response.data.data;
+          this.products = response.data.data.slice(0, this.limitData);
+        }
+      });
+    },
     submitSearch(){
       let search = ""
       if(this.search !== ""){
-        this.$router.replace({ name: "guest.product", query: { search: this.search } })
+        this.$router.push({ query: Object.assign({}, this.$route.query, { search: this.search }) })
         search = "?search=" + this.search
+        if(this.$route.query.category !== undefined){
+          search += "&category=" + this.$route.query.category
+        }
       } else {
         this.$router.replace({ name: "guest.product" })
       }
@@ -215,11 +252,19 @@ export default {
           ? (this.carts = JSON.parse(localStorage.getItem("my-carts")))
           : (this.carts = []);
 
-      let search = this.$route.query.search
-      if (search === undefined) {
-        search = ""
+      let search = ""
+      if (this.$route.query.search !== undefined) {
+        search = "?search=" + this.$route.query.search
+        if(this.$route.query.category !== undefined){
+          search += "&category=" + this.$route.query.category
+        }
+      }else {
+        if(this.$route.query.category !== undefined){
+          search += "?category=" + this.$route.query.category
+        }
       }
-      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/products?search=${search}`,{ headers: authHeader() }).then((response) => {
+
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/products${search}`,{ headers: authHeader() }).then((response) => {
         if(response.data.data != null) {
           this.totalData = response.data.data.length;
           this.allProducts = response.data.data;

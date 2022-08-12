@@ -64,10 +64,16 @@ func (controller *ProductController) FindAll(c *gin.Context) {
 	if search == "" {
 		searchKey = "all"
 	}
-	key := fmt.Sprintf("%s-product", searchKey)
+	category := strings.ToLower(c.Query("category"))
+	categoryKey := category
+	if category == "" {
+		categoryKey = "all"
+	}
+
+	key := fmt.Sprintf("%s-%s-product", searchKey, categoryKey)
 	productsCache, err := controller.CacheService.Get(c, key)
 	if err == redis.Nil {
-		products, err := controller.ProductService.FindAll(c.Request.Context(), search)
+		products, err := controller.ProductService.FindAll(c.Request.Context(), search, category)
 		if err != nil {
 			response.ReturnErrorInternalServerError(c, err, nil)
 			return

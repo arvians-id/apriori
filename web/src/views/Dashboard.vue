@@ -16,7 +16,7 @@
             <div class="card">
               <!-- Card header -->
               <div class="card-header d-flex justify-content-between">
-                <h3 class="mb-0">All Recommendation Packages </h3>
+                <h3 class="mb-0">Recommendation Packages</h3>
               </div>
               <!-- Card body -->
               <div class="card-body" v-if="isLoading">

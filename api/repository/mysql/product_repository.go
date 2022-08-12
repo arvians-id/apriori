@@ -53,9 +53,9 @@ func (repository *productRepository) FindAllOnAdmin(ctx context.Context, tx *sql
 	return products, nil
 }
 
-func (repository *productRepository) FindAll(ctx context.Context, tx *sql.Tx, search string) ([]entity.Product, error) {
-	query := "SELECT * FROM products WHERE name LIKE ? ORDER BY id_product DESC"
-	queryContext, err := tx.QueryContext(ctx, query, "%"+search+"%")
+func (repository *productRepository) FindAll(ctx context.Context, tx *sql.Tx, search string, category string) ([]entity.Product, error) {
+	query := "SELECT * FROM products WHERE name LIKE ? AND category LIKE ? ORDER BY id_product DESC"
+	queryContext, err := tx.QueryContext(ctx, query, "%"+search+"%", "%"+category+"%")
 	if err != nil {
 		return []entity.Product{}, err
 	}
