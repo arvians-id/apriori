@@ -16,34 +16,15 @@
             <div class="card">
               <!-- Card header -->
               <div class="card-header">
-                <h3 class="mb-0">Create Product</h3>
+                <h3 class="mb-0">Create Category</h3>
               </div>
               <!-- Card body -->
               <div class="card-body">
-                 <form @submit.prevent="submit" method="POST">
+                <form @submit.prevent="submit" method="POST">
                   <div class="form-group">
-                    <label class="form-control-label">Product Code</label> <small class="text-danger">*</small>
-                    <input type="text" class="form-control" v-model="product.code" required>
+                    <label class="form-control-label">Category Name</label> <small class="text-danger">*</small>
+                    <input type="text" class="form-control" v-model="category.name" required>
                   </div>
-                  <div class="form-group">
-                    <label class="form-control-label">Product Name</label> <small class="text-danger">*</small>
-                    <input type="text" class="form-control" v-model="product.name" required>
-                  </div>
-                   <div class="form-group">
-                     <label class="form-control-label">Price</label>
-                     <input type="number" class="form-control" v-model="product.price" required>
-                   </div>
-                  <div class="form-group">
-                    <label class="form-control-label">Description</label>
-                    <textarea class="form-control" v-model="product.description" rows="5"></textarea>
-                  </div>
-                   <div class="form-group">
-                     <label class="form-control-label">Image</label>
-                     <input type="file" class="form-control" @change="uploadImage">
-                   </div>
-                   <div class="form-group">
-                     <img :src="previewImage" width="150"/>
-                   </div>
                   <button class="btn btn-primary" type="submit">Submit form</button>
                 </form>
               </div>
@@ -72,49 +53,26 @@ export default {
     Header,
     Topbar
   },
-  data(){
+  data: function () {
     return {
-      product: {
-        code: "",
+      category: {
         name: "",
-        price: 0,
-        description: "",
-        image: null
-      },
-      previewImage: "https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/no-image.png"
-    }
+      }
+    };
   },
   methods: {
     submit() {
-      const config = {
-        headers: {
-          'Content-Type': 'multipart/form-data',
-          ...authHeader(),
-        }
-      }
-      let formData = new FormData()
-      formData.append("code", this.product.code)
-      formData.append("name", this.product.name)
-      formData.append("price", this.product.price)
-      formData.append("description", this.product.description)
-      formData.append("image", this.product.image)
-
-      axios.post(`${process.env.VUE_APP_SERVICE_URL}/products`, formData, config)
+      axios.post(`${process.env.VUE_APP_SERVICE_URL}/categories`, this.category, { headers: authHeader() })
           .then(response => {
             if(response.data.code === 200) {
               alert(response.data.status)
               this.$router.push({
-                name: 'product'
+                name: 'category'
               })
             }
           }).catch(error => {
-            console.log(error.response.data.status)
-          })
-    },
-    uploadImage(e) {
-      let files = e.target.files[0]
-      this.product.image = files
-      this.previewImage = URL.createObjectURL(files)
+        console.log(error.response.data.status)
+      })
     }
   }
 }

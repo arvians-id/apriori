@@ -219,7 +219,9 @@ export default {
     async fetchSimilarCategory(){
       await axios.get(`${process.env.VUE_APP_SERVICE_URL}/products/${this.$route.params.code}/category`, { headers: authHeader() })
           .then(response => {
-            this.productSimilarCategory = response.data.data
+            if(response.data.data != null) {
+              this.productSimilarCategory = response.data.data.slice(0, 3)
+            }
           })
           .catch(error => {
             console.log(error)

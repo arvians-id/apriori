@@ -6,16 +6,22 @@ import (
 	"apriori/model"
 	"apriori/service"
 	"apriori/utils"
+	"bytes"
+	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/go-redis/redis/v8"
 )
 
 type categoryController struct {
 	categoryService service.CategoryService
+	CacheService    service.CacheService
 }
 
-func NewCategoryController(categoryService *service.CategoryService) *categoryController {
+func NewCategoryController(categoryService *service.CategoryService, cacheService *service.CacheService) *categoryController {
 	return &categoryController{
 		categoryService: *categoryService,
+		CacheService:    *cacheService,
 	}
 }
 
@@ -37,7 +43,29 @@ func (controller *categoryController) Route(router *gin.Engine) *gin.Engine {
 }
 
 func (controller *categoryController) FindAll(c *gin.Context) {
-	categories, err := controller.categoryService.FindAll(c.Request.Context())
+	categoriesCache, err := controller.CacheService.Get(c.Request.Context(), "categories")
+	if err == redis.Nil {
+		categories, err := controller.categoryService.FindAll(c.Request.Context())
+		if err != nil {
+			response.ReturnErrorInternalServerError(c, err, nil)
+			return
+		}
+
+		err = controller.CacheService.Set(c.Request.Context(), "categories", categories)
+		if err != nil {
+			response.ReturnErrorInternalServerError(c, err, nil)
+			return
+		}
+
+		response.ReturnSuccessOK(c, "OK", categories)
+		return
+	} else if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	var categories []model.GetCategoryResponse
+	err = json.Unmarshal(bytes.NewBufferString(categoriesCache).Bytes(), &categories)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
@@ -70,6 +98,9 @@ func (controller *categoryController) Create(c *gin.Context) {
 		return
 	}
 
+	// delete previous cache
+	_ = controller.CacheService.Del(c.Request.Context(), fmt.Sprintf("categories"))
+
 	response.ReturnSuccessOK(c, "OK", category)
 }
 
@@ -88,6 +119,9 @@ func (controller *categoryController) Update(c *gin.Context) {
 		return
 	}
 
+	// delete previous cache
+	_ = controller.CacheService.Del(c.Request.Context(), fmt.Sprintf("categories"))
+
 	response.ReturnSuccessOK(c, "OK", category)
 }
 
@@ -99,5 +133,8 @@ func (controller *categoryController) Delete(c *gin.Context) {
 		return
 	}
 
+	// delete previous cache
+	_ = controller.CacheService.Del(c.Request.Context(), fmt.Sprintf("categories"))
+	
 	response.ReturnSuccessOK(c, "OK", nil)
 }

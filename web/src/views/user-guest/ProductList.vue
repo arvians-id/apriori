@@ -19,7 +19,7 @@
                   <div class="input-group">
                     <input type="text" class="form-control" name="search" v-model="search" placeholder="contoh: Bantal Polkadot">
                     <div class="input-group-append">
-                      <button class="btn btn-primary"><i class="fas fa-search"></i></button>
+                      <button class="btn btn-primary" :disabled="search == ''"><i class="fas fa-search"></i></button>
                     </div>
                   </div>
                 </form>
@@ -31,12 +31,23 @@
                     <!-- Title -->
                     <h5 class="h3 mb-0 mb-1">Semua Kategori</h5>
                   </div>
-                  <div class="card-body">
-                    <ul class="list-group">
+                  <div class="card-body" v-if="isLoading2">
+                    <p class="mt-2 text-center">Loading...</p>
+                  </div>
+                  <div class="card-body" v-else>
+                    <ul class="list-group" v-if="categories.length > 0">
                       <li class="list-group-item d-flex justify-content-between align-items-center" v-for="category in categories" :key="category.id_category">
-                        <a href="javascript:void(0);" @click.prevent="pushToCategory(category.name)" class="text-dark">{{ category.name }}</a>
+                        <router-link :to="{ name: 'guest.product', query: { category: category.name } }">{{ category.name }}</router-link>
                       </li>
                     </ul>
+                    <div class="row" v-else>
+                      <div class="col-12">
+                        <div class="alert alert-secondary">
+                          <h5 class="alert-heading">Oops!</h5>
+                          <p>Tidak ada kategori yang tersedia.</p>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
                 <div class="col-12 col-lg-9">
@@ -46,7 +57,7 @@
                     <h5 class="h3 mb-1"><span class="text-primary">{{ allProducts.length }}</span> Produk ditemukan</h5>
                     <div v-if="Object.keys(this.$route.query).length > 0">
                       <button class="btn btn-white btn-sm mb-2" v-for="(query, i) in this.$route.query" :key="i">{{ UpperWord(i) + " : " + UpperWord(query) }}</button>
-                      <button class="btn btn-danger btn-sm mb-2" @click="reset()">Reset Pencarian</button>
+                      <router-link class="btn btn-danger btn-sm" :to="{ name: 'guest.product' }" @click="search = ''">Reset Pencarian</router-link>
                     </div>
                   </div>
                   <!-- Card header -->
@@ -55,7 +66,7 @@
                     <h5 class="h3 mb-1"><span class="text-primary">{{ allProducts.length }}</span> Produk ditemukan</h5>
                     <div v-if="Object.keys(this.$route.query).length > 0">
                       <button class="btn btn-white btn-sm" v-for="(query, i) in this.$route.query" :key="i">{{ UpperWord(i) + " : " + UpperWord(query) }}</button>
-                      <button class="btn btn-danger btn-sm" @click="reset()">Reset Pencarian</button>
+                      <router-link class="btn btn-danger btn-sm" :to="{ name: 'guest.product' }" @click="search = ''">Reset Pencarian</router-link>
                     </div>
                   </div>
                   <!-- Card body -->
@@ -197,6 +208,7 @@ export default {
       totalData: 0,
       isLoading: true,
       isLoading2: true,
+      isLoading3: true,
       search: ""
     };
   },
@@ -206,26 +218,6 @@ export default {
       this.fetchDataRecommendation()
       this.fetchCategory()
       document.getElementsByTagName("body")[0].classList.remove("bg-default");
-    },
-    async pushToCategory(category){
-      this.$router.push({ name: "guest.product", query: { category: category } })
-      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/products?category=${category}`,{ headers: authHeader() }).then((response) => {
-        if(response.data.data != null) {
-          this.totalData = response.data.data.length;
-          this.allProducts = response.data.data;
-          this.products = response.data.data.slice(0, this.limitData);
-        }
-      });
-    },
-    async reset(){
-      this.$router.push({ name: "guest.product" })
-      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/products`,{ headers: authHeader() }).then((response) => {
-        if(response.data.data != null) {
-          this.totalData = response.data.data.length;
-          this.allProducts = response.data.data;
-          this.products = response.data.data.slice(0, this.limitData);
-        }
-      });
     },
     submitSearch(){
       let search = ""
@@ -253,7 +245,11 @@ export default {
     async fetchCategory() {
       await axios.get(`${process.env.VUE_APP_SERVICE_URL}/categories`,{ headers: authHeader() }).then((response) => {
         this.categories = response.data.data;
-      });
+      }).catch((error) => {
+        console.log(error)
+      })
+
+      this.isLoading3 = false;
     },
     async fetchData() {
       localStorage.getItem("my-carts")
@@ -277,6 +273,10 @@ export default {
           this.totalData = response.data.data.length;
           this.allProducts = response.data.data;
           this.products = response.data.data.slice(0, this.limitData);
+        } else {
+          this.totalData = 0;
+          this.allProducts = [];
+          this.products = [];
         }
       });
 

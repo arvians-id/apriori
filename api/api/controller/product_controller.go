@@ -72,46 +72,14 @@ func (controller *ProductController) FindAllSimilarCategory(c *gin.Context) {
 
 func (controller *ProductController) FindAll(c *gin.Context) {
 	search := strings.ToLower(c.Query("search"))
-	searchKey := search
-	if search == "" {
-		searchKey = "all"
-	}
 	category := strings.ToLower(c.Query("category"))
-	categoryKey := category
-	if category == "" {
-		categoryKey = "all"
-	}
-
-	key := fmt.Sprintf("%s-%s-product", searchKey, categoryKey)
-	productsCache, err := controller.CacheService.Get(c, key)
-	if err == redis.Nil {
-		products, err := controller.ProductService.FindAll(c.Request.Context(), search, category)
-		if err != nil {
-			response.ReturnErrorInternalServerError(c, err, nil)
-			return
-		}
-
-		err = controller.CacheService.Set(c.Request.Context(), key, products)
-		if err != nil {
-			response.ReturnErrorInternalServerError(c, err, nil)
-			return
-		}
-
-		response.ReturnSuccessOK(c, "OK", products)
-		return
-	} else if err != nil {
-		response.ReturnErrorInternalServerError(c, err, nil)
-		return
-	}
-
-	var product []model.GetProductResponse
-	err = json.Unmarshal(bytes.NewBufferString(productsCache).Bytes(), &product)
+	products, err := controller.ProductService.FindAll(c.Request.Context(), search, category)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response.ReturnSuccessOK(c, "OK", product)
+	response.ReturnSuccessOK(c, "OK", products)
 }
 
 func (controller *ProductController) FindAllRecommendation(c *gin.Context) {
@@ -188,9 +156,6 @@ func (controller *ProductController) Create(c *gin.Context) {
 		return
 	}
 
-	// delete previous cache
-	_ = controller.CacheService.Del(c.Request.Context(), "all-product")
-
 	response.ReturnSuccessOK(c, "created", product)
 }
 
@@ -224,7 +189,7 @@ func (controller *ProductController) Update(c *gin.Context) {
 	}
 
 	// delete previous cache
-	_ = controller.CacheService.Del(c.Request.Context(), "all-product", fmt.Sprintf("product-%s", product.Code))
+	_ = controller.CacheService.Del(c.Request.Context(), fmt.Sprintf("product-%s", product.Code))
 
 	response.ReturnSuccessOK(c, "updated", product)
 }
@@ -239,7 +204,7 @@ func (controller *ProductController) Delete(c *gin.Context) {
 	}
 
 	// delete previous cache
-	_ = controller.CacheService.Del(c.Request.Context(), "all-product")
+	_ = controller.CacheService.Del(c.Request.Context(), fmt.Sprintf("product-%s", params))
 
 	response.ReturnSuccessOK(c, "deleted", nil)
 }
