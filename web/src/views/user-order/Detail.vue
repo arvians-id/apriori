@@ -4,7 +4,7 @@
   <!-- Main content -->
   <div class="main-content" id="panel">
     <!-- Topnav -->
-    <Topbar />
+    <Topbar :totalCart="totalCart" :carts="carts" />
     <!-- Header -->
     <Header />
     <!-- Page content -->
@@ -25,9 +25,13 @@
               <h3>Nota Pesanan</h3>
               <div class="bg-secondary p-3 rounded">
                 <p>Nama Pembeli : {{ user.name }}</p>
-                <p>Alamat Pembeli : {{ user.address }}</p>
+                <p>Alamat Pembeli : {{ payment.address }}</p>
                 <p>No. Handphone Pembeli : {{ user.phone }}</p>
                 <p>Nama Toko Penjual : Toko Ryzy Olshop</p>
+                <p>Jasa Ekspedisi : {{ payment.courier }}</p>
+                <p>Layanan Ekspedisi : {{ payment.courier_service.split("|")[0] }}</p>
+                <p>Estimasi Tiba : {{ payment.courier_service.split("|")[1] }}</p>
+                <p>No Resi : {{ payment.receipt_number == "" ? "No resi belum diinputkan" : payment.receipt_number }}</p>
               </div>
               <div class="row mt-3">
                 <div class="col-6 col-lg-3">
@@ -66,19 +70,22 @@
                     <td class="text-right">Rp {{ numberWithCommas(totalPrice - 5000) }}</td>
                   </tr>
                   <tr class="font-weight-bold">
-                    <td class="text-right" colspan="3">Pajak Aplikasi</td>
+                    <td class="text-right" colspan="3">Pajak</td>
                     <td class="text-right">Rp {{ numberWithCommas(5000) }}</td>
                   </tr>
                   <tr class="font-weight-bold">
+                    <td class="text-right" colspan="3">Ongkos Kirim</td>
+                    <td class="text-right">Rp {{ numberWithCommas(payment.courier_service.split("|")[2].replace(/[^0-9]/g,'')) }}</td>
+                  </tr>
+                  <tr class="font-weight-bold">
                     <td class="text-right" colspan="3">Total Pembayaran</td>
-                    <td class="text-right">Rp {{ numberWithCommas(totalPrice) }}</td>
+                    <td class="text-right">Rp {{ numberWithCommas(totalPrice + parseInt(payment.courier_service.split("|")[2].replace(/[^0-9]/g,''))) }}</td>
                   </tr>
                   </tbody>
                 </table>
               </div>
               <div class="justify-content-between d-flex" id="information">
-                <div>
-                </div>
+                <div></div>
                 <div class="mt-5">
                   <a href="javascript:void(0);" @click="print">
                     <i class="fa fa-print fa-2x text-dark"></i>
@@ -142,7 +149,11 @@ export default {
         bank_type: "",
         va_number: "",
         biller_code: "",
-        bill_key: ""
+        bill_key: "",
+        address: "",
+        courier: "",
+        courier_service: "",
+        receipt_number: "",
       },
       isLoading: true,
     };
@@ -168,14 +179,12 @@ export default {
         }
       })
 
-      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/payments/${this.$route.params.order_id}`, { headers: authHeader() }).then(async response => {
-        await axios.get(`${process.env.VUE_APP_SERVICE_URL}/users/${response.data.data.user_id}`, {headers: authHeader()}).then(response => {
-          this.user = {
-            name: response.data.data.name,
-            address: response.data.data.address,
-            phone: response.data.data.phone
-          }
-        })
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/profile`, { headers: authHeader() }).then(response => {
+        this.user = {
+          name: response.data.data.name,
+          address: response.data.data.address,
+          phone: response.data.data.phone
+        }
       }).catch(error => {
         console.log(error)
       })
@@ -198,7 +207,11 @@ export default {
           bank_type: response.data.data.bank_type,
           va_number: response.data.data.va_number,
           biller_code: response.data.data.biller_code,
-          bill_key: response.data.data.bill_key
+          bill_key: response.data.data.bill_key,
+          address: response.data.data.address,
+          courier: response.data.data.courier,
+          courier_service: response.data.data.courier_service,
+          receipt_number: response.data.data.receipt_number,
         }
       })
 

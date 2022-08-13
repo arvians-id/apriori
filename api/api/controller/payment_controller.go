@@ -33,6 +33,7 @@ func (controller *PaymentController) Route(router *gin.Engine) *gin.Engine {
 	{
 		authorized.GET("/payments", controller.FindAll)
 		authorized.GET("/payments/:order_id", controller.FindByOrderId)
+		authorized.PATCH("/payments/:order_id", controller.AddReceiptNumber)
 	}
 
 	notAuthorized := router.Group("/api")
@@ -65,6 +66,24 @@ func (controller *PaymentController) FindByOrderId(c *gin.Context) {
 	}
 
 	response.ReturnSuccessOK(c, "OK", payment)
+}
+
+func (controller *PaymentController) AddReceiptNumber(c *gin.Context) {
+	var request model.AddReceiptNumberRequest
+	err := c.ShouldBindJSON(&request)
+	if err != nil {
+		response.ReturnErrorBadRequest(c, err, nil)
+		return
+	}
+
+	request.OrderId = c.Param("order_id")
+	err = controller.PaymentService.AddReceiptNumber(c.Request.Context(), request)
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	response.ReturnSuccessOK(c, "OK", nil)
 }
 
 func (controller *PaymentController) Pay(c *gin.Context) {

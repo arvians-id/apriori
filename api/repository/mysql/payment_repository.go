@@ -183,7 +183,7 @@ func (repository *paymentRepository) FindByOrderId(ctx context.Context, tx *sql.
 		return payment, nil
 	}
 
-	return payment, errors.New("product not found")
+	return payment, errors.New("payment not found")
 }
 
 func (repository *paymentRepository) Update(ctx context.Context, tx *sql.Tx, payment entity.Payment) error {
@@ -227,6 +227,16 @@ func (repository *paymentRepository) Update(ctx context.Context, tx *sql.Tx, pay
 		payment.BillKey,
 		payment.OrderId,
 	)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repository *paymentRepository) AddReceiptNumber(ctx context.Context, tx *sql.Tx, payment entity.Payment) error {
+	query := `UPDATE payloads SET receipt_number = ? WHERE order_id = ?`
+	_, err := tx.ExecContext(ctx, query, payment.ReceiptNumber, payment.OrderId)
 	if err != nil {
 		return err
 	}

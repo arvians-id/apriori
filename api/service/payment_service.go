@@ -16,11 +16,12 @@ import (
 )
 
 type PaymentService interface {
+	GetClient()
+	AddReceiptNumber(ctx context.Context, request model.AddReceiptNumberRequest) error
 	FindAll(ctx context.Context) ([]model.GetPaymentRelationResponse, error)
 	FindAllByUserId(ctx context.Context, userId int) ([]model.GetPaymentNullableResponse, error)
 	FindByOrderId(ctx context.Context, orderId string) (model.GetPaymentNullableResponse, error)
 	Delete(ctx context.Context, orderId string) error
-	GetClient()
 	GetToken(ctx context.Context, amount int64, userId int, customerName string, items []string, rajaShipping model.GetRajaOngkirResponse) (map[string]interface{}, error)
 	CreateOrUpdate(ctx context.Context, request map[string]interface{}) error
 }
@@ -54,6 +55,30 @@ func NewPaymentService(configuration config.Config, paymentRepository *repositor
 		DB:                    db,
 		date:                  "2006-01-02 15:04:05",
 	}
+}
+
+func (service *paymentService) AddReceiptNumber(ctx context.Context, request model.AddReceiptNumberRequest) error {
+	tx, err := service.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer utils.CommitOrRollback(tx)
+
+	getPayment, err := service.PaymentRepository.FindByOrderId(ctx, tx, request.OrderId)
+	if err != nil {
+		return err
+	}
+
+	payment := entity.Payment{
+		OrderId:       *getPayment.OrderId,
+		ReceiptNumber: request.ReceiptNumber,
+	}
+	err = service.PaymentRepository.AddReceiptNumber(ctx, tx, payment)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func (service *paymentService) FindAll(ctx context.Context) ([]model.GetPaymentRelationResponse, error) {

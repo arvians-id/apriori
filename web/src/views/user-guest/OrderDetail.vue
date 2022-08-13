@@ -31,6 +31,7 @@
                 <p>Jasa Ekspedisi : {{ payment.courier }}</p>
                 <p>Layanan Ekspedisi : {{ payment.courier_service.split("|")[0] }}</p>
                 <p>Estimasi Tiba : {{ payment.courier_service.split("|")[1] }}</p>
+                <p>No Resi : {{ payment.receipt_number == "" ? "No resi belum diinputkan" : payment.receipt_number }}</p>
               </div>
               <div class="row mt-3">
                 <div class="col-6 col-lg-3">
@@ -159,6 +160,7 @@ export default {
         address: "",
         courier: "",
         courier_service: "",
+        receipt_number: "",
       },
       isLoading: true,
     };
@@ -216,6 +218,7 @@ export default {
             address: response.data.data.address,
             courier: response.data.data.courier,
             courier_service: response.data.data.courier_service,
+            receipt_number: response.data.data.receipt_number,
         }
       })
 

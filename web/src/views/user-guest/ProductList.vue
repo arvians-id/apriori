@@ -57,7 +57,7 @@
                     <h5 class="h3 mb-1"><span class="text-primary">{{ allProducts.length }}</span> Produk ditemukan</h5>
                     <div v-if="Object.keys(this.$route.query).length > 0">
                       <button class="btn btn-white btn-sm mb-2" v-for="(query, i) in this.$route.query" :key="i">{{ UpperWord(i) + " : " + UpperWord(query) }}</button>
-                      <router-link class="btn btn-danger btn-sm" :to="{ name: 'guest.product' }" @click="search = ''">Reset Pencarian</router-link>
+                      <router-link class="btn btn-danger btn-sm mb-2" :to="{ name: 'guest.product' }" @click="search = ''">Reset Pencarian</router-link>
                     </div>
                   </div>
                   <!-- Card header -->

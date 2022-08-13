@@ -48,6 +48,7 @@ type PaymentRepository interface {
 	Create(ctx context.Context, tx *sql.Tx, payment entity.Payment) (entity.Payment, error)
 	FindByOrderId(ctx context.Context, tx *sql.Tx, orderId string) (entity.PaymentNullable, error)
 	Update(ctx context.Context, tx *sql.Tx, payment entity.Payment) error
+	AddReceiptNumber(ctx context.Context, tx *sql.Tx, payment entity.Payment) error
 	Delete(ctx context.Context, tx *sql.Tx, orderId string) error
 }
 

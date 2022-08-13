@@ -20,58 +20,6 @@
               <div class="row d-flex justify-content-center" v-else>
                 <div class="col-12 col-lg-3 mb-2">
                   <img :src="getImage()" class="img-fluid mb-2" width="500">
-                </div>
-                <div class="col-12 col-lg-6">
-                  <div class="text-left">
-                    <h5 class="h2 text-uppercase p-0 m-0">{{ product.name }}</h5>
-                    <p class="p-0 m-0">code : {{ product.code }}</p>
-                    <div class="h1 font-weight-bold">Rp. {{ product.price }}</div>
-                    <hr class="m-2">
-                    <ul class="nav nav-tabs" id="myTab" role="tablist">
-                      <li class="nav-item">
-                        <a class="nav-link active" id="detail-tab" data-toggle="tab" href="#detail" role="tab" aria-controls="detail" aria-selected="true">Detail</a>
-                      </li>
-                      <li class="nav-item">
-                        <a class="nav-link" id="other-detail-tab" data-toggle="tab" href="#other-detail" role="tab" aria-controls="other-detail" aria-selected="false">Lainnya</a>
-                      </li>
-                    </ul>
-                    <div class="tab-content" id="myTabContent">
-                      <div class="tab-pane fade show active" id="detail" role="tabpanel" aria-labelledby="detail-tab">
-                        <p class="font-weight-bold mb-0 mt-2">Kondisi</p>
-                        <p>Original baru</p>
-                        <p class="font-weight-bold mb-0 mt-2">Kategori</p>
-                        <p>
-                          <router-link :to="{ name: 'guest.product', query: { category: category } }" v-for="(category, i) in product.category.split(', ')" :key="i" class="text-primary font-weight-bold">
-                            {{ category }}{{ product.category.split(', ').length - 1 != i ? ', ' : '' }}
-                          </router-link>
-                        </p>
-                        <p class="font-weight-bold mb-0 mt-2">Berat Satuan</p>
-                        <p>{{ product.mass }} gram</p>
-                        <p class="font-weight-bold mb-0 mt-2">Deskripsi</p>
-                        <p>{{ product.description == "" ? "Tidak ada deskripsi" : product.description }}</p>
-                        <hr class="m-0 mb-3">
-                        <div class="media">
-                          <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/ryzy.jpg" width="53" class="mr-3" alt="...">
-                          <div class="media-body">
-                            <h3 class="mt-0 mb-0">Toko Ryzy Olshop</h3>
-                            <p>Produk Original Berkualitas dan Terpercaya..</p>
-                          </div>
-                        </div>
-                        <hr class="m-0 mb-3">
-                        <p class="font-weight-bold mb-0 mt-2">Pengiriman</p>
-                        <p class="mb-1"><i class="ni ni-pin-3"></i> Dikirim dari Tanggerang, Banten</p>
-                        <p><i class="ni ni-delivery-fast"></i> Tersedia pengiriman dengan TIKI, JNE dan POS Indonesia</p>
-                      </div>
-                      <div class="tab-pane fade" id="other-detail" role="tabpanel" aria-labelledby="other-detail-tab">
-                        <p class="font-weight-bold mb-0 mt-2">Tanggal Dibuat</p>
-                        <p>{{ product.created_at }}</p>
-                        <p class="font-weight-bold mb-0 mt-2">Terakhir Diubah</p>
-                        <p>{{ product.updated_at }}</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-                <div class="col-12 col-lg-2">
                   <div class="border p-3 rounded text-center" style="color: #525f7f">
                     <p class="mb-0">Atur jumlah yang pembelian</p>
                     <div>
@@ -80,6 +28,64 @@
                       <button type="button" @click="add(product)" class="btn btn-primary btn-sm">+</button>
                     </div>
                   </div>
+                </div>
+                <div class="col-12 col-lg-6">
+                  <div class="text-left">
+                    <h5 class="h2 text-uppercase p-0 m-0">{{ product.name }}</h5>
+                    <p class="p-0 m-0">code : {{ product.code }}</p>
+                    <div class="h1 font-weight-bold">Rp. {{ product.price }}</div>
+                    <hr class="mt-0 mb-1">
+                    <div class="nav-wrapper">
+                      <ul class="nav nav-pills nav-fill flex-column flex-md-row" id="tabs-icons-text" role="tablist">
+                        <li class="nav-item">
+                          <a class="nav-link mb-sm-3 mb-md-0 active" id="detail-tab" data-toggle="tab" href="#detail" role="tab" aria-controls="detail" aria-selected="true"><i class="ni ni-tag mr-2"></i>Detail</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link mb-sm-3 mb-md-0" id="lainnya-tab" data-toggle="tab" href="#lainnya" role="tab" aria-controls="lainnya" aria-selected="false"><i class="ni ni-ungroup mr-2"></i>Lainnya</a>
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="card shadow">
+                      <div class="card-body">
+                        <div class="tab-content" id="myTabContent">
+                          <div class="tab-pane fade show active" id="detail" role="tabpanel" aria-labelledby="detail-tab">
+                            <p class="font-weight-bold mb-0 mt-2">Kondisi</p>
+                            <p>Original baru</p>
+                            <p class="font-weight-bold mb-0 mt-2">Kategori</p>
+                            <p>
+                              <router-link :to="{ name: 'guest.product', query: { category: category } }" v-for="(category, i) in product.category.split(', ')" :key="i" class="text-primary font-weight-bold">
+                                {{ category }}{{ product.category.split(', ').length - 1 != i ? ', ' : '' }}
+                              </router-link>
+                            </p>
+                            <p class="font-weight-bold mb-0 mt-2">Berat Satuan</p>
+                            <p>{{ product.mass }} gram</p>
+                            <p class="font-weight-bold mb-0 mt-2">Deskripsi</p>
+                            <p>{{ product.description == "" ? "Tidak ada deskripsi" : product.description }}</p>
+                            <hr class="m-0 mb-3">
+                            <div class="media">
+                              <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/ryzy.jpg" width="53" class="mr-3" alt="...">
+                              <div class="media-body">
+                                <h3 class="mt-0 mb-0">Toko Ryzy Olshop</h3>
+                                <p>Produk Original Berkualitas dan Terpercaya..</p>
+                              </div>
+                            </div>
+                            <hr class="m-0 mb-3">
+                            <p class="font-weight-bold mb-0 mt-2">Pengiriman</p>
+                            <p class="mb-1"><i class="ni ni-pin-3"></i> Dikirim dari Tanggerang, Banten</p>
+                            <p><i class="ni ni-delivery-fast"></i> Tersedia pengiriman dengan TIKI, JNE dan POS Indonesia</p>
+                          </div>
+                          <div class="tab-pane fade" id="lainnya" role="tabpanel" aria-labelledby="lainnya-tab">
+                            <p class="font-weight-bold mb-0 mt-2">Tanggal Dibuat</p>
+                            <p>{{ product.created_at }}</p>
+                            <p class="font-weight-bold mb-0 mt-2">Terakhir Diubah</p>
+                            <p>{{ product.updated_at }}</p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-lg-2">
                   <h3 class="mb-0 mt-3">Produk yang serupa</h3>
                   <hr class="mb-3 p-0">
                   <div class="card card-pricing border shadow-none" v-for="item in productSimilarCategory" :key="item.id_product">

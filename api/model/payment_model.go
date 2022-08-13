@@ -55,3 +55,8 @@ type GetRajaOngkirResponse struct {
 	CourierService string
 	ShippingCost   int64
 }
+
+type AddReceiptNumberRequest struct {
+	OrderId       string `json:"order_id"`
+	ReceiptNumber string `json:"receipt_number"`
+}
