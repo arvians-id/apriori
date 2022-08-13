@@ -91,6 +91,44 @@ func (repository *productRepository) FindAll(ctx context.Context, tx *sql.Tx, se
 	return products, nil
 }
 
+func (repository *productRepository) FindAllSimilarCategory(ctx context.Context, tx *sql.Tx, category string) ([]entity.Product, error) {
+	query := "SELECT * FROM products WHERE category SIMILAR TO $1 AND is_empty = 0 ORDER BY id_product DESC LIMIT 4"
+	queryContext, err := tx.QueryContext(ctx, query, "%("+category+")%")
+	if err != nil {
+		return []entity.Product{}, err
+	}
+	defer func(queryContext *sql.Rows) {
+		err := queryContext.Close()
+		if err != nil {
+			return
+		}
+	}(queryContext)
+
+	var products []entity.Product
+	for queryContext.Next() {
+		var product entity.Product
+		err := queryContext.Scan(
+			&product.IdProduct,
+			&product.Code,
+			&product.Name,
+			&product.Description,
+			&product.Price,
+			&product.Category,
+			&product.IsEmpty,
+			&product.Mass,
+			&product.Image,
+			&product.CreatedAt,
+			&product.UpdatedAt,
+		)
+		if err != nil {
+			return []entity.Product{}, err
+		}
+		products = append(products, product)
+	}
+
+	return products, nil
+}
+
 func (repository *productRepository) FindById(ctx context.Context, tx *sql.Tx, productId uint64) (entity.Product, error) {
 	query := "SELECT * FROM products WHERE id_product = $1"
 	queryContext, err := tx.QueryContext(ctx, query, productId)

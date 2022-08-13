@@ -29,7 +29,7 @@
                   <!-- Card header -->
                   <div class="card-header">
                     <!-- Title -->
-                    <h5 class="h3 mb-0">Semua Kategori</h5>
+                    <h5 class="h3 mb-0 mb-1">Semua Kategori</h5>
                   </div>
                   <div class="card-body">
                     <ul class="list-group">
@@ -43,19 +43,19 @@
                   <!-- Card header -->
                   <div class="card-header d-lg-none justify-content-between">
                     <!-- Title -->
-                    <h5 class="h3 mb-0"><span class="text-primary">{{ allProducts.length }}</span> Produk ditemukan</h5>
-                    <div>
+                    <h5 class="h3 mb-1"><span class="text-primary">{{ allProducts.length }}</span> Produk ditemukan</h5>
+                    <div v-if="Object.keys(this.$route.query).length > 0">
                       <button class="btn btn-white btn-sm mb-2" v-for="(query, i) in this.$route.query" :key="i">{{ UpperWord(i) + " : " + UpperWord(query) }}</button>
-                      <button class="btn btn-danger btn-sm mb-2" @click="reset()" v-if="Object.keys(this.$route.query).length > 0">Reset Pencarian</button>
+                      <button class="btn btn-danger btn-sm mb-2" @click="reset()">Reset Pencarian</button>
                     </div>
                   </div>
                   <!-- Card header -->
                   <div class="card-header d-lg-flex d-none justify-content-between">
                     <!-- Title -->
-                    <h5 class="h3 mb-0"><span class="text-primary">{{ allProducts.length }}</span> Produk ditemukan</h5>
-                    <div>
+                    <h5 class="h3 mb-1"><span class="text-primary">{{ allProducts.length }}</span> Produk ditemukan</h5>
+                    <div v-if="Object.keys(this.$route.query).length > 0">
                       <button class="btn btn-white btn-sm" v-for="(query, i) in this.$route.query" :key="i">{{ UpperWord(i) + " : " + UpperWord(query) }}</button>
-                      <button class="btn btn-danger btn-sm" @click="reset()" v-if="Object.keys(this.$route.query).length > 0">Reset Pencarian</button>
+                      <button class="btn btn-danger btn-sm" @click="reset()">Reset Pencarian</button>
                     </div>
                   </div>
                   <!-- Card body -->
@@ -177,11 +177,13 @@ export default {
     Header,
     Topbar
   },
+  watch: {
+    '$route': function () {
+      this.allFetch()
+    }
+  },
   mounted() {
-    this.fetchData()
-    this.fetchDataRecommendation()
-    this.fetchCategory()
-    document.getElementsByTagName("body")[0].classList.remove("bg-default");
+    this.allFetch()
   },
   data: function () {
     return {
@@ -199,6 +201,12 @@ export default {
     };
   },
   methods: {
+    allFetch(){
+      this.fetchData()
+      this.fetchDataRecommendation()
+      this.fetchCategory()
+      document.getElementsByTagName("body")[0].classList.remove("bg-default");
+    },
     async pushToCategory(category){
       this.$router.push({ name: "guest.product", query: { category: category } })
       await axios.get(`${process.env.VUE_APP_SERVICE_URL}/products?category=${category}`,{ headers: authHeader() }).then((response) => {

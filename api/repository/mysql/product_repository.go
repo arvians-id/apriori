@@ -91,6 +91,10 @@ func (repository *productRepository) FindAll(ctx context.Context, tx *sql.Tx, se
 	return products, nil
 }
 
+func (repository *productRepository) FindAllSimilarCategory(ctx context.Context, tx *sql.Tx, category string) ([]entity.Product, error) {
+	panic("implement me")
+}
+
 func (repository *productRepository) FindById(ctx context.Context, tx *sql.Tx, productId uint64) (entity.Product, error) {
 	query := "SELECT * FROM products WHERE id_product = ?"
 	queryContext, err := tx.QueryContext(ctx, query, productId)

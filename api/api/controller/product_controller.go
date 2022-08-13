@@ -41,6 +41,7 @@ func (controller *ProductController) Route(router *gin.Engine) *gin.Engine {
 	notAuthorized := router.Group("/api")
 	{
 		notAuthorized.GET("/products", controller.FindAll)
+		notAuthorized.GET("/products/:code/category", controller.FindAllSimilarCategory)
 		notAuthorized.GET("/products/:code/recommendation", controller.FindAllRecommendation)
 		notAuthorized.GET("/products/:code", controller.FindById)
 	}
@@ -50,6 +51,17 @@ func (controller *ProductController) Route(router *gin.Engine) *gin.Engine {
 
 func (controller *ProductController) FindAllOnAdmin(c *gin.Context) {
 	products, err := controller.ProductService.FindAllOnAdmin(c.Request.Context())
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	response.ReturnSuccessOK(c, "OK", products)
+}
+
+func (controller *ProductController) FindAllSimilarCategory(c *gin.Context) {
+	params := c.Param("code")
+	products, err := controller.ProductService.FindAllSimilarCategory(c.Request.Context(), params)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return

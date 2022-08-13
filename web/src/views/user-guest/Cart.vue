@@ -144,6 +144,7 @@
                       <div>Total Pembayaran</div>
                       <div class="font-weight-bold">Rp {{ numberWithCommas(totalPrice) }}</div>
                     </div>
+                    <a href="javascript:void(0);" @click="clearCart" class="btn btn-danger btn-sm mt-2">Bersihkan keranjang</a>
                   </li>
                 </ul>
                 <ul class="list-group list-group-flush list my--3 mx--3" v-else>
@@ -346,6 +347,14 @@ export default {
             console.log(error)
           })
         })
+      }
+    },
+    clearCart() {
+      if(confirm("Apakah anda yakin ingin menghapus semua pesanan anda?")){
+        this.carts = []
+        localStorage.setItem('my-carts', JSON.stringify([]));
+        this.totalCart = 0
+        this.totalPrice = 0
       }
     }
   }

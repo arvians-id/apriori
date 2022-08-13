@@ -14,6 +14,7 @@ import (
 type ProductService interface {
 	FindAllOnAdmin(ctx context.Context) ([]model.GetProductResponse, error)
 	FindAll(ctx context.Context, search string, category string) ([]model.GetProductResponse, error)
+	FindAllSimilarCategory(ctx context.Context, code string) ([]model.GetProductResponse, error)
 	FindAllRecommendation(ctx context.Context, code string) ([]model.GetProductRecommendationResponse, error)
 	FindByCode(ctx context.Context, code string) (model.GetProductResponse, error)
 	Create(ctx context.Context, request model.CreateProductRequest) (model.GetProductResponse, error)
@@ -74,6 +75,35 @@ func (service *productService) FindAll(ctx context.Context, search string, categ
 	var productResponse []model.GetProductResponse
 	for _, product := range products {
 		productResponse = append(productResponse, utils.ToProductResponse(product))
+	}
+
+	return productResponse, nil
+}
+
+func (service *productService) FindAllSimilarCategory(ctx context.Context, code string) ([]model.GetProductResponse, error) {
+	tx, err := service.DB.Begin()
+	if err != nil {
+		return []model.GetProductResponse{}, err
+	}
+	defer utils.CommitOrRollback(tx)
+
+	getProduct, err := service.ProductRepository.FindByCode(ctx, tx, code)
+	if err != nil {
+		return []model.GetProductResponse{}, err
+	}
+
+	categoryArray := strings.Split(getProduct.Category, ", ")
+	category := strings.Join(categoryArray, "|")
+	products, err := service.ProductRepository.FindAllSimilarCategory(ctx, tx, category)
+	if err != nil {
+		return []model.GetProductResponse{}, err
+	}
+
+	var productResponse []model.GetProductResponse
+	for _, product := range products {
+		if product.Code != code {
+			productResponse = append(productResponse, utils.ToProductResponse(product))
+		}
 	}
 
 	return productResponse, nil

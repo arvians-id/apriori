@@ -18,10 +18,10 @@
                 <p class="p-3 mt-2 text-center">Loading...</p>
               </div>
               <div class="row d-flex justify-content-center" v-else>
-                <div class="col-12 col-lg-4 text-center mb-2">
+                <div class="col-12 col-lg-3 mb-2">
                   <img :src="getImage()" class="img-fluid mb-2" width="500">
                 </div>
-                <div class="col-12 col-lg-4">
+                <div class="col-12 col-lg-6">
                   <div class="text-left">
                     <h5 class="h2 text-uppercase p-0 m-0">{{ product.name }}</h5>
                     <p class="p-0 m-0">code : {{ product.code }}</p>
@@ -40,7 +40,11 @@
                         <p class="font-weight-bold mb-0 mt-2">Kondisi</p>
                         <p>Original baru</p>
                         <p class="font-weight-bold mb-0 mt-2">Kategori</p>
-                        <p>{{ product.category }}</p>
+                        <p>
+                          <router-link :to="{ name: 'guest.product', query: { category: category } }" v-for="(category, i) in product.category.split(', ')" :key="i" class="text-primary font-weight-bold">
+                            {{ category }}{{ product.category.split(', ').length - 1 != i ? ', ' : '' }}
+                          </router-link>
+                        </p>
                         <p class="font-weight-bold mb-0 mt-2">Berat Satuan</p>
                         <p>{{ product.mass }} gram</p>
                         <p class="font-weight-bold mb-0 mt-2">Deskripsi</p>
@@ -67,13 +71,24 @@
                     </div>
                   </div>
                 </div>
-                <div class="col-12 col-lg-3">
+                <div class="col-12 col-lg-2">
                   <div class="border p-3 rounded text-center" style="color: #525f7f">
                     <p class="mb-0">Atur jumlah yang pembelian</p>
                     <div>
                       <button type="button" @click="min(product)" class="btn btn-danger btn-sm">-</button>
                       <button class="btn disabled">{{ quantity }} item</button>
                       <button type="button" @click="add(product)" class="btn btn-primary btn-sm">+</button>
+                    </div>
+                  </div>
+                  <h3 class="mb-0 mt-3">Produk yang serupa</h3>
+                  <hr class="mb-3 p-0">
+                  <div class="card card-pricing border shadow-none" v-for="item in productSimilarCategory" :key="item.id_product">
+                    <div class="embed-responsive embed-responsive-16by9">
+                      <img class="card-img-top embed-responsive-item" :src="getImage(item.image)" alt="Preview Image">
+                    </div>
+                    <div class="card-body">
+                      <router-link :to="{ name: 'guest.product.detail', params: { code: item.code } }" class="card-title m-0">{{ item.name }}</router-link>
+                      <p class="card-text p-0 m-0">Rp. {{ item.price }}</p>
                     </div>
                   </div>
                 </div>
@@ -141,6 +156,13 @@
   </div>
 </template>
 
+<style scoped>
+.card-img-top {
+  width: 100%;
+  object-fit: cover;
+}
+</style>
+
 <script>
 import Sidebar from "@/components/guest/Sidebar.vue"
 import Topbar from "@/components/guest/Topbar.vue"
@@ -156,16 +178,19 @@ export default {
     Header,
     Topbar
   },
+  watch: {
+    '$route': function () {
+      this.allFetch()
+    }
+  },
   mounted() {
-    this.fetchCategories()
-    this.fetchData()
-    this.fetchDataRecommendation()
-    document.getElementsByTagName("body")[0].classList.remove("bg-default");
+    this.allFetch()
   },
   data: function () {
     return {
       product: [],
       recommendation: [],
+      productSimilarCategory: [],
       carts: [],
       totalCart: 0,
       quantity: 0,
@@ -175,6 +200,13 @@ export default {
     };
   },
   methods: {
+    allFetch(){
+      this.fetchCategories()
+      this.fetchData()
+      this.fetchDataRecommendation()
+      this.fetchSimilarCategory()
+      document.getElementsByTagName("body")[0].classList.remove("bg-default");
+    },
     async fetchCategories(){
       await axios.get(`${process.env.VUE_APP_SERVICE_URL}/categories`, { headers: authHeader() })
         .then(response => {
@@ -183,6 +215,15 @@ export default {
         .catch(error => {
           console.log(error)
         })
+    },
+    async fetchSimilarCategory(){
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/products/${this.$route.params.code}/category`, { headers: authHeader() })
+          .then(response => {
+            this.productSimilarCategory = response.data.data
+          })
+          .catch(error => {
+            console.log(error)
+          })
     },
     async fetchData() {
       localStorage.getItem("my-carts")
@@ -208,6 +249,8 @@ export default {
       await axios.get(`${process.env.VUE_APP_SERVICE_URL}/products/${this.$route.params.code}/recommendation`, { headers: authHeader() }).then((response) => {
         if(response.data.data != null) {
           this.recommendation = response.data.data;
+        } else {
+          this.recommendation = []
         }
       }).catch((error) => {
         console.log(error);

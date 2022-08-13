@@ -9,6 +9,7 @@ import (
 type ProductRepository interface {
 	FindAllOnAdmin(ctx context.Context, tx *sql.Tx) ([]entity.Product, error)
 	FindAll(ctx context.Context, tx *sql.Tx, search string, category string) ([]entity.Product, error)
+	FindAllSimilarCategory(ctx context.Context, tx *sql.Tx, category string) ([]entity.Product, error)
 	FindById(ctx context.Context, tx *sql.Tx, productId uint64) (entity.Product, error)
 	FindByCode(ctx context.Context, tx *sql.Tx, code string) (entity.Product, error)
 	FindByName(ctx context.Context, tx *sql.Tx, name string) (entity.Product, error)
