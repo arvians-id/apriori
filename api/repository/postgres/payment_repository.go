@@ -130,7 +130,8 @@ func (repository *paymentRepository) Create(ctx context.Context, tx *sql.Tx, pay
 		payment.SignatureKey,
 		payment.SettlementTime,
 		payment.PaymentType,
-		payment.MerchantId, payment.GrossAmount,
+		payment.MerchantId,
+		payment.GrossAmount,
 		payment.FraudStatus,
 		payment.BankType,
 		payment.VANumber,
@@ -222,7 +223,7 @@ func (repository *paymentRepository) Update(ctx context.Context, tx *sql.Tx, pay
          	      address = $18,
          	      courier = $19,
          	      courier_service = $20
-			  WHERE order_id = $17`
+			  WHERE order_id = $21`
 	_, err := tx.ExecContext(
 		ctx,
 		query,
