@@ -9,6 +9,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"io/ioutil"
 	"net/http"
+	"os"
 	"strings"
 )
 
@@ -35,7 +36,7 @@ func (controller *rajaOngkirController) FindAll(c *gin.Context) {
 
 	url := "https://api.rajaongkir.com/starter/" + place
 	req, _ := http.NewRequest("GET", url, nil)
-	req.Header.Add("key", "f0ce254d5bbf3bf0303efcfb5e20d0fe")
+	req.Header.Add("key", os.Getenv("RAJA_ONGKIR_SECRET_KEY"))
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	res, _ := http.DefaultClient.Do(req)
@@ -59,7 +60,7 @@ func (controller *rajaOngkirController) GetCost(c *gin.Context) {
 	payload := fmt.Sprintf("origin=%v&destination=%v&weight=%v&courier=%v", c.PostForm("origin"), c.PostForm("destination"), weight, c.PostForm("courier"))
 	data := strings.NewReader(payload)
 	req, _ := http.NewRequest("POST", "https://api.rajaongkir.com/starter/cost", data)
-	req.Header.Add("key", "f0ce254d5bbf3bf0303efcfb5e20d0fe")
+	req.Header.Add("key", os.Getenv("RAJA_ONGKIR_SECRET_KEY"))
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	res, _ := http.DefaultClient.Do(req)

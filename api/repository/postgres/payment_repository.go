@@ -218,7 +218,7 @@ func (repository *paymentRepository) Update(ctx context.Context, tx *sql.Tx, pay
 		 	      bank_type = $13,
          	      va_number = $14,
          	      biller_code = $15,
-         	      bill_key = $16,
+         	      bill_key = $16
 			  WHERE order_id = $17`
 	_, err := tx.ExecContext(
 		ctx,
