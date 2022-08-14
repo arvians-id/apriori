@@ -20,7 +20,34 @@
               </div>
               <!-- Light table -->
               <div class="table-responsive py-3" v-if="isLoading">
-                <p class="mt-2 text-center">Loading...</p>
+                <div class="loading-skeleton">
+                  <div class="d-flex justify-content-between mx-4 mt-3">
+                    <p>Show Entries Data</p>
+                    <p>Search Data In Table</p>
+                  </div>
+                  <hr class="mt-1 mb-4">
+                  <div class="mx-4">
+                    <p>Column of data</p>
+                    <p>Column of data</p>
+                    <p>Column of data</p>
+                    <p>Column of data</p>
+                    <p>Column of data</p>
+                    <p>Column of data</p>
+                    <p>Column of data</p>
+                    <p>Column of data</p>
+                    <p>Column of data</p>
+                    <p>Column of data</p>
+                  </div>
+                  <hr class="mt-4 mb-1">
+                  <div class="d-flex justify-content-between mx-4 mt-4">
+                    <p>Show Entries Data</p>
+                    <div class="d-none d-lg-block">
+                      <p class="d-inline mx-2">Search</p>
+                      <p class="d-inline mx-2">Search Data In Table</p>
+                      <p class="d-inline mx-2">Search</p>
+                    </div>
+                  </div>
+                </div>
               </div>
               <div class="table-responsive" v-else>
                 <table class="table align-items-center table-flush">
@@ -87,6 +114,10 @@
     </div>
   </div>
 </template>
+
+<style scoped>
+@import '../../assets/skeleton.css';
+</style>
 
 <script>
 import Sidebar from "@/components/admin/Sidebar.vue"
