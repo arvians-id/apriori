@@ -92,7 +92,7 @@ func (repository *productRepository) FindAll(ctx context.Context, tx *sql.Tx, se
 }
 
 func (repository *productRepository) FindAllSimilarCategory(ctx context.Context, tx *sql.Tx, category string) ([]entity.Product, error) {
-	query := "SELECT * FROM products WHERE category SIMILAR TO $1 AND is_empty = 0 ORDER BY id_product DESC LIMIT 4"
+	query := "SELECT * FROM products WHERE category SIMILAR TO $1 AND is_empty = 0 ORDER BY random() DESC LIMIT 4"
 	queryContext, err := tx.QueryContext(ctx, query, "%("+category+")%")
 	if err != nil {
 		return []entity.Product{}, err
