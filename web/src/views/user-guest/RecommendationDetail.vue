@@ -14,61 +14,116 @@
           <div class="card card-profile">
             <!-- Card header -->
             <div class="card-body mt-5">
-              <div class="row align-items-center mx-auto" v-if="isLoading">
-                <p class="p-3 mt-2 text-center">Loading...</p>
-              </div>
-              <div class="row d-flex justify-content-center" v-else>
-                <div class="col-12 col-lg-4 text-center mb-2">
-                  <img :src="getImage()" class="img-fluid mb-2" width="500">
-                </div>
-                <div class="col-12 col-lg-4">
-                  <div class="text-left">
-                    <h5 class="h2 text-uppercase p-0 m-0">Paket rekomendasi {{ apriori.apriori_item }}</h5>
-                    <p class="p-0 m-0">code : {{ apriori.apriori_code }}</p>
-                    <div class="h1 font-weight-bold">Rp. {{ apriori.price_discount }}</div>
-                    <small class="p-1 d-inline rounded font-weight-bold" style="background-color: #ffeaef;; color: #ff5c84">{{ apriori.apriori_discount }}%</small>
-                    <p class="d-inline ml-2" style="text-decoration: line-through">Rp. {{ apriori.product_total_price }}</p>
-                    <hr class="m-2">
-                    <ul class="nav nav-tabs" id="myTab" role="tablist">
-                      <li class="nav-item">
-                        <a class="nav-link active" id="detail-tab" data-toggle="tab" href="#detail" role="tab" aria-controls="detail" aria-selected="true">Detail</a>
-                      </li>
-                    </ul>
-                    <div class="tab-content" id="myTabContent">
-                      <div class="tab-pane fade show active" id="detail" role="tabpanel" aria-labelledby="detail-tab">
-                        <p class="font-weight-bold mb-0 mt-2">Kondisi</p>
-                        <p>Original baru</p>
-                        <p class="font-weight-bold mb-0 mt-2">Jumlah Barang</p>
-                        <p>{{ apriori.apriori_item.split(", ").length }}</p>
-                        <p class="font-weight-bold mb-0 mt-2">Nama Barang</p>
-                        <p>{{ UpperWord(apriori.apriori_item) }}</p>
-                        <p class="font-weight-bold mb-0 mt-2">Berat Barang</p>
-                        <p>{{ apriori.mass == undefined ? 0 : apriori.mass }} gram</p>
-                        <p class="font-weight-bold mb-0 mt-2">Deskripsi</p>
-                        <p>{{ apriori.apriori_description == undefined ? "Tidak ada deskripsi" : apriori.apriori_description }}</p>
-                        <hr class="m-0 mb-3">
-                        <div class="media">
-                          <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/ryzy.jpg" width="53" class="mr-3" alt="...">
-                          <div class="media-body">
-                            <h3 class="mt-0 mb-0">Toko Ryzy Olshop</h3>
-                            <p>Produk Original Berkualitas dan Terpercaya..</p>
+              <div v-if="isLoading">
+                <div class="loading-skeleton row d-flex justify-content-center">
+                  <div class="col-12 col-lg-4 mb-2">
+                    <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/no-image.png" class="img-fluid mb-2">
+                    <div class="border p-3 rounded text-center" style="color: #525f7f">
+                      <p class="mb-0">Atur jumlah yang pembelian</p>
+                      <div class="mt-2">
+                        <button type="button" class="btn btn-danger btn-sm">-</button>
+                        <button class="btn disabled">quantity</button>
+                        <button type="button" class="btn btn-primary btn-sm">+</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-12 col-lg-6">
+                    <div class="text-left">
+                      <h5 class="h2 p-0 m-0 mb-1">This is title of product</h5>
+                      <p class="p-0 m-0 mb-1 w-50">This is title of product</p>
+                      <p class="w-50">Pricing</p>
+                      <hr class="mt-0 mb-1">
+                      <div class="nav-wrapper">
+                        <p class="pt-4 mb-0">this is button</p>
+                      </div>
+                      <div class="card shadow">
+                        <div class="card-body">
+                          <div class="tab-content" id="skeleton-myTabContent">
+                            <div class="tab-pane fade show active" id="skeleton-detail" role="tabpanel" aria-labelledby="detail-tab">
+                              <p class="font-weight-bold mb-0 mt-2">Kondisi</p>
+                              <p>Original baru</p>
+                              <p class="font-weight-bold mb-0 mt-2">Kategori</p>
+                              <p class="font-weight-bold">Text</p>
+                              <p class="font-weight-bold mb-0 mt-2">Berat Satuan</p>
+                              <p>gram</p>
+                              <p class="font-weight-bold mb-0 mt-2">Deskripsi</p>
+                              <p>Description</p>
+                              <hr class="m-0 mb-3">
+                              <div class="media">
+                                <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/ryzy.jpg" width="59" class="mr-3" alt="...">
+                                <div class="media-body">
+                                  <p class="mt-0 mb-0 w-50 mb-1">Title</p>
+                                  <p>Description</p>
+                                </div>
+                              </div>
+                              <hr class="m-0 mb-3">
+                              <p class="font-weight-bold mb-0 mt-2">Pengiriman</p>
+                              <p class="mb-1"><i class="ni ni-pin-3"></i> Dikirim dari Tanggerang, Banten</p>
+                              <p><i class="ni ni-delivery-fast"></i> Tersedia pengiriman dengan TIKI, JNE dan POS Indonesia</p>
+                            </div>
                           </div>
                         </div>
-                        <hr class="m-0 mb-3">
-                        <p class="font-weight-bold mb-0 mt-2">Pengiriman</p>
-                        <p class="mb-1"><i class="ni ni-pin-3"></i> Dikirim dari Tanggerang, Banten</p>
-                        <p><i class="ni ni-delivery-fast"></i> Tersedia pengiriman dengan TIKI, JNE dan POS Indonesia</p>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div class="col-12 col-lg-3">
+              </div>
+              <div class="row d-flex justify-content-center" v-else>
+                <div class="col-12 col-lg-4 text-center mb-2">
+                  <img :src="getImage()" class="img-fluid mb-2" width="500">
                   <div class="border p-3 rounded text-center" style="color: #525f7f">
                     <p class="mb-0">Atur jumlah yang pembelian</p>
                     <div>
                       <button type="button" @click="min(apriori)" class="btn btn-danger btn-sm">-</button>
                       <button class="btn disabled">{{ quantity }} item</button>
                       <button type="button" @click="add(apriori)" class="btn btn-primary btn-sm">+</button>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-12 col-lg-6">
+                  <div class="text-left">
+                    <h5 class="h2 text-uppercase p-0 m-0">Paket rekomendasi {{ apriori.apriori_item }}</h5>
+                    <p class="p-0 m-0">code : {{ apriori.apriori_code }}</p>
+                    <div class="h1 font-weight-bold">Rp. {{ apriori.price_discount }}</div>
+                    <small class="p-1 d-inline rounded font-weight-bold" style="background-color: #ffeaef;; color: #ff5c84">{{ apriori.apriori_discount }}%</small>
+                    <p class="d-inline ml-2" style="text-decoration: line-through">Rp. {{ apriori.product_total_price }}</p>
+                    <hr class="mt-0 mb-1">
+                    <div class="nav-wrapper">
+                      <ul class="nav nav-pills nav-fill flex-column flex-md-row" id="tabs-icons-text" role="tablist">
+                        <li class="nav-item">
+                          <a class="nav-link mb-sm-3 mb-md-0 active" id="detail-tab" data-toggle="tab" href="#detail" role="tab" aria-controls="detail" aria-selected="true"><i class="ni ni-tag mr-2"></i>Detail</a>
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="card shadow">
+                      <div class="card-body">
+                        <div class="tab-content" id="myTabContent">
+                          <div class="tab-pane fade show active" id="detail" role="tabpanel" aria-labelledby="detail-tab">
+                            <p class="font-weight-bold mb-0 mt-2">Kondisi</p>
+                            <p>Original baru</p>
+                            <p class="font-weight-bold mb-0 mt-2">Jumlah Barang</p>
+                            <p>{{ apriori.apriori_item.split(", ").length }}</p>
+                            <p class="font-weight-bold mb-0 mt-2">Nama Barang</p>
+                            <p>{{ UpperWord(apriori.apriori_item) }}</p>
+                            <p class="font-weight-bold mb-0 mt-2">Berat Barang</p>
+                            <p>{{ apriori.mass == undefined ? 0 : apriori.mass }} gram</p>
+                            <p class="font-weight-bold mb-0 mt-2">Deskripsi</p>
+                            <p>{{ apriori.apriori_description == undefined ? "Tidak ada deskripsi" : apriori.apriori_description }}</p>
+                            <hr class="m-0 mb-3">
+                            <div class="media">
+                              <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/ryzy.jpg" width="53" class="mr-3" alt="...">
+                              <div class="media-body">
+                                <h3 class="mt-0 mb-0">Toko Ryzy Olshop</h3>
+                                <p>Produk Original Berkualitas dan Terpercaya..</p>
+                              </div>
+                            </div>
+                            <hr class="m-0 mb-3">
+                            <p class="font-weight-bold mb-0 mt-2">Pengiriman</p>
+                            <p class="mb-1"><i class="ni ni-pin-3"></i> Dikirim dari Tanggerang, Banten</p>
+                            <p><i class="ni ni-delivery-fast"></i> Tersedia pengiriman dengan TIKI, JNE dan POS Indonesia</p>
+                          </div>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -82,6 +137,10 @@
     </div>
   </div>
 </template>
+
+<style scoped>
+@import '../../assets/skeleton.css';
+</style>
 
 <script>
 import Sidebar from "@/components/guest/Sidebar.vue"
@@ -130,7 +189,7 @@ export default {
       let productItem = this.carts.find(product => product.code == this.$route.params.id);
       this.quantity = productItem ? productItem.quantity : 0;
 
-      this.isLoading = false
+      this.isLoading = false;
     },
     getImage() {
       return this.apriori.apriori_image

@@ -17,8 +17,41 @@
               <h3 class="mb-0">Detail Product</h3>
             </div>
             <div class="card-body">
-              <div class="row align-items-center mx-auto" v-if="isLoading">
-                <p class="p-3 mt-2 text-center">Loading...</p>
+              <div v-if="isLoading">
+                <div class="loading-skeleton row d-flex justify-content-center">
+                  <div class="col-12 col-lg-4 mb-2">
+                    <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/no-image.png" class="img-fluid mb-2">
+                    <p class="pt-4 mb-0">this is button</p>
+                    <p class="pt-4 mb-0 mt-2">this is button</p>
+                  </div>
+                  <div class="col-12 col-lg-6">
+                    <div class="text-left">
+                      <h5 class="h2 p-0 m-0 mb-1">This is title of product</h5>
+                      <p class="p-0 m-0 mb-1 w-50">This is title of product</p>
+                      <p class="w-50">Pricing</p>
+                      <hr class="mt-0 mb-1">
+                      <div class="nav-wrapper">
+                        <p class="pt-4 mb-0">this is button</p>
+                      </div>
+                      <div class="card shadow">
+                        <div class="card-body">
+                          <div class="tab-content" id="skeleton-myTabContent">
+                            <div class="tab-pane fade show active" id="skeleton-detail" role="tabpanel" aria-labelledby="detail-tab">
+                              <p class="font-weight-bold mb-0 mt-2">Kondisi</p>
+                              <p>Original baru</p>
+                              <p class="font-weight-bold mb-0 mt-2">Kategori</p>
+                              <p class="font-weight-bold">Text</p>
+                              <p class="font-weight-bold mb-0 mt-2">Berat Satuan</p>
+                              <p>gram</p>
+                              <p class="font-weight-bold mb-0 mt-2">Deskripsi</p>
+                              <p>Description</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
               <div class="row d-flex justify-content-center" v-else>
                 <div class="col-12 col-lg-4 text-center mb-2">
@@ -28,38 +61,46 @@
                     <button class="btn btn-danger btn-block">Delete</button>
                   </form>
                 </div>
-                <div class="col-12 col-lg-4">
+                <div class="col-12 col-lg-6">
                   <div class="text-left">
                     <h5 class="h2 text-uppercase p-0 m-0">{{ product.name }}</h5>
                     <p class="p-0 m-0">code : {{ product.code }}</p>
                     <div class="h1 font-weight-bold">Rp. {{ product.price }}</div>
-                    <hr class="m-2">
-                    <ul class="nav nav-tabs" id="myTab" role="tablist">
-                      <li class="nav-item">
-                        <a class="nav-link active" id="detail-tab" data-toggle="tab" href="#detail" role="tab" aria-controls="detail" aria-selected="true">Detail</a>
-                      </li>
-                      <li class="nav-item">
-                        <a class="nav-link" id="other-detail-tab" data-toggle="tab" href="#other-detail" role="tab" aria-controls="other-detail" aria-selected="false">Lainnya</a>
-                      </li>
-                    </ul>
-                    <div class="tab-content" id="myTabContent">
-                      <div class="tab-pane fade show active" id="detail" role="tabpanel" aria-labelledby="detail-tab">
-                        <p class="font-weight-bold mb-0 mt-2">Kondisi</p>
-                        <p>Original baru</p>
-                        <p class="font-weight-bold mb-0 mt-2">Kategori</p>
-                        <p>{{ product.category }}</p>
-                        <p class="font-weight-bold mb-0 mt-2">Berat Satuan</p>
-                        <p>{{ product.mass }} gram</p>
-                        <p class="font-weight-bold mb-0 mt-2">Deskripsi</p>
-                        <p>{{ product.description }}</p>
-                      </div>
-                      <div class="tab-pane fade" id="other-detail" role="tabpanel" aria-labelledby="other-detail-tab">
-                        <p class="font-weight-bold mb-0 mt-2">Tanggal Dibuat</p>
-                        <p>{{ product.created_at }}</p>
-                        <p class="font-weight-bold mb-0 mt-2">Terakhir Diubah</p>
-                        <p>{{ product.updated_at }}</p>
-                        <p class="font-weight-bold mb-0 mt-2">Status Produk</p>
-                        <p>{{ product.is_empty == 0 ? "Produk aktif" : "Produk tidak aktif" }}</p>
+                    <hr class="mt-0 mb-1">
+                    <div class="nav-wrapper">
+                      <ul class="nav nav-pills nav-fill flex-column flex-md-row" id="tabs-icons-text" role="tablist">
+                        <li class="nav-item">
+                          <a class="nav-link mb-sm-3 mb-md-0 active" id="detail-tab" data-toggle="tab" href="#detail" role="tab" aria-controls="detail" aria-selected="true"><i class="ni ni-tag mr-2"></i>Detail</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link mb-sm-3 mb-md-0" id="lainnya-tab" data-toggle="tab" href="#lainnya" role="tab" aria-controls="lainnya" aria-selected="false"><i class="ni ni-ungroup mr-2"></i>Lainnya</a>
+                        </li>
+                      </ul>
+                    </div>
+                    <div class="card shadow">
+                      <div class="card-body">
+                        <div class="tab-content" id="myTabContent">
+                          <div class="tab-pane fade show active" id="detail" role="tabpanel" aria-labelledby="detail-tab">
+                            <p class="font-weight-bold mb-0 mt-2">Kondisi</p>
+                            <p>Original baru</p>
+                            <p class="font-weight-bold mb-0 mt-2">Kategori</p>
+                            <p>
+                              <router-link :to="{ name: 'guest.product', query: { category: category } }" v-for="(category, i) in product.category.split(', ')" :key="i" class="text-primary font-weight-bold">
+                                {{ category }}{{ product.category.split(', ').length - 1 != i ? ', ' : '' }}
+                              </router-link>
+                            </p>
+                            <p class="font-weight-bold mb-0 mt-2">Berat Satuan</p>
+                            <p>{{ product.mass }} gram</p>
+                            <p class="font-weight-bold mb-0 mt-2">Deskripsi</p>
+                            <p>{{ product.description == "" ? "Tidak ada deskripsi" : product.description }}</p>
+                          </div>
+                          <div class="tab-pane fade" id="lainnya" role="tabpanel" aria-labelledby="lainnya-tab">
+                            <p class="font-weight-bold mb-0 mt-2">Tanggal Dibuat</p>
+                            <p>{{ product.created_at }}</p>
+                            <p class="font-weight-bold mb-0 mt-2">Terakhir Diubah</p>
+                            <p>{{ product.updated_at }}</p>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -74,6 +115,10 @@
     </div>
   </div>
 </template>
+
+<style scoped>
+@import '../../assets/skeleton.css';
+</style>
 
 <script>
 import Sidebar from "@/components/admin/Sidebar.vue"
@@ -97,7 +142,6 @@ export default {
     return {
       product: [],
       isLoading: true,
-      isLoading2: true,
     };
   },
   methods: {

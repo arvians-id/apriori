@@ -19,7 +19,31 @@
             </div>
             <!-- Card body -->
             <div class="card-body" v-if="isLoading">
-              <p class="mt-2 text-center">Loading...</p>
+              <div class="loading-skeleton">
+                <p class="w-25">Note</p>
+                <img src="//placekitten.com/300/200" class="card-img-top" height="377" alt="...">
+                <div class="row mt-3">
+                  <div class="col-6 col-lg-3">
+                    <p class="w-50">This is title paid</p>
+                    <p>Value</p>
+                  </div>
+                  <div class="col-6 col-lg-3">
+                    <p class="w-50">This is title paid</p>
+                    <p>Value</p>
+                  </div>
+                  <div class="col-6 col-lg-3">
+                    <p class="w-50">This is title paid</p>
+                    <p>Value</p>
+                  </div>
+                  <div class="col-6 col-lg-3">
+                    <p class="w-50">This is title paid</p>
+                    <p>Value</p>
+                  </div>
+                </div>
+                <br><br>
+                <p class="w-25">Note</p>
+                <img src="//placekitten.com/300/200" class="card-img-top" height="377" alt="...">
+              </div>
             </div>
             <div class="card-body" v-else>
               <h3>Nota Pesanan</h3>
@@ -108,6 +132,10 @@
     </div>
   </div>
 </template>
+
+<style scoped>
+@import '../../assets/skeleton.css';
+</style>
 
 <script>
 import Sidebar from "@/components/guest/Sidebar.vue"

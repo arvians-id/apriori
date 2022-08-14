@@ -31,8 +31,14 @@
                     <!-- Title -->
                     <h5 class="h3 mb-0 mb-1">Semua Kategori</h5>
                   </div>
-                  <div class="card-body" v-if="isLoading2">
-                    <p class="mt-2 text-center">Loading...</p>
+                  <div class="card-body" v-if="isLoading3">
+                    <div class="loading-skeleton">
+                      <p class="p-3 mb-2">This is title of category</p>
+                      <p class="p-3 mb-2">This is title of category</p>
+                      <p class="p-3 mb-2">This is title of category</p>
+                      <p class="p-3 mb-2">This is title of category</p>
+                      <p class="p-3 mb-2">This is title of category</p>
+                    </div>
                   </div>
                   <div class="card-body" v-else>
                     <ul class="list-group" v-if="categories.length > 0">
@@ -71,7 +77,107 @@
                   </div>
                   <!-- Card body -->
                   <div class="card-body" v-if="isLoading">
-                    <p class="mt-2 text-center">Loading...</p>
+                    <div class="loading-skeleton">
+                      <div class="row">
+                        <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                          <div class="card">
+                            <div class="embed-responsive embed-responsive-16by9">
+                              <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
+                            </div>
+                            <div class="card-body">
+                              <p class="card-title mb-1">This is title</p>
+                              <p class="font-weight-bold">This is price of product</p>
+                              <p class="w-50 mb-0">this is icon</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                          <div class="card">
+                            <div class="embed-responsive embed-responsive-16by9">
+                              <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
+                            </div>
+                            <div class="card-body">
+                              <p class="card-title mb-1">This is title</p>
+                              <p class="font-weight-bold">This is price of product</p>
+                              <p class="w-50 mb-0">this is icon</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                          <div class="card">
+                            <div class="embed-responsive embed-responsive-16by9">
+                              <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
+                            </div>
+                            <div class="card-body">
+                              <p class="card-title mb-1">This is title</p>
+                              <p class="font-weight-bold">This is price of product</p>
+                              <p class="w-50 mb-0">this is icon</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                          <div class="card">
+                            <div class="embed-responsive embed-responsive-16by9">
+                              <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
+                            </div>
+                            <div class="card-body">
+                              <p class="card-title mb-1">This is title</p>
+                              <p class="font-weight-bold">This is price of product</p>
+                              <p class="w-50 mb-0">this is icon</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                          <div class="card">
+                            <div class="embed-responsive embed-responsive-16by9">
+                              <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
+                            </div>
+                            <div class="card-body">
+                              <p class="card-title mb-1">This is title</p>
+                              <p class="font-weight-bold">This is price of product</p>
+                              <p class="w-50 mb-0">this is icon</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                          <div class="card">
+                            <div class="embed-responsive embed-responsive-16by9">
+                              <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
+                            </div>
+                            <div class="card-body">
+                              <p class="card-title mb-1">This is title</p>
+                              <p class="font-weight-bold">This is price of product</p>
+                              <p class="w-50 mb-0">this is icon</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                          <div class="card">
+                            <div class="embed-responsive embed-responsive-16by9">
+                              <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
+                            </div>
+                            <div class="card-body">
+                              <p class="card-title mb-1">This is title</p>
+                              <p class="font-weight-bold">This is price of product</p>
+                              <p class="w-50 mb-0">this is icon</p>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                          <div class="card">
+                            <div class="embed-responsive embed-responsive-16by9">
+                              <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
+                            </div>
+                            <div class="card-body">
+                              <p class="card-title mb-1">This is title</p>
+                              <p class="font-weight-bold">This is price of product</p>
+                              <p class="w-50 mb-0">this is icon</p>
+                            </div>
+                          </div>
+                        </div>
+                        <button class="btn btn-secondary d-block mx-auto px-5">This is button</button>
+                      </div>
+                    </div>
                   </div>
                   <div class="card-body" v-else>
                     <!-- List group -->
@@ -109,10 +215,73 @@
             <!-- Card header -->
             <div class="card-header">
               <!-- Title -->
-              <h5 class="h3 mb-0">Rekomendasi Paket Diskon Barang</h5>
+              <h5 class="h3 mb-0">Rekomendasi</h5>
             </div>
             <div class="card-body" v-if="isLoading2">
-              <p class="mt-2 text-center">Loading...</p>
+              <div class="loading-skeleton">
+                <div class="row">
+                  <div class="col-12 col-md-6 col-lg-3">
+                    <div class="card card-pricing border-0 mb-4">
+                      <div class="embed-responsive embed-responsive-16by9">
+                        <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
+                      </div>
+                      <div class="card-body pb-3">
+                        <p>This is title of products</p>
+                        <p class="card-title mb-1">This is title</p>
+                        <p class="font-weight-bold">This is price of product</p>
+                        <div class="card-footer p-0 pt-2 m-0 text-center">
+                          <p class="w-25 d-inline">this is discount</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-6 col-lg-3">
+                    <div class="card card-pricing border-0 mb-4">
+                      <div class="embed-responsive embed-responsive-16by9">
+                        <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
+                      </div>
+                      <div class="card-body pb-3">
+                        <p>This is title of products</p>
+                        <p class="card-title mb-1">This is title</p>
+                        <p class="font-weight-bold">This is price of product</p>
+                        <div class="card-footer p-0 pt-2 m-0 text-center">
+                          <p class="w-25 d-inline">this is discount</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-6 col-lg-3">
+                    <div class="card card-pricing border-0 mb-4">
+                      <div class="embed-responsive embed-responsive-16by9">
+                        <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
+                      </div>
+                      <div class="card-body pb-3">
+                        <p>This is title of products</p>
+                        <p class="card-title mb-1">This is title</p>
+                        <p class="font-weight-bold">This is price of product</p>
+                        <div class="card-footer p-0 pt-2 m-0 text-center">
+                          <p class="w-25 d-inline">this is discount</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-6 col-lg-3">
+                    <div class="card card-pricing border-0 mb-4">
+                      <div class="embed-responsive embed-responsive-16by9">
+                        <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
+                      </div>
+                      <div class="card-body pb-3">
+                        <p>This is title of products</p>
+                        <p class="card-title mb-1">This is title</p>
+                        <p class="font-weight-bold">This is price of product</p>
+                        <div class="card-footer p-0 pt-2 m-0 text-center">
+                          <p class="w-25 d-inline">this is discount</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="card-body" v-else>
               <div class="row" v-if="recommendation.length > 0">
@@ -167,6 +336,8 @@
 </template>
 
 <style scoped>
+@import '../../assets/skeleton.css';
+
   .card-img-top {
     width: 100%;
     object-fit: cover;
@@ -244,7 +415,11 @@ export default {
     },
     async fetchCategory() {
       await axios.get(`${process.env.VUE_APP_SERVICE_URL}/categories`,{ headers: authHeader() }).then((response) => {
-        this.categories = response.data.data;
+        if(response.data.data != null) {
+          this.categories = response.data.data;
+        } else {
+          this.categories = [];
+        }
       }).catch((error) => {
         console.log(error)
       })

@@ -14,8 +14,90 @@
           <div class="card card-profile">
             <!-- Card header -->
             <div class="card-body mt-5">
-              <div class="row align-items-center mx-auto" v-if="isLoading">
-                <p class="p-3 mt-2 text-center">Loading...</p>
+              <div v-if="isLoading">
+                <div class="loading-skeleton row d-flex justify-content-center">
+                  <div class="col-12 col-lg-3 mb-2">
+                    <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/no-image.png" class="img-fluid mb-2">
+                    <div class="border p-3 rounded text-center" style="color: #525f7f">
+                      <p class="mb-0">Atur jumlah yang pembelian</p>
+                      <div class="mt-2">
+                        <button type="button" class="btn btn-danger btn-sm">-</button>
+                        <button class="btn disabled">quantity</button>
+                        <button type="button" class="btn btn-primary btn-sm">+</button>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-12 col-lg-6">
+                    <div class="text-left">
+                      <h5 class="h2 p-0 m-0 mb-1">This is title of product</h5>
+                      <p class="p-0 m-0 mb-1 w-50">This is title of product</p>
+                      <p class="w-50">Pricing</p>
+                      <hr class="mt-0 mb-1">
+                      <div class="nav-wrapper">
+                        <p class="pt-4 mb-0">this is button</p>
+                      </div>
+                      <div class="card shadow">
+                        <div class="card-body">
+                          <div class="tab-content" id="skeleton-myTabContent">
+                            <div class="tab-pane fade show active" id="skeleton-detail" role="tabpanel" aria-labelledby="detail-tab">
+                              <p class="font-weight-bold mb-0 mt-2">Kondisi</p>
+                              <p>Original baru</p>
+                              <p class="font-weight-bold mb-0 mt-2">Kategori</p>
+                              <p class="font-weight-bold">Text</p>
+                              <p class="font-weight-bold mb-0 mt-2">Berat Satuan</p>
+                              <p>gram</p>
+                              <p class="font-weight-bold mb-0 mt-2">Deskripsi</p>
+                              <p>Description</p>
+                              <hr class="m-0 mb-3">
+                              <div class="media">
+                                <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/ryzy.jpg" width="59" class="mr-3" alt="...">
+                                <div class="media-body">
+                                  <p class="mt-0 mb-0 w-50 mb-1">Title</p>
+                                  <p>Description</p>
+                                </div>
+                              </div>
+                              <hr class="m-0 mb-3">
+                              <p class="font-weight-bold mb-0 mt-2">Pengiriman</p>
+                              <p class="mb-1"><i class="ni ni-pin-3"></i> Dikirim dari Tanggerang, Banten</p>
+                              <p><i class="ni ni-delivery-fast"></i> Tersedia pengiriman dengan TIKI, JNE dan POS Indonesia</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-12 col-lg-2">
+                    <h3 class="mb-0 mt-3">Produk yang serupa</h3>
+                    <hr class="mb-3 p-0">
+                    <div class="card card-pricing border shadow-none">
+                      <div class="embed-responsive embed-responsive-16by9">
+                        <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
+                      </div>
+                      <div class="card-body">
+                        <p class="card-title m-0 mb-1">this is title of product</p>
+                        <p class="card-text p-0 m-0 w-50">pricing</p>
+                      </div>
+                    </div>
+                    <div class="card card-pricing border shadow-none">
+                      <div class="embed-responsive embed-responsive-16by9">
+                        <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
+                      </div>
+                      <div class="card-body">
+                        <p class="card-title m-0 mb-1">this is title of product</p>
+                        <p class="card-text p-0 m-0 w-50">pricing</p>
+                      </div>
+                    </div>
+                    <div class="card card-pricing border shadow-none">
+                      <div class="embed-responsive embed-responsive-16by9">
+                        <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
+                      </div>
+                      <div class="card-body">
+                        <p class="card-title m-0 mb-1">this is title of product</p>
+                        <p class="card-text p-0 m-0 w-50">pricing</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
               <div class="row d-flex justify-content-center" v-else>
                 <div class="col-12 col-lg-3 mb-2">
@@ -88,13 +170,21 @@
                 <div class="col-12 col-lg-2">
                   <h3 class="mb-0 mt-3">Produk yang serupa</h3>
                   <hr class="mb-3 p-0">
-                  <div class="card card-pricing border shadow-none" v-for="item in productSimilarCategory" :key="item.id_product">
-                    <div class="embed-responsive embed-responsive-16by9">
-                      <img class="card-img-top embed-responsive-item" :src="getImage(item.image)" alt="Preview Image">
+                  <div v-if="productSimilarCategory.length > 0">
+                    <div class="card card-pricing border shadow-none" v-for="item in productSimilarCategory" :key="item.id_product">
+                      <div class="embed-responsive embed-responsive-16by9">
+                        <img class="card-img-top embed-responsive-item" :src="getImage(item.image)" alt="Preview Image">
+                      </div>
+                      <div class="card-body">
+                        <router-link :to="{ name: 'guest.product.detail', params: { code: item.code } }" class="card-title m-0">{{ item.name }}</router-link>
+                        <p class="card-text p-0 m-0">Rp. {{ item.price }}</p>
+                      </div>
                     </div>
-                    <div class="card-body">
-                      <router-link :to="{ name: 'guest.product.detail', params: { code: item.code } }" class="card-title m-0">{{ item.name }}</router-link>
-                      <p class="card-text p-0 m-0">Rp. {{ item.price }}</p>
+                  </div>
+                  <div v-else>
+                    <div class="alert alert-secondary mt-3">
+                      <h5 class="alert-heading">Oops!</h5>
+                      <p>Tidak ada produk yang serupa.</p>
                     </div>
                   </div>
                 </div>
@@ -105,10 +195,73 @@
             <!-- Card header -->
             <div class="card-header">
               <!-- Title -->
-              <h5 class="h3 mb-0">Rekomendasi Paket Diskon Barang</h5>
+              <h5 class="h3 mb-0">Rekomendasi</h5>
             </div>
             <div class="card-body" v-if="isLoading2">
-              <p class="mt-2 text-center">Loading...</p>
+              <div class="loading-skeleton">
+                <div class="row">
+                  <div class="col-12 col-md-6 col-lg-3">
+                    <div class="card card-pricing border-0 mb-4">
+                      <div class="embed-responsive embed-responsive-16by9">
+                        <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
+                      </div>
+                      <div class="card-body pb-3">
+                        <p>This is title of products</p>
+                        <p class="card-title mb-1">This is title</p>
+                        <p class="font-weight-bold">This is price of product</p>
+                        <div class="card-footer p-0 pt-2 m-0 text-center">
+                          <p class="w-25 d-inline">this is discount</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-6 col-lg-3">
+                    <div class="card card-pricing border-0 mb-4">
+                      <div class="embed-responsive embed-responsive-16by9">
+                        <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
+                      </div>
+                      <div class="card-body pb-3">
+                        <p>This is title of products</p>
+                        <p class="card-title mb-1">This is title</p>
+                        <p class="font-weight-bold">This is price of product</p>
+                        <div class="card-footer p-0 pt-2 m-0 text-center">
+                          <p class="w-25 d-inline">this is discount</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-6 col-lg-3">
+                    <div class="card card-pricing border-0 mb-4">
+                      <div class="embed-responsive embed-responsive-16by9">
+                        <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
+                      </div>
+                      <div class="card-body pb-3">
+                        <p>This is title of products</p>
+                        <p class="card-title mb-1">This is title</p>
+                        <p class="font-weight-bold">This is price of product</p>
+                        <div class="card-footer p-0 pt-2 m-0 text-center">
+                          <p class="w-25 d-inline">this is discount</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-12 col-md-6 col-lg-3">
+                    <div class="card card-pricing border-0 mb-4">
+                      <div class="embed-responsive embed-responsive-16by9">
+                        <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
+                      </div>
+                      <div class="card-body pb-3">
+                        <p>This is title of products</p>
+                        <p class="card-title mb-1">This is title</p>
+                        <p class="font-weight-bold">This is price of product</p>
+                        <div class="card-footer p-0 pt-2 m-0 text-center">
+                          <p class="w-25 d-inline">this is discount</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </div>
             <div class="card-body" v-else>
               <div class="row" v-if="recommendation.length > 0">
@@ -163,6 +316,8 @@
 </template>
 
 <style scoped>
+@import '../../assets/skeleton.css';
+
 .card-img-top {
   width: 100%;
   object-fit: cover;
@@ -185,8 +340,10 @@ export default {
     Topbar
   },
   watch: {
-    '$route': function () {
-      this.allFetch()
+    '$route': function (to) {
+      if (to.name === 'guest.product.detail') {
+        this.allFetch()
+      }
     }
   },
   mounted() {
@@ -251,7 +408,7 @@ export default {
       let productItem = this.carts.find(product => product.code === this.$route.params.code);
       this.quantity = productItem ? productItem.quantity : 0;
 
-      this.isLoading = false
+      this.isLoading = false;
     },
     async fetchDataRecommendation() {
       await axios.get(`${process.env.VUE_APP_SERVICE_URL}/products/${this.$route.params.code}/recommendation`, { headers: authHeader() }).then((response) => {

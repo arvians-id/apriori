@@ -21,7 +21,32 @@
               </div>
               <!-- Card body -->
               <div class="card-body p-0" v-if="isLoading">
-                <p class="p-3 mt-2 text-center">Loading...</p>
+                <div class="loading-skeleton m-3">
+                  <div>
+                    <p class="w-25 mb-0 mb-2">Title</p>
+                    <p class="m-0 p-0">Description</p>
+                    <hr class="mb-3 mt-3">
+                  </div>
+                  <div>
+                    <p class="w-25 mb-0 mb-2">Title</p>
+                    <p class="m-0 p-0">Description</p>
+                    <hr class="mb-3 mt-3">
+                  </div>
+                  <div>
+                    <p class="w-25 mb-0 mb-2">Title</p>
+                    <p class="m-0 p-0">Description</p>
+                    <hr class="mb-3 mt-3">
+                  </div>
+                  <div>
+                    <p class="w-25 mb-0 mb-2">Title</p>
+                    <p class="m-0 p-0">Description</p>
+                    <hr class="mb-3 mt-3">
+                  </div>
+                  <div>
+                    <p class="w-25 mb-0 mb-2">Title</p>
+                    <p class="m-0 p-0">Description</p>
+                  </div>
+                </div>
               </div>
               <div class="card-body p-0" v-else>
                 <!-- List group -->
@@ -61,6 +86,10 @@
     </div>
   </div>
 </template>
+
+<style scoped>
+@import '../../assets/skeleton.css';
+</style>
 
 <script>
 import Sidebar from "@/components/guest/Sidebar.vue"

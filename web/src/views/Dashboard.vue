@@ -55,7 +55,12 @@
                       </div>
                     </div>
                   </div>
-                  <p v-if="apriories.length == 0" class="mx-auto">No Recommendation Found</p>
+                  <div v-if="apriories.length == 0" class="col-12">
+                    <div class="alert alert-secondary">
+                      <h5 class="alert-heading">Oops!</h5>
+                      <p>Tidak ada rekomendasi yang tersedia.</p>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
