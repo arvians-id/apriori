@@ -99,92 +99,176 @@
                   </div>
                 </div>
               </div>
-              <div class="row d-flex justify-content-center" v-else>
-                <div class="col-12 col-lg-3 mb-2">
-                  <img :src="product.image" class="img-fluid mb-2" width="500">
-                  <div class="border p-3 rounded text-center" style="color: #525f7f">
-                    <p class="mb-0">Atur jumlah yang pembelian</p>
-                    <div>
-                      <button type="button" @click="min(product)" class="btn btn-danger btn-sm">-</button>
-                      <button class="btn disabled">{{ quantity }} item</button>
-                      <button type="button" @click="add(product)" class="btn btn-primary btn-sm">+</button>
+              <div v-else>
+                <div class="row d-flex justify-content-center">
+                  <div class="col-12 col-lg-3 mb-2">
+                    <img :src="product.image" class="img-fluid mb-2" width="500">
+                    <div class="border p-3 rounded text-center" style="color: #525f7f">
+                      <p class="mb-0">Atur jumlah yang pembelian</p>
+                      <div>
+                        <button type="button" @click="min(product)" class="btn btn-danger btn-sm">-</button>
+                        <button class="btn disabled">{{ quantity }} item</button>
+                        <button type="button" @click="add(product)" class="btn btn-primary btn-sm">+</button>
+                      </div>
                     </div>
-                  </div>
-                </div>
-                <div class="col-12 col-lg-6">
-                  <div class="text-left">
-                    <h5 class="h2 text-uppercase p-0 m-0">{{ product.name }}</h5>
-                    <p class="p-0 m-0">code : {{ product.code }}</p>
-                    <div class="h1 font-weight-bold">Rp. {{ product.price }}</div>
-                    <hr class="mt-0 mb-1">
-                    <div class="nav-wrapper">
-                      <ul class="nav nav-pills nav-fill flex-column flex-md-row" id="tabs-icons-text" role="tablist">
-                        <li class="nav-item">
-                          <a class="nav-link mb-sm-3 mb-md-0 active" id="detail-tab" data-toggle="tab" href="#detail" role="tab" aria-controls="detail" aria-selected="true"><i class="ni ni-tag mr-2"></i>Detail</a>
-                        </li>
-                        <li class="nav-item">
-                          <a class="nav-link mb-sm-3 mb-md-0" id="lainnya-tab" data-toggle="tab" href="#lainnya" role="tab" aria-controls="lainnya" aria-selected="false"><i class="ni ni-ungroup mr-2"></i>Lainnya</a>
-                        </li>
-                      </ul>
-                    </div>
-                    <div class="card shadow">
-                      <div class="card-body">
-                        <div class="tab-content" id="myTabContent">
-                          <div class="tab-pane fade show active" id="detail" role="tabpanel" aria-labelledby="detail-tab">
-                            <p class="font-weight-bold mb-0 mt-2">Kondisi</p>
-                            <p>Original baru</p>
-                            <p class="font-weight-bold mb-0 mt-2">Kategori</p>
-                            <p>
-                              <router-link :to="{ name: 'guest.product', query: { category: category } }" v-for="(category, i) in product.category.split(', ')" :key="i" class="text-primary font-weight-bold">
-                                {{ category }}{{ product.category.split(', ').length - 1 != i ? ', ' : '' }}
-                              </router-link>
-                            </p>
-                            <p class="font-weight-bold mb-0 mt-2">Berat Satuan</p>
-                            <p>{{ product.mass }} gram</p>
-                            <p class="font-weight-bold mb-0 mt-2">Deskripsi</p>
-                            <p>{{ product.description == "" ? "Tidak ada deskripsi" : product.description }}</p>
-                            <hr class="m-0 mb-3">
-                            <div class="media">
-                              <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/ryzy.jpg" width="53" class="mr-3" alt="...">
-                              <div class="media-body">
-                                <h3 class="mt-0 mb-0">Toko Ryzy Olshop</h3>
-                                <p>Produk Original Berkualitas dan Terpercaya..</p>
-                              </div>
-                            </div>
-                            <hr class="m-0 mb-3">
-                            <p class="font-weight-bold mb-0 mt-2">Pengiriman</p>
-                            <p class="mb-1"><i class="ni ni-pin-3"></i> Dikirim dari Tanggerang, Banten</p>
-                            <p><i class="ni ni-delivery-fast"></i> Tersedia pengiriman dengan TIKI, JNE dan POS Indonesia</p>
+                    <div class="card mt-4">
+                      <div class="card-body pt-0">
+                        <div class="d-flex align-items-center justify-content-center p-0 m-0">
+                          <i class="fas fa-star text-warning fa-lg"></i>
+                          <p class="text-center d-inline font-weight-bold ml-2" style="font-size: 68px">4.8</p>
+                          <p class="ml-1" style="padding-top: 38px">/5.0</p>
+                        </div>
+                        <div class="text-center">
+                          <p class="font-weight-bold mb-1">94% pembeli merasa puas</p>
+                          <p>899 rating • 289 ulasan</p>
+                        </div>
+                        <div class="row d-flex align-items-center" v-for="item in 5" :key="item">
+                          <div class="col-4 text-right">
+                            <i class="fas fa-star text-warning"></i>
+                            {{ 5 - item + 1 }}
                           </div>
-                          <div class="tab-pane fade" id="lainnya" role="tabpanel" aria-labelledby="lainnya-tab">
-                            <p class="font-weight-bold mb-0 mt-2">Tanggal Dibuat</p>
-                            <p>{{ product.created_at }}</p>
-                            <p class="font-weight-bold mb-0 mt-2">Terakhir Diubah</p>
-                            <p>{{ product.updated_at }}</p>
+                          <div class="col-6">
+                            <div class="progress mb-0">
+                              <div class="progress-bar bg-orange" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;"></div>
+                            </div>
+                          </div>
+                          <div class="col-2 px-0">
+                            342
                           </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </div>
-                <div class="col-12 col-lg-2">
-                  <h3 class="mb-0 mt-3">Produk yang serupa</h3>
-                  <hr class="mb-3 p-0">
-                  <div v-if="productSimilarCategory.length > 0">
-                    <div class="card card-pricing border shadow-none" v-for="item in productSimilarCategory" :key="item.id_product">
-                      <div class="embed-responsive embed-responsive-16by9">
-                        <img class="card-img-top embed-responsive-item" :src="item.image" alt="Preview Image">
-                      </div>
+                    <div class="card mt-4">
                       <div class="card-body">
-                        <router-link :to="{ name: 'guest.product.detail', params: { code: item.code } }" class="card-title m-0">{{ item.name }}</router-link>
-                        <p class="card-text p-0 m-0">Rp. {{ item.price }}</p>
+                        <h3 class="card-title text-uppercase">Filter Ulasan</h3>
+                        <p class="mb-2 font-weight-bold">Rating</p>
+                        <div class="form-check mb-2" v-for="item in 5" :key="item">
+                          <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
+                          <label class="form-check-label" for="defaultCheck1">
+                            <i class="fas fa-star text-warning"></i> {{ 5 - item + 1 }}
+                          </label>
+                        </div>
+                        <hr class="my-3">
+                        <p class="mb-2 font-weight-bold">Topik Ulasan</p>
+                        <div class="form-check mb-2" v-for="item in 5" :key="item">
+                          <input class="form-check-input" type="checkbox" value="" id="defaultCheck2">
+                          <label class="form-check-label" for="defaultCheck1">
+                            Pelayanan Penjual
+                          </label>
+                        </div>
                       </div>
                     </div>
                   </div>
-                  <div v-else>
-                    <div class="alert alert-secondary mt-3">
-                      <h5 class="alert-heading">Oops!</h5>
-                      <p>Tidak ada produk yang serupa.</p>
+                  <div class="col-12 col-lg-6">
+                    <div class="text-left">
+                      <h5 class="h2 text-uppercase p-0 m-0">{{ product.name }}</h5>
+                      <p class="p-0 m-0">code : {{ product.code }}</p>
+                      <div class="h1 font-weight-bold">Rp. {{ product.price }}</div>
+                      <hr class="mt-0 mb-1">
+                      <div class="nav-wrapper">
+                        <ul class="nav nav-pills nav-fill flex-column flex-md-row" id="tabs-icons-text" role="tablist">
+                          <li class="nav-item">
+                            <a class="nav-link mb-sm-3 mb-md-0 active" id="detail-tab" data-toggle="tab" href="#detail" role="tab" aria-controls="detail" aria-selected="true"><i class="ni ni-tag mr-2"></i>Detail</a>
+                          </li>
+                          <li class="nav-item">
+                            <a class="nav-link mb-sm-3 mb-md-0" id="lainnya-tab" data-toggle="tab" href="#lainnya" role="tab" aria-controls="lainnya" aria-selected="false"><i class="ni ni-ungroup mr-2"></i>Lainnya</a>
+                          </li>
+                        </ul>
+                      </div>
+                      <div class="card shadow">
+                        <div class="card-body">
+                          <div class="tab-content" id="myTabContent">
+                            <div class="tab-pane fade show active" id="detail" role="tabpanel" aria-labelledby="detail-tab">
+                              <p class="font-weight-bold mb-0 mt-2">Kondisi</p>
+                              <p>Original baru</p>
+                              <p class="font-weight-bold mb-0 mt-2">Kategori</p>
+                              <p>
+                                <router-link :to="{ name: 'guest.product', query: { category: category } }" v-for="(category, i) in product.category.split(', ')" :key="i" class="text-primary font-weight-bold">
+                                  {{ category }}{{ product.category.split(', ').length - 1 != i ? ', ' : '' }}
+                                </router-link>
+                              </p>
+                              <p class="font-weight-bold mb-0 mt-2">Berat Satuan</p>
+                              <p>{{ product.mass }} gram</p>
+                              <p class="font-weight-bold mb-0 mt-2">Deskripsi</p>
+                              <p>{{ product.description == "" ? "Tidak ada deskripsi" : product.description }}</p>
+                              <hr class="m-0 mb-3">
+                              <div class="media">
+                                <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/ryzy.jpg" width="53" class="mr-3" alt="...">
+                                <div class="media-body">
+                                  <h3 class="mt-0 mb-0">Toko Ryzy Olshop</h3>
+                                  <p>Produk Original Berkualitas dan Terpercaya..</p>
+                                </div>
+                              </div>
+                              <hr class="m-0 mb-3">
+                              <p class="font-weight-bold mb-0 mt-2">Pengiriman</p>
+                              <p class="mb-1"><i class="ni ni-pin-3"></i> Dikirim dari Tanggerang, Banten</p>
+                              <p><i class="ni ni-delivery-fast"></i> Tersedia pengiriman dengan TIKI, JNE dan POS Indonesia</p>
+                            </div>
+                            <div class="tab-pane fade" id="lainnya" role="tabpanel" aria-labelledby="lainnya-tab">
+                              <p class="font-weight-bold mb-0 mt-2">Tanggal Dibuat</p>
+                              <p>{{ product.created_at }}</p>
+                              <p class="font-weight-bold mb-0 mt-2">Terakhir Diubah</p>
+                              <p>{{ product.updated_at }}</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="card">
+                      <div class="card-body">
+                        <h3 class="card-title text-uppercase">Penilaian Produk</h3>
+                        <ul class="list-unstyled">
+                          <li class="media my-4" style="border-bottom: 1px solid #e9ecef">
+                            <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/ryzy.jpg" width="53" class="mr-3" alt="...">
+                            <div class="media-body">
+                              <h4 class="mt-0 mb-1">List-based media object | <small>2022-07-21 14:41</small></h4>
+                              <div class="mb-2">
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                              </div>
+                              <p>All my girls vintage Chanel baby. So you can have your cake. Tonight, tonight, tonight, I'm walking on air. Slowly swallowing down my fear, yeah yeah. Growing fast into a bolt of lightning. So hot and heavy, 'Til dawn. That fairy tale ending with a knight in shining armor. Heavy is the head that wears the crown.</p>
+                            </div>
+                          </li>
+                          <li class="media my-4" style="border-bottom: 1px solid #e9ecef">
+                            <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/ryzy.jpg" width="53" class="mr-3" alt="...">
+                            <div class="media-body">
+                              <h4 class="mt-0 mb-1">List-based media object | <small>2022-07-21 14:41</small></h4>
+                              <div class="mb-2">
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning"></i>
+                              </div>
+                              <p>All my girls vintage Chanel baby. So you can have your cake. Tonight, tonight, tonight, I'm walking on air. Slowly swallowing down my fear, yeah yeah. Growing fast into a bolt of lightning. So hot and heavy, 'Til dawn. That fairy tale ending with a knight in shining armor. Heavy is the head that wears the crown.</p>
+                            </div>
+                          </li>
+                        </ul>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="col-12 col-lg-2">
+                    <h3 class="mb-0 mt-3 text-uppercase">Produk yang serupa</h3>
+                    <hr class="mb-3 p-0">
+                    <div v-if="productSimilarCategory.length > 0">
+                      <div class="card card-pricing border shadow-none" v-for="item in productSimilarCategory" :key="item.id_product">
+                        <div class="embed-responsive embed-responsive-16by9">
+                          <img class="card-img-top embed-responsive-item" :src="item.image" alt="Preview Image">
+                        </div>
+                        <div class="card-body">
+                          <router-link :to="{ name: 'guest.product.detail', params: { code: item.code } }" class="card-title m-0">{{ item.name }}</router-link>
+                          <p class="card-text p-0 m-0">Rp. {{ item.price }}</p>
+                        </div>
+                      </div>
+                    </div>
+                    <div v-else>
+                      <div class="alert alert-secondary mt-3">
+                        <h5 class="alert-heading">Oops!</h5>
+                        <p>Tidak ada produk yang serupa.</p>
+                      </div>
                     </div>
                   </div>
                 </div>
