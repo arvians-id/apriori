@@ -54,7 +54,7 @@
               </div>
               <div class="row d-flex justify-content-center" v-else>
                 <div class="col-12 col-lg-4 text-center mb-2">
-                  <img :src="getImage()" class="img-fluid mb-2" width="500">
+                  <img :src="apriori.apriori_image" class="img-fluid mb-2" width="500">
                   <router-link :to="{ name: 'apriori.edit', params: { code: apriori.apriori_code, id: this.$route.params.id } }"  class="btn btn-primary btn-block mb-2">Edit</router-link>
                 </div>
                 <div class="col-12 col-lg-6">
@@ -134,9 +134,6 @@ export default {
       });
 
       this.isLoading = false;
-    },
-    getImage() {
-      return this.apriori.apriori_image
     },
     UpperWord(str) {
       return str.toLowerCase().replace(/\b[a-z]/g, function (letter) {

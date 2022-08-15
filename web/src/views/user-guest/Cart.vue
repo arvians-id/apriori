@@ -95,13 +95,13 @@
                             :to="{ name: 'guest.product.recommendation', params: { code: item.id_product, id: item.code } }"
                             v-if="item.name.includes(`Paket Rekomendasi`)"
                             class="avatar">
-                          <img alt="Image placeholder" :src="getImage(item.image)">
+                          <img alt="Image placeholder" :src="item.image">
                         </router-link>
                         <router-link
                             :to="{ name: 'guest.product.detail', params: { code: item.code } }"
                             class="avatar"
                             v-else>
-                          <img alt="Image placeholder" :src="getImage(item.image)">
+                          <img alt="Image placeholder" :src="item.image">
                         </router-link>
                       </div>
                       <div class="col ml--4">
@@ -307,9 +307,6 @@ export default {
       tagSnapJs.setAttribute("src", snapJs);
       tagSnapJs.setAttribute("data-client-key", "SB-Mid-client-1WI-DDXBFya0sHp_");
       document.head.appendChild(tagSnapJs);
-    },
-    getImage(image) {
-      return image;
     },
     numberWithCommas(x) {
       return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");

@@ -70,7 +70,7 @@
               </div>
               <div class="row d-flex justify-content-center" v-else>
                 <div class="col-12 col-lg-4 text-center mb-2">
-                  <img :src="getImage()" class="img-fluid mb-2" width="500">
+                  <img :src="apriori.apriori_image" class="img-fluid mb-2" width="500">
                   <div class="border p-3 rounded text-center" style="color: #525f7f">
                     <p class="mb-0">Atur jumlah yang pembelian</p>
                     <div>
@@ -190,9 +190,6 @@ export default {
       this.quantity = productItem ? productItem.quantity : 0;
 
       this.isLoading = false;
-    },
-    getImage() {
-      return this.apriori.apriori_image
     },
     UpperWord(str) {
       return str.toLowerCase().replace(/\b[a-z]/g, function (letter) {

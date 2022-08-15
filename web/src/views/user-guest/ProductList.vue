@@ -185,7 +185,7 @@
                       <div class="col-12 col-md-6 col-lg-4 col-xl-3" v-for="item in products" :key="item.id_product">
                         <div class="card">
                           <div class="embed-responsive embed-responsive-16by9">
-                            <img class="card-img-top embed-responsive-item" :src="getImage(item.image)" alt="Preview Image">
+                            <img class="card-img-top embed-responsive-item" :src="item.image" alt="Preview Image">
                           </div>
                           <div class="card-body">
                             <router-link :to="{ name: 'guest.product.detail', params: { code: item.code } }" class="card-title mb-3 text-dark">{{ item.name }}</router-link>
@@ -288,7 +288,7 @@
                 <div class="col-12 col-md-6 col-lg-3" v-for="item in recommendation" :key="item.apriori_id">
                   <div class="card card-pricing border-0 mb-4">
                     <div class="embed-responsive embed-responsive-16by9">
-                      <img class="card-img-top embed-responsive-item" :src="getImage(item.image)" alt="Preview Image">
+                      <img class="card-img-top embed-responsive-item" :src="item.image" alt="Preview Image">
                     </div>
                     <div class="card-body pb-3">
                       <router-link :to="{ name: 'guest.product.recommendation', params: { code: item.code, id: item.id_apriori } }" class="text-dark d-none d-lg-block">
@@ -479,9 +479,6 @@ export default {
     },
     numberWithCommas(x) {
       return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    },
-    getImage(image) {
-      return image;
     },
     UpperWord(str) {
       return str.toLowerCase().replace(/\b[a-z]/g, function (letter) {

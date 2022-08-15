@@ -55,7 +55,7 @@
               </div>
               <div class="row d-flex justify-content-center" v-else>
                 <div class="col-12 col-lg-4 text-center mb-2">
-                  <img :src="getImage()" class="img-fluid mb-2" width="500">
+                  <img :src="product.image" class="img-fluid mb-2" width="500">
                   <router-link :to="{ name: 'product.edit', params: { code: this.$route.params.code } }"  class="btn btn-primary btn-block mb-2">Edit</router-link>
                   <form @submit.prevent="submit(this.$route.params.code)" method="POST" class="d-inline">
                     <button class="btn btn-danger btn-block">Delete</button>
@@ -151,9 +151,6 @@ export default {
       });
 
       this.isLoading = false
-    },
-    getImage() {
-      return this.product.image
     },
     submit(no_product) {
       if(confirm("Are you sure to delete this product?")) {

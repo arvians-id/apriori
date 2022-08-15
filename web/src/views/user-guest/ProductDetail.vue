@@ -101,7 +101,7 @@
               </div>
               <div class="row d-flex justify-content-center" v-else>
                 <div class="col-12 col-lg-3 mb-2">
-                  <img :src="getImage()" class="img-fluid mb-2" width="500">
+                  <img :src="product.image" class="img-fluid mb-2" width="500">
                   <div class="border p-3 rounded text-center" style="color: #525f7f">
                     <p class="mb-0">Atur jumlah yang pembelian</p>
                     <div>
@@ -173,7 +173,7 @@
                   <div v-if="productSimilarCategory.length > 0">
                     <div class="card card-pricing border shadow-none" v-for="item in productSimilarCategory" :key="item.id_product">
                       <div class="embed-responsive embed-responsive-16by9">
-                        <img class="card-img-top embed-responsive-item" :src="getImage(item.image)" alt="Preview Image">
+                        <img class="card-img-top embed-responsive-item" :src="item.image" alt="Preview Image">
                       </div>
                       <div class="card-body">
                         <router-link :to="{ name: 'guest.product.detail', params: { code: item.code } }" class="card-title m-0">{{ item.name }}</router-link>
@@ -268,7 +268,7 @@
                 <div class="col-12 col-md-6 col-lg-3" v-for="item in recommendation" :key="item.apriori_id">
                   <div class="card card-pricing border-0 mb-4">
                     <div class="embed-responsive embed-responsive-16by9">
-                      <img class="card-img-top embed-responsive-item" :src="getImage(item.image)" alt="Preview Image">
+                      <img class="card-img-top embed-responsive-item" :src="item.apriori_image" alt="Preview Image">
                     </div>
                     <div class="card-body pb-3">
                       <router-link :to="{ name: 'guest.product.recommendation', params: { code: item.apriori_code, id: item.apriori_id } }" class="text-dark d-none d-lg-block">
@@ -422,9 +422,6 @@ export default {
       });
 
       this.isLoading2 = false
-    },
-    getImage() {
-      return this.product.image
     },
     UpperWord(str) {
       return str.toLowerCase().replace(/\b[a-z]/g, function (letter) {

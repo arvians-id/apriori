@@ -33,7 +33,7 @@
                     <div class="row align-items-center">
                       <div class="col-auto">
                         <!-- Avatar -->
-                        <img alt="Image placeholder" :src="getImage(item.image)" class="avatar rounded-circle">
+                        <img alt="Image placeholder" :src="item.image" class="avatar rounded-circle">
                       </div>
                       <div class="col ml--2">
                         <div class="d-flex justify-content-between align-items-center">
@@ -52,7 +52,7 @@
                     <div class="row align-items-center">
                       <div class="col-auto">
                         <!-- Avatar -->
-                        <img alt="Image placeholder" :src="getImage(item.image)" class="avatar rounded-circle">
+                        <img alt="Image placeholder" :src="item.image" class="avatar rounded-circle">
                       </div>
                       <div class="col ml--2">
                         <div class="d-flex justify-content-between align-items-center">
@@ -184,9 +184,6 @@ export default {
     async fetchData() {
       let getRole = await getRoles();
       this.name = getRole.name
-    },
-    getImage(image) {
-      return image;
     }
   }
 }
