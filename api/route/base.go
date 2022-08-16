@@ -48,7 +48,7 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	transactionService := service.NewTransactionService(&transactionRepository, &productRepository, db)
 	aprioriService := service.NewAprioriService(&transactionRepository, storageService, &productRepository, &aprioriRepository, db)
 	paymentService := service.NewPaymentService(configuration, &paymentRepository, &userOrderRepository, &transactionRepository, db)
-	userOrderService := service.NewUserOrderService(&paymentRepository, &userOrderRepository, db)
+	userOrderService := service.NewUserOrderService(&paymentRepository, &userOrderRepository, &userRepository, db)
 	cacheService := service.NewCacheService(configuration)
 	categoryService := service.NewCategoryService(&categoryRepository, db)
 

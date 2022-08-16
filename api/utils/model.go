@@ -135,6 +135,21 @@ func ToUserOrderResponse(userOrder entity.UserOrder) model.GetUserOrderResponse 
 	}
 }
 
+func ToUserOrderRelationByUserIdResponse(userOrder entity.UserOrderRelationByUserId) model.GetUserOrderRelationByUserIdResponse {
+	return model.GetUserOrderRelationByUserIdResponse{
+		IdOrder:           userOrder.IdOrder,
+		PayloadId:         userOrder.PayloadId,
+		Code:              userOrder.Code,
+		Name:              userOrder.Name,
+		Price:             userOrder.Price,
+		Image:             userOrder.Image,
+		Quantity:          userOrder.Quantity,
+		TotalPriceItem:    userOrder.TotalPriceItem,
+		OrderId:           userOrder.OrderId,
+		TransactionStatus: userOrder.TransactionStatus,
+	}
+}
+
 func ToCategoryResponse(category entity.Category) model.GetCategoryResponse {
 	return model.GetCategoryResponse{
 		IdCategory: category.IdCategory,

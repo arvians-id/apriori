@@ -26,6 +26,30 @@
                         <button type="button" class="btn btn-primary btn-sm">+</button>
                       </div>
                     </div>
+                    <div class="card mt-4">
+                      <div class="card-body pt-0">
+                        <div class="d-flex align-items-center justify-content-center p-0 m-0 mt-3">
+                          <p>Star</p>
+                          <p class="text-center d-inline font-weight-bold ml-2" style="font-size: 68px">4.8</p>
+                          <p class="ml-1">/5.0</p>
+                        </div>
+                        <div class="text-center">
+                          <p class="font-weight-bold mb-1">94% pembeli merasa puas</p>
+                          <p>899 rating • 289 ulasan</p>
+                        </div>
+                        <p class="py-5">Star</p>
+                      </div>
+                    </div>
+                    <div class="card mt-4">
+                      <div class="card-body">
+                        <h3 class="card-title text-uppercase">Filter Ulasan</h3>
+                        <p class="mb-2 font-weight-bold">Rating</p>
+                        <p class="py-5">Star</p>
+                        <hr class="my-3">
+                        <p class="mb-2 font-weight-bold">Topik Ulasan</p>
+                        <p class="py-5">Star</p>
+                      </div>
+                    </div>
                   </div>
                   <div class="col-12 col-lg-6">
                     <div class="text-left">
@@ -67,27 +91,9 @@
                     </div>
                   </div>
                   <div class="col-12 col-lg-2">
-                    <h3 class="mb-0 mt-3">Produk yang serupa</h3>
+                    <h3 class="mb-0 mt-3">Produk terkait</h3>
                     <hr class="mb-3 p-0">
-                    <div class="card card-pricing border shadow-none">
-                      <div class="embed-responsive embed-responsive-16by9">
-                        <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
-                      </div>
-                      <div class="card-body">
-                        <p class="card-title m-0 mb-1">this is title of product</p>
-                        <p class="card-text p-0 m-0 w-50">pricing</p>
-                      </div>
-                    </div>
-                    <div class="card card-pricing border shadow-none">
-                      <div class="embed-responsive embed-responsive-16by9">
-                        <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
-                      </div>
-                      <div class="card-body">
-                        <p class="card-title m-0 mb-1">this is title of product</p>
-                        <p class="card-text p-0 m-0 w-50">pricing</p>
-                      </div>
-                    </div>
-                    <div class="card card-pricing border shadow-none">
+                    <div class="card card-pricing border shadow-none" v-for="item in 5" :key="item">
                       <div class="embed-responsive embed-responsive-16by9">
                         <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
                       </div>
@@ -215,7 +221,19 @@
                       </div>
                     </div>
                     <div class="card">
-                      <div class="card-body">
+                      <div class="card-body" v-if="isLoading3">
+                        <div class="loading-skeleton">
+                          <h3 class="card-title text-uppercase">Penilaian Produk</h3>
+                          <div class="media" v-for="item in 5" :key="item">
+                            <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/ryzy.jpg" width="59" class="mr-3" alt="...">
+                            <div class="media-body">
+                              <p class="mt-0 mb-0 w-50 mb-1">Title</p>
+                              <p class="py-5">Description</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="card-body" v-else>
                         <h3 class="card-title text-uppercase">Penilaian Produk</h3>
                         <ul class="list-unstyled">
                           <li class="media my-4" style="border-bottom: 1px solid #e9ecef">
@@ -251,7 +269,7 @@
                     </div>
                   </div>
                   <div class="col-12 col-lg-2">
-                    <h3 class="mb-0 mt-3 text-uppercase">Produk yang serupa</h3>
+                    <h3 class="mb-0 mt-3 text-uppercase">Produk terkait</h3>
                     <hr class="mb-3 p-0">
                     <div v-if="productSimilarCategory.length > 0">
                       <div class="card card-pricing border shadow-none" v-for="item in productSimilarCategory" :key="item.id_product">
@@ -443,6 +461,7 @@ export default {
       quantity: 0,
       isLoading: true,
       isLoading2: true,
+      isLoading3: true,
       categories: [],
     };
   },
@@ -493,6 +512,7 @@ export default {
       this.quantity = productItem ? productItem.quantity : 0;
 
       this.isLoading = false;
+      this.isLoading3 = false;
     },
     async fetchDataRecommendation() {
       await axios.get(`${process.env.VUE_APP_SERVICE_URL}/products/${this.$route.params.code}/recommendation`, { headers: authHeader() }).then((response) => {

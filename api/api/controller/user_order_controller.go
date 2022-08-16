@@ -5,6 +5,7 @@ import (
 	"apriori/api/response"
 	"apriori/model"
 	"apriori/service"
+	"apriori/utils"
 	"bytes"
 	"encoding/json"
 	"errors"
@@ -31,7 +32,9 @@ func (controller *UserOrderController) Route(router *gin.Engine) *gin.Engine {
 	authorized := router.Group("/api", middleware.AuthJwtMiddleware())
 	{
 		authorized.GET("/user-order", controller.FindAll)
+		authorized.GET("/user-order/user", controller.FindAllByUserId)
 		authorized.GET("/user-order/:order_id", controller.FindById)
+		authorized.GET("/user-order/:order_id/single", controller.FindOneById)
 	}
 
 	return router
@@ -76,6 +79,45 @@ func (controller *UserOrderController) FindAll(c *gin.Context) {
 	response.ReturnSuccessOK(c, "OK", payment)
 }
 
+func (controller *UserOrderController) FindAllByUserId(c *gin.Context) {
+	id, isExist := c.Get("id_user")
+	if !isExist {
+		response.ReturnErrorUnauthorized(c, errors.New("unauthorized"), nil)
+		return
+	}
+
+	key := fmt.Sprintf("user-order-rate-%v", int(id.(float64)))
+	userOrdersCache, err := controller.CacheService.Get(c, key)
+	if err == redis.Nil {
+		userOrders, err := controller.UserOrderService.FindAllByUserId(c.Request.Context(), int(id.(float64)))
+		if err != nil {
+			response.ReturnErrorInternalServerError(c, err, nil)
+			return
+		}
+
+		err = controller.CacheService.Set(c.Request.Context(), key, userOrders)
+		if err != nil {
+			response.ReturnErrorInternalServerError(c, err, nil)
+			return
+		}
+
+		response.ReturnSuccessOK(c, "OK", userOrders)
+		return
+	} else if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	var userOrders []model.GetUserOrderRelationByUserIdResponse
+	err = json.Unmarshal(bytes.NewBufferString(userOrdersCache).Bytes(), &userOrders)
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	response.ReturnSuccessOK(c, "OK", userOrders)
+}
+
 func (controller *UserOrderController) FindById(c *gin.Context) {
 	orderId := c.Param("order_id")
 
@@ -108,6 +150,18 @@ func (controller *UserOrderController) FindById(c *gin.Context) {
 
 	var userOrder []model.GetUserOrderResponse
 	err = json.Unmarshal(bytes.NewBufferString(userOrdersCache).Bytes(), &userOrder)
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	response.ReturnSuccessOK(c, "OK", userOrder)
+}
+
+func (controller *UserOrderController) FindOneById(c *gin.Context) {
+	orderId := c.Param("order_id")
+
+	userOrder, err := controller.UserOrderService.FindById(c.Request.Context(), utils.StrToInt(orderId))
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return

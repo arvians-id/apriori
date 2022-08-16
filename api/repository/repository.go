@@ -65,6 +65,8 @@ type TransactionRepository interface {
 
 type UserOrderRepository interface {
 	FindAll(ctx context.Context, tx *sql.Tx, payloadId string) ([]entity.UserOrder, error)
+	FindAllByUserId(ctx context.Context, tx *sql.Tx, userId int) ([]entity.UserOrderRelationByUserId, error)
+	FindById(ctx context.Context, tx *sql.Tx, orderId int) (entity.UserOrder, error)
 	Create(ctx context.Context, tx *sql.Tx, userOrder entity.UserOrder) error
 }
 

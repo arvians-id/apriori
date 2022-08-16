@@ -46,6 +46,12 @@
                 <span class="nav-link-text">History Order</span>
               </router-link>
             </li>
+            <li class="nav-item" v-if="isLoggedIn">
+              <router-link :class="getActiveNavLink('member.history')" :to="{ name: 'member.history' }">
+                <i class="ni ni-satisfied text-success"></i>
+                <span class="nav-link-text">Rate the Order</span>
+              </router-link>
+            </li>
           </ul>
           <template v-if="isLoggedIn">
             <!-- Divider -->

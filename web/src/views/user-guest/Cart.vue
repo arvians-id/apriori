@@ -144,14 +144,14 @@
                       <div>Total Pembayaran</div>
                       <div class="font-weight-bold">Rp {{ numberWithCommas(totalPrice) }}</div>
                     </div>
-                    <a href="javascript:void(0);" @click="clearCart" class="btn btn-danger btn-sm mt-2">Bersihkan keranjang</a>
+                    <a href="javascript:void(0);" @click="clearCart" class="btn btn-danger btn-sm mt-2">Bersihkan pemesanan</a>
                   </li>
                 </ul>
                 <ul class="list-group list-group-flush list my--3 mx--3" v-else>
                   <li class="list-group-item">
                     <div class="alert alert-secondary">
                       <h5 class="alert-heading">Oops!</h5>
-                      <p>Keranjang belanjaan masih kosong nih. <router-link :to="{ name: 'guest.product' }" >Beli produk disini!</router-link></p>
+                      <p>Pemesanan belanjaan masih kosong nih. <router-link :to="{ name: 'guest.product' }" >Beli produk disini!</router-link></p>
                     </div>
                   </li>
                 </ul>
