@@ -60,7 +60,7 @@
                       <div class="nav-wrapper">
                         <p class="pt-4 mb-0">this is button</p>
                       </div>
-                      <div class="card shadow">
+                      <div class="card">
                         <div class="card-body">
                           <div class="tab-content" id="skeleton-myTabContent">
                             <div class="tab-pane fade show active" id="skeleton-detail" role="tabpanel" aria-labelledby="detail-tab">
@@ -84,6 +84,18 @@
                               <p class="font-weight-bold mb-0 mt-2">Pengiriman</p>
                               <p class="mb-1"><i class="ni ni-pin-3"></i> Dikirim dari Tanggerang, Banten</p>
                               <p><i class="ni ni-delivery-fast"></i> Tersedia pengiriman dengan TIKI, JNE dan POS Indonesia</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      <div class="card">
+                        <div class="card-body">
+                          <h3 class="card-title text-uppercase">Penilaian Produk</h3>
+                          <div class="media" v-for="item in 5" :key="item">
+                            <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/ryzy.jpg" width="59" class="mr-3" alt="...">
+                            <div class="media-body">
+                              <p class="mt-0 mb-0 w-50 mb-1">Title</p>
+                              <p class="py-5">Description</p>
                             </div>
                           </div>
                         </div>
@@ -221,19 +233,7 @@
                       </div>
                     </div>
                     <div class="card">
-                      <div class="card-body" v-if="isLoading3">
-                        <div class="loading-skeleton">
-                          <h3 class="card-title text-uppercase">Penilaian Produk</h3>
-                          <div class="media" v-for="item in 5" :key="item">
-                            <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/ryzy.jpg" width="59" class="mr-3" alt="...">
-                            <div class="media-body">
-                              <p class="mt-0 mb-0 w-50 mb-1">Title</p>
-                              <p class="py-5">Description</p>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                      <div class="card-body" v-else>
+                      <div class="card-body">
                         <h3 class="card-title text-uppercase">Penilaian Produk</h3>
                         <ul class="list-unstyled" v-if="comments.length > 0">
                           <li class="media my-4" style="border-bottom: 1px solid #e9ecef" v-for="item in comments" :key="item.id_comment">
@@ -453,7 +453,6 @@ export default {
       quantity: 0,
       isLoading: true,
       isLoading2: true,
-      isLoading3: true,
       categories: [],
       allComments: [],
       comments: [],
@@ -524,7 +523,6 @@ export default {
       this.quantity = productItem ? productItem.quantity : 0;
 
       this.isLoading = false;
-      this.isLoading3 = false;
     },
     async fetchDataRecommendation() {
       await axios.get(`${process.env.VUE_APP_SERVICE_URL}/products/${this.$route.params.code}/recommendation`, { headers: authHeader() }).then((response) => {
