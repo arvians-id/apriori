@@ -38,12 +38,12 @@ func (controller *ProductController) Route(router *gin.Engine) *gin.Engine {
 		authorized.DELETE("/products/:code", controller.Delete)
 	}
 
-	notAuthorized := router.Group("/api")
+	unauthorized := router.Group("/api")
 	{
-		notAuthorized.GET("/products", controller.FindAll)
-		notAuthorized.GET("/products/:code/category", controller.FindAllSimilarCategory)
-		notAuthorized.GET("/products/:code/recommendation", controller.FindAllRecommendation)
-		notAuthorized.GET("/products/:code", controller.FindById)
+		unauthorized.GET("/products", controller.FindAll)
+		unauthorized.GET("/products/:code/category", controller.FindAllSimilarCategory)
+		unauthorized.GET("/products/:code/recommendation", controller.FindAllRecommendation)
+		unauthorized.GET("/products/:code", controller.FindById)
 	}
 
 	return router

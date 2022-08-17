@@ -39,14 +39,14 @@ func (controller *AuthController) Route(router *gin.Engine) *gin.Engine {
 		authorized.GET("/token", controller.Token)
 	}
 
-	notAuthorized := router.Group("/api/auth")
+	unauthorized := router.Group("/api/auth")
 	{
-		notAuthorized.POST("/login", controller.Login)
-		notAuthorized.POST("/refresh", controller.Refresh)
-		notAuthorized.POST("/forgot-password", controller.ForgotPassword)
-		notAuthorized.POST("/verify", controller.VerifyResetPassword)
-		notAuthorized.POST("/register", controller.Register)
-		notAuthorized.DELETE("/logout", controller.Logout)
+		unauthorized.POST("/login", controller.Login)
+		unauthorized.POST("/refresh", controller.Refresh)
+		unauthorized.POST("/forgot-password", controller.ForgotPassword)
+		unauthorized.POST("/verify", controller.VerifyResetPassword)
+		unauthorized.POST("/register", controller.Register)
+		unauthorized.DELETE("/logout", controller.Logout)
 	}
 
 	return router

@@ -34,9 +34,9 @@ func (controller *categoryController) Route(router *gin.Engine) *gin.Engine {
 		authorized.DELETE("/categories/:id", controller.Delete)
 	}
 
-	notAuthorized := router.Group("/api")
+	unauthorized := router.Group("/api")
 	{
-		notAuthorized.GET("/categories", controller.FindAll)
+		unauthorized.GET("/categories", controller.FindAll)
 	}
 
 	return router
@@ -135,6 +135,6 @@ func (controller *categoryController) Delete(c *gin.Context) {
 
 	// delete previous cache
 	_ = controller.CacheService.Del(c.Request.Context(), fmt.Sprintf("categories"))
-	
+
 	response.ReturnSuccessOK(c, "OK", nil)
 }

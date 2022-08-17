@@ -20,30 +20,51 @@
               </div>
               <!-- Card body -->
               <div class="card-body">
-                <h3 class="font-weight-bold text-center">Penilaian produk untuk : {{ order.name }}</h3>
-                <form @submit.prevent="submit" method="POST">
-                  <div class="form-group rating">
-                    <input type="radio" name="rating" v-model="comment.rating" value="5" id="5" required><label for="5">☆</label>
-                    <input type="radio" name="rating" v-model="comment.rating" value="4" id="4" required><label for="4">☆</label>
-                    <input type="radio" name="rating" v-model="comment.rating" value="3" id="3" required><label for="3">☆</label>
-                    <input type="radio" name="rating" v-model="comment.rating" value="2" id="2" required><label for="2">☆</label>
-                    <input type="radio" name="rating" v-model="comment.rating" value="1" id="1" required><label for="1">☆</label>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-control-label">Tag</label>
-                    <select class="form-control" v-model="comment.tag" multiple>
-                      <option value="1">Kualitas Barang</option>
-                      <option value="2">Pelayanan Penjual</option>
-                      <option value="3">Harga Barang</option>
-                      <option value="4">Pengiriman</option>
-                    </select>
-                  </div>
-                  <div class="form-group">
-                    <label class="form-control-label">Komentar</label>
-                    <textarea type="text" class="form-control" v-model="comment.name" rows="5"></textarea>
-                  </div>
-                  <button class="btn btn-primary" type="submit">Submit form</button>
-                </form>
+                <div class="loading-skeleton" v-if="isLoading">
+                  <h3 class="font-weight-bold text-center" v-if="isExists == false">Penilaian produk untuk : {{ order.name }}</h3>
+                  <h3 class="font-weight-bold text-center" v-else>Anda sudah memberi nilai pada produk ini</h3>
+                  <form @submit.prevent="submit" method="POST">
+                    <div class="form-group rating">
+                      <p style="padding-bottom: 130px; padding-left: 500px">This is for rating</p>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-control-label">this is label for input</label>
+                      <p style="padding-bottom: 70px; padding-left: 500px">This is for rating</p>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-control-label">this is label for input</label>
+                      <p style="padding-bottom: 110px; padding-left: 500px">This is for rating</p>
+                    </div>
+                    <button class="btn btn-primary" type="submit" :disabled="isExists">Submit form</button>
+                  </form>
+                </div>
+                <div v-else>
+                  <h3 class="font-weight-bold text-center" v-if="isExists == false">Penilaian produk untuk : {{ order.name }}</h3>
+                  <h3 class="font-weight-bold text-center" v-else>Anda sudah memberi nilai pada produk ini</h3>
+                  <form @submit.prevent="submit" method="POST">
+                    <div class="form-group rating">
+                      <input type="radio" name="rating" v-model="comment.rating" value="5" id="5" required><label for="5">☆</label>
+                      <input type="radio" name="rating" v-model="comment.rating" value="4" id="4" required><label for="4">☆</label>
+                      <input type="radio" name="rating" v-model="comment.rating" value="3" id="3" required><label for="3">☆</label>
+                      <input type="radio" name="rating" v-model="comment.rating" value="2" id="2" required><label for="2">☆</label>
+                      <input type="radio" name="rating" v-model="comment.rating" value="1" id="1" required><label for="1">☆</label>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-control-label">Tag</label>
+                      <select class="form-control" v-model="comment.tag" name="tag" multiple>
+                        <option value="Kualitas Barang">Kualitas Barang</option>
+                        <option value="Pelayanan Penjual">Pelayanan Penjual</option>
+                        <option value="Harga Barang">Harga Barang</option>
+                        <option value="Pengiriman">Pengiriman</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-control-label">Komentar</label>
+                      <textarea type="text" class="form-control" name="description" v-model="comment.description" rows="5"></textarea>
+                    </div>
+                    <button class="btn btn-primary" type="submit" :disabled="isExists">Submit form</button>
+                  </form>
+                </div>
               </div>
             </div>
           </div>
@@ -56,10 +77,8 @@
 </template>
 
 <style scoped>
-.card-img-top {
-  width: 100%;
-  object-fit: cover;
-}
+@import '../../assets/skeleton.css';
+
 .rating {
   display: flex;
   flex-direction: row-reverse;
@@ -125,38 +144,69 @@ export default {
   },
   mounted() {
     this.fetchData()
+    this.fetchOrder()
   },
   data: function () {
     return {
       comment: {
+        user_order_id: parseInt(this.$route.params.id_order),
+        product_code: "",
         description: "",
-        rating: "",
-        tag: "",
+        rating: 0,
+        tag: [],
       },
-      order: []
+      order: [],
+      isExists: false,
+      isLoading: true,
     };
   },
   methods: {
-    fetchData(){
-      axios.get(`${process.env.VUE_APP_SERVICE_URL}/user-order/${this.$route.params.id_order}/single`, { headers: authHeader() })
+    async fetchData(){
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/user-order/${this.$route.params.id_order}/single`, { headers: authHeader() })
           .then(response => {
             this.order = response.data.data;
           }).catch(error => {
             console.log(error.response.data.status)
           })
     },
+    async fetchOrder(){
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/comments/user-order/${this.$route.params.id_order}`, { headers: authHeader() })
+          .then(response => {
+            if(response.data.data != null){
+              this.comment = {
+                user_order_id: response.data.data.user_order_id,
+                product_code: response.data.data.product_code,
+                description: response.data.data.description,
+                rating: response.data.data.rating,
+                tag: response.data.data.tag.split(', '),
+              };
+              this.isExists = true;
+            }
+          }).catch(error => {
+            console.log(error)
+          })
+
+      this.isLoading = false
+    },
     submit() {
-      // axios.post(`${process.env.VUE_APP_SERVICE_URL}/categories`, this.rateOrder, { headers: authHeader() })
-      //     .then(response => {
-      //       if(response.data.code === 200) {
-      //         alert(response.data.status)
-      //         this.$router.push({
-      //           name: 'category'
-      //         })
-      //       }
-      //     }).catch(error => {
-      //   console.log(error.response.data.status)
-      // })
+      this.comment.product_code = this.order.code
+      if (this.comment.tag.length > 0) {
+        let tag = this.comment.tag
+        this.comment.tag = tag.join(", ")
+      }
+      this.comment.rating = parseInt(this.comment.rating)
+
+      axios.post(`${process.env.VUE_APP_SERVICE_URL}/comments`, this.comment, { headers: authHeader() })
+          .then(response => {
+            if(response.data.code === 200) {
+              alert(response.data.status)
+              this.$router.push({
+                name: 'member.history'
+              })
+            }
+          }).catch(error => {
+            console.log(error.response.data.status)
+          })
     }
   }
 }

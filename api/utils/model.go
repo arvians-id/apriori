@@ -158,3 +158,17 @@ func ToCategoryResponse(category entity.Category) model.GetCategoryResponse {
 		UpdatedAt:  category.UpdatedAt.String(),
 	}
 }
+
+func ToCommentResponse(comment entity.Comment) model.GetCommentResponse {
+	return model.GetCommentResponse{
+		IdComment:   comment.IdComment,
+		UserOrderId: comment.UserOrderId,
+		ProductCode: comment.ProductCode,
+		Description: comment.Description.String,
+		Tag:         comment.Tag.String,
+		Rating:      comment.Rating,
+		CreatedAt:   comment.CreatedAt.String(),
+		UserId:      comment.UserId,
+		UserName:    comment.UserName,
+	}
+}

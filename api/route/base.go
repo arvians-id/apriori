@@ -36,6 +36,7 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	paymentRepository := repository.NewPaymentRepository()
 	userOrderRepository := repository.NewUserOrderRepository()
 	categoryRepository := repository.NewCategoryRepository()
+	commentRepository := repository.NewCommentRepository()
 
 	// Setup Service
 	storageService := service.NewStorageService(configuration)
@@ -51,6 +52,7 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	userOrderService := service.NewUserOrderService(&paymentRepository, &userOrderRepository, &userRepository, db)
 	cacheService := service.NewCacheService(configuration)
 	categoryService := service.NewCategoryService(&categoryRepository, db)
+	commentService := service.NewCommentService(&commentRepository, &productRepository, db)
 
 	// Setup Controller
 	userController := controller.NewUserController(&userService)
@@ -61,6 +63,7 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	paymentController := controller.NewPaymentController(&paymentService, &userOrderService, emailService, &cacheService)
 	userOrderController := controller.NewUserOrderController(&paymentService, &userOrderService, &cacheService)
 	categoryController := controller.NewCategoryController(&categoryService, &cacheService)
+	commentController := controller.NewCommentController(&commentService)
 	rajaOngkirController := controller.NewRajaOngkirController()
 
 	// CORS Middleware
@@ -93,6 +96,7 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	aprioriController.Route(router)
 	userOrderController.Route(router)
 	categoryController.Route(router)
+	commentController.Route(router)
 	rajaOngkirController.Route(router)
 
 	return router, db

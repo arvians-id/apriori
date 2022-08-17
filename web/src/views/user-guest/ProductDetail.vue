@@ -235,36 +235,28 @@
                       </div>
                       <div class="card-body" v-else>
                         <h3 class="card-title text-uppercase">Penilaian Produk</h3>
-                        <ul class="list-unstyled">
-                          <li class="media my-4" style="border-bottom: 1px solid #e9ecef">
-                            <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/ryzy.jpg" width="53" class="mr-3" alt="...">
+                        <ul class="list-unstyled" v-if="comments.length > 0">
+                          <li class="media my-4" style="border-bottom: 1px solid #e9ecef" v-for="item in comments" :key="item.id_comment">
+                            <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/user.png" width="53" class="mr-3" alt="...">
                             <div class="media-body">
-                              <h4 class="mt-0 mb-1">List-based media object | <small>2022-07-21 14:41</small></h4>
+                              <h4 class="mt-0 mb-0">{{ item.user_name }}</h4>
+                              <small>{{ item.created_at }}</small>
                               <div class="mb-2">
-                                <i class="fas fa-star text-warning"></i>
-                                <i class="fas fa-star text-warning"></i>
-                                <i class="fas fa-star text-warning"></i>
-                                <i class="fas fa-star text-warning"></i>
-                                <i class="fas fa-star text-warning"></i>
+                                <i class="fas fa-star text-warning" v-for="itemRating in item.rating" :key="itemRating"></i>
                               </div>
-                              <p>All my girls vintage Chanel baby. So you can have your cake. Tonight, tonight, tonight, I'm walking on air. Slowly swallowing down my fear, yeah yeah. Growing fast into a bolt of lightning. So hot and heavy, 'Til dawn. That fairy tale ending with a knight in shining armor. Heavy is the head that wears the crown.</p>
-                            </div>
-                          </li>
-                          <li class="media my-4" style="border-bottom: 1px solid #e9ecef">
-                            <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/ryzy.jpg" width="53" class="mr-3" alt="...">
-                            <div class="media-body">
-                              <h4 class="mt-0 mb-1">List-based media object | <small>2022-07-21 14:41</small></h4>
-                              <div class="mb-2">
-                                <i class="fas fa-star text-warning"></i>
-                                <i class="fas fa-star text-warning"></i>
-                                <i class="fas fa-star text-warning"></i>
-                                <i class="fas fa-star text-warning"></i>
-                                <i class="fas fa-star text-warning"></i>
-                              </div>
-                              <p>All my girls vintage Chanel baby. So you can have your cake. Tonight, tonight, tonight, I'm walking on air. Slowly swallowing down my fear, yeah yeah. Growing fast into a bolt of lightning. So hot and heavy, 'Til dawn. That fairy tale ending with a knight in shining armor. Heavy is the head that wears the crown.</p>
+                              <p>{{ item.description }}</p>
                             </div>
                           </li>
                         </ul>
+                        <div v-else>
+                          <div class="alert alert-secondary mt-3">
+                            <h5 class="alert-heading">Oops!</h5>
+                            <p>Tidak ada penilaian.</p>
+                          </div>
+                        </div>
+                        <button @click="loadMore()" v-if="comments.length !== this.totalData" class="btn btn-secondary d-block mx-auto px-5">
+                          Lihat lainnya <i class="ni ni-bold-down"></i>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -463,6 +455,10 @@ export default {
       isLoading2: true,
       isLoading3: true,
       categories: [],
+      allComments: [],
+      comments: [],
+      limitData: 4,
+      totalData: 0
     };
   },
   methods: {
@@ -471,7 +467,23 @@ export default {
       this.fetchData()
       this.fetchDataRecommendation()
       this.fetchSimilarCategory()
+      this.fetchComments()
       document.getElementsByTagName("body")[0].classList.remove("bg-default");
+    },
+    async fetchComments(){
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/comments/product/${this.$route.params.code}`, { headers: authHeader() }).then(response => {
+        if(response.data.data != null) {
+          this.totalData = response.data.data.length
+          this.allComments = response.data.data
+          this.comments = response.data.data.slice(0, this.limitData)
+        }else {
+          this.totalData = 0
+          this.allComments = []
+          this.comments = []
+        }
+      }).catch(error => {
+        console.log(error)
+      })
     },
     async fetchCategories(){
       await axios.get(`${process.env.VUE_APP_SERVICE_URL}/categories`, { headers: authHeader() })
@@ -571,7 +583,10 @@ export default {
         }
         localStorage.setItem('my-carts', JSON.stringify(this.carts));
       }
-    }
+    },
+    loadMore(){
+      this.comments = this.allComments.slice(0, this.limitData += 4);
+    },
   }
 }
 </script>

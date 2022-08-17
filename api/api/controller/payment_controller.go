@@ -36,11 +36,11 @@ func (controller *PaymentController) Route(router *gin.Engine) *gin.Engine {
 		authorized.PATCH("/payments/:order_id", controller.AddReceiptNumber)
 	}
 
-	notAuthorized := router.Group("/api")
+	unauthorized := router.Group("/api")
 	{
-		notAuthorized.POST("/payments/pay", controller.Pay)
-		notAuthorized.POST("/payments/notification", controller.Notification)
-		notAuthorized.DELETE("/payments/:order_id", controller.Delete)
+		unauthorized.POST("/payments/pay", controller.Pay)
+		unauthorized.POST("/payments/notification", controller.Notification)
+		unauthorized.DELETE("/payments/:order_id", controller.Delete)
 	}
 
 	return router
