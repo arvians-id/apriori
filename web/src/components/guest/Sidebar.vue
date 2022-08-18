@@ -61,7 +61,7 @@
             <!-- Navigation -->
             <ul class="navbar-nav mb-md-3">
               <li class="nav-item">
-                <router-link class="nav-link" :to="route">
+                <router-link :class="getActiveNavLink('member.profile')" :to="route">
                   <i class="ni ni-single-02"></i>
                   <span class="nav-link-text">My Account</span>
                 </router-link>

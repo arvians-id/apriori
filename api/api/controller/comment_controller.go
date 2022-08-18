@@ -38,7 +38,9 @@ func (controller *commentController) Route(router *gin.Engine) *gin.Engine {
 
 func (controller *commentController) FindAllByProductCode(c *gin.Context) {
 	productCode := c.Param("product_code")
-	comments, err := controller.CommentService.FindAllByProductCode(c.Request.Context(), productCode)
+	tags := c.Query("tags")
+	rating := c.Query("rating")
+	comments, err := controller.CommentService.FindAllByProductCode(c.Request.Context(), productCode, rating, tags)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return

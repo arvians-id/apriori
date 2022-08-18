@@ -7,11 +7,12 @@ import (
 	"apriori/utils"
 	"context"
 	"database/sql"
+	"strings"
 	"time"
 )
 
 type CommentService interface {
-	FindAllByProductCode(ctx context.Context, productCode string) ([]model.GetCommentResponse, error)
+	FindAllByProductCode(ctx context.Context, productCode string, rating string, tags string) ([]model.GetCommentResponse, error)
 	FindById(ctx context.Context, id int) (model.GetCommentResponse, error)
 	FindByUserOrderId(ctx context.Context, userOrderId int) (model.GetCommentResponse, error)
 	Create(ctx context.Context, request model.CreateCommentRequest) (model.GetCommentResponse, error)
@@ -34,7 +35,7 @@ func NewCommentService(commentRepository *repository.CommentRepository, productR
 	}
 }
 
-func (service *commentService) FindAllByProductCode(ctx context.Context, productCode string) ([]model.GetCommentResponse, error) {
+func (service *commentService) FindAllByProductCode(ctx context.Context, productCode string, rating string, tags string) ([]model.GetCommentResponse, error) {
 	tx, err := service.db.Begin()
 	if err != nil {
 		return nil, err
@@ -46,7 +47,9 @@ func (service *commentService) FindAllByProductCode(ctx context.Context, product
 		return nil, err
 	}
 
-	comments, err := service.CommentRepository.FindAllByProductCode(ctx, tx, product.Code)
+	tagArray := strings.Split(tags, ",")
+	tag := strings.Join(tagArray, "|")
+	comments, err := service.CommentRepository.FindAllByProductCode(ctx, tx, product.Code, rating, tag)
 	if err != nil {
 		return nil, err
 	}

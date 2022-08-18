@@ -15,15 +15,15 @@ func NewCommentRepository() repository.CommentRepository {
 	return &commentRepository{}
 }
 
-func (c *commentRepository) FindAllByProductCode(ctx context.Context, tx *sql.Tx, productCode string) ([]entity.Comment, error) {
+func (c *commentRepository) FindAllByProductCode(ctx context.Context, tx *sql.Tx, productCode string, rating string, tags string) ([]entity.Comment, error) {
 	query := `SELECT c.*,u.id_user,u.name 
 			  FROM comments c 
 				LEFT JOIN user_orders uo ON uo.id_order = c.user_order_id 
 				LEFT JOIN payloads p ON p.id_payload = uo.payload_id 
 				LEFT JOIN users u ON u.id_user = p.user_id 
-			  WHERE c.product_code = $1 
+			  WHERE c.product_code = $1 AND CAST(c.rating as TEXT) LIKE $2 AND c.tag SIMILAR TO $3
 			  ORDER BY c.created_at DESC`
-	queryContext, err := tx.QueryContext(ctx, query, productCode)
+	queryContext, err := tx.QueryContext(ctx, query, productCode, "%"+rating+"%", "%("+tags+")%")
 	if err != nil {
 		return nil, err
 	}

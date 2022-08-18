@@ -170,19 +170,19 @@
                         <h3 class="card-title text-uppercase">Filter Ulasan</h3>
                         <p class="mb-2 font-weight-bold">Rating</p>
                         <div class="form-check mb-2" v-for="item in 5" :key="item">
-                          <input class="form-check-input" type="checkbox" value="" id="defaultCheck1">
-                          <label class="form-check-label" for="defaultCheck1">
+                          <input class="form-check-input" type="radio" :value="5 - item + 1" v-model="filter.rating" :id="'radio-' +item" @change="filterComment">
+                          <label class="form-check-label" :for="'radio-' +item">
                             <i class="fas fa-star text-warning"></i> {{ 5 - item + 1 }}
                           </label>
                         </div>
                         <hr class="my-3">
                         <p class="mb-2 font-weight-bold">Topik Ulasan</p>
-                        <div class="form-check mb-2" v-for="item in 5" :key="item">
-                          <input class="form-check-input" type="checkbox" value="" id="defaultCheck2">
-                          <label class="form-check-label" for="defaultCheck1">
-                            Pelayanan Penjual
-                          </label>
-                        </div>
+                          <div class="form-check mb-2" v-for="(item, i) in ['Kualitas Barang', 'Pelayanan Penjual', 'Harga Barang', 'Pengiriman']" :key="i">
+                            <input class="form-check-input" type="checkbox" v-model="filter.tags" :value="item" :id="'checkbox-' + i" @change="filterComment">
+                            <label class="form-check-label" :for="'checkbox-' + i">
+                              {{ item }}
+                            </label>
+                          </div>
                       </div>
                     </div>
                   </div>
@@ -253,6 +253,9 @@
                               <div class="mb-2">
                                 <i class="fas fa-star text-warning" v-for="itemRating in item.rating" :key="itemRating"></i>
                               </div>
+                              <template v-if="item.tag !== undefined">
+                                <button class="btn btn-dark btn-sm disabled mb-2" v-for="(item, i) in item.tag.split(',')" :key="i">{{ item }}</button>
+                              </template>
                               <p>{{ item.description }}</p>
                             </div>
                           </li>
@@ -471,6 +474,10 @@ export default {
       ratings: [],
       totalRatings: 0,
       satisfactionRating: 0,
+      filter: {
+        tags: [],
+        rating: ''
+      }
     };
   },
   methods: {
@@ -483,6 +490,36 @@ export default {
       this.fetchRatings()
       document.getElementsByTagName("body")[0].classList.remove("bg-default");
     },
+    async filterComment(){
+      let tag = this.filter.tags.join(",")
+      let rating = this.filter.rating
+      let filter = ""
+      if(tag !== "") {
+        filter = "?tags=" + tag
+        if (rating !== "") {
+          filter += "&rating="+rating
+        }
+      } else if (rating !== "") {
+        filter = "?rating=" + rating
+        if (tag !== "") {
+          filter += "&tags="+tag
+        }
+      }
+
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/comments/product/${this.$route.params.code}${filter}`, { headers: authHeader() }).then(response => {
+        if(response.data.data != null) {
+          this.totalData = response.data.data.length
+          this.allComments = response.data.data
+          this.comments = response.data.data.slice(0, this.limitData)
+        }else {
+          this.totalData = 0
+          this.allComments = []
+          this.comments = []
+        }
+      }).catch(error => {
+        console.log(error)
+      })
+    },
     async fetchRatings(){
       await axios.get(`${process.env.VUE_APP_SERVICE_URL}/comments/rating/${this.$route.params.code}`, { headers: authHeader() }).then(response => {
         if(response.data.data != null) {
@@ -490,6 +527,11 @@ export default {
           this.totalRatings = response.data.data.reduce((a, b) => a + b.result_rating / b.rating, 0)
           this.mainRatings = response.data.data.reduce((a, b) => a + b.result_rating , 0) / this.totalRatings
           this.satisfactionRating = this.ratings.filter(x => x.rating >= 4).reduce((a, b) => a + (b.result_rating / b.rating) , 0) / this.totalRatings * 100
+        } else {
+          this.ratings = []
+          this.totalRatings = 0
+          this.mainRatings = 0
+          this.satisfactionRating = 0
         }
       }).catch(error => {
         console.log(error)

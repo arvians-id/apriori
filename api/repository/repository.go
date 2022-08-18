@@ -89,7 +89,7 @@ type CategoryRepository interface {
 }
 
 type CommentRepository interface {
-	FindAllByProductCode(ctx context.Context, tx *sql.Tx, productCode string) ([]entity.Comment, error)
+	FindAllByProductCode(ctx context.Context, tx *sql.Tx, productCode string, rating string, tags string) ([]entity.Comment, error)
 	FindById(ctx context.Context, tx *sql.Tx, commentId int) (entity.Comment, error)
 	FindByUserOrderId(ctx context.Context, tx *sql.Tx, userOrderId int) (entity.Comment, error)
 	Create(ctx context.Context, tx *sql.Tx, comment entity.Comment) (entity.Comment, error)

@@ -133,7 +133,8 @@ func (controller *PaymentController) Notification(c *gin.Context) {
 	// delete previous cache
 	key := fmt.Sprintf("user-order-id-%v", utils.StrToInt(resArray["custom_field2"].(string)))
 	key2 := fmt.Sprintf("user-order-payment-%v", utils.StrToInt(resArray["custom_field1"].(string)))
-	_ = controller.CacheService.Del(c.Request.Context(), key, key2)
+	key3 := fmt.Sprintf("user-order-rate-%v", utils.StrToInt(resArray["custom_field1"].(string)))
+	_ = controller.CacheService.Del(c.Request.Context(), key, key2, key3)
 
 	response.ReturnSuccessOK(c, "OK", nil)
 }
