@@ -28,6 +28,7 @@ func (controller *commentController) Route(router *gin.Engine) *gin.Engine {
 	unauthorized := router.Group("/api")
 	{
 		unauthorized.GET("/comments/:comment_id", controller.FindById)
+		unauthorized.GET("/comments/rating/:product_code", controller.GetRatingByProductCode)
 		unauthorized.GET("/comments/product/:product_code", controller.FindAllByProductCode)
 		unauthorized.GET("/comments/user-order/:user_order_id", controller.FindByUserOrderId)
 	}
@@ -82,4 +83,15 @@ func (controller *commentController) Create(c *gin.Context) {
 	}
 
 	response.ReturnSuccessOK(c, "OK", comment)
+}
+
+func (controller *commentController) GetRatingByProductCode(c *gin.Context) {
+	productCode := c.Param("product_code")
+	comments, err := controller.CommentService.GetRatingByProductCode(c.Request.Context(), productCode)
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	response.ReturnSuccessOK(c, "OK", comments)
 }

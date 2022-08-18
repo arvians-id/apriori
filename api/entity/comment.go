@@ -16,3 +16,9 @@ type Comment struct {
 	UserId      int
 	UserName    string
 }
+
+type RatingFromComment struct {
+	Rating        int
+	ResultRating  int
+	ResultComment int
+}

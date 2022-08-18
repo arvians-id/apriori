@@ -15,6 +15,7 @@ type CommentService interface {
 	FindById(ctx context.Context, id int) (model.GetCommentResponse, error)
 	FindByUserOrderId(ctx context.Context, userOrderId int) (model.GetCommentResponse, error)
 	Create(ctx context.Context, request model.CreateCommentRequest) (model.GetCommentResponse, error)
+	GetRatingByProductCode(ctx context.Context, productCode string) ([]model.GetRatingResponse, error)
 }
 
 type commentService struct {
@@ -121,4 +122,29 @@ func (service *commentService) Create(ctx context.Context, request model.CreateC
 	}
 
 	return utils.ToCommentResponse(comments), nil
+}
+
+func (service *commentService) GetRatingByProductCode(ctx context.Context, productCode string) ([]model.GetRatingResponse, error) {
+	tx, err := service.db.Begin()
+	if err != nil {
+		return nil, err
+	}
+	defer utils.CommitOrRollback(tx)
+
+	product, err := service.ProductRepository.FindByCode(ctx, tx, productCode)
+	if err != nil {
+		return nil, err
+	}
+
+	ratings, err := service.CommentRepository.GetRatingByProductCode(ctx, tx, product.Code)
+	if err != nil {
+		return nil, err
+	}
+
+	var ratingResponses []model.GetRatingResponse
+	for _, comment := range ratings {
+		ratingResponses = append(ratingResponses, utils.ToRatingResponse(comment))
+	}
+
+	return ratingResponses, nil
 }

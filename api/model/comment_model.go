@@ -22,3 +22,9 @@ type CreateCommentRequest struct {
 	UserId      int    `json:"user_id,omitempty"`
 	UserName    string `json:"user_name"`
 }
+
+type GetRatingResponse struct {
+	Rating        int `json:"rating"`
+	ResultRating  int `json:"result_rating"`
+	ResultComment int `json:"result_comment"`
+}

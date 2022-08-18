@@ -150,3 +150,33 @@ func (c *commentRepository) Create(ctx context.Context, tx *sql.Tx, comment enti
 
 	return comment, nil
 }
+
+func (c *commentRepository) GetRatingByProductCode(ctx context.Context, tx *sql.Tx, productCode string) ([]entity.RatingFromComment, error) {
+	query := `SELECT rating, rating * COUNT(rating) as result_rating, SUM(CASE WHEN description != '' THEN 1 ELSE 0 END) as result_comment FROM comments WHERE product_code = $1 GROUP BY rating ORDER BY rating DESC`
+	queryContext, err := tx.QueryContext(ctx, query, productCode)
+	if err != nil {
+		return nil, err
+	}
+	defer func(queryContext *sql.Rows) {
+		err := queryContext.Close()
+		if err != nil {
+			return
+		}
+	}(queryContext)
+
+	var ratings []entity.RatingFromComment
+	for queryContext.Next() {
+		var rating entity.RatingFromComment
+		err := queryContext.Scan(
+			&rating.Rating,
+			&rating.ResultRating,
+			&rating.ResultComment,
+		)
+		if err != nil {
+			return nil, err
+		}
+		ratings = append(ratings, rating)
+	}
+
+	return ratings, nil
+}

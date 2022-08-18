@@ -130,15 +130,15 @@
                       </div>
                     </div>
                     <div class="card mt-4">
-                      <div class="card-body pt-0">
+                      <div class="card-body pt-0" v-if="mainRatings > 0">
                         <div class="d-flex align-items-center justify-content-center p-0 m-0">
                           <i class="fas fa-star text-warning fa-lg"></i>
-                          <p class="text-center d-inline font-weight-bold ml-2" style="font-size: 68px">4.8</p>
+                          <p class="text-center d-inline font-weight-bold ml-2" style="font-size: 68px">{{ mainRatings.toFixed(1) }}</p>
                           <p class="ml-1" style="padding-top: 38px">/5.0</p>
                         </div>
                         <div class="text-center">
-                          <p class="font-weight-bold mb-1">94% pembeli merasa puas</p>
-                          <p>899 rating • 289 ulasan</p>
+                          <p class="font-weight-bold mb-1">{{ satisfactionRating.toFixed() }}% pembeli merasa puas</p>
+                          <p>{{ totalRatings }} rating • {{ ratings.reduce((a, b) => a + b.result_comment, 0) }} ulasan</p>
                         </div>
                         <div class="row d-flex align-items-center" v-for="item in 5" :key="item">
                           <div class="col-4 text-right">
@@ -147,13 +147,22 @@
                           </div>
                           <div class="col-6">
                             <div class="progress mb-0">
-                              <div class="progress-bar bg-orange" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 60%;"></div>
+                              <div
+                                  class="progress-bar bg-orange"
+                                  role="progressbar"
+                                  aria-valuenow=""
+                                  aria-valuemin="0"
+                                  aria-valuemax="100"
+                                  :style="`width: ${ratings.filter(x => x.rating === 5 - item + 1).length > 0 ? (ratings.filter(x => x.rating === 5 - item + 1)[0].result_rating / (5 - item + 1)) / totalRatings * 100 : 0}%;`"></div>
                             </div>
                           </div>
                           <div class="col-2 px-0">
-                            342
+                            {{ ratings.filter(x => x.rating === 5 - item + 1).length > 0 ? ratings.filter(x => x.rating === 5 - item + 1)[0].result_rating / (5 - item + 1) : 0 }}
                           </div>
                         </div>
+                      </div>
+                      <div class="card-body pt-0" v-else>
+                        <p class="mt-4 font-weight-bold text-center mb-0">Produk ini belum memiliki rating</p>
                       </div>
                     </div>
                     <div class="card mt-4">
@@ -457,7 +466,11 @@ export default {
       allComments: [],
       comments: [],
       limitData: 4,
-      totalData: 0
+      totalData: 0,
+      mainRatings: 0,
+      ratings: [],
+      totalRatings: 0,
+      satisfactionRating: 0,
     };
   },
   methods: {
@@ -467,7 +480,20 @@ export default {
       this.fetchDataRecommendation()
       this.fetchSimilarCategory()
       this.fetchComments()
+      this.fetchRatings()
       document.getElementsByTagName("body")[0].classList.remove("bg-default");
+    },
+    async fetchRatings(){
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/comments/rating/${this.$route.params.code}`, { headers: authHeader() }).then(response => {
+        if(response.data.data != null) {
+          this.ratings = response.data.data
+          this.totalRatings = response.data.data.reduce((a, b) => a + b.result_rating / b.rating, 0)
+          this.mainRatings = response.data.data.reduce((a, b) => a + b.result_rating , 0) / this.totalRatings
+          this.satisfactionRating = this.ratings.filter(x => x.rating >= 4).reduce((a, b) => a + (b.result_rating / b.rating) , 0) / this.totalRatings * 100
+        }
+      }).catch(error => {
+        console.log(error)
+      })
     },
     async fetchComments(){
       await axios.get(`${process.env.VUE_APP_SERVICE_URL}/comments/product/${this.$route.params.code}`, { headers: authHeader() }).then(response => {

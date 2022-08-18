@@ -93,4 +93,5 @@ type CommentRepository interface {
 	FindById(ctx context.Context, tx *sql.Tx, commentId int) (entity.Comment, error)
 	FindByUserOrderId(ctx context.Context, tx *sql.Tx, userOrderId int) (entity.Comment, error)
 	Create(ctx context.Context, tx *sql.Tx, comment entity.Comment) (entity.Comment, error)
+	GetRatingByProductCode(ctx context.Context, tx *sql.Tx, productCode string) ([]entity.RatingFromComment, error)
 }

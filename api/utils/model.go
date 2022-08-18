@@ -172,3 +172,11 @@ func ToCommentResponse(comment entity.Comment) model.GetCommentResponse {
 		UserName:    comment.UserName,
 	}
 }
+
+func ToRatingResponse(rating entity.RatingFromComment) model.GetRatingResponse {
+	return model.GetRatingResponse{
+		Rating:        rating.Rating,
+		ResultRating:  rating.ResultRating,
+		ResultComment: rating.ResultComment,
+	}
+}
