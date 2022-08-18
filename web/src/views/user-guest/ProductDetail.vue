@@ -183,6 +183,7 @@
                               {{ item }}
                             </label>
                           </div>
+                        <button class="btn btn-warning btn-sm" @click="fetchComments">Reset Filter</button>
                       </div>
                     </div>
                   </div>
@@ -551,6 +552,11 @@ export default {
       }).catch(error => {
         console.log(error)
       })
+
+      this.filter = {
+        tags: [],
+        rating: ''
+      }
     },
     async fetchCategories(){
       await axios.get(`${process.env.VUE_APP_SERVICE_URL}/categories`, { headers: authHeader() })
