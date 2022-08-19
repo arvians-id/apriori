@@ -4,7 +4,6 @@ import (
 	"apriori/api/controller"
 	"apriori/api/middleware"
 	"apriori/config"
-	"apriori/database/seeder"
 	repository "apriori/repository/postgres"
 	"apriori/service"
 	"database/sql"
@@ -73,13 +72,6 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
 			"message": "Welcome to Apriori Algorithm API. Created By https://github.com/arvians-id",
-		})
-	})
-	router.GET("/api/seeds", middleware.SetupXApiKeyMiddleware(), func(c *gin.Context) {
-		// Seeder
-		seeder.RegisterSeeder(productService)
-		c.JSON(200, gin.H{
-			"message": "Seeding Success",
 		})
 	})
 

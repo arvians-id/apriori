@@ -7,8 +7,8 @@ import (
 	"time"
 )
 
-func RegisterSeeder(service service.ProductService) {
-	for i := 0; i < 100; i++ {
+func RegisterSeeder(service service.ProductService, totalSeeds int) {
+	for i := 0; i < totalSeeds; i++ {
 		time.Sleep(time.Millisecond * 1)
 		str := fmt.Sprintf("https://source.unsplash.com/random/640x400?sig=%v", i)
 

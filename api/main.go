@@ -1,12 +1,14 @@
 package main
 
 import (
+	"apriori/cmd"
 	"apriori/config"
 	"apriori/route"
 	"log"
 )
 
 func main() {
+	cmd.Execute()
 	configuration := config.New()
 	initialized, _ := route.NewInitializedServer(configuration)
 
