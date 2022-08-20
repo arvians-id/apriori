@@ -73,6 +73,11 @@ func (controller *AprioriController) FindAllByCode(c *gin.Context) {
 	codeParam := c.Param("code")
 	apriories, err := controller.AprioriService.FindAllByCode(c.Request.Context(), codeParam)
 	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
+			return
+		}
+
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
@@ -85,6 +90,11 @@ func (controller *AprioriController) FindByCodeAndId(c *gin.Context) {
 	idParam := utils.StrToInt(c.Param("id"))
 	apriori, err := controller.AprioriService.FindByCodeAndId(c.Request.Context(), codeParam, idParam)
 	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
+			return
+		}
+
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
@@ -114,6 +124,11 @@ func (controller *AprioriController) Update(c *gin.Context) {
 	request.Image = filePath
 	apriories, err := controller.AprioriService.Update(c.Request.Context(), request)
 	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
+			return
+		}
+
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
@@ -125,6 +140,11 @@ func (controller *AprioriController) UpdateStatus(c *gin.Context) {
 	codeParam := c.Param("code")
 	err := controller.AprioriService.UpdateStatus(c.Request.Context(), codeParam)
 	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
+			return
+		}
+
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
@@ -164,6 +184,11 @@ func (controller *AprioriController) Delete(c *gin.Context) {
 	codeParam := c.Param("code")
 	err := controller.AprioriService.Delete(c.Request.Context(), codeParam)
 	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
+			return
+		}
+
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}

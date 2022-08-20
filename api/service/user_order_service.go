@@ -15,18 +15,18 @@ type UserOrderService interface {
 }
 
 type userOrderService struct {
-	DB                  *sql.DB
 	PaymentRepository   repository.PaymentRepository
 	UserOrderRepository repository.UserOrderRepository
 	UserRepository      repository.UserRepository
+	DB                  *sql.DB
 }
 
 func NewUserOrderService(paymentRepository *repository.PaymentRepository, userOrderRepository *repository.UserOrderRepository, userRepository *repository.UserRepository, db *sql.DB) UserOrderService {
 	return &userOrderService{
 		PaymentRepository:   *paymentRepository,
 		UserOrderRepository: *userOrderRepository,
-		DB:                  db,
 		UserRepository:      *userRepository,
+		DB:                  db,
 	}
 }
 

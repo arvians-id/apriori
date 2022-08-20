@@ -63,6 +63,11 @@ func (controller *ProductController) FindAllSimilarCategory(c *gin.Context) {
 	codeParam := c.Param("code")
 	products, err := controller.ProductService.FindAllBySimilarCategory(c.Request.Context(), codeParam)
 	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
+			return
+		}
+
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
@@ -86,6 +91,11 @@ func (controller *ProductController) FindAllRecommendation(c *gin.Context) {
 	codeParam := c.Param("code")
 	products, err := controller.ProductService.FindAllRecommendation(c.Request.Context(), codeParam)
 	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
+			return
+		}
+
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
@@ -100,6 +110,11 @@ func (controller *ProductController) FindById(c *gin.Context) {
 	if err == redis.Nil {
 		product, err := controller.ProductService.FindByCode(c.Request.Context(), codeParam)
 		if err != nil {
+			if err.Error() == response.ErrorNotFound {
+				response.ReturnErrorNotFound(c, err, nil)
+				return
+			}
+
 			response.ReturnErrorInternalServerError(c, err, nil)
 			return
 		}
@@ -182,6 +197,11 @@ func (controller *ProductController) Update(c *gin.Context) {
 	request.Code = params
 	product, err := controller.ProductService.Update(c.Request.Context(), request)
 	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
+			return
+		}
+
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
@@ -197,6 +217,11 @@ func (controller *ProductController) Delete(c *gin.Context) {
 
 	err := controller.ProductService.Delete(c.Request.Context(), codeParam)
 	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
+			return
+		}
+
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}

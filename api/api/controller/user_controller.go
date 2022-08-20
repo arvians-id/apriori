@@ -68,6 +68,11 @@ func (controller *UserController) UpdateProfile(c *gin.Context) {
 	request.IdUser = int(id.(float64))
 	user, err := controller.UserService.Update(c.Request.Context(), request)
 	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
+			return
+		}
+
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
@@ -91,6 +96,11 @@ func (controller *UserController) FindById(c *gin.Context) {
 
 	user, err := controller.UserService.FindById(c.Request.Context(), id)
 	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
+			return
+		}
+
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
@@ -127,6 +137,11 @@ func (controller *UserController) Update(c *gin.Context) {
 	request.IdUser = idParam
 	user, err := controller.UserService.Update(c.Request.Context(), request)
 	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
+			return
+		}
+
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
@@ -140,6 +155,11 @@ func (controller *UserController) Delete(c *gin.Context) {
 
 	err := controller.UserService.Delete(c.Request.Context(), id)
 	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
+			return
+		}
+
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}

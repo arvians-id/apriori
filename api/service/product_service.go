@@ -26,8 +26,7 @@ type productService struct {
 	ProductRepository repository.ProductRepository
 	AprioriRepository repository.AprioriRepository
 	StorageService
-	DB   *sql.DB
-	date string
+	DB *sql.DB
 }
 
 func NewProductService(productRepository *repository.ProductRepository, storageService StorageService, aprioriRepository *repository.AprioriRepository, db *sql.DB) ProductService {
@@ -36,7 +35,6 @@ func NewProductService(productRepository *repository.ProductRepository, storageS
 		AprioriRepository: *aprioriRepository,
 		StorageService:    storageService,
 		DB:                db,
-		date:              "2006-01-02 15:04:05",
 	}
 }
 
@@ -180,7 +178,7 @@ func (service *productService) Create(ctx context.Context, request model.CreateP
 	}
 	defer utils.CommitOrRollback(tx)
 
-	timeNow, err := time.Parse(service.date, time.Now().Format(service.date))
+	timeNow, err := time.Parse(utils.TimeFormat, time.Now().Format(utils.TimeFormat))
 	if err != nil {
 		return model.GetProductResponse{}, err
 	}
@@ -221,7 +219,7 @@ func (service *productService) Update(ctx context.Context, request model.UpdateP
 		return model.GetProductResponse{}, err
 	}
 
-	timeNow, err := time.Parse(service.date, time.Now().Format(service.date))
+	timeNow, err := time.Parse(utils.TimeFormat, time.Now().Format(utils.TimeFormat))
 	if err != nil {
 		return model.GetProductResponse{}, err
 	}

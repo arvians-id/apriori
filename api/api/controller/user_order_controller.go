@@ -69,7 +69,7 @@ func (controller *UserOrderController) FindAll(c *gin.Context) {
 		return
 	}
 
-	var paymentCacheResponses []model.GetPaymentNullableResponse
+	var paymentCacheResponses []model.GetPaymentResponse
 	err = json.Unmarshal(bytes.NewBufferString(paymentsCache).Bytes(), &paymentCacheResponses)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
@@ -125,6 +125,11 @@ func (controller *UserOrderController) FindAllById(c *gin.Context) {
 	if err == redis.Nil {
 		payment, err := controller.PaymentService.FindByOrderId(c.Request.Context(), orderIdParam)
 		if err != nil {
+			if err.Error() == response.ErrorNotFound {
+				response.ReturnErrorNotFound(c, err, nil)
+				return
+			}
+
 			response.ReturnErrorInternalServerError(c, err, nil)
 			return
 		}
@@ -158,10 +163,15 @@ func (controller *UserOrderController) FindAllById(c *gin.Context) {
 }
 
 func (controller *UserOrderController) FindById(c *gin.Context) {
-	orderIdParam := c.Param("order_id")
+	orderIdParam := utils.StrToInt(c.Param("order_id"))
 
-	userOrder, err := controller.UserOrderService.FindById(c.Request.Context(), utils.StrToInt(orderIdParam))
+	userOrder, err := controller.UserOrderService.FindById(c.Request.Context(), orderIdParam)
 	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
+			return
+		}
+
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}

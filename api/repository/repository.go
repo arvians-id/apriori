@@ -40,8 +40,8 @@ type PasswordResetRepository interface {
 
 type PaymentRepository interface {
 	FindAll(ctx context.Context, tx *sql.Tx) ([]entity.PaymentRelation, error)
-	FindAllByUserId(ctx context.Context, tx *sql.Tx, userId int) ([]entity.PaymentNullable, error)
-	FindByOrderId(ctx context.Context, tx *sql.Tx, orderId string) (entity.PaymentNullable, error)
+	FindAllByUserId(ctx context.Context, tx *sql.Tx, userId int) ([]entity.Payment, error)
+	FindByOrderId(ctx context.Context, tx *sql.Tx, orderId string) (entity.Payment, error)
 	Create(ctx context.Context, tx *sql.Tx, payment entity.Payment) (entity.Payment, error)
 	Update(ctx context.Context, tx *sql.Tx, payment entity.Payment) error
 	UpdateReceiptNumber(ctx context.Context, tx *sql.Tx, payment entity.Payment) error

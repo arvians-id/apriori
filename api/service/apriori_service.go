@@ -31,8 +31,7 @@ type aprioriService struct {
 	AprioriRepository     repository.AprioriRepository
 	ProductRepository     repository.ProductRepository
 	StorageService
-	DB   *sql.DB
-	date string
+	DB *sql.DB
 }
 
 func NewAprioriService(transactionRepository *repository.TransactionRepository, storageService StorageService, productRepository *repository.ProductRepository, aprioriRepository *repository.AprioriRepository, db *sql.DB) AprioriService {
@@ -42,7 +41,6 @@ func NewAprioriService(transactionRepository *repository.TransactionRepository, 
 		StorageService:        storageService,
 		ProductRepository:     *productRepository,
 		DB:                    db,
-		date:                  "2006-01-02 15:04:05",
 	}
 }
 
@@ -135,7 +133,7 @@ func (service *aprioriService) FindByCodeAndId(ctx context.Context, code string,
 		PriceAfterDiscount: totalPrice - (totalPrice * int(apriori.Discount) / 100),
 		Image:              apriori.Image,
 		Mass:               mass,
-		Description:        *apriori.Description,
+		Description:        apriori.Description.String,
 	}, nil
 }
 
@@ -146,7 +144,7 @@ func (service *aprioriService) Create(ctx context.Context, requests []model.Crea
 	}
 	defer utils.CommitOrRollback(tx)
 
-	timeNow, _ := time.Parse(service.date, time.Now().Format(service.date))
+	timeNow, _ := time.Parse(utils.TimeFormat, time.Now().Format(utils.TimeFormat))
 	if err != nil {
 		return err
 	}
@@ -193,10 +191,13 @@ func (service *aprioriService) Update(ctx context.Context, request model.UpdateA
 	}
 
 	aprioriRequest := entity.Apriori{
-		IdApriori:   apriori.IdApriori,
-		Code:        apriori.Code,
-		Description: &request.Description,
-		Image:       image,
+		IdApriori: apriori.IdApriori,
+		Code:      apriori.Code,
+		Description: sql.NullString{
+			String: request.Description,
+			Valid:  true,
+		},
+		Image: image,
 	}
 	aprioriResponse, err := service.AprioriRepository.Update(ctx, tx, aprioriRequest)
 	if err != nil {

@@ -1,74 +1,32 @@
 package entity
 
+import "database/sql"
+
 type Payment struct {
 	IdPayload         int
-	UserId            string
-	OrderId           string
-	TransactionTime   string
-	TransactionStatus string
-	TransactionId     string
-	StatusCode        string
-	SignatureKey      string
-	SettlementTime    string
-	PaymentType       string
-	MerchantId        string
-	GrossAmount       string
-	FraudStatus       string
-	BankType          string
-	VANumber          string
-	BillerCode        string
-	BillKey           string
-	ReceiptNumber     string
-	Address           string
-	Courier           string
-	CourierService    string
-}
-
-type PaymentNullable struct {
-	IdPayload         int
-	UserId            *string
-	OrderId           *string
-	TransactionTime   *string
-	TransactionStatus *string
-	TransactionId     *string
-	StatusCode        *string
-	SignatureKey      *string
-	SettlementTime    *string
-	PaymentType       *string
-	MerchantId        *string
-	GrossAmount       *string
-	FraudStatus       *string
-	BankType          *string
-	VANumber          *string
-	BillerCode        *string
-	BillKey           *string
-	ReceiptNumber     *string
-	Address           *string
-	Courier           *string
-	CourierService    *string
+	UserId            sql.NullString
+	OrderId           sql.NullString
+	TransactionTime   sql.NullString
+	TransactionStatus sql.NullString
+	TransactionId     sql.NullString
+	StatusCode        sql.NullString
+	SignatureKey      sql.NullString
+	SettlementTime    sql.NullString
+	PaymentType       sql.NullString
+	MerchantId        sql.NullString
+	GrossAmount       sql.NullString
+	FraudStatus       sql.NullString
+	BankType          sql.NullString
+	VANumber          sql.NullString
+	BillerCode        sql.NullString
+	BillKey           sql.NullString
+	ReceiptNumber     sql.NullString
+	Address           sql.NullString
+	Courier           sql.NullString
+	CourierService    sql.NullString
 }
 
 type PaymentRelation struct {
-	IdPayload         int
-	UserId            *string
-	OrderId           *string
-	TransactionTime   *string
-	TransactionStatus *string
-	TransactionId     *string
-	StatusCode        *string
-	SignatureKey      *string
-	SettlementTime    *string
-	PaymentType       *string
-	MerchantId        *string
-	GrossAmount       *string
-	FraudStatus       *string
-	BankType          *string
-	VANumber          *string
-	BillerCode        *string
-	BillKey           *string
-	ReceiptNumber     *string
-	Address           *string
-	Courier           *string
-	CourierService    *string
-	UserName          *string
+	Payment  Payment
+	UserName sql.NullString
 }

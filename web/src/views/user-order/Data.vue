@@ -70,7 +70,7 @@
                   <td>{{ item.bank_type }}</td>
                   <td>{{ item.user_name }}</td>
                   <td class="text-center">
-                    <span v-if="item.receipt_number != ''">{{ item.receipt_number }} <small><router-link :to="{ name: 'user-order.add-receipt-number', params: { order_id: item.order_id } }">(Edit here)</router-link></small></span>
+                    <span v-if="item.receipt_number !== undefined">{{ item.receipt_number }} <small><router-link :to="{ name: 'user-order.add-receipt-number', params: { order_id: item.order_id } }">(Edit here)</router-link></small></span>
                     <router-link :to="{ name: 'user-order.add-receipt-number', params: { order_id: item.order_id } }" class="btn btn-success btn-sm" v-else>Input Receipt Number</router-link>
                   </td>
                   <td class="text-center">

@@ -34,27 +34,27 @@ func (repository *paymentRepository) FindAll(ctx context.Context, tx *sql.Tx) ([
 	for rows.Next() {
 		var payment entity.PaymentRelation
 		err := rows.Scan(
-			&payment.IdPayload,
-			&payment.UserId,
-			&payment.OrderId,
-			&payment.TransactionTime,
-			&payment.TransactionStatus,
-			&payment.TransactionId,
-			&payment.StatusCode,
-			&payment.SignatureKey,
-			&payment.SettlementTime,
-			&payment.PaymentType,
-			&payment.MerchantId,
-			&payment.GrossAmount,
-			&payment.FraudStatus,
-			&payment.BankType,
-			&payment.VANumber,
-			&payment.BillerCode,
-			&payment.BillKey,
-			&payment.ReceiptNumber,
-			&payment.Address,
-			&payment.Courier,
-			&payment.CourierService,
+			&payment.Payment.IdPayload,
+			&payment.Payment.UserId,
+			&payment.Payment.OrderId,
+			&payment.Payment.TransactionTime,
+			&payment.Payment.TransactionStatus,
+			&payment.Payment.TransactionId,
+			&payment.Payment.StatusCode,
+			&payment.Payment.SignatureKey,
+			&payment.Payment.SettlementTime,
+			&payment.Payment.PaymentType,
+			&payment.Payment.MerchantId,
+			&payment.Payment.GrossAmount,
+			&payment.Payment.FraudStatus,
+			&payment.Payment.BankType,
+			&payment.Payment.VANumber,
+			&payment.Payment.BillerCode,
+			&payment.Payment.BillKey,
+			&payment.Payment.ReceiptNumber,
+			&payment.Payment.Address,
+			&payment.Payment.Courier,
+			&payment.Payment.CourierService,
 			&payment.UserName,
 		)
 		if err != nil {
@@ -67,13 +67,13 @@ func (repository *paymentRepository) FindAll(ctx context.Context, tx *sql.Tx) ([
 	return payments, nil
 }
 
-func (repository *paymentRepository) FindAllByUserId(ctx context.Context, tx *sql.Tx, userId int) ([]entity.PaymentNullable, error) {
+func (repository *paymentRepository) FindAllByUserId(ctx context.Context, tx *sql.Tx, userId int) ([]entity.Payment, error) {
 	query := `SELECT * FROM payloads 
 			  WHERE user_id = $1 
 			  ORDER BY settlement_time DESC, bank_type DESC`
 	rows, err := tx.QueryContext(ctx, query, userId)
 	if err != nil {
-		return []entity.PaymentNullable{}, err
+		return []entity.Payment{}, err
 	}
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
@@ -82,9 +82,9 @@ func (repository *paymentRepository) FindAllByUserId(ctx context.Context, tx *sq
 		}
 	}(rows)
 
-	var payments []entity.PaymentNullable
+	var payments []entity.Payment
 	for rows.Next() {
-		var payment entity.PaymentNullable
+		var payment entity.Payment
 		err := rows.Scan(
 			&payment.IdPayload,
 			&payment.UserId,
@@ -109,7 +109,7 @@ func (repository *paymentRepository) FindAllByUserId(ctx context.Context, tx *sq
 			&payment.CourierService,
 		)
 		if err != nil {
-			return []entity.PaymentNullable{}, err
+			return []entity.Payment{}, err
 		}
 
 		payments = append(payments, payment)
@@ -118,11 +118,11 @@ func (repository *paymentRepository) FindAllByUserId(ctx context.Context, tx *sq
 	return payments, nil
 }
 
-func (repository *paymentRepository) FindByOrderId(ctx context.Context, tx *sql.Tx, orderId string) (entity.PaymentNullable, error) {
+func (repository *paymentRepository) FindByOrderId(ctx context.Context, tx *sql.Tx, orderId string) (entity.Payment, error) {
 	query := "SELECT * FROM payloads WHERE order_id = $1"
 	row := tx.QueryRowContext(ctx, query, orderId)
 
-	var payment entity.PaymentNullable
+	var payment entity.Payment
 	err := row.Scan(
 		&payment.IdPayload,
 		&payment.UserId,
@@ -147,7 +147,7 @@ func (repository *paymentRepository) FindByOrderId(ctx context.Context, tx *sql.
 		&payment.CourierService,
 	)
 	if err != nil {
-		return entity.PaymentNullable{}, err
+		return entity.Payment{}, err
 	}
 
 	return payment, nil

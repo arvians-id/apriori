@@ -18,8 +18,8 @@ import (
 type PaymentService interface {
 	GetClient()
 	FindAll(ctx context.Context) ([]model.GetPaymentRelationResponse, error)
-	FindAllByUserId(ctx context.Context, userId int) ([]model.GetPaymentNullableResponse, error)
-	FindByOrderId(ctx context.Context, orderId string) (model.GetPaymentNullableResponse, error)
+	FindAllByUserId(ctx context.Context, userId int) ([]model.GetPaymentResponse, error)
+	FindByOrderId(ctx context.Context, orderId string) (model.GetPaymentResponse, error)
 	CreateOrUpdate(ctx context.Context, request map[string]interface{}) error
 	UpdateReceiptNumber(ctx context.Context, request model.AddReceiptNumberRequest) error
 	Delete(ctx context.Context, orderId string) error
@@ -27,7 +27,6 @@ type PaymentService interface {
 }
 
 type paymentService struct {
-	DB                    *sql.DB
 	MidClient             midtrans.Client
 	SnapGateway           midtrans.SnapGateway
 	ServerKey             string
@@ -35,7 +34,7 @@ type paymentService struct {
 	PaymentRepository     repository.PaymentRepository
 	UserOrderRepository   repository.UserOrderRepository
 	TransactionRepository repository.TransactionRepository
-	date                  string
+	DB                    *sql.DB
 }
 
 func NewPaymentService(configuration config.Config, paymentRepository *repository.PaymentRepository, userOrderRepository *repository.UserOrderRepository, transactionRepository *repository.TransactionRepository, db *sql.DB) PaymentService {
@@ -52,7 +51,6 @@ func NewPaymentService(configuration config.Config, paymentRepository *repositor
 		UserOrderRepository:   *userOrderRepository,
 		TransactionRepository: *transactionRepository,
 		DB:                    db,
-		date:                  "2006-01-02 15:04:05",
 	}
 }
 
@@ -82,7 +80,7 @@ func (service *paymentService) FindAll(ctx context.Context) ([]model.GetPaymentR
 	return paymentResponses, nil
 }
 
-func (service *paymentService) FindAllByUserId(ctx context.Context, userId int) ([]model.GetPaymentNullableResponse, error) {
+func (service *paymentService) FindAllByUserId(ctx context.Context, userId int) ([]model.GetPaymentResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -94,27 +92,27 @@ func (service *paymentService) FindAllByUserId(ctx context.Context, userId int) 
 		return nil, err
 	}
 
-	var paymentResponses []model.GetPaymentNullableResponse
+	var paymentResponses []model.GetPaymentResponse
 	for _, payment := range payments {
-		paymentResponses = append(paymentResponses, utils.ToPaymentNullableResponse(payment))
+		paymentResponses = append(paymentResponses, utils.ToPaymentResponse(payment))
 	}
 
 	return paymentResponses, nil
 }
 
-func (service *paymentService) FindByOrderId(ctx context.Context, orderId string) (model.GetPaymentNullableResponse, error) {
+func (service *paymentService) FindByOrderId(ctx context.Context, orderId string) (model.GetPaymentResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return model.GetPaymentNullableResponse{}, err
+		return model.GetPaymentResponse{}, err
 	}
 	defer utils.CommitOrRollback(tx)
 
 	paymentResponse, err := service.PaymentRepository.FindByOrderId(ctx, tx, orderId)
 	if err != nil {
-		return model.GetPaymentNullableResponse{}, err
+		return model.GetPaymentResponse{}, err
 	}
 
-	return utils.ToPaymentNullableResponse(paymentResponse), nil
+	return utils.ToPaymentResponse(paymentResponse), nil
 }
 
 func (service *paymentService) CreateOrUpdate(ctx context.Context, request map[string]interface{}) error {
@@ -146,32 +144,80 @@ func (service *paymentService) CreateOrUpdate(ctx context.Context, request map[s
 	}
 
 	paymentRequest := entity.Payment{
-		UserId:            request["custom_field1"].(string),
-		OrderId:           request["order_id"].(string),
-		TransactionTime:   request["transaction_time"].(string),
-		TransactionStatus: request["transaction_status"].(string),
-		TransactionId:     request["transaction_id"].(string),
-		StatusCode:        request["status_code"].(string),
-		SignatureKey:      request["signature_key"].(string),
-		SettlementTime:    settlementTime,
-		PaymentType:       request["payment_type"].(string),
-		MerchantId:        request["merchant_id"].(string),
-		GrossAmount:       request["gross_amount"].(string),
-		FraudStatus:       request["fraud_status"].(string),
-		BankType:          bankType,
-		VANumber:          vaNumber,
-		BillerCode:        billerCode,
-		BillKey:           billKey,
+		UserId: sql.NullString{
+			String: request["custom_field1"].(string),
+			Valid:  true,
+		},
+		OrderId: sql.NullString{
+			String: request["order_id"].(string),
+			Valid:  true,
+		},
+		TransactionTime: sql.NullString{
+			String: request["transaction_time"].(string),
+			Valid:  true,
+		},
+		TransactionStatus: sql.NullString{
+			String: request["transaction_status"].(string),
+			Valid:  true,
+		},
+		TransactionId: sql.NullString{
+			String: request["transaction_id"].(string),
+			Valid:  true,
+		},
+		StatusCode: sql.NullString{
+			String: request["status_code"].(string),
+			Valid:  true,
+		},
+		SignatureKey: sql.NullString{
+			String: request["signature_key"].(string),
+			Valid:  true,
+		},
+		SettlementTime: sql.NullString{
+			String: settlementTime,
+			Valid:  true,
+		},
+		PaymentType: sql.NullString{
+			String: request["payment_type"].(string),
+			Valid:  true,
+		},
+		MerchantId: sql.NullString{
+			String: request["merchant_id"].(string),
+			Valid:  true,
+		},
+		GrossAmount: sql.NullString{
+			String: request["gross_amount"].(string),
+			Valid:  true,
+		},
+		FraudStatus: sql.NullString{
+			String: request["fraud_status"].(string),
+			Valid:  true,
+		},
+		BankType: sql.NullString{
+			String: bankType,
+			Valid:  true,
+		},
+		VANumber: sql.NullString{
+			String: vaNumber,
+			Valid:  true,
+		},
+		BillerCode: sql.NullString{
+			String: billerCode,
+			Valid:  true,
+		},
+		BillKey: sql.NullString{
+			String: billKey,
+			Valid:  true,
+		},
 	}
 
 	checkTransaction, _ := service.PaymentRepository.FindByOrderId(ctx, tx, request["order_id"].(string))
-	if checkTransaction.OrderId != nil {
+	if checkTransaction.OrderId.Valid {
 		err := service.PaymentRepository.Update(ctx, tx, paymentRequest)
 		if err != nil {
 			return err
 		}
 		if request["transaction_status"].(string) == "settlement" {
-			timeNow, err := time.Parse(service.date, time.Now().Format(service.date))
+			timeNow, err := time.Parse(utils.TimeFormat, time.Now().Format(utils.TimeFormat))
 			if err != nil {
 				return err
 			}
@@ -214,8 +260,11 @@ func (service *paymentService) UpdateReceiptNumber(ctx context.Context, request 
 	}
 
 	paymentRequest := entity.Payment{
-		OrderId:       *payment.OrderId,
-		ReceiptNumber: request.ReceiptNumber,
+		OrderId: payment.OrderId,
+		ReceiptNumber: sql.NullString{
+			String: request.ReceiptNumber,
+			Valid:  true,
+		},
 	}
 	err = service.PaymentRepository.UpdateReceiptNumber(ctx, tx, paymentRequest)
 	if err != nil {
@@ -237,7 +286,7 @@ func (service *paymentService) Delete(ctx context.Context, orderId string) error
 		return err
 	}
 
-	err = service.PaymentRepository.Delete(ctx, tx, *payment.OrderId)
+	err = service.PaymentRepository.Delete(ctx, tx, payment.OrderId.String)
 	if err != nil {
 		return err
 	}
@@ -299,13 +348,34 @@ func (service *paymentService) GetToken(ctx context.Context, amount int64, userI
 	defer utils.CommitOrRollback(tx)
 
 	paymentRequest := entity.Payment{
-		UserId:            utils.IntToStr(userId),
-		OrderId:           orderID,
-		TransactionStatus: "canceled",
-		TransactionTime:   time.Now().Format("2006-01-02 15:04:05"),
-		Address:           rajaShipping.Address,
-		Courier:           rajaShipping.Courier,
-		CourierService:    rajaShipping.CourierService,
+		UserId: sql.NullString{
+			String: utils.IntToStr(userId),
+			Valid:  true,
+		},
+		OrderId: sql.NullString{
+			String: orderID,
+			Valid:  true,
+		},
+		TransactionStatus: sql.NullString{
+			String: "canceled",
+			Valid:  true,
+		},
+		TransactionTime: sql.NullString{
+			String: time.Now().Format("2006-01-02 15:04:05"),
+			Valid:  true,
+		},
+		Address: sql.NullString{
+			String: rajaShipping.Address,
+			Valid:  true,
+		},
+		Courier: sql.NullString{
+			String: rajaShipping.Courier,
+			Valid:  true,
+		},
+		CourierService: sql.NullString{
+			String: rajaShipping.CourierService,
+			Valid:  true,
+		},
 	}
 	payment, err := service.PaymentRepository.Create(ctx, tx, paymentRequest)
 	if err != nil {

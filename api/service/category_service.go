@@ -21,14 +21,12 @@ type CategoryService interface {
 type categoryService struct {
 	categoryRepository repository.CategoryRepository
 	DB                 *sql.DB
-	date               string
 }
 
 func NewCategoryService(categoryRepository *repository.CategoryRepository, db *sql.DB) CategoryService {
 	return &categoryService{
 		categoryRepository: *categoryRepository,
 		DB:                 db,
-		date:               "2006-01-02 15:04:05",
 	}
 }
 
@@ -74,11 +72,11 @@ func (service *categoryService) Create(ctx context.Context, request model.Create
 	}
 	defer utils.CommitOrRollback(tx)
 
-	createdAt, err := time.Parse(service.date, time.Now().Format(service.date))
+	createdAt, err := time.Parse(utils.TimeFormat, time.Now().Format(utils.TimeFormat))
 	if err != nil {
 		return model.GetCategoryResponse{}, err
 	}
-	updatedAt, err := time.Parse(service.date, time.Now().Format(service.date))
+	updatedAt, err := time.Parse(utils.TimeFormat, time.Now().Format(utils.TimeFormat))
 	if err != nil {
 		return model.GetCategoryResponse{}, err
 	}
@@ -110,7 +108,7 @@ func (service *categoryService) Update(ctx context.Context, request model.Update
 		return model.GetCategoryResponse{}, err
 	}
 
-	timeNow, err := time.Parse(service.date, time.Now().Format(service.date))
+	timeNow, err := time.Parse(utils.TimeFormat, time.Now().Format(utils.TimeFormat))
 	if err != nil {
 		return model.GetCategoryResponse{}, err
 	}

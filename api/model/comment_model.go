@@ -9,7 +9,7 @@ type GetCommentResponse struct {
 	Rating      int    `json:"rating,omitempty"`
 	CreatedAt   string `json:"created_at,omitempty"`
 	UserId      int    `json:"user_id,omitempty"`
-	UserName    string `json:"user_name"`
+	UserName    string `json:"user_name,omitempty"`
 }
 
 type CreateCommentRequest struct {
@@ -19,8 +19,6 @@ type CreateCommentRequest struct {
 	Tag         string `json:"tag,omitempty"`
 	Rating      int    `json:"rating" binding:"required"`
 	CreatedAt   string `json:"created_at,omitempty"`
-	UserId      int    `json:"user_id,omitempty"`
-	UserName    string `json:"user_name"`
 }
 
 type GetRatingResponse struct {

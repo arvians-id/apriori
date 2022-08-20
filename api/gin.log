@@ -25,20 +25,20 @@
 [GIN-debug] DELETE /api/users/:id            --> apriori/api/controller.(*UserController).Delete-fm (7 handlers)
 [GIN-debug] GET    /api/profile              --> apriori/api/controller.(*UserController).Profile-fm (7 handlers)
 [GIN-debug] PATCH  /api/profile/update       --> apriori/api/controller.(*UserController).UpdateProfile-fm (7 handlers)
-[GIN-debug] GET    /api/products-admin       --> apriori/api/controller.(*ProductController).FindAllOnAdmin-fm (7 handlers)
+[GIN-debug] GET    /api/products-admin       --> apriori/api/controller.(*ProductController).FindAllByAdmin-fm (7 handlers)
 [GIN-debug] POST   /api/products             --> apriori/api/controller.(*ProductController).Create-fm (7 handlers)
 [GIN-debug] PATCH  /api/products/:code       --> apriori/api/controller.(*ProductController).Update-fm (7 handlers)
 [GIN-debug] DELETE /api/products/:code       --> apriori/api/controller.(*ProductController).Delete-fm (7 handlers)
-[GIN-debug] GET    /api/products             --> apriori/api/controller.(*ProductController).FindAll-fm (6 handlers)
+[GIN-debug] GET    /api/products             --> apriori/api/controller.(*ProductController).FindAllByUser-fm (6 handlers)
 [GIN-debug] GET    /api/products/:code/category --> apriori/api/controller.(*ProductController).FindAllSimilarCategory-fm (6 handlers)
 [GIN-debug] GET    /api/products/:code/recommendation --> apriori/api/controller.(*ProductController).FindAllRecommendation-fm (6 handlers)
 [GIN-debug] GET    /api/products/:code       --> apriori/api/controller.(*ProductController).FindById-fm (6 handlers)
 [GIN-debug] GET    /api/transactions         --> apriori/api/controller.(*TransactionController).FindAll-fm (7 handlers)
-[GIN-debug] GET    /api/transactions/:numberTransaction --> apriori/api/controller.(*TransactionController).FindByTransaction-fm (7 handlers)
+[GIN-debug] GET    /api/transactions/:number_transaction --> apriori/api/controller.(*TransactionController).FindByNoTransaction-fm (7 handlers)
 [GIN-debug] POST   /api/transactions         --> apriori/api/controller.(*TransactionController).Create-fm (7 handlers)
-[GIN-debug] POST   /api/transactions/csv     --> apriori/api/controller.(*TransactionController).CreateFromCsv-fm (7 handlers)
-[GIN-debug] PATCH  /api/transactions/:numberTransaction --> apriori/api/controller.(*TransactionController).Update-fm (7 handlers)
-[GIN-debug] DELETE /api/transactions/:numberTransaction --> apriori/api/controller.(*TransactionController).Delete-fm (7 handlers)
+[GIN-debug] POST   /api/transactions/csv     --> apriori/api/controller.(*TransactionController).CreateByCsv-fm (7 handlers)
+[GIN-debug] PATCH  /api/transactions/:number_transaction --> apriori/api/controller.(*TransactionController).Update-fm (7 handlers)
+[GIN-debug] DELETE /api/transactions/:number_transaction --> apriori/api/controller.(*TransactionController).Delete-fm (7 handlers)
 [GIN-debug] DELETE /api/transactions/truncate --> apriori/api/controller.(*TransactionController).Truncate-fm (7 handlers)
 [GIN-debug] PATCH  /api/apriori/:code        --> apriori/api/controller.(*AprioriController).UpdateStatus-fm (7 handlers)
 [GIN-debug] POST   /api/apriori              --> apriori/api/controller.(*AprioriController).Create-fm (7 handlers)
@@ -51,15 +51,15 @@
 [GIN-debug] GET    /api/apriori/actives      --> apriori/api/controller.(*AprioriController).FindAllByActive-fm (6 handlers)
 [GIN-debug] GET    /api/user-order           --> apriori/api/controller.(*UserOrderController).FindAll-fm (7 handlers)
 [GIN-debug] GET    /api/user-order/user      --> apriori/api/controller.(*UserOrderController).FindAllByUserId-fm (7 handlers)
-[GIN-debug] GET    /api/user-order/:order_id --> apriori/api/controller.(*UserOrderController).FindById-fm (7 handlers)
-[GIN-debug] GET    /api/user-order/:order_id/single --> apriori/api/controller.(*UserOrderController).FindOneById-fm (7 handlers)
+[GIN-debug] GET    /api/user-order/:order_id --> apriori/api/controller.(*UserOrderController).FindAllById-fm (7 handlers)
+[GIN-debug] GET    /api/user-order/:order_id/single --> apriori/api/controller.(*UserOrderController).FindById-fm (7 handlers)
 [GIN-debug] GET    /api/categories/:id       --> apriori/api/controller.(*categoryController).FindById-fm (7 handlers)
 [GIN-debug] POST   /api/categories           --> apriori/api/controller.(*categoryController).Create-fm (7 handlers)
 [GIN-debug] PATCH  /api/categories/:id       --> apriori/api/controller.(*categoryController).Update-fm (7 handlers)
 [GIN-debug] DELETE /api/categories/:id       --> apriori/api/controller.(*categoryController).Delete-fm (7 handlers)
 [GIN-debug] GET    /api/categories           --> apriori/api/controller.(*categoryController).FindAll-fm (6 handlers)
 [GIN-debug] POST   /api/comments             --> apriori/api/controller.(*commentController).Create-fm (7 handlers)
-[GIN-debug] GET    /api/comments/:comment_id --> apriori/api/controller.(*commentController).FindById-fm (6 handlers)
+[GIN-debug] GET    /api/comments/:id         --> apriori/api/controller.(*commentController).FindById-fm (6 handlers)
 [GIN-debug] GET    /api/comments/rating/:product_code --> apriori/api/controller.(*commentController).FindAllRatingByProductCode-fm (6 handlers)
 [GIN-debug] GET    /api/comments/product/:product_code --> apriori/api/controller.(*commentController).FindAllByProductCode-fm (6 handlers)
 [GIN-debug] GET    /api/comments/user-order/:user_order_id --> apriori/api/controller.(*commentController).FindByUserOrderId-fm (6 handlers)
@@ -68,5 +68,55 @@
 [GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
 Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
 [GIN-debug] Listening and serving HTTP on :8080
-::1 - [Sat, 20 Aug 2022 15:39:16 +07] "GET /api/transactions/672828459660297 HTTP/1.1 200 6.9306ms" PostmanRuntime/7.29.2 
-[GIN] 2022/08/20 - 15:39:16 | 200 |       7.338ms |             ::1 | GET      "/api/transactions/672828459660297"
+[GIN] 2022/08/20 - 20:44:28 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/20 - 20:44:28 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/20 - 20:44:28 | 204 |            0s |             ::1 | OPTIONS  "/api/profile"
+[GIN] 2022/08/20 - 20:44:28 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/20 - 20:44:28 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+::1 - [Sat, 20 Aug 2022 20:44:28 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/20 - 20:44:28 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Sat, 20 Aug 2022 20:44:28 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/20 - 20:44:28 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Sat, 20 Aug 2022 20:44:28 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/20 - 20:44:28 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Sat, 20 Aug 2022 20:44:28 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/20 - 20:44:28 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Sat, 20 Aug 2022 20:44:28 +07] "GET /api/profile HTTP/1.1 200 13.3274ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/20 - 20:44:28 | 200 |     13.3274ms |             ::1 | GET      "/api/profile"
+::1 - [Sat, 20 Aug 2022 20:44:29 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/20 - 20:44:29 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Sat, 20 Aug 2022 20:44:29 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/20 - 20:44:29 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Sat, 20 Aug 2022 20:44:29 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/20 - 20:44:29 | 200 |         509µs |             ::1 | GET      "/api/auth/token"
+::1 - [Sat, 20 Aug 2022 20:44:29 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/20 - 20:44:29 | 200 |       923.4µs |             ::1 | GET      "/api/auth/token"
+::1 - [Sat, 20 Aug 2022 20:44:29 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/20 - 20:44:29 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Sat, 20 Aug 2022 20:44:29 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/20 - 20:44:29 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Sat, 20 Aug 2022 20:44:29 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/20 - 20:44:29 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Sat, 20 Aug 2022 20:44:29 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/20 - 20:44:29 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Sat, 20 Aug 2022 20:44:29 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/20 - 20:44:29 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Sat, 20 Aug 2022 20:44:29 +07] "GET /api/auth/token HTTP/1.1 200 1.0242ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/20 - 20:44:29 | 200 |      1.0242ms |             ::1 | GET      "/api/auth/token"
+::1 - [Sat, 20 Aug 2022 20:44:29 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/20 - 20:44:29 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Sat, 20 Aug 2022 20:44:29 +07] "GET /api/profile HTTP/1.1 200 8.995ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/20 - 20:44:29 | 200 |       8.995ms |             ::1 | GET      "/api/profile"
+::1 - [Sat, 20 Aug 2022 20:44:29 +07] "GET /api/profile HTTP/1.1 200 46.1495ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/20 - 20:44:29 | 200 |     46.1495ms |             ::1 | GET      "/api/profile"
+::1 - [Sat, 20 Aug 2022 20:44:29 +07] "GET /api/profile HTTP/1.1 200 47.2118ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/20 - 20:44:29 | 200 |     47.2118ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/20 - 20:44:29 | 204 |            0s |             ::1 | OPTIONS  "/api/products"
+[GIN] 2022/08/20 - 20:44:29 | 204 |            0s |             ::1 | OPTIONS  "/api/apriori/actives"
+[GIN] 2022/08/20 - 20:44:29 | 204 |            0s |             ::1 | OPTIONS  "/api/categories"
+::1 - [Sat, 20 Aug 2022 20:44:29 +07] "GET /api/apriori/actives HTTP/1.1 200 8.7213ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/20 - 20:44:29 | 200 |      8.7213ms |             ::1 | GET      "/api/apriori/actives"
+::1 - [Sat, 20 Aug 2022 20:44:29 +07] "GET /api/products HTTP/1.1 200 13.8303ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/20 - 20:44:29 | 200 |     14.3834ms |             ::1 | GET      "/api/products"
+::1 - [Sat, 20 Aug 2022 20:44:29 +07] "GET /api/categories HTTP/1.1 200 20.1791ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/20 - 20:44:29 | 200 |     20.7352ms |             ::1 | GET      "/api/categories"

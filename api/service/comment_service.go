@@ -23,7 +23,6 @@ type commentService struct {
 	CommentRepository repository.CommentRepository
 	ProductRepository repository.ProductRepository
 	db                *sql.DB
-	date              string
 }
 
 func NewCommentService(commentRepository *repository.CommentRepository, productRepository *repository.ProductRepository, db *sql.DB) CommentService {
@@ -31,7 +30,6 @@ func NewCommentService(commentRepository *repository.CommentRepository, productR
 		CommentRepository: *commentRepository,
 		ProductRepository: *productRepository,
 		db:                db,
-		date:              "2006-01-02 15:04:05",
 	}
 }
 
@@ -124,7 +122,7 @@ func (service *commentService) Create(ctx context.Context, request model.CreateC
 	}
 	defer utils.CommitOrRollback(tx)
 
-	timeNow, err := time.Parse(service.date, time.Now().Format(service.date))
+	timeNow, err := time.Parse(utils.TimeFormat, time.Now().Format(utils.TimeFormat))
 	if err != nil {
 		return model.GetCommentResponse{}, err
 	}

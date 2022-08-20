@@ -24,14 +24,12 @@ type UserService interface {
 type userService struct {
 	UserRepository repository.UserRepository
 	DB             *sql.DB
-	date           string
 }
 
 func NewUserService(userRepository *repository.UserRepository, db *sql.DB) UserService {
 	return &userService{
 		UserRepository: *userRepository,
 		DB:             db,
-		date:           "2006-01-02 15:04:05",
 	}
 }
 
@@ -102,7 +100,7 @@ func (service *userService) Create(ctx context.Context, request model.CreateUser
 		return model.GetUserResponse{}, err
 	}
 
-	timeNow, err := time.Parse(service.date, time.Now().Format(service.date))
+	timeNow, err := time.Parse(utils.TimeFormat, time.Now().Format(utils.TimeFormat))
 	if err != nil {
 		return model.GetUserResponse{}, err
 	}
@@ -147,7 +145,7 @@ func (service *userService) Update(ctx context.Context, request model.UpdateUser
 		newPassword = string(password)
 	}
 
-	timeNow, err := time.Parse(service.date, time.Now().Format(service.date))
+	timeNow, err := time.Parse(utils.TimeFormat, time.Now().Format(utils.TimeFormat))
 	if err != nil {
 		return model.GetUserResponse{}, err
 	}

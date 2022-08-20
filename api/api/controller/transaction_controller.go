@@ -78,6 +78,11 @@ func (controller *TransactionController) FindByNoTransaction(c *gin.Context) {
 	noTransactionParam := c.Param("number_transaction")
 	transactions, err := controller.TransactionService.FindByNoTransaction(c.Request.Context(), noTransactionParam)
 	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
+			return
+		}
+
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
@@ -151,6 +156,11 @@ func (controller *TransactionController) Update(c *gin.Context) {
 	request.NoTransaction = noTransactionParam
 	transaction, err := controller.TransactionService.Update(c.Request.Context(), request)
 	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
+			return
+		}
+
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
@@ -165,6 +175,11 @@ func (controller *TransactionController) Delete(c *gin.Context) {
 	noTransactionParam := c.Param("number_transaction")
 	err := controller.TransactionService.Delete(c.Request.Context(), noTransactionParam)
 	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
+			return
+		}
+
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}

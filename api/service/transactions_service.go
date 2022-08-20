@@ -24,7 +24,6 @@ type transactionService struct {
 	TransactionRepository repository.TransactionRepository
 	ProductRepository     repository.ProductRepository
 	DB                    *sql.DB
-	date                  string
 }
 
 func NewTransactionService(transactionRepository *repository.TransactionRepository, productRepository *repository.ProductRepository, db *sql.DB) TransactionService {
@@ -32,7 +31,6 @@ func NewTransactionService(transactionRepository *repository.TransactionReposito
 		TransactionRepository: *transactionRepository,
 		ProductRepository:     *productRepository,
 		DB:                    db,
-		date:                  "2006-01-02 15:04:05",
 	}
 }
 
@@ -78,7 +76,7 @@ func (service *transactionService) Create(ctx context.Context, request model.Cre
 	}
 	defer utils.CommitOrRollback(tx)
 
-	timeNow, err := time.Parse(service.date, time.Now().Format(service.date))
+	timeNow, err := time.Parse(utils.TimeFormat, time.Now().Format(utils.TimeFormat))
 	if err != nil {
 		return model.GetTransactionResponse{}, err
 	}
@@ -108,7 +106,7 @@ func (service *transactionService) CreateByCsv(ctx context.Context, data [][]str
 
 	var transactions []entity.Transaction
 	for _, transaction := range data {
-		createdAt, _ := time.Parse(service.date, transaction[3]+" 00:00:00")
+		createdAt, _ := time.Parse(utils.TimeFormat, transaction[3]+" 00:00:00")
 		transactions = append(transactions, entity.Transaction{
 			ProductName:   transaction[0],
 			CustomerName:  transaction[1],
@@ -139,7 +137,7 @@ func (service *transactionService) Update(ctx context.Context, request model.Upd
 		return model.GetTransactionResponse{}, err
 	}
 
-	timeNow, err := time.Parse(service.date, time.Now().Format(service.date))
+	timeNow, err := time.Parse(utils.TimeFormat, time.Now().Format(utils.TimeFormat))
 	if err != nil {
 		return model.GetTransactionResponse{}, err
 	}

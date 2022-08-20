@@ -60,6 +60,11 @@ func (controller *AuthController) Login(c *gin.Context) {
 
 	user, err := controller.UserService.FindByEmail(c.Request.Context(), request)
 	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
+			return
+		}
+
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
@@ -147,6 +152,11 @@ func (controller *AuthController) ForgotPassword(c *gin.Context) {
 	// Insert or update data token into database
 	result, err := controller.PasswordResetService.CreateOrUpdateByEmail(c.Request.Context(), request.Email)
 	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
+			return
+		}
+
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
@@ -176,6 +186,11 @@ func (controller *AuthController) VerifyResetPassword(c *gin.Context) {
 	request.Token = c.Query("signature")
 	err = controller.PasswordResetService.Verify(c.Request.Context(), request)
 	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
+			return
+		}
+
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}

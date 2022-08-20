@@ -78,6 +78,11 @@ func (controller *categoryController) FindById(c *gin.Context) {
 	idParam := utils.StrToInt(c.Param("id"))
 	category, err := controller.categoryService.FindById(c.Request.Context(), idParam)
 	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
+			return
+		}
+
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
@@ -115,6 +120,11 @@ func (controller *categoryController) Update(c *gin.Context) {
 
 	category, err := controller.categoryService.Update(c.Request.Context(), request)
 	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
+			return
+		}
+
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
@@ -129,6 +139,11 @@ func (controller *categoryController) Delete(c *gin.Context) {
 	idParam := utils.StrToInt(c.Param("id"))
 	err := controller.categoryService.Delete(c.Request.Context(), idParam)
 	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
+			return
+		}
+
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}

@@ -1,6 +1,9 @@
 package entity
 
-import "time"
+import (
+	"database/sql"
+	"time"
+)
 
 type Apriori struct {
 	IdApriori   int
@@ -11,7 +14,7 @@ type Apriori struct {
 	Confidence  float64
 	RangeDate   string
 	IsActive    int
-	Description *string
+	Description sql.NullString
 	Image       string
 	CreatedAt   time.Time
 }

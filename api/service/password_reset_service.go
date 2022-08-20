@@ -24,7 +24,6 @@ type passwordResetService struct {
 	PasswordResetRepository repository.PasswordResetRepository
 	UserRepository          repository.UserRepository
 	DB                      *sql.DB
-	date                    string
 }
 
 func NewPasswordResetService(resetRepository *repository.PasswordResetRepository, userRepository *repository.UserRepository, db *sql.DB) PasswordResetService {
@@ -32,7 +31,6 @@ func NewPasswordResetService(resetRepository *repository.PasswordResetRepository
 		PasswordResetRepository: *resetRepository,
 		UserRepository:          *userRepository,
 		DB:                      db,
-		date:                    "2006-01-02 15:04:05",
 	}
 }
 
@@ -119,7 +117,7 @@ func (service *passwordResetService) Verify(ctx context.Context, request model.U
 	}
 
 	// Update the password
-	timeNow, err := time.Parse(service.date, now.Format(service.date))
+	timeNow, err := time.Parse(utils.TimeFormat, now.Format(utils.TimeFormat))
 	if err != nil {
 		return err
 	}

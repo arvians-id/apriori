@@ -61,6 +61,11 @@ func (controller *PaymentController) FindByOrderId(c *gin.Context) {
 
 	payment, err := controller.PaymentService.FindByOrderId(c.Request.Context(), orderIdParam)
 	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
+			return
+		}
+
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
@@ -79,6 +84,11 @@ func (controller *PaymentController) UpdateReceiptNumber(c *gin.Context) {
 	request.OrderId = c.Param("order_id")
 	err = controller.PaymentService.UpdateReceiptNumber(c.Request.Context(), request)
 	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
+			return
+		}
+
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}

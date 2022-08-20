@@ -40,8 +40,13 @@ func (controller *commentController) FindAllByProductCode(c *gin.Context) {
 	productCodeParam := c.Param("product_code")
 	tagsQuery := c.Query("tags")
 	ratingQuery := c.Query("rating")
-	comments, err := controller.CommentService.FindAllByProductCode(c.Request.Context(), productCodeParam, tagsQuery, ratingQuery)
+	comments, err := controller.CommentService.FindAllByProductCode(c.Request.Context(), productCodeParam, ratingQuery, tagsQuery)
 	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
+			return
+		}
+
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
@@ -53,6 +58,11 @@ func (controller *commentController) FindById(c *gin.Context) {
 	idParam := utils.StrToInt(c.Param("id"))
 	comment, err := controller.CommentService.FindById(c.Request.Context(), idParam)
 	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
+			return
+		}
+
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
@@ -64,6 +74,11 @@ func (controller *commentController) FindAllRatingByProductCode(c *gin.Context) 
 	productCodeParam := c.Param("product_code")
 	comments, err := controller.CommentService.FindAllRatingByProductCode(c.Request.Context(), productCodeParam)
 	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
+			return
+		}
+
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
@@ -75,6 +90,11 @@ func (controller *commentController) FindByUserOrderId(c *gin.Context) {
 	userOrderIdParam := utils.StrToInt(c.Param("user_order_id"))
 	comment, err := controller.CommentService.FindByUserOrderId(c.Request.Context(), userOrderIdParam)
 	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
+			return
+		}
+
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
