@@ -9,7 +9,7 @@ type CreateUserRequest struct {
 }
 
 type UpdateUserRequest struct {
-	IdUser   uint64 `json:"id_user"`
+	IdUser   int    `json:"id_user"`
 	Role     int    `json:"role" binding:"omitempty,min=1,max=2"`
 	Name     string `json:"name" binding:"required,max=20"`
 	Email    string `json:"email" binding:"required,email,max=100"`
@@ -24,7 +24,7 @@ type GetUserCredentialRequest struct {
 }
 
 type GetUserResponse struct {
-	IdUser    uint64 `json:"id_user"`
+	IdUser    int    `json:"id_user"`
 	Role      int    `json:"role"`
 	Name      string `json:"name"`
 	Email     string `json:"email"`

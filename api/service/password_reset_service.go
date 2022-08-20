@@ -16,7 +16,7 @@ import (
 )
 
 type PasswordResetService interface {
-	CreateOrUpdate(ctx context.Context, email string) (model.GetPasswordResetResponse, error)
+	CreateOrUpdateByEmail(ctx context.Context, email string) (model.GetPasswordResetResponse, error)
 	Verify(ctx context.Context, request model.UpdateResetPasswordUserRequest) error
 }
 
@@ -36,7 +36,7 @@ func NewPasswordResetService(resetRepository *repository.PasswordResetRepository
 	}
 }
 
-func (service *passwordResetService) CreateOrUpdate(ctx context.Context, email string) (model.GetPasswordResetResponse, error) {
+func (service *passwordResetService) CreateOrUpdateByEmail(ctx context.Context, email string) (model.GetPasswordResetResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return model.GetPasswordResetResponse{}, err
@@ -45,10 +45,9 @@ func (service *passwordResetService) CreateOrUpdate(ctx context.Context, email s
 
 	timestamp := time.Now().Add(1 * time.Hour).Unix()
 	timestampString := strconv.Itoa(int(timestamp))
-
 	token := md5.Sum([]byte(email + timestampString))
 	tokenString := fmt.Sprintf("%x", token)
-	passwordReset := entity.PasswordReset{
+	passwordResetRequest := entity.PasswordReset{
 		Email:   email,
 		Token:   tokenString,
 		Expired: int32(timestamp),
@@ -61,28 +60,24 @@ func (service *passwordResetService) CreateOrUpdate(ctx context.Context, email s
 	}
 
 	// Check If email is exists in table password_resets
-	rows, err := service.PasswordResetRepository.FindByEmail(ctx, tx, user.Email)
+	_, err = service.PasswordResetRepository.FindByEmail(ctx, tx, user.Email)
 	if err != nil {
-		return model.GetPasswordResetResponse{}, err
-	}
-
-	// Create new data if not exists
-	if rows.Email == "" {
-		result, err := service.PasswordResetRepository.Create(ctx, tx, passwordReset)
+		// Create new data if not exists
+		passwordResetResponse, err := service.PasswordResetRepository.Create(ctx, tx, passwordResetRequest)
 		if err != nil {
 			return model.GetPasswordResetResponse{}, err
 		}
 
-		return utils.ToPasswordResetResponse(result), nil
+		return utils.ToPasswordResetResponse(passwordResetResponse), nil
 	}
 
 	// Update data if exists
-	result, err := service.PasswordResetRepository.Update(ctx, tx, passwordReset)
+	passwordResetResponse, err := service.PasswordResetRepository.Update(ctx, tx, passwordResetRequest)
 	if err != nil {
 		return model.GetPasswordResetResponse{}, err
 	}
 
-	return utils.ToPasswordResetResponse(result), nil
+	return utils.ToPasswordResetResponse(passwordResetResponse), nil
 }
 
 func (service *passwordResetService) Verify(ctx context.Context, request model.UpdateResetPasswordUserRequest) error {
@@ -93,12 +88,12 @@ func (service *passwordResetService) Verify(ctx context.Context, request model.U
 	defer utils.CommitOrRollback(tx)
 
 	// Check if email and token is exists in table password_resets
-	passwordReset := entity.PasswordReset{
+	passwordResetRequest := entity.PasswordReset{
 		Email: request.Email,
 		Token: request.Token,
 	}
 
-	reset, err := service.PasswordResetRepository.FindByEmailAndToken(ctx, tx, passwordReset)
+	reset, err := service.PasswordResetRepository.FindByEmailAndToken(ctx, tx, passwordResetRequest)
 	if err != nil {
 		return err
 	}
@@ -124,7 +119,7 @@ func (service *passwordResetService) Verify(ctx context.Context, request model.U
 	}
 
 	// Update the password
-	updatedAt, err := time.Parse(service.date, now.Format(service.date))
+	timeNow, err := time.Parse(service.date, now.Format(service.date))
 	if err != nil {
 		return err
 	}
@@ -135,7 +130,7 @@ func (service *passwordResetService) Verify(ctx context.Context, request model.U
 	}
 
 	user.Password = string(password)
-	user.UpdatedAt = updatedAt
+	user.UpdatedAt = timeNow
 
 	err = service.UserRepository.UpdatePassword(ctx, tx, user)
 	if err != nil {

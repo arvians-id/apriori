@@ -12,9 +12,9 @@ import (
 )
 
 type ProductService interface {
-	FindAllOnAdmin(ctx context.Context) ([]model.GetProductResponse, error)
+	FindAllByAdmin(ctx context.Context) ([]model.GetProductResponse, error)
 	FindAll(ctx context.Context, search string, category string) ([]model.GetProductResponse, error)
-	FindAllSimilarCategory(ctx context.Context, code string) ([]model.GetProductResponse, error)
+	FindAllBySimilarCategory(ctx context.Context, code string) ([]model.GetProductResponse, error)
 	FindAllRecommendation(ctx context.Context, code string) ([]model.GetProductRecommendationResponse, error)
 	FindByCode(ctx context.Context, code string) (model.GetProductResponse, error)
 	Create(ctx context.Context, request model.CreateProductRequest) (model.GetProductResponse, error)
@@ -40,24 +40,24 @@ func NewProductService(productRepository *repository.ProductRepository, storageS
 	}
 }
 
-func (service *productService) FindAllOnAdmin(ctx context.Context) ([]model.GetProductResponse, error) {
+func (service *productService) FindAllByAdmin(ctx context.Context) ([]model.GetProductResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return []model.GetProductResponse{}, err
 	}
 	defer utils.CommitOrRollback(tx)
 
-	products, err := service.ProductRepository.FindAllOnAdmin(ctx, tx)
+	products, err := service.ProductRepository.FindAllByAdmin(ctx, tx)
 	if err != nil {
 		return []model.GetProductResponse{}, err
 	}
 
-	var productResponse []model.GetProductResponse
+	var productResponses []model.GetProductResponse
 	for _, product := range products {
-		productResponse = append(productResponse, utils.ToProductResponse(product))
+		productResponses = append(productResponses, utils.ToProductResponse(product))
 	}
 
-	return productResponse, nil
+	return productResponses, nil
 }
 
 func (service *productService) FindAll(ctx context.Context, search string, category string) ([]model.GetProductResponse, error) {
@@ -72,41 +72,41 @@ func (service *productService) FindAll(ctx context.Context, search string, categ
 		return []model.GetProductResponse{}, err
 	}
 
-	var productResponse []model.GetProductResponse
+	var productResponses []model.GetProductResponse
 	for _, product := range products {
-		productResponse = append(productResponse, utils.ToProductResponse(product))
+		productResponses = append(productResponses, utils.ToProductResponse(product))
 	}
 
-	return productResponse, nil
+	return productResponses, nil
 }
 
-func (service *productService) FindAllSimilarCategory(ctx context.Context, code string) ([]model.GetProductResponse, error) {
+func (service *productService) FindAllBySimilarCategory(ctx context.Context, code string) ([]model.GetProductResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return []model.GetProductResponse{}, err
 	}
 	defer utils.CommitOrRollback(tx)
 
-	getProduct, err := service.ProductRepository.FindByCode(ctx, tx, code)
+	product, err := service.ProductRepository.FindByCode(ctx, tx, code)
 	if err != nil {
 		return []model.GetProductResponse{}, err
 	}
 
-	categoryArray := strings.Split(getProduct.Category, ", ")
-	category := strings.Join(categoryArray, "|")
-	products, err := service.ProductRepository.FindAllSimilarCategory(ctx, tx, category)
+	categoryArray := strings.Split(product.Category, ", ")
+	categoryString := strings.Join(categoryArray, "|")
+	productCategories, err := service.ProductRepository.FindAllBySimilarCategory(ctx, tx, categoryString)
 	if err != nil {
 		return []model.GetProductResponse{}, err
 	}
 
-	var productResponse []model.GetProductResponse
-	for _, product := range products {
-		if product.Code != code {
-			productResponse = append(productResponse, utils.ToProductResponse(product))
+	var productResponses []model.GetProductResponse
+	for _, productCategory := range productCategories {
+		if productCategory.Code != code {
+			productResponses = append(productResponses, utils.ToProductResponse(productCategory))
 		}
 	}
 
-	return productResponse, nil
+	return productResponses, nil
 }
 
 func (service *productService) FindAllRecommendation(ctx context.Context, code string) ([]model.GetProductRecommendationResponse, error) {
@@ -121,29 +121,29 @@ func (service *productService) FindAllRecommendation(ctx context.Context, code s
 		return nil, err
 	}
 
-	apriories, err := service.AprioriRepository.FindByActive(ctx, tx)
+	apriories, err := service.AprioriRepository.FindAllByActive(ctx, tx)
 	if err != nil {
 		return nil, err
 	}
 
-	var aprioriResponse []model.GetProductRecommendationResponse
+	var productResponses []model.GetProductRecommendationResponse
 	for _, apriori := range apriories {
-		items := strings.Split(apriori.Item, ",")
+		productNames := strings.Split(apriori.Item, ",")
 		var exists bool
-		for _, nameProduct := range items {
-			if strings.ToLower(product.Name) == strings.TrimSpace(nameProduct) {
+		for _, productName := range productNames {
+			if strings.ToLower(product.Name) == strings.TrimSpace(productName) {
 				exists = true
 			}
 		}
 
 		var totalPrice int
 		if exists {
-			for _, nameProduct := range items {
-				filterProduct, _ := service.ProductRepository.FindByName(ctx, tx, utils.UpperWords(nameProduct))
-				totalPrice += filterProduct.Price
+			for _, productName := range productNames {
+				product, _ := service.ProductRepository.FindByName(ctx, tx, utils.UpperWords(productName))
+				totalPrice += product.Price
 			}
 
-			aprioriResponse = append(aprioriResponse, model.GetProductRecommendationResponse{
+			productResponses = append(productResponses, model.GetProductRecommendationResponse{
 				AprioriId:          apriori.IdApriori,
 				AprioriCode:        apriori.Code,
 				AprioriItem:        apriori.Item,
@@ -155,7 +155,7 @@ func (service *productService) FindAllRecommendation(ctx context.Context, code s
 		}
 	}
 
-	return aprioriResponse, nil
+	return productResponses, nil
 }
 
 func (service *productService) FindByCode(ctx context.Context, code string) (model.GetProductResponse, error) {
@@ -165,12 +165,12 @@ func (service *productService) FindByCode(ctx context.Context, code string) (mod
 	}
 	defer utils.CommitOrRollback(tx)
 
-	product, err := service.ProductRepository.FindByCode(ctx, tx, code)
+	productResponse, err := service.ProductRepository.FindByCode(ctx, tx, code)
 	if err != nil {
 		return model.GetProductResponse{}, err
 	}
 
-	return utils.ToProductResponse(product), nil
+	return utils.ToProductResponse(productResponse), nil
 }
 
 func (service *productService) Create(ctx context.Context, request model.CreateProductRequest) (model.GetProductResponse, error) {
@@ -180,11 +180,7 @@ func (service *productService) Create(ctx context.Context, request model.CreateP
 	}
 	defer utils.CommitOrRollback(tx)
 
-	createdAt, err := time.Parse(service.date, time.Now().Format(service.date))
-	if err != nil {
-		return model.GetProductResponse{}, err
-	}
-	updatedAt, err := time.Parse(service.date, time.Now().Format(service.date))
+	timeNow, err := time.Parse(service.date, time.Now().Format(service.date))
 	if err != nil {
 		return model.GetProductResponse{}, err
 	}
@@ -192,7 +188,7 @@ func (service *productService) Create(ctx context.Context, request model.CreateP
 		request.Image = "no-image.png"
 	}
 
-	createProduct := entity.Product{
+	productRequest := entity.Product{
 		Code:        request.Code,
 		Name:        utils.UpperWords(request.Name),
 		Description: request.Description,
@@ -201,16 +197,16 @@ func (service *productService) Create(ctx context.Context, request model.CreateP
 		Category:    utils.UpperWords(request.Category),
 		IsEmpty:     0,
 		Mass:        request.Mass,
-		CreatedAt:   createdAt,
-		UpdatedAt:   updatedAt,
+		CreatedAt:   timeNow,
+		UpdatedAt:   timeNow,
 	}
 
-	product, err := service.ProductRepository.Create(ctx, tx, createProduct)
+	productResponse, err := service.ProductRepository.Create(ctx, tx, productRequest)
 	if err != nil {
 		return model.GetProductResponse{}, err
 	}
 
-	return utils.ToProductResponse(product), nil
+	return utils.ToProductResponse(productResponse), nil
 }
 
 func (service *productService) Update(ctx context.Context, request model.UpdateProductRequest) (model.GetProductResponse, error) {
@@ -220,33 +216,33 @@ func (service *productService) Update(ctx context.Context, request model.UpdateP
 	}
 	defer utils.CommitOrRollback(tx)
 
-	getProduct, err := service.ProductRepository.FindByCode(ctx, tx, request.Code)
+	product, err := service.ProductRepository.FindByCode(ctx, tx, request.Code)
 	if err != nil {
 		return model.GetProductResponse{}, err
 	}
 
-	updatedAt, err := time.Parse(service.date, time.Now().Format(service.date))
+	timeNow, err := time.Parse(service.date, time.Now().Format(service.date))
 	if err != nil {
 		return model.GetProductResponse{}, err
 	}
 
-	getProduct.Name = utils.UpperWords(request.Name)
-	getProduct.Description = request.Description
-	getProduct.Price = request.Price
-	getProduct.Category = utils.UpperWords(request.Category)
-	getProduct.IsEmpty = request.IsEmpty
-	getProduct.Mass = request.Mass
-	getProduct.UpdatedAt = updatedAt
+	product.Name = utils.UpperWords(request.Name)
+	product.Description = request.Description
+	product.Price = request.Price
+	product.Category = utils.UpperWords(request.Category)
+	product.IsEmpty = request.IsEmpty
+	product.Mass = request.Mass
+	product.UpdatedAt = timeNow
 	if request.Image != "" {
-		getProduct.Image = request.Image
+		product.Image = request.Image
 	}
 
-	product, err := service.ProductRepository.Update(ctx, tx, getProduct)
+	productResponse, err := service.ProductRepository.Update(ctx, tx, product)
 	if err != nil {
 		return model.GetProductResponse{}, err
 	}
 
-	return utils.ToProductResponse(product), nil
+	return utils.ToProductResponse(productResponse), nil
 }
 
 func (service *productService) Delete(ctx context.Context, code string) error {
@@ -256,12 +252,12 @@ func (service *productService) Delete(ctx context.Context, code string) error {
 	}
 	defer utils.CommitOrRollback(tx)
 
-	getProduct, err := service.ProductRepository.FindByCode(ctx, tx, code)
+	product, err := service.ProductRepository.FindByCode(ctx, tx, code)
 	if err != nil {
 		return err
 	}
 
-	err = service.ProductRepository.Delete(ctx, tx, getProduct.Code)
+	err = service.ProductRepository.Delete(ctx, tx, product.Code)
 	if err != nil {
 		return err
 	}

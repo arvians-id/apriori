@@ -27,14 +27,14 @@ func (controller *rajaOngkirController) Route(router *gin.Engine) *gin.Engine {
 }
 
 func (controller *rajaOngkirController) FindAll(c *gin.Context) {
-	place := c.Param("place")
-	if place == "province" {
-		place = "province"
-	} else if place == "city" {
-		place = "city?province=" + c.Query("province")
+	placeParam := c.Param("place")
+	if placeParam == "province" {
+		placeParam = "province"
+	} else if placeParam == "city" {
+		placeParam = "city?province=" + c.Query("province")
 	}
 
-	url := "https://api.rajaongkir.com/starter/" + place
+	url := "https://api.rajaongkir.com/starter/" + placeParam
 	req, _ := http.NewRequest("GET", url, nil)
 	req.Header.Add("key", os.Getenv("RAJA_ONGKIR_SECRET_KEY"))
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")

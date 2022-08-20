@@ -12,10 +12,10 @@ import (
 
 type CategoryService interface {
 	FindAll(ctx context.Context) ([]model.GetCategoryResponse, error)
-	FindById(ctx context.Context, categoryId int) (model.GetCategoryResponse, error)
+	FindById(ctx context.Context, id int) (model.GetCategoryResponse, error)
 	Create(ctx context.Context, request model.CreateCategoryRequest) (model.GetCategoryResponse, error)
 	Update(ctx context.Context, request model.UpdateCategoryRequest) (model.GetCategoryResponse, error)
-	Delete(ctx context.Context, categoryId int) error
+	Delete(ctx context.Context, id int) error
 }
 
 type categoryService struct {
@@ -44,27 +44,27 @@ func (service *categoryService) FindAll(ctx context.Context) ([]model.GetCategor
 		return nil, err
 	}
 
-	var categoryResponse []model.GetCategoryResponse
+	var categoryResponses []model.GetCategoryResponse
 	for _, category := range categories {
-		categoryResponse = append(categoryResponse, utils.ToCategoryResponse(category))
+		categoryResponses = append(categoryResponses, utils.ToCategoryResponse(category))
 	}
 
-	return categoryResponse, nil
+	return categoryResponses, nil
 }
 
-func (service *categoryService) FindById(ctx context.Context, categoryId int) (model.GetCategoryResponse, error) {
+func (service *categoryService) FindById(ctx context.Context, id int) (model.GetCategoryResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return model.GetCategoryResponse{}, err
 	}
 	defer utils.CommitOrRollback(tx)
 
-	category, err := service.categoryRepository.FindById(ctx, tx, categoryId)
+	categoryResponse, err := service.categoryRepository.FindById(ctx, tx, id)
 	if err != nil {
 		return model.GetCategoryResponse{}, err
 	}
 
-	return utils.ToCategoryResponse(category), nil
+	return utils.ToCategoryResponse(categoryResponse), nil
 }
 
 func (service *categoryService) Create(ctx context.Context, request model.CreateCategoryRequest) (model.GetCategoryResponse, error) {
@@ -83,18 +83,18 @@ func (service *categoryService) Create(ctx context.Context, request model.Create
 		return model.GetCategoryResponse{}, err
 	}
 
-	createCategory := entity.Category{
+	categoryRequest := entity.Category{
 		Name:      utils.UpperWords(request.Name),
 		CreatedAt: createdAt,
 		UpdatedAt: updatedAt,
 	}
 
-	category, err := service.categoryRepository.Create(ctx, tx, createCategory)
+	categoryResponse, err := service.categoryRepository.Create(ctx, tx, categoryRequest)
 	if err != nil {
 		return model.GetCategoryResponse{}, err
 	}
 
-	return utils.ToCategoryResponse(category), nil
+	return utils.ToCategoryResponse(categoryResponse), nil
 
 }
 
@@ -110,34 +110,34 @@ func (service *categoryService) Update(ctx context.Context, request model.Update
 		return model.GetCategoryResponse{}, err
 	}
 
-	updatedAt, err := time.Parse(service.date, time.Now().Format(service.date))
+	timeNow, err := time.Parse(service.date, time.Now().Format(service.date))
 	if err != nil {
 		return model.GetCategoryResponse{}, err
 	}
 	category.Name = utils.UpperWords(request.Name)
-	category.UpdatedAt = updatedAt
+	category.UpdatedAt = timeNow
 
-	categoryUpdate, err := service.categoryRepository.Update(ctx, tx, category)
+	categoryResponse, err := service.categoryRepository.Update(ctx, tx, category)
 	if err != nil {
 		return model.GetCategoryResponse{}, err
 	}
 
-	return utils.ToCategoryResponse(categoryUpdate), nil
+	return utils.ToCategoryResponse(categoryResponse), nil
 }
 
-func (service *categoryService) Delete(ctx context.Context, categoryId int) error {
+func (service *categoryService) Delete(ctx context.Context, id int) error {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return err
 	}
 	defer utils.CommitOrRollback(tx)
 
-	_, err = service.categoryRepository.FindById(ctx, tx, categoryId)
+	category, err := service.categoryRepository.FindById(ctx, tx, id)
 	if err != nil {
 		return err
 	}
 
-	err = service.categoryRepository.Delete(ctx, tx, categoryId)
+	err = service.categoryRepository.Delete(ctx, tx, category.IdCategory)
 	if err != nil {
 		return err
 	}

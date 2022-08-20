@@ -17,19 +17,18 @@ import (
 
 type PaymentService interface {
 	GetClient()
-	AddReceiptNumber(ctx context.Context, request model.AddReceiptNumberRequest) error
 	FindAll(ctx context.Context) ([]model.GetPaymentRelationResponse, error)
 	FindAllByUserId(ctx context.Context, userId int) ([]model.GetPaymentNullableResponse, error)
 	FindByOrderId(ctx context.Context, orderId string) (model.GetPaymentNullableResponse, error)
+	CreateOrUpdate(ctx context.Context, request map[string]interface{}) error
+	UpdateReceiptNumber(ctx context.Context, request model.AddReceiptNumberRequest) error
 	Delete(ctx context.Context, orderId string) error
 	GetToken(ctx context.Context, amount int64, userId int, customerName string, items []string, rajaShipping model.GetRajaOngkirResponse) (map[string]interface{}, error)
-	CreateOrUpdate(ctx context.Context, request map[string]interface{}) error
 }
 
 type paymentService struct {
 	DB                    *sql.DB
 	MidClient             midtrans.Client
-	CoreGateway           midtrans.CoreGateway
 	SnapGateway           midtrans.SnapGateway
 	ServerKey             string
 	ClientKey             string
@@ -57,28 +56,10 @@ func NewPaymentService(configuration config.Config, paymentRepository *repositor
 	}
 }
 
-func (service *paymentService) AddReceiptNumber(ctx context.Context, request model.AddReceiptNumberRequest) error {
-	tx, err := service.DB.Begin()
-	if err != nil {
-		return err
+func (service *paymentService) GetClient() {
+	service.SnapGateway = midtrans.SnapGateway{
+		Client: service.MidClient,
 	}
-	defer utils.CommitOrRollback(tx)
-
-	getPayment, err := service.PaymentRepository.FindByOrderId(ctx, tx, request.OrderId)
-	if err != nil {
-		return err
-	}
-
-	payment := entity.Payment{
-		OrderId:       *getPayment.OrderId,
-		ReceiptNumber: request.ReceiptNumber,
-	}
-	err = service.PaymentRepository.AddReceiptNumber(ctx, tx, payment)
-	if err != nil {
-		return err
-	}
-
-	return nil
 }
 
 func (service *paymentService) FindAll(ctx context.Context) ([]model.GetPaymentRelationResponse, error) {
@@ -93,12 +74,12 @@ func (service *paymentService) FindAll(ctx context.Context) ([]model.GetPaymentR
 		return nil, err
 	}
 
-	var paymentResponse []model.GetPaymentRelationResponse
+	var paymentResponses []model.GetPaymentRelationResponse
 	for _, payment := range payments {
-		paymentResponse = append(paymentResponse, utils.ToPaymentRelationResponse(payment))
+		paymentResponses = append(paymentResponses, utils.ToPaymentRelationResponse(payment))
 	}
 
-	return paymentResponse, nil
+	return paymentResponses, nil
 }
 
 func (service *paymentService) FindAllByUserId(ctx context.Context, userId int) ([]model.GetPaymentNullableResponse, error) {
@@ -113,12 +94,12 @@ func (service *paymentService) FindAllByUserId(ctx context.Context, userId int) 
 		return nil, err
 	}
 
-	var paymentResponse []model.GetPaymentNullableResponse
+	var paymentResponses []model.GetPaymentNullableResponse
 	for _, payment := range payments {
-		paymentResponse = append(paymentResponse, utils.ToPaymentNullableResponse(payment))
+		paymentResponses = append(paymentResponses, utils.ToPaymentNullableResponse(payment))
 	}
 
-	return paymentResponse, nil
+	return paymentResponses, nil
 }
 
 func (service *paymentService) FindByOrderId(ctx context.Context, orderId string) (model.GetPaymentNullableResponse, error) {
@@ -128,36 +109,12 @@ func (service *paymentService) FindByOrderId(ctx context.Context, orderId string
 	}
 	defer utils.CommitOrRollback(tx)
 
-	payment, err := service.PaymentRepository.FindByOrderId(ctx, tx, orderId)
+	paymentResponse, err := service.PaymentRepository.FindByOrderId(ctx, tx, orderId)
 	if err != nil {
 		return model.GetPaymentNullableResponse{}, err
 	}
 
-	return utils.ToPaymentNullableResponse(payment), nil
-}
-
-func (service *paymentService) Delete(ctx context.Context, orderId string) error {
-	tx, err := service.DB.Begin()
-	if err != nil {
-		return err
-	}
-	defer utils.CommitOrRollback(tx)
-
-	err = service.PaymentRepository.Delete(ctx, tx, orderId)
-	if err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (service *paymentService) GetClient() {
-	service.CoreGateway = midtrans.CoreGateway{
-		Client: service.MidClient,
-	}
-	service.SnapGateway = midtrans.SnapGateway{
-		Client: service.MidClient,
-	}
+	return utils.ToPaymentNullableResponse(paymentResponse), nil
 }
 
 func (service *paymentService) CreateOrUpdate(ctx context.Context, request map[string]interface{}) error {
@@ -218,7 +175,7 @@ func (service *paymentService) CreateOrUpdate(ctx context.Context, request map[s
 			if err != nil {
 				return err
 			}
-			userOrder, err := service.UserOrderRepository.FindAll(ctx, tx, request["custom_field2"].(string))
+			userOrder, err := service.UserOrderRepository.FindAllByPayloadId(ctx, tx, request["custom_field2"].(string))
 			if err != nil {
 				return err
 			}
@@ -244,6 +201,49 @@ func (service *paymentService) CreateOrUpdate(ctx context.Context, request map[s
 	return nil
 }
 
+func (service *paymentService) UpdateReceiptNumber(ctx context.Context, request model.AddReceiptNumberRequest) error {
+	tx, err := service.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer utils.CommitOrRollback(tx)
+
+	payment, err := service.PaymentRepository.FindByOrderId(ctx, tx, request.OrderId)
+	if err != nil {
+		return err
+	}
+
+	paymentRequest := entity.Payment{
+		OrderId:       *payment.OrderId,
+		ReceiptNumber: request.ReceiptNumber,
+	}
+	err = service.PaymentRepository.UpdateReceiptNumber(ctx, tx, paymentRequest)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (service *paymentService) Delete(ctx context.Context, orderId string) error {
+	tx, err := service.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer utils.CommitOrRollback(tx)
+
+	payment, err := service.PaymentRepository.FindByOrderId(ctx, tx, orderId)
+	if err != nil {
+		return err
+	}
+
+	err = service.PaymentRepository.Delete(ctx, tx, *payment.OrderId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
 func (service *paymentService) GetToken(ctx context.Context, amount int64, userId int, customerName string, items []string, rajaShipping model.GetRajaOngkirResponse) (map[string]interface{}, error) {
 	service.GetClient()
 
@@ -321,14 +321,14 @@ func (service *paymentService) GetToken(ctx context.Context, amount int64, userI
 		return nil, err
 	}
 
-	var data = make(map[string]interface{})
-	data["clientKey"] = service.ClientKey
-	data["token"] = token.Token
+	var tokenResponse = make(map[string]interface{})
+	tokenResponse["clientKey"] = service.ClientKey
+	tokenResponse["token"] = token.Token
 
 	for _, value := range test {
 		code := CheckCode(value)
 		itemRequest := entity.UserOrder{
-			PayloadId:      uint64(payment.IdPayload),
+			PayloadId:      payment.IdPayload,
 			Code:           code,
 			Name:           value["name"].(string),
 			Price:          int64(value["price"].(float64)),
@@ -342,7 +342,7 @@ func (service *paymentService) GetToken(ctx context.Context, amount int64, userI
 		}
 	}
 
-	return data, nil
+	return tokenResponse, nil
 }
 
 func CheckCode(value map[string]interface{}) string {

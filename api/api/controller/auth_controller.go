@@ -16,16 +16,14 @@ import (
 )
 
 type AuthController struct {
-	AuthService          service.AuthService
 	UserService          service.UserService
 	JwtService           service.JwtService
 	EmailService         service.EmailService
 	PasswordResetService service.PasswordResetService
 }
 
-func NewAuthController(authService *service.AuthService, userService *service.UserService, jwtService service.JwtService, emailService service.EmailService, passwordResetService *service.PasswordResetService) *AuthController {
+func NewAuthController(userService *service.UserService, jwtService service.JwtService, emailService service.EmailService, passwordResetService *service.PasswordResetService) *AuthController {
 	return &AuthController{
-		AuthService:          *authService,
 		UserService:          *userService,
 		JwtService:           jwtService,
 		EmailService:         emailService,
@@ -60,7 +58,7 @@ func (controller *AuthController) Login(c *gin.Context) {
 		return
 	}
 
-	user, err := controller.AuthService.VerifyCredential(c.Request.Context(), request)
+	user, err := controller.UserService.FindByEmail(c.Request.Context(), request)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
@@ -147,7 +145,7 @@ func (controller *AuthController) ForgotPassword(c *gin.Context) {
 	}
 
 	// Insert or update data token into database
-	result, err := controller.PasswordResetService.CreateOrUpdate(c.Request.Context(), request.Email)
+	result, err := controller.PasswordResetService.CreateOrUpdateByEmail(c.Request.Context(), request.Email)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return

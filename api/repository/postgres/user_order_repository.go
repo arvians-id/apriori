@@ -5,7 +5,6 @@ import (
 	"apriori/repository"
 	"context"
 	"database/sql"
-	"errors"
 )
 
 type userOrderRepository struct {
@@ -15,27 +14,36 @@ func NewUserOrderRepository() repository.UserOrderRepository {
 	return &userOrderRepository{}
 }
 
-func (repository *userOrderRepository) FindAll(ctx context.Context, tx *sql.Tx, payloadId string) ([]entity.UserOrder, error) {
+func (repository *userOrderRepository) FindAllByPayloadId(ctx context.Context, tx *sql.Tx, payloadId string) ([]entity.UserOrder, error) {
 	query := "SELECT * FROM user_orders WHERE payload_id = $1"
-	queryContext, err := tx.QueryContext(ctx, query, payloadId)
+	rows, err := tx.QueryContext(ctx, query, payloadId)
 	if err != nil {
 		return []entity.UserOrder{}, err
 	}
-
-	defer func(queryContext *sql.Rows) {
-		err := queryContext.Close()
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
 		if err != nil {
 			return
 		}
-	}(queryContext)
+	}(rows)
 
 	var userOrders []entity.UserOrder
-	for queryContext.Next() {
+	for rows.Next() {
 		var userOrder entity.UserOrder
-		err := queryContext.Scan(&userOrder.IdOrder, &userOrder.PayloadId, &userOrder.Code, &userOrder.Name, &userOrder.Price, &userOrder.Image, &userOrder.Quantity, &userOrder.TotalPriceItem)
+		err := rows.Scan(
+			&userOrder.IdOrder,
+			&userOrder.PayloadId,
+			&userOrder.Code,
+			&userOrder.Name,
+			&userOrder.Price,
+			&userOrder.Image,
+			&userOrder.Quantity,
+			&userOrder.TotalPriceItem,
+		)
 		if err != nil {
 			return []entity.UserOrder{}, err
 		}
+
 		userOrders = append(userOrders, userOrder)
 	}
 
@@ -55,25 +63,24 @@ func (repository *userOrderRepository) FindAllByUserId(ctx context.Context, tx *
 			    order_id,
 			    transaction_status 
 			  FROM user_orders uo 
-			  LEFT JOIN payloads p ON p.id_payload = uo.payload_id 
+			  	LEFT JOIN payloads p ON p.id_payload = uo.payload_id 
 		   	  WHERE p.user_id = $1 AND p.transaction_status = 'settlement'
 			  ORDER BY uo.id_order DESC`
-	queryContext, err := tx.QueryContext(ctx, query, userId)
+	rows, err := tx.QueryContext(ctx, query, userId)
 	if err != nil {
 		return []entity.UserOrderRelationByUserId{}, err
 	}
-
-	defer func(queryContext *sql.Rows) {
-		err := queryContext.Close()
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
 		if err != nil {
 			return
 		}
-	}(queryContext)
+	}(rows)
 
 	var userOrders []entity.UserOrderRelationByUserId
-	for queryContext.Next() {
+	for rows.Next() {
 		var userOrder entity.UserOrderRelationByUserId
-		err := queryContext.Scan(
+		err := rows.Scan(
 			&userOrder.IdOrder,
 			&userOrder.PayloadId,
 			&userOrder.Code,
@@ -88,46 +95,33 @@ func (repository *userOrderRepository) FindAllByUserId(ctx context.Context, tx *
 		if err != nil {
 			return []entity.UserOrderRelationByUserId{}, err
 		}
+
 		userOrders = append(userOrders, userOrder)
 	}
 
 	return userOrders, nil
 }
 
-func (repository *userOrderRepository) FindById(ctx context.Context, tx *sql.Tx, orderId int) (entity.UserOrder, error) {
+func (repository *userOrderRepository) FindById(ctx context.Context, tx *sql.Tx, id int) (entity.UserOrder, error) {
 	query := `SELECT * FROM user_orders WHERE id_order = $1`
-	queryContext, err := tx.QueryContext(ctx, query, orderId)
+	row := tx.QueryRowContext(ctx, query, id)
+
+	var userOrder entity.UserOrder
+	err := row.Scan(
+		&userOrder.IdOrder,
+		&userOrder.PayloadId,
+		&userOrder.Code,
+		&userOrder.Name,
+		&userOrder.Price,
+		&userOrder.Image,
+		&userOrder.Quantity,
+		&userOrder.TotalPriceItem,
+	)
 	if err != nil {
 		return entity.UserOrder{}, err
 	}
 
-	defer func(queryContext *sql.Rows) {
-		err := queryContext.Close()
-		if err != nil {
-			return
-		}
-	}(queryContext)
-
-	if queryContext.Next() {
-		var userOrder entity.UserOrder
-		err := queryContext.Scan(
-			&userOrder.IdOrder,
-			&userOrder.PayloadId,
-			&userOrder.Code,
-			&userOrder.Name,
-			&userOrder.Price,
-			&userOrder.Image,
-			&userOrder.Quantity,
-			&userOrder.TotalPriceItem,
-		)
-		if err != nil {
-			return entity.UserOrder{}, err
-		}
-
-		return userOrder, nil
-	}
-
-	return entity.UserOrder{}, errors.New("user order not found")
+	return userOrder, nil
 }
 
 func (repository *userOrderRepository) Create(ctx context.Context, tx *sql.Tx, userOrder entity.UserOrder) error {

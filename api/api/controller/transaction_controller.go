@@ -31,11 +31,11 @@ func (controller *TransactionController) Route(router *gin.Engine) *gin.Engine {
 	authorized := router.Group("/api", middleware.AuthJwtMiddleware())
 	{
 		authorized.GET("/transactions", controller.FindAll)
-		authorized.GET("/transactions/:code", controller.FindByTransaction)
+		authorized.GET("/transactions/:number_transaction", controller.FindByNoTransaction)
 		authorized.POST("/transactions", controller.Create)
-		authorized.POST("/transactions/csv", controller.CreateFromCsv)
-		authorized.PATCH("/transactions/:numberTransaction", controller.Update)
-		authorized.DELETE("/transactions/:numberTransaction", controller.Delete)
+		authorized.POST("/transactions/csv", controller.CreateByCsv)
+		authorized.PATCH("/transactions/:number_transaction", controller.Update)
+		authorized.DELETE("/transactions/:number_transaction", controller.Delete)
 		authorized.DELETE("/transactions/truncate", controller.Truncate)
 	}
 
@@ -64,19 +64,19 @@ func (controller *TransactionController) FindAll(c *gin.Context) {
 		return
 	}
 
-	var transaction []model.GetTransactionResponse
-	err = json.Unmarshal(bytes.NewBufferString(transactionCache).Bytes(), &transaction)
+	var transactionCacheResponses []model.GetTransactionResponse
+	err = json.Unmarshal(bytes.NewBufferString(transactionCache).Bytes(), &transactionCacheResponses)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response.ReturnSuccessOK(c, "OK", transaction)
+	response.ReturnSuccessOK(c, "OK", transactionCacheResponses)
 }
 
-func (controller *TransactionController) FindByTransaction(c *gin.Context) {
-	noTransaction := c.Param("code")
-	transactions, err := controller.TransactionService.FindByTransaction(c.Request.Context(), noTransaction)
+func (controller *TransactionController) FindByNoTransaction(c *gin.Context) {
+	noTransactionParam := c.Param("number_transaction")
+	transactions, err := controller.TransactionService.FindByNoTransaction(c.Request.Context(), noTransactionParam)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
@@ -105,7 +105,7 @@ func (controller *TransactionController) Create(c *gin.Context) {
 	response.ReturnSuccessOK(c, "created", transaction)
 }
 
-func (controller *TransactionController) CreateFromCsv(c *gin.Context) {
+func (controller *TransactionController) CreateByCsv(c *gin.Context) {
 	file, header, err := c.Request.FormFile("file")
 	if err != nil {
 		response.ReturnErrorBadRequest(c, err, nil)
@@ -126,7 +126,7 @@ func (controller *TransactionController) CreateFromCsv(c *gin.Context) {
 		return
 	}
 
-	err = controller.TransactionService.CreateFromCsv(c.Request.Context(), data)
+	err = controller.TransactionService.CreateByCsv(c.Request.Context(), data)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
@@ -146,9 +146,9 @@ func (controller *TransactionController) Update(c *gin.Context) {
 		return
 	}
 
-	noTransaction := c.Param("numberTransaction")
+	noTransactionParam := c.Param("number_transaction")
 
-	request.NoTransaction = noTransaction
+	request.NoTransaction = noTransactionParam
 	transaction, err := controller.TransactionService.Update(c.Request.Context(), request)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
@@ -162,8 +162,8 @@ func (controller *TransactionController) Update(c *gin.Context) {
 }
 
 func (controller *TransactionController) Delete(c *gin.Context) {
-	noTransaction := c.Param("numberTransaction")
-	err := controller.TransactionService.Delete(c.Request.Context(), noTransaction)
+	noTransactionParam := c.Param("number_transaction")
+	err := controller.TransactionService.Delete(c.Request.Context(), noTransactionParam)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return

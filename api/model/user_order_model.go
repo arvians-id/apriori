@@ -1,8 +1,8 @@
 package model
 
 type GetUserOrderResponse struct {
-	IdOrder        uint64 `json:"id_order,omitempty"`
-	PayloadId      uint64 `json:"payload_id,omitempty"`
+	IdOrder        int    `json:"id_order,omitempty"`
+	PayloadId      int    `json:"payload_id,omitempty"`
 	Code           string `json:"code,omitempty"`
 	Name           string `json:"name,omitempty"`
 	Price          int64  `json:"price,omitempty"`
@@ -12,8 +12,8 @@ type GetUserOrderResponse struct {
 }
 
 type GetUserOrderRelationByUserIdResponse struct {
-	IdOrder           uint64 `json:"id_order,omitempty"`
-	PayloadId         uint64 `json:"payload_id,omitempty"`
+	IdOrder           int    `json:"id_order,omitempty"`
+	PayloadId         int    `json:"payload_id,omitempty"`
 	Code              string `json:"code,omitempty"`
 	Name              string `json:"name,omitempty"`
 	Price             int64  `json:"price,omitempty"`

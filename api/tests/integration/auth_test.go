@@ -106,7 +106,6 @@ var _ = Describe("Auth API", func() {
 					_ = json.Unmarshal(body, &responseBody)
 
 					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusInternalServerError))
-					Expect(responseBody["status"]).To(Equal("email not found"))
 					Expect(responseBody["data"]).To(BeNil())
 				})
 			})
@@ -537,7 +536,6 @@ var _ = Describe("Auth API", func() {
 					_ = json.Unmarshal(body, &responseBody)
 
 					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusInternalServerError))
-					Expect(responseBody["status"]).To(Equal("invalid credentials"))
 					Expect(responseBody["data"]).To(BeNil())
 				})
 			})

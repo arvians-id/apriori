@@ -12,9 +12,9 @@ import (
 
 type TransactionService interface {
 	FindAll(ctx context.Context) ([]model.GetTransactionResponse, error)
-	FindByTransaction(ctx context.Context, noTransaction string) (model.GetTransactionResponse, error)
+	FindByNoTransaction(ctx context.Context, noTransaction string) (model.GetTransactionResponse, error)
 	Create(ctx context.Context, request model.CreateTransactionRequest) (model.GetTransactionResponse, error)
-	CreateFromCsv(ctx context.Context, data [][]string) error
+	CreateByCsv(ctx context.Context, data [][]string) error
 	Update(ctx context.Context, request model.UpdateTransactionRequest) (model.GetTransactionResponse, error)
 	Delete(ctx context.Context, noTransaction string) error
 	Truncate(ctx context.Context) error
@@ -43,32 +43,32 @@ func (service *transactionService) FindAll(ctx context.Context) ([]model.GetTran
 	}
 	defer utils.CommitOrRollback(tx)
 
-	transaction, err := service.TransactionRepository.FindAll(ctx, tx)
+	transactions, err := service.TransactionRepository.FindAll(ctx, tx)
 	if err != nil {
 		return []model.GetTransactionResponse{}, err
 	}
 
-	var transactions []model.GetTransactionResponse
-	for _, rows := range transaction {
-		transactions = append(transactions, utils.ToTransactionResponse(rows))
+	var transactionResponses []model.GetTransactionResponse
+	for _, transaction := range transactions {
+		transactionResponses = append(transactionResponses, utils.ToTransactionResponse(transaction))
 	}
 
-	return transactions, nil
+	return transactionResponses, nil
 }
 
-func (service *transactionService) FindByTransaction(ctx context.Context, noTransaction string) (model.GetTransactionResponse, error) {
+func (service *transactionService) FindByNoTransaction(ctx context.Context, noTransaction string) (model.GetTransactionResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return model.GetTransactionResponse{}, err
 	}
 	defer utils.CommitOrRollback(tx)
 
-	rows, err := service.TransactionRepository.FindByTransaction(ctx, tx, noTransaction)
+	transactionResponse, err := service.TransactionRepository.FindByNoTransaction(ctx, tx, noTransaction)
 	if err != nil {
 		return model.GetTransactionResponse{}, err
 	}
 
-	return utils.ToTransactionResponse(rows), nil
+	return utils.ToTransactionResponse(transactionResponse), nil
 }
 
 func (service *transactionService) Create(ctx context.Context, request model.CreateTransactionRequest) (model.GetTransactionResponse, error) {
@@ -83,7 +83,7 @@ func (service *transactionService) Create(ctx context.Context, request model.Cre
 		return model.GetTransactionResponse{}, err
 	}
 
-	transaction := entity.Transaction{
+	transactionRequest := entity.Transaction{
 		ProductName:   request.ProductName,
 		CustomerName:  request.CustomerName,
 		NoTransaction: utils.CreateTransaction(),
@@ -91,15 +91,15 @@ func (service *transactionService) Create(ctx context.Context, request model.Cre
 		UpdatedAt:     timeNow,
 	}
 
-	row, err := service.TransactionRepository.Create(ctx, tx, transaction)
+	transactionResponse, err := service.TransactionRepository.Create(ctx, tx, transactionRequest)
 	if err != nil {
 		return model.GetTransactionResponse{}, err
 	}
 
-	return utils.ToTransactionResponse(row), nil
+	return utils.ToTransactionResponse(transactionResponse), nil
 }
 
-func (service *transactionService) CreateFromCsv(ctx context.Context, data [][]string) error {
+func (service *transactionService) CreateByCsv(ctx context.Context, data [][]string) error {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return err
@@ -118,7 +118,7 @@ func (service *transactionService) CreateFromCsv(ctx context.Context, data [][]s
 		})
 	}
 
-	err = service.TransactionRepository.CreateFromCsv(ctx, tx, transactions)
+	err = service.TransactionRepository.CreateByCsv(ctx, tx, transactions)
 	if err != nil {
 		return err
 	}
@@ -134,35 +134,30 @@ func (service *transactionService) Update(ctx context.Context, request model.Upd
 	defer utils.CommitOrRollback(tx)
 
 	// Find Transaction by number transaction
-	transaction, err := service.TransactionRepository.FindByTransaction(ctx, tx, request.NoTransaction)
+	transaction, err := service.TransactionRepository.FindByNoTransaction(ctx, tx, request.NoTransaction)
 	if err != nil {
 		return model.GetTransactionResponse{}, err
 	}
 
-	updatedAt, err := time.Parse(service.date, time.Now().Format(service.date))
+	timeNow, err := time.Parse(service.date, time.Now().Format(service.date))
 	if err != nil {
 		return model.GetTransactionResponse{}, err
 	}
 
-	transaction.ProductName = request.ProductName
-	transaction.CustomerName = request.CustomerName
-	transaction.NoTransaction = request.NoTransaction
-	transaction.UpdatedAt = updatedAt
-
-	entityTransaction := entity.Transaction{
+	transactionRequest := entity.Transaction{
 		IdTransaction: transaction.IdTransaction,
-		ProductName:   transaction.ProductName,
-		CustomerName:  transaction.CustomerName,
-		NoTransaction: transaction.NoTransaction,
-		UpdatedAt:     transaction.UpdatedAt,
+		ProductName:   request.ProductName,
+		CustomerName:  request.CustomerName,
+		NoTransaction: request.NoTransaction,
+		UpdatedAt:     timeNow,
 	}
 
-	row, err := service.TransactionRepository.Update(ctx, tx, entityTransaction)
+	transactionResponse, err := service.TransactionRepository.Update(ctx, tx, transactionRequest)
 	if err != nil {
 		return model.GetTransactionResponse{}, err
 	}
 
-	return utils.ToTransactionResponse(row), nil
+	return utils.ToTransactionResponse(transactionResponse), nil
 }
 
 func (service *transactionService) Delete(ctx context.Context, noTransaction string) error {
@@ -172,12 +167,12 @@ func (service *transactionService) Delete(ctx context.Context, noTransaction str
 	}
 	defer utils.CommitOrRollback(tx)
 
-	rows, err := service.TransactionRepository.FindByTransaction(ctx, tx, noTransaction)
+	transaction, err := service.TransactionRepository.FindByNoTransaction(ctx, tx, noTransaction)
 	if err != nil {
 		return err
 	}
 
-	err = service.TransactionRepository.Delete(ctx, tx, rows.NoTransaction)
+	err = service.TransactionRepository.Delete(ctx, tx, transaction.NoTransaction)
 	if err != nil {
 		return err
 	}

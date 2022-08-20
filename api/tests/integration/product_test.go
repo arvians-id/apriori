@@ -146,7 +146,6 @@ var _ = Describe("Product API", func() {
 				_ = json.Unmarshal(body, &responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusInternalServerError))
-				Expect(responseBody["status"]).To(Equal("product not found"))
 				Expect(responseBody["data"]).To(BeNil())
 			})
 		})
@@ -212,7 +211,6 @@ var _ = Describe("Product API", func() {
 				_ = json.Unmarshal(body, &responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusInternalServerError))
-				Expect(responseBody["status"]).To(Equal("product not found"))
 				Expect(responseBody["data"]).To(BeNil())
 			})
 		})
@@ -357,7 +355,6 @@ var _ = Describe("Product API", func() {
 				_ = json.Unmarshal(body, &responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusInternalServerError))
-				Expect(responseBody["status"]).To(Equal("product not found"))
 				Expect(responseBody["data"]).To(BeNil())
 			})
 		})

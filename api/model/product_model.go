@@ -11,7 +11,7 @@ type CreateProductRequest struct {
 }
 
 type UpdateProductRequest struct {
-	IdProduct   uint64 `json:"id_product"`
+	IdProduct   int    `json:"id_product"`
 	Code        string `json:"code" binding:"required,min=2,max=10"`
 	Name        string `json:"name" binding:"required,min=6,max=100"`
 	Description string `json:"description" binding:"omitempty,max=100"`
@@ -23,7 +23,7 @@ type UpdateProductRequest struct {
 }
 
 type GetProductResponse struct {
-	IdProduct   uint64 `json:"id_product"`
+	IdProduct   int    `json:"id_product"`
 	Code        string `json:"code"`
 	Name        string `json:"name"`
 	Description string `json:"description"`
@@ -37,7 +37,7 @@ type GetProductResponse struct {
 }
 
 type GetProductRecommendationResponse struct {
-	AprioriId          uint64  `json:"apriori_id"`
+	AprioriId          int     `json:"apriori_id"`
 	AprioriCode        string  `json:"apriori_code"`
 	AprioriItem        string  `json:"apriori_item"`
 	AprioriDiscount    float64 `json:"apriori_discount"`

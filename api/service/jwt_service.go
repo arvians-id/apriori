@@ -1,6 +1,7 @@
 package service
 
 import (
+	"apriori/utils"
 	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt"
@@ -10,7 +11,7 @@ import (
 )
 
 type jwtCustomClaim struct {
-	IdUser uint64 `json:"id_user"`
+	IdUser int `json:"id_user"`
 	jwt.StandardClaims
 }
 
@@ -21,7 +22,7 @@ type TokenDetails struct {
 	RtExpires    int64
 }
 type JwtService interface {
-	GenerateToken(IdUser uint64, expirationTime time.Time) (*TokenDetails, error)
+	GenerateToken(IdUser int, expirationTime time.Time) (*TokenDetails, error)
 	RefreshToken(refreshToken string) (*TokenDetails, error)
 	ValidateToken(token string) (*jwt.Token, error)
 }
@@ -47,7 +48,7 @@ func getRefreshSecretKey() string {
 	return os.Getenv("JWT_SECRET_REFRESH_KEY")
 }
 
-func (service *jwtService) GenerateToken(IdUser uint64, expirationTime time.Time) (*TokenDetails, error) {
+func (service *jwtService) GenerateToken(id int, expirationTime time.Time) (*TokenDetails, error) {
 	tokens := &TokenDetails{}
 	tokens.AtExpires = expirationTime.Unix()
 	expiredTimeRefresh, _ := strconv.Atoi(os.Getenv("JWT_REFRESH_EXPIRED_TIME"))
@@ -55,7 +56,7 @@ func (service *jwtService) GenerateToken(IdUser uint64, expirationTime time.Time
 
 	// Access token
 	accessToken := jwtCustomClaim{
-		IdUser: IdUser,
+		IdUser: id,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: tokens.AtExpires,
 		},
@@ -70,7 +71,7 @@ func (service *jwtService) GenerateToken(IdUser uint64, expirationTime time.Time
 
 	// Refresh token
 	refreshToken := jwtCustomClaim{
-		IdUser: IdUser,
+		IdUser: id,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: tokens.RtExpires,
 		},
@@ -110,18 +111,15 @@ func (service *jwtService) RefreshToken(refreshToken string) (*TokenDetails, err
 		return nil, errors.New("invalid token")
 	}
 
-	// Get user id
-	userId, err := strconv.ParseUint(fmt.Sprintf("%.f", claims["id_user"]), 10, 64)
-	if err != nil {
-		return nil, err
-	}
+	// Get id user
+	id := utils.StrToInt(claims["id_user"].(string))
 
 	// Delete the previous Refresh Token
 	// --
 
 	// Create new pairs of refresh and access tokens
 	expiredTimeAccess, _ := strconv.Atoi(os.Getenv("JWT_ACCESS_EXPIRED_TIME"))
-	tokens, err := service.GenerateToken(userId, time.Now().Add(time.Duration(expiredTimeAccess)*24*time.Hour))
+	tokens, err := service.GenerateToken(id, time.Now().Add(time.Duration(expiredTimeAccess)*24*time.Hour))
 	if err != nil {
 		return nil, err
 	}

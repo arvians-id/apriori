@@ -12,11 +12,11 @@ import (
 )
 
 type CommentService interface {
+	FindAllRatingByProductCode(ctx context.Context, productCode string) ([]model.GetRatingResponse, error)
 	FindAllByProductCode(ctx context.Context, productCode string, rating string, tags string) ([]model.GetCommentResponse, error)
 	FindById(ctx context.Context, id int) (model.GetCommentResponse, error)
 	FindByUserOrderId(ctx context.Context, userOrderId int) (model.GetCommentResponse, error)
 	Create(ctx context.Context, request model.CreateCommentRequest) (model.GetCommentResponse, error)
-	GetRatingByProductCode(ctx context.Context, productCode string) ([]model.GetRatingResponse, error)
 }
 
 type commentService struct {
@@ -33,6 +33,31 @@ func NewCommentService(commentRepository *repository.CommentRepository, productR
 		db:                db,
 		date:              "2006-01-02 15:04:05",
 	}
+}
+
+func (service *commentService) FindAllRatingByProductCode(ctx context.Context, productCode string) ([]model.GetRatingResponse, error) {
+	tx, err := service.db.Begin()
+	if err != nil {
+		return nil, err
+	}
+	defer utils.CommitOrRollback(tx)
+
+	product, err := service.ProductRepository.FindByCode(ctx, tx, productCode)
+	if err != nil {
+		return nil, err
+	}
+
+	ratings, err := service.CommentRepository.FindAllRatingByProductCode(ctx, tx, product.Code)
+	if err != nil {
+		return nil, err
+	}
+
+	var ratingResponses []model.GetRatingResponse
+	for _, comment := range ratings {
+		ratingResponses = append(ratingResponses, utils.ToRatingResponse(comment))
+	}
+
+	return ratingResponses, nil
 }
 
 func (service *commentService) FindAllByProductCode(ctx context.Context, productCode string, rating string, tags string) ([]model.GetCommentResponse, error) {
@@ -69,12 +94,12 @@ func (service *commentService) FindById(ctx context.Context, id int) (model.GetC
 	}
 	defer utils.CommitOrRollback(tx)
 
-	comments, err := service.CommentRepository.FindById(ctx, tx, id)
+	commentResponse, err := service.CommentRepository.FindById(ctx, tx, id)
 	if err != nil {
 		return model.GetCommentResponse{}, err
 	}
 
-	return utils.ToCommentResponse(comments), nil
+	return utils.ToCommentResponse(commentResponse), nil
 }
 
 func (service *commentService) FindByUserOrderId(ctx context.Context, userOrderId int) (model.GetCommentResponse, error) {
@@ -84,12 +109,12 @@ func (service *commentService) FindByUserOrderId(ctx context.Context, userOrderI
 	}
 	defer utils.CommitOrRollback(tx)
 
-	comments, err := service.CommentRepository.FindByUserOrderId(ctx, tx, userOrderId)
+	commentResponse, err := service.CommentRepository.FindByUserOrderId(ctx, tx, userOrderId)
 	if err != nil {
 		return model.GetCommentResponse{}, err
 	}
 
-	return utils.ToCommentResponse(comments), nil
+	return utils.ToCommentResponse(commentResponse), nil
 }
 
 func (service *commentService) Create(ctx context.Context, request model.CreateCommentRequest) (model.GetCommentResponse, error) {
@@ -99,7 +124,7 @@ func (service *commentService) Create(ctx context.Context, request model.CreateC
 	}
 	defer utils.CommitOrRollback(tx)
 
-	createdAt, err := time.Parse(service.date, time.Now().Format(service.date))
+	timeNow, err := time.Parse(service.date, time.Now().Format(service.date))
 	if err != nil {
 		return model.GetCommentResponse{}, err
 	}
@@ -116,38 +141,13 @@ func (service *commentService) Create(ctx context.Context, request model.CreateC
 			String: request.Tag,
 			Valid:  true,
 		},
-		CreatedAt: createdAt,
+		CreatedAt: timeNow,
 	}
 
-	comments, err := service.CommentRepository.Create(ctx, tx, commentRequest)
+	commentResponse, err := service.CommentRepository.Create(ctx, tx, commentRequest)
 	if err != nil {
 		return model.GetCommentResponse{}, err
 	}
 
-	return utils.ToCommentResponse(comments), nil
-}
-
-func (service *commentService) GetRatingByProductCode(ctx context.Context, productCode string) ([]model.GetRatingResponse, error) {
-	tx, err := service.db.Begin()
-	if err != nil {
-		return nil, err
-	}
-	defer utils.CommitOrRollback(tx)
-
-	product, err := service.ProductRepository.FindByCode(ctx, tx, productCode)
-	if err != nil {
-		return nil, err
-	}
-
-	ratings, err := service.CommentRepository.GetRatingByProductCode(ctx, tx, product.Code)
-	if err != nil {
-		return nil, err
-	}
-
-	var ratingResponses []model.GetRatingResponse
-	for _, comment := range ratings {
-		ratingResponses = append(ratingResponses, utils.ToRatingResponse(comment))
-	}
-
-	return ratingResponses, nil
+	return utils.ToCommentResponse(commentResponse), nil
 }

@@ -1,8 +1,8 @@
 package entity
 
 type UserOrder struct {
-	IdOrder        uint64
-	PayloadId      uint64
+	IdOrder        int
+	PayloadId      int
 	Code           string
 	Name           string
 	Price          int64
@@ -12,8 +12,8 @@ type UserOrder struct {
 }
 
 type UserOrderRelationByUserId struct {
-	IdOrder           uint64
-	PayloadId         uint64
+	IdOrder           int
+	PayloadId         int
 	Code              string
 	Name              string
 	Price             int64

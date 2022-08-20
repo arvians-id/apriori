@@ -341,7 +341,6 @@ var _ = Describe("Transaction API", func() {
 				_ = json.Unmarshal(body, &responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusInternalServerError))
-				Expect(responseBody["status"]).To(Equal("transaction not found"))
 				Expect(responseBody["data"]).To(BeNil())
 			})
 		})
@@ -480,7 +479,6 @@ var _ = Describe("Transaction API", func() {
 				_ = json.Unmarshal(body, &responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusInternalServerError))
-				Expect(responseBody["status"]).To(Equal("transaction not found"))
 				Expect(responseBody["data"]).To(BeNil())
 			})
 		})

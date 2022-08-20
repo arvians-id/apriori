@@ -27,8 +27,8 @@ func (controller *commentController) Route(router *gin.Engine) *gin.Engine {
 
 	unauthorized := router.Group("/api")
 	{
-		unauthorized.GET("/comments/:comment_id", controller.FindById)
-		unauthorized.GET("/comments/rating/:product_code", controller.GetRatingByProductCode)
+		unauthorized.GET("/comments/:id", controller.FindById)
+		unauthorized.GET("/comments/rating/:product_code", controller.FindAllRatingByProductCode)
 		unauthorized.GET("/comments/product/:product_code", controller.FindAllByProductCode)
 		unauthorized.GET("/comments/user-order/:user_order_id", controller.FindByUserOrderId)
 	}
@@ -37,10 +37,10 @@ func (controller *commentController) Route(router *gin.Engine) *gin.Engine {
 }
 
 func (controller *commentController) FindAllByProductCode(c *gin.Context) {
-	productCode := c.Param("product_code")
-	tags := c.Query("tags")
-	rating := c.Query("rating")
-	comments, err := controller.CommentService.FindAllByProductCode(c.Request.Context(), productCode, rating, tags)
+	productCodeParam := c.Param("product_code")
+	tagsQuery := c.Query("tags")
+	ratingQuery := c.Query("rating")
+	comments, err := controller.CommentService.FindAllByProductCode(c.Request.Context(), productCodeParam, tagsQuery, ratingQuery)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
@@ -50,8 +50,8 @@ func (controller *commentController) FindAllByProductCode(c *gin.Context) {
 }
 
 func (controller *commentController) FindById(c *gin.Context) {
-	commentId := utils.StrToInt(c.Param("comment_id"))
-	comment, err := controller.CommentService.FindById(c.Request.Context(), commentId)
+	idParam := utils.StrToInt(c.Param("id"))
+	comment, err := controller.CommentService.FindById(c.Request.Context(), idParam)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
@@ -60,9 +60,20 @@ func (controller *commentController) FindById(c *gin.Context) {
 	response.ReturnSuccessOK(c, "OK", comment)
 }
 
+func (controller *commentController) FindAllRatingByProductCode(c *gin.Context) {
+	productCodeParam := c.Param("product_code")
+	comments, err := controller.CommentService.FindAllRatingByProductCode(c.Request.Context(), productCodeParam)
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	response.ReturnSuccessOK(c, "OK", comments)
+}
+
 func (controller *commentController) FindByUserOrderId(c *gin.Context) {
-	userOrderId := utils.StrToInt(c.Param("user_order_id"))
-	comment, err := controller.CommentService.FindByUserOrderId(c.Request.Context(), userOrderId)
+	userOrderIdParam := utils.StrToInt(c.Param("user_order_id"))
+	comment, err := controller.CommentService.FindByUserOrderId(c.Request.Context(), userOrderIdParam)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
@@ -85,15 +96,4 @@ func (controller *commentController) Create(c *gin.Context) {
 	}
 
 	response.ReturnSuccessOK(c, "OK", comment)
-}
-
-func (controller *commentController) GetRatingByProductCode(c *gin.Context) {
-	productCode := c.Param("product_code")
-	comments, err := controller.CommentService.GetRatingByProductCode(c.Request.Context(), productCode)
-	if err != nil {
-		response.ReturnErrorInternalServerError(c, err, nil)
-		return
-	}
-
-	response.ReturnSuccessOK(c, "OK", comments)
 }

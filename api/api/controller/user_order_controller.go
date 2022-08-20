@@ -33,8 +33,8 @@ func (controller *UserOrderController) Route(router *gin.Engine) *gin.Engine {
 	{
 		authorized.GET("/user-order", controller.FindAll)
 		authorized.GET("/user-order/user", controller.FindAllByUserId)
-		authorized.GET("/user-order/:order_id", controller.FindById)
-		authorized.GET("/user-order/:order_id/single", controller.FindOneById)
+		authorized.GET("/user-order/:order_id", controller.FindAllById)
+		authorized.GET("/user-order/:order_id/single", controller.FindById)
 	}
 
 	return router
@@ -69,14 +69,14 @@ func (controller *UserOrderController) FindAll(c *gin.Context) {
 		return
 	}
 
-	var payment []model.GetPaymentNullableResponse
-	err = json.Unmarshal(bytes.NewBufferString(paymentsCache).Bytes(), &payment)
+	var paymentCacheResponses []model.GetPaymentNullableResponse
+	err = json.Unmarshal(bytes.NewBufferString(paymentsCache).Bytes(), &paymentCacheResponses)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response.ReturnSuccessOK(c, "OK", payment)
+	response.ReturnSuccessOK(c, "OK", paymentCacheResponses)
 }
 
 func (controller *UserOrderController) FindAllByUserId(c *gin.Context) {
@@ -108,28 +108,27 @@ func (controller *UserOrderController) FindAllByUserId(c *gin.Context) {
 		return
 	}
 
-	var userOrders []model.GetUserOrderRelationByUserIdResponse
-	err = json.Unmarshal(bytes.NewBufferString(userOrdersCache).Bytes(), &userOrders)
+	var userOrderCacheResponses []model.GetUserOrderRelationByUserIdResponse
+	err = json.Unmarshal(bytes.NewBufferString(userOrdersCache).Bytes(), &userOrderCacheResponses)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response.ReturnSuccessOK(c, "OK", userOrders)
+	response.ReturnSuccessOK(c, "OK", userOrderCacheResponses)
 }
 
-func (controller *UserOrderController) FindById(c *gin.Context) {
-	orderId := c.Param("order_id")
-
-	key := fmt.Sprintf("user-order-id-%v", orderId)
+func (controller *UserOrderController) FindAllById(c *gin.Context) {
+	orderIdParam := c.Param("order_id")
+	key := fmt.Sprintf("user-order-id-%v", orderIdParam)
 	userOrdersCache, err := controller.CacheService.Get(c, key)
 	if err == redis.Nil {
-		payment, err := controller.PaymentService.FindByOrderId(c.Request.Context(), orderId)
+		payment, err := controller.PaymentService.FindByOrderId(c.Request.Context(), orderIdParam)
 		if err != nil {
 			response.ReturnErrorInternalServerError(c, err, nil)
 			return
 		}
-		userOrder, err := controller.UserOrderService.FindAllByPayload(c.Request.Context(), payment.IdPayload)
+		userOrder, err := controller.UserOrderService.FindAllByPayloadId(c.Request.Context(), payment.IdPayload)
 		if err != nil {
 			response.ReturnErrorInternalServerError(c, err, nil)
 			return
@@ -148,20 +147,20 @@ func (controller *UserOrderController) FindById(c *gin.Context) {
 		return
 	}
 
-	var userOrder []model.GetUserOrderResponse
-	err = json.Unmarshal(bytes.NewBufferString(userOrdersCache).Bytes(), &userOrder)
+	var userOrderCacheResponses []model.GetUserOrderResponse
+	err = json.Unmarshal(bytes.NewBufferString(userOrdersCache).Bytes(), &userOrderCacheResponses)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response.ReturnSuccessOK(c, "OK", userOrder)
+	response.ReturnSuccessOK(c, "OK", userOrderCacheResponses)
 }
 
-func (controller *UserOrderController) FindOneById(c *gin.Context) {
-	orderId := c.Param("order_id")
+func (controller *UserOrderController) FindById(c *gin.Context) {
+	orderIdParam := c.Param("order_id")
 
-	userOrder, err := controller.UserOrderService.FindById(c.Request.Context(), utils.StrToInt(orderId))
+	userOrder, err := controller.UserOrderService.FindById(c.Request.Context(), utils.StrToInt(orderIdParam))
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return

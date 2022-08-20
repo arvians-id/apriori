@@ -3,7 +3,7 @@ package entity
 import "time"
 
 type Apriori struct {
-	IdApriori   uint64
+	IdApriori   int
 	Code        string
 	Item        string
 	Discount    float64

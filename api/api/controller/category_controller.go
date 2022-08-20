@@ -64,19 +64,19 @@ func (controller *categoryController) FindAll(c *gin.Context) {
 		return
 	}
 
-	var categories []model.GetCategoryResponse
-	err = json.Unmarshal(bytes.NewBufferString(categoriesCache).Bytes(), &categories)
+	var categoryCacheResponses []model.GetCategoryResponse
+	err = json.Unmarshal(bytes.NewBufferString(categoriesCache).Bytes(), &categoryCacheResponses)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response.ReturnSuccessOK(c, "OK", categories)
+	response.ReturnSuccessOK(c, "OK", categoryCacheResponses)
 }
 
 func (controller *categoryController) FindById(c *gin.Context) {
-	id := utils.StrToInt(c.Param("id"))
-	category, err := controller.categoryService.FindById(c.Request.Context(), id)
+	idParam := utils.StrToInt(c.Param("id"))
+	category, err := controller.categoryService.FindById(c.Request.Context(), idParam)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
@@ -126,8 +126,8 @@ func (controller *categoryController) Update(c *gin.Context) {
 }
 
 func (controller *categoryController) Delete(c *gin.Context) {
-	id := utils.StrToInt(c.Param("id"))
-	err := controller.categoryService.Delete(c.Request.Context(), id)
+	idParam := utils.StrToInt(c.Param("id"))
+	err := controller.categoryService.Delete(c.Request.Context(), idParam)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return

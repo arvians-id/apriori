@@ -8,7 +8,6 @@ import (
 	"apriori/utils"
 	"errors"
 	"github.com/gin-gonic/gin"
-	"strconv"
 )
 
 type UserController struct {
@@ -25,10 +24,10 @@ func (controller *UserController) Route(router *gin.Engine) *gin.Engine {
 	authorized := router.Group("/api", middleware.AuthJwtMiddleware())
 	{
 		authorized.GET("/users", controller.FindAll)
-		authorized.GET("/users/:userId", controller.FindById)
+		authorized.GET("/users/:id", controller.FindById)
 		authorized.POST("/users", controller.Create)
-		authorized.PATCH("/users/:userId", controller.Update)
-		authorized.DELETE("/users/:userId", controller.Delete)
+		authorized.PATCH("/users/:id", controller.Update)
+		authorized.DELETE("/users/:id", controller.Delete)
 		authorized.GET("/profile", controller.Profile)
 		authorized.PATCH("/profile/update", controller.UpdateProfile)
 	}
@@ -43,7 +42,7 @@ func (controller *UserController) Profile(c *gin.Context) {
 		return
 	}
 
-	user, err := controller.UserService.FindById(c.Request.Context(), uint64(id.(float64)))
+	user, err := controller.UserService.FindById(c.Request.Context(), int(id.(float64)))
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
@@ -66,8 +65,7 @@ func (controller *UserController) UpdateProfile(c *gin.Context) {
 		return
 	}
 
-	request.IdUser = uint64(id.(float64))
-
+	request.IdUser = int(id.(float64))
 	user, err := controller.UserService.Update(c.Request.Context(), request)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
@@ -88,14 +86,10 @@ func (controller *UserController) FindAll(c *gin.Context) {
 }
 
 func (controller *UserController) FindById(c *gin.Context) {
-	params := c.Param("userId")
-	id, err := strconv.Atoi(params)
-	if err != nil {
-		response.ReturnErrorInternalServerError(c, err, nil)
-		return
-	}
+	idParam := c.Param("id")
+	id := utils.StrToInt(idParam)
 
-	user, err := controller.UserService.FindById(c.Request.Context(), uint64(id))
+	user, err := controller.UserService.FindById(c.Request.Context(), id)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
@@ -129,10 +123,8 @@ func (controller *UserController) Update(c *gin.Context) {
 		return
 	}
 
-	id := utils.StrToInt(c.Param("userId"))
-
-	request.IdUser = uint64(id)
-
+	idParam := utils.StrToInt(c.Param("id"))
+	request.IdUser = idParam
 	user, err := controller.UserService.Update(c.Request.Context(), request)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
@@ -143,14 +135,10 @@ func (controller *UserController) Update(c *gin.Context) {
 }
 
 func (controller *UserController) Delete(c *gin.Context) {
-	params := c.Param("userId")
-	id, err := strconv.Atoi(params)
-	if err != nil {
-		response.ReturnErrorInternalServerError(c, err, nil)
-		return
-	}
+	idParam := c.Param("id")
+	id := utils.StrToInt(idParam)
 
-	err = controller.UserService.Delete(c.Request.Context(), uint64(id))
+	err := controller.UserService.Delete(c.Request.Context(), id)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return

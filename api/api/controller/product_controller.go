@@ -32,7 +32,7 @@ func NewProductController(productService *service.ProductService, storageService
 func (controller *ProductController) Route(router *gin.Engine) *gin.Engine {
 	authorized := router.Group("/api", middleware.AuthJwtMiddleware())
 	{
-		authorized.GET("/products-admin", controller.FindAllOnAdmin)
+		authorized.GET("/products-admin", controller.FindAllByAdmin)
 		authorized.POST("/products", controller.Create)
 		authorized.PATCH("/products/:code", controller.Update)
 		authorized.DELETE("/products/:code", controller.Delete)
@@ -40,7 +40,7 @@ func (controller *ProductController) Route(router *gin.Engine) *gin.Engine {
 
 	unauthorized := router.Group("/api")
 	{
-		unauthorized.GET("/products", controller.FindAll)
+		unauthorized.GET("/products", controller.FindAllByUser)
 		unauthorized.GET("/products/:code/category", controller.FindAllSimilarCategory)
 		unauthorized.GET("/products/:code/recommendation", controller.FindAllRecommendation)
 		unauthorized.GET("/products/:code", controller.FindById)
@@ -49,8 +49,8 @@ func (controller *ProductController) Route(router *gin.Engine) *gin.Engine {
 	return router
 }
 
-func (controller *ProductController) FindAllOnAdmin(c *gin.Context) {
-	products, err := controller.ProductService.FindAllOnAdmin(c.Request.Context())
+func (controller *ProductController) FindAllByAdmin(c *gin.Context) {
+	products, err := controller.ProductService.FindAllByAdmin(c.Request.Context())
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
@@ -60,8 +60,8 @@ func (controller *ProductController) FindAllOnAdmin(c *gin.Context) {
 }
 
 func (controller *ProductController) FindAllSimilarCategory(c *gin.Context) {
-	params := c.Param("code")
-	products, err := controller.ProductService.FindAllSimilarCategory(c.Request.Context(), params)
+	codeParam := c.Param("code")
+	products, err := controller.ProductService.FindAllBySimilarCategory(c.Request.Context(), codeParam)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
@@ -70,10 +70,10 @@ func (controller *ProductController) FindAllSimilarCategory(c *gin.Context) {
 	response.ReturnSuccessOK(c, "OK", products)
 }
 
-func (controller *ProductController) FindAll(c *gin.Context) {
-	search := strings.ToLower(c.Query("search"))
-	category := strings.ToLower(c.Query("category"))
-	products, err := controller.ProductService.FindAll(c.Request.Context(), search, category)
+func (controller *ProductController) FindAllByUser(c *gin.Context) {
+	searchQuery := strings.ToLower(c.Query("search"))
+	categoryQuery := strings.ToLower(c.Query("category"))
+	products, err := controller.ProductService.FindAll(c.Request.Context(), searchQuery, categoryQuery)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
@@ -83,9 +83,8 @@ func (controller *ProductController) FindAll(c *gin.Context) {
 }
 
 func (controller *ProductController) FindAllRecommendation(c *gin.Context) {
-	params := c.Param("code")
-
-	products, err := controller.ProductService.FindAllRecommendation(c.Request.Context(), params)
+	codeParam := c.Param("code")
+	products, err := controller.ProductService.FindAllRecommendation(c.Request.Context(), codeParam)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
@@ -95,12 +94,11 @@ func (controller *ProductController) FindAllRecommendation(c *gin.Context) {
 }
 
 func (controller *ProductController) FindById(c *gin.Context) {
-	params := c.Param("code")
-
-	key := fmt.Sprintf("product-%s", params)
+	codeParam := c.Param("code")
+	key := fmt.Sprintf("product-%s", codeParam)
 	productCache, err := controller.CacheService.Get(c, key)
 	if err == redis.Nil {
-		product, err := controller.ProductService.FindByCode(c.Request.Context(), params)
+		product, err := controller.ProductService.FindByCode(c.Request.Context(), codeParam)
 		if err != nil {
 			response.ReturnErrorInternalServerError(c, err, nil)
 			return
@@ -119,14 +117,14 @@ func (controller *ProductController) FindById(c *gin.Context) {
 		return
 	}
 
-	var product model.GetProductResponse
-	err = json.Unmarshal(bytes.NewBufferString(productCache).Bytes(), &product)
+	var productCacheResponse model.GetProductResponse
+	err = json.Unmarshal(bytes.NewBufferString(productCache).Bytes(), &productCacheResponse)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response.ReturnSuccessOK(c, "OK", product)
+	response.ReturnSuccessOK(c, "OK", productCacheResponse)
 }
 
 func (controller *ProductController) Create(c *gin.Context) {
@@ -195,16 +193,16 @@ func (controller *ProductController) Update(c *gin.Context) {
 }
 
 func (controller *ProductController) Delete(c *gin.Context) {
-	params := c.Param("code")
+	codeParam := c.Param("code")
 
-	err := controller.ProductService.Delete(c.Request.Context(), params)
+	err := controller.ProductService.Delete(c.Request.Context(), codeParam)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
 	// delete previous cache
-	_ = controller.CacheService.Del(c.Request.Context(), fmt.Sprintf("product-%s", params))
+	_ = controller.CacheService.Del(c.Request.Context(), fmt.Sprintf("product-%s", codeParam))
 
 	response.ReturnSuccessOK(c, "deleted", nil)
 }

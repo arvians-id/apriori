@@ -33,7 +33,7 @@ func (controller *PaymentController) Route(router *gin.Engine) *gin.Engine {
 	{
 		authorized.GET("/payments", controller.FindAll)
 		authorized.GET("/payments/:order_id", controller.FindByOrderId)
-		authorized.PATCH("/payments/:order_id", controller.AddReceiptNumber)
+		authorized.PATCH("/payments/:order_id", controller.UpdateReceiptNumber)
 	}
 
 	unauthorized := router.Group("/api")
@@ -57,9 +57,9 @@ func (controller *PaymentController) FindAll(c *gin.Context) {
 }
 
 func (controller *PaymentController) FindByOrderId(c *gin.Context) {
-	orderId := c.Param("order_id")
+	orderIdParam := c.Param("order_id")
 
-	payment, err := controller.PaymentService.FindByOrderId(c.Request.Context(), orderId)
+	payment, err := controller.PaymentService.FindByOrderId(c.Request.Context(), orderIdParam)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
@@ -68,7 +68,7 @@ func (controller *PaymentController) FindByOrderId(c *gin.Context) {
 	response.ReturnSuccessOK(c, "OK", payment)
 }
 
-func (controller *PaymentController) AddReceiptNumber(c *gin.Context) {
+func (controller *PaymentController) UpdateReceiptNumber(c *gin.Context) {
 	var request model.AddReceiptNumberRequest
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
@@ -77,7 +77,7 @@ func (controller *PaymentController) AddReceiptNumber(c *gin.Context) {
 	}
 
 	request.OrderId = c.Param("order_id")
-	err = controller.PaymentService.AddReceiptNumber(c.Request.Context(), request)
+	err = controller.PaymentService.UpdateReceiptNumber(c.Request.Context(), request)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
@@ -140,9 +140,9 @@ func (controller *PaymentController) Notification(c *gin.Context) {
 }
 
 func (controller *PaymentController) Delete(c *gin.Context) {
-	orderId := c.Param("order_id")
+	orderIdParam := c.Param("order_id")
 
-	err := controller.PaymentService.Delete(c.Request.Context(), orderId)
+	err := controller.PaymentService.Delete(c.Request.Context(), orderIdParam)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return

@@ -3,7 +3,7 @@ package entity
 import "time"
 
 type Product struct {
-	IdProduct   uint64
+	IdProduct   int
 	Code        string
 	Name        string
 	Description string

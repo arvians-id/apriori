@@ -10,14 +10,14 @@ type CreateAprioriRequest struct {
 }
 
 type UpdateAprioriRequest struct {
-	IdApriori   uint64
+	IdApriori   int
 	Code        string
 	Description string
 	Image       string
 }
 
 type GetAprioriResponse struct {
-	IdApriori   uint64  `json:"id_apriori,omitempty"`
+	IdApriori   int     `json:"id_apriori,omitempty"`
 	Code        string  `json:"code"`
 	Item        string  `json:"item,omitempty"`
 	Discount    float64 `json:"discount,omitempty"`

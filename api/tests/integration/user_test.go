@@ -342,7 +342,6 @@ var _ = Describe("User API", func() {
 				_ = json.Unmarshal(body, &responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusInternalServerError))
-				Expect(responseBody["status"]).To(Equal("user not found"))
 				Expect(responseBody["data"]).To(BeNil())
 			})
 		})
@@ -568,7 +567,6 @@ var _ = Describe("User API", func() {
 				_ = json.Unmarshal(body, &responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusInternalServerError))
-				Expect(responseBody["status"]).To(Equal("user not found"))
 				Expect(responseBody["data"]).To(BeNil())
 			})
 		})
@@ -679,10 +677,10 @@ var _ = Describe("User API", func() {
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("OK"))
 
-				Expect(user1.IdUser).To(Equal(uint64(usersResponse1["id_user"].(float64))))
+				Expect(user1.IdUser).To(Equal(int(usersResponse1["id_user"].(float64))))
 				Expect(user1.Name).To(Equal(usersResponse1["name"]))
 
-				Expect(user2.IdUser).To(Equal(uint64(usersResponse2["id_user"].(float64))))
+				Expect(user2.IdUser).To(Equal(int(usersResponse2["id_user"].(float64))))
 				Expect(user2.Name).To(Equal(usersResponse2["name"]))
 			})
 		})
@@ -708,7 +706,6 @@ var _ = Describe("User API", func() {
 				_ = json.Unmarshal(body, &responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusInternalServerError))
-				Expect(responseBody["status"]).To(Equal("user not found"))
 				Expect(responseBody["data"]).To(BeNil())
 			})
 		})
