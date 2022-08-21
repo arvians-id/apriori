@@ -11,11 +11,11 @@ import (
 )
 
 type TransactionService interface {
-	FindAll(ctx context.Context) ([]model.GetTransactionResponse, error)
-	FindByNoTransaction(ctx context.Context, noTransaction string) (model.GetTransactionResponse, error)
-	Create(ctx context.Context, request model.CreateTransactionRequest) (model.GetTransactionResponse, error)
+	FindAll(ctx context.Context) ([]*model.GetTransactionResponse, error)
+	FindByNoTransaction(ctx context.Context, noTransaction string) (*model.GetTransactionResponse, error)
+	Create(ctx context.Context, request *model.CreateTransactionRequest) (*model.GetTransactionResponse, error)
 	CreateByCsv(ctx context.Context, data [][]string) error
-	Update(ctx context.Context, request model.UpdateTransactionRequest) (model.GetTransactionResponse, error)
+	Update(ctx context.Context, request *model.UpdateTransactionRequest) (*model.GetTransactionResponse, error)
 	Delete(ctx context.Context, noTransaction string) error
 	Truncate(ctx context.Context) error
 }
@@ -34,19 +34,19 @@ func NewTransactionService(transactionRepository *repository.TransactionReposito
 	}
 }
 
-func (service *transactionService) FindAll(ctx context.Context) ([]model.GetTransactionResponse, error) {
+func (service *transactionService) FindAll(ctx context.Context) ([]*model.GetTransactionResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return []model.GetTransactionResponse{}, err
+		return nil, err
 	}
 	defer utils.CommitOrRollback(tx)
 
 	transactions, err := service.TransactionRepository.FindAll(ctx, tx)
 	if err != nil {
-		return []model.GetTransactionResponse{}, err
+		return nil, err
 	}
 
-	var transactionResponses []model.GetTransactionResponse
+	var transactionResponses []*model.GetTransactionResponse
 	for _, transaction := range transactions {
 		transactionResponses = append(transactionResponses, utils.ToTransactionResponse(transaction))
 	}
@@ -54,31 +54,31 @@ func (service *transactionService) FindAll(ctx context.Context) ([]model.GetTran
 	return transactionResponses, nil
 }
 
-func (service *transactionService) FindByNoTransaction(ctx context.Context, noTransaction string) (model.GetTransactionResponse, error) {
+func (service *transactionService) FindByNoTransaction(ctx context.Context, noTransaction string) (*model.GetTransactionResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return model.GetTransactionResponse{}, err
+		return &model.GetTransactionResponse{}, err
 	}
 	defer utils.CommitOrRollback(tx)
 
 	transactionResponse, err := service.TransactionRepository.FindByNoTransaction(ctx, tx, noTransaction)
 	if err != nil {
-		return model.GetTransactionResponse{}, err
+		return &model.GetTransactionResponse{}, err
 	}
 
 	return utils.ToTransactionResponse(transactionResponse), nil
 }
 
-func (service *transactionService) Create(ctx context.Context, request model.CreateTransactionRequest) (model.GetTransactionResponse, error) {
+func (service *transactionService) Create(ctx context.Context, request *model.CreateTransactionRequest) (*model.GetTransactionResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return model.GetTransactionResponse{}, err
+		return &model.GetTransactionResponse{}, err
 	}
 	defer utils.CommitOrRollback(tx)
 
 	timeNow, err := time.Parse(utils.TimeFormat, time.Now().Format(utils.TimeFormat))
 	if err != nil {
-		return model.GetTransactionResponse{}, err
+		return &model.GetTransactionResponse{}, err
 	}
 
 	transactionRequest := entity.Transaction{
@@ -89,9 +89,9 @@ func (service *transactionService) Create(ctx context.Context, request model.Cre
 		UpdatedAt:     timeNow,
 	}
 
-	transactionResponse, err := service.TransactionRepository.Create(ctx, tx, transactionRequest)
+	transactionResponse, err := service.TransactionRepository.Create(ctx, tx, &transactionRequest)
 	if err != nil {
-		return model.GetTransactionResponse{}, err
+		return &model.GetTransactionResponse{}, err
 	}
 
 	return utils.ToTransactionResponse(transactionResponse), nil
@@ -104,10 +104,10 @@ func (service *transactionService) CreateByCsv(ctx context.Context, data [][]str
 	}
 	defer utils.CommitOrRollback(tx)
 
-	var transactions []entity.Transaction
+	var transactions []*entity.Transaction
 	for _, transaction := range data {
 		createdAt, _ := time.Parse(utils.TimeFormat, transaction[3]+" 00:00:00")
-		transactions = append(transactions, entity.Transaction{
+		transactions = append(transactions, &entity.Transaction{
 			ProductName:   transaction[0],
 			CustomerName:  transaction[1],
 			NoTransaction: transaction[2],
@@ -124,22 +124,22 @@ func (service *transactionService) CreateByCsv(ctx context.Context, data [][]str
 	return nil
 }
 
-func (service *transactionService) Update(ctx context.Context, request model.UpdateTransactionRequest) (model.GetTransactionResponse, error) {
+func (service *transactionService) Update(ctx context.Context, request *model.UpdateTransactionRequest) (*model.GetTransactionResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return model.GetTransactionResponse{}, err
+		return &model.GetTransactionResponse{}, err
 	}
 	defer utils.CommitOrRollback(tx)
 
 	// Find Transaction by number transaction
 	transaction, err := service.TransactionRepository.FindByNoTransaction(ctx, tx, request.NoTransaction)
 	if err != nil {
-		return model.GetTransactionResponse{}, err
+		return &model.GetTransactionResponse{}, err
 	}
 
 	timeNow, err := time.Parse(utils.TimeFormat, time.Now().Format(utils.TimeFormat))
 	if err != nil {
-		return model.GetTransactionResponse{}, err
+		return &model.GetTransactionResponse{}, err
 	}
 
 	transactionRequest := entity.Transaction{
@@ -150,9 +150,9 @@ func (service *transactionService) Update(ctx context.Context, request model.Upd
 		UpdatedAt:     timeNow,
 	}
 
-	transactionResponse, err := service.TransactionRepository.Update(ctx, tx, transactionRequest)
+	transactionResponse, err := service.TransactionRepository.Update(ctx, tx, &transactionRequest)
 	if err != nil {
-		return model.GetTransactionResponse{}, err
+		return &model.GetTransactionResponse{}, err
 	}
 
 	return utils.ToTransactionResponse(transactionResponse), nil

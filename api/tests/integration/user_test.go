@@ -47,7 +47,7 @@ var _ = Describe("User API", func() {
 		tx, _ := database.Begin()
 		userRepository := repository.NewUserRepository()
 		password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-		user, _ := userRepository.Create(context.Background(), tx, entity.User{
+		user, _ := userRepository.Create(context.Background(), tx, &entity.User{
 			Name:      "Widdy",
 			Email:     "widdy@gmail.com",
 			Password:  string(password),
@@ -78,7 +78,7 @@ var _ = Describe("User API", func() {
 			}
 		}
 
-		row = user
+		row = *user
 	})
 
 	AfterEach(func() {
@@ -636,14 +636,14 @@ var _ = Describe("User API", func() {
 				tx, _ := database.Begin()
 				userRepository := repository.NewUserRepository()
 				password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-				user1, _ := userRepository.Create(context.Background(), tx, entity.User{
+				user1, _ := userRepository.Create(context.Background(), tx, &entity.User{
 					Name:      "Widdy",
 					Email:     "arfian@gmail.com",
 					Password:  string(password),
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
 				})
-				user2, _ := userRepository.Create(context.Background(), tx, entity.User{
+				user2, _ := userRepository.Create(context.Background(), tx, &entity.User{
 					Name:      "Agung",
 					Email:     "agung@gmail.com",
 					Password:  string(password),

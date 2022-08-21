@@ -66,7 +66,7 @@ func (controller *UserController) UpdateProfile(c *gin.Context) {
 	}
 
 	request.IdUser = int(id.(float64))
-	user, err := controller.UserService.Update(c.Request.Context(), request)
+	user, err := controller.UserService.Update(c.Request.Context(), &request)
 	if err != nil {
 		if err.Error() == response.ErrorNotFound {
 			response.ReturnErrorNotFound(c, err, nil)
@@ -116,7 +116,7 @@ func (controller *UserController) Create(c *gin.Context) {
 		return
 	}
 
-	user, err := controller.UserService.Create(c.Request.Context(), request)
+	user, err := controller.UserService.Create(c.Request.Context(), &request)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
@@ -135,7 +135,7 @@ func (controller *UserController) Update(c *gin.Context) {
 
 	idParam := utils.StrToInt(c.Param("id"))
 	request.IdUser = idParam
-	user, err := controller.UserService.Update(c.Request.Context(), request)
+	user, err := controller.UserService.Update(c.Request.Context(), &request)
 	if err != nil {
 		if err.Error() == response.ErrorNotFound {
 			response.ReturnErrorNotFound(c, err, nil)

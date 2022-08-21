@@ -117,7 +117,7 @@ func (controller *AprioriController) Update(c *gin.Context) {
 		filePath = pathName
 	}
 
-	var request model.UpdateAprioriRequest
+	var request *model.UpdateAprioriRequest
 	request.IdApriori = idParam
 	request.Code = codeParam
 	request.Description = description
@@ -153,17 +153,17 @@ func (controller *AprioriController) UpdateStatus(c *gin.Context) {
 }
 
 func (controller *AprioriController) Create(c *gin.Context) {
-	var generateRequests []model.GetGenerateAprioriResponse
+	var generateRequests []*model.GetGenerateAprioriResponse
 	err := c.ShouldBindJSON(&generateRequests)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	var aprioriRequests []model.CreateAprioriRequest
+	var aprioriRequests []*model.CreateAprioriRequest
 	for _, generateRequest := range generateRequests {
 		ItemSet := strings.Join(generateRequest.ItemSet, ", ")
-		aprioriRequests = append(aprioriRequests, model.CreateAprioriRequest{
+		aprioriRequests = append(aprioriRequests, &model.CreateAprioriRequest{
 			Item:       ItemSet,
 			Discount:   generateRequest.Discount,
 			Support:    generateRequest.Support,
@@ -197,14 +197,14 @@ func (controller *AprioriController) Delete(c *gin.Context) {
 
 }
 func (controller *AprioriController) Generate(c *gin.Context) {
-	var request model.GenerateAprioriRequest
+	var request *model.GenerateAprioriRequest
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	key := fmt.Sprintf("%v%v%s%s", request.MinimumSupport, request.MinimumConfidence, request.StartDate, request.EndDate)
+	key := fmt.Sprintf("%v%v%v%v%s%s", request.MinimumDiscount, request.MaximumDiscount, request.MinimumSupport, request.MinimumConfidence, request.StartDate, request.EndDate)
 	aprioriCache, err := controller.CacheService.Get(c, key)
 	if err == redis.Nil {
 		apriori, err := controller.AprioriService.Generate(c.Request.Context(), request)

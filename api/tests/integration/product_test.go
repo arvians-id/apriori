@@ -46,7 +46,7 @@ var _ = Describe("Product API", func() {
 		tx, _ := database.Begin()
 		userRepository := repository.NewUserRepository()
 		password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-		_, _ = userRepository.Create(context.Background(), tx, entity.User{
+		_, _ = userRepository.Create(context.Background(), tx, &entity.User{
 			Name:      "Widdy",
 			Email:     "widdy@gmail.com",
 			Password:  string(password),
@@ -156,7 +156,7 @@ var _ = Describe("Product API", func() {
 					// Create Product
 					tx, _ := database.Begin()
 					productRepository := repository.NewProductRepository()
-					row, _ := productRepository.Create(context.Background(), tx, entity.Product{
+					row, _ := productRepository.Create(context.Background(), tx, &entity.Product{
 						Code:        "SK6",
 						Name:        "Widdy",
 						Description: "Test",
@@ -220,7 +220,7 @@ var _ = Describe("Product API", func() {
 				// Create Product
 				tx, _ := database.Begin()
 				productRepository := repository.NewProductRepository()
-				row, _ := productRepository.Create(context.Background(), tx, entity.Product{
+				row, _ := productRepository.Create(context.Background(), tx, &entity.Product{
 					Code:        "SK6",
 					Name:        "Widdy",
 					Description: "Test",
@@ -281,7 +281,7 @@ var _ = Describe("Product API", func() {
 				// Create Product
 				tx, _ := database.Begin()
 				productRepository := repository.NewProductRepository()
-				product1, _ := productRepository.Create(context.Background(), tx, entity.Product{
+				product1, _ := productRepository.Create(context.Background(), tx, &entity.Product{
 					Code:        "SK6",
 					Name:        "Guling",
 					Description: "Test",
@@ -290,7 +290,7 @@ var _ = Describe("Product API", func() {
 					CreatedAt:   time.Now(),
 					UpdatedAt:   time.Now(),
 				})
-				product2, _ := productRepository.Create(context.Background(), tx, entity.Product{
+				product2, _ := productRepository.Create(context.Background(), tx, &entity.Product{
 					Code:        "SK1",
 					Name:        "Bantal",
 					Description: "Test Bang",
@@ -363,7 +363,7 @@ var _ = Describe("Product API", func() {
 				// Create Product
 				tx, _ := database.Begin()
 				productRepository := repository.NewProductRepository()
-				row, _ := productRepository.Create(context.Background(), tx, entity.Product{
+				row, _ := productRepository.Create(context.Background(), tx, &entity.Product{
 					Code:        "SK6",
 					Name:        "Widdy",
 					Description: "Test",

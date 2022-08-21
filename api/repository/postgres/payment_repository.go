@@ -5,6 +5,7 @@ import (
 	"apriori/repository"
 	"context"
 	"database/sql"
+	"log"
 )
 
 type paymentRepository struct {
@@ -14,23 +15,24 @@ func NewPaymentRepository() repository.PaymentRepository {
 	return &paymentRepository{}
 }
 
-func (repository *paymentRepository) FindAll(ctx context.Context, tx *sql.Tx) ([]entity.PaymentRelation, error) {
+func (repository *paymentRepository) FindAll(ctx context.Context, tx *sql.Tx) ([]*entity.PaymentRelation, error) {
 	query := `SELECT payloads.*,users.name 
 			  FROM payloads
 			  	LEFT JOIN users ON users.id_user = payloads.user_id
 			  ORDER BY payloads.settlement_time DESC, payloads.bank_type DESC`
 	rows, err := tx.QueryContext(ctx, query)
 	if err != nil {
-		return []entity.PaymentRelation{}, err
+		return nil, err
 	}
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
 		if err != nil {
+			log.Println(err)
 			return
 		}
 	}(rows)
 
-	var payments []entity.PaymentRelation
+	var payments []*entity.PaymentRelation
 	for rows.Next() {
 		var payment entity.PaymentRelation
 		err := rows.Scan(
@@ -58,31 +60,32 @@ func (repository *paymentRepository) FindAll(ctx context.Context, tx *sql.Tx) ([
 			&payment.UserName,
 		)
 		if err != nil {
-			return []entity.PaymentRelation{}, err
+			return nil, err
 		}
 
-		payments = append(payments, payment)
+		payments = append(payments, &payment)
 	}
 
 	return payments, nil
 }
 
-func (repository *paymentRepository) FindAllByUserId(ctx context.Context, tx *sql.Tx, userId int) ([]entity.Payment, error) {
+func (repository *paymentRepository) FindAllByUserId(ctx context.Context, tx *sql.Tx, userId int) ([]*entity.Payment, error) {
 	query := `SELECT * FROM payloads 
 			  WHERE user_id = $1 
 			  ORDER BY settlement_time DESC, bank_type DESC`
 	rows, err := tx.QueryContext(ctx, query, userId)
 	if err != nil {
-		return []entity.Payment{}, err
+		return nil, err
 	}
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
 		if err != nil {
+			log.Println(err)
 			return
 		}
 	}(rows)
 
-	var payments []entity.Payment
+	var payments []*entity.Payment
 	for rows.Next() {
 		var payment entity.Payment
 		err := rows.Scan(
@@ -109,16 +112,16 @@ func (repository *paymentRepository) FindAllByUserId(ctx context.Context, tx *sq
 			&payment.CourierService,
 		)
 		if err != nil {
-			return []entity.Payment{}, err
+			return nil, err
 		}
 
-		payments = append(payments, payment)
+		payments = append(payments, &payment)
 	}
 
 	return payments, nil
 }
 
-func (repository *paymentRepository) FindByOrderId(ctx context.Context, tx *sql.Tx, orderId string) (entity.Payment, error) {
+func (repository *paymentRepository) FindByOrderId(ctx context.Context, tx *sql.Tx, orderId string) (*entity.Payment, error) {
 	query := "SELECT * FROM payloads WHERE order_id = $1"
 	row := tx.QueryRowContext(ctx, query, orderId)
 
@@ -147,13 +150,13 @@ func (repository *paymentRepository) FindByOrderId(ctx context.Context, tx *sql.
 		&payment.CourierService,
 	)
 	if err != nil {
-		return entity.Payment{}, err
+		return &entity.Payment{}, err
 	}
 
-	return payment, nil
+	return &payment, nil
 }
 
-func (repository *paymentRepository) Create(ctx context.Context, tx *sql.Tx, payment entity.Payment) (entity.Payment, error) {
+func (repository *paymentRepository) Create(ctx context.Context, tx *sql.Tx, payment *entity.Payment) (*entity.Payment, error) {
 	id := 0
 	query := `INSERT INTO payloads(user_id,order_id,transaction_time,transaction_status,transaction_id,status_code,signature_key,settlement_time,payment_type,merchant_id,gross_amount,fraud_status,bank_type,va_number,biller_code,bill_key,receipt_number,address,courier,courier_service) 
 			  VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)  RETURNING id_payload`
@@ -183,7 +186,7 @@ func (repository *paymentRepository) Create(ctx context.Context, tx *sql.Tx, pay
 	)
 	err := row.Scan(&id)
 	if err != nil {
-		return entity.Payment{}, err
+		return &entity.Payment{}, err
 	}
 
 	payment.IdPayload = id
@@ -191,7 +194,7 @@ func (repository *paymentRepository) Create(ctx context.Context, tx *sql.Tx, pay
 	return payment, nil
 }
 
-func (repository *paymentRepository) Update(ctx context.Context, tx *sql.Tx, payment entity.Payment) error {
+func (repository *paymentRepository) Update(ctx context.Context, tx *sql.Tx, payment *entity.Payment) error {
 	query := `UPDATE payloads 
          	  SET user_id = $1,
          	      order_id = $2,
@@ -238,7 +241,7 @@ func (repository *paymentRepository) Update(ctx context.Context, tx *sql.Tx, pay
 	return nil
 }
 
-func (repository *paymentRepository) UpdateReceiptNumber(ctx context.Context, tx *sql.Tx, payment entity.Payment) error {
+func (repository *paymentRepository) UpdateReceiptNumber(ctx context.Context, tx *sql.Tx, payment *entity.Payment) error {
 	query := `UPDATE payloads SET receipt_number = $1 WHERE order_id = $2`
 	_, err := tx.ExecContext(ctx, query, payment.ReceiptNumber, payment.OrderId)
 	if err != nil {

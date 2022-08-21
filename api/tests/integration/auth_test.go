@@ -136,7 +136,7 @@ var _ = Describe("Auth API", func() {
 					tx, _ := database.Begin()
 					userRepository := repository.NewUserRepository()
 					password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-					_, _ = userRepository.Create(context.Background(), tx, entity.User{
+					_, _ = userRepository.Create(context.Background(), tx, &entity.User{
 						Name:      "Widdy",
 						Email:     "widdy@gmail.com",
 						Password:  string(password),
@@ -173,7 +173,7 @@ var _ = Describe("Auth API", func() {
 				tx, _ := database.Begin()
 				userRepository := repository.NewUserRepository()
 				password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-				_, _ = userRepository.Create(context.Background(), tx, entity.User{
+				_, _ = userRepository.Create(context.Background(), tx, &entity.User{
 					Name:      "Widdy",
 					Email:     "widdy@gmail.com",
 					Password:  string(password),
@@ -232,7 +232,7 @@ var _ = Describe("Auth API", func() {
 				tx, _ := database.Begin()
 				userRepository := repository.NewUserRepository()
 				password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-				_, _ = userRepository.Create(context.Background(), tx, entity.User{
+				_, _ = userRepository.Create(context.Background(), tx, &entity.User{
 					Name:      "Widdy",
 					Email:     "widdy@gmail.com",
 					Password:  string(password),
@@ -287,7 +287,7 @@ var _ = Describe("Auth API", func() {
 				tx, _ := database.Begin()
 				userRepository := repository.NewUserRepository()
 				password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-				_, _ = userRepository.Create(context.Background(), tx, entity.User{
+				_, _ = userRepository.Create(context.Background(), tx, &entity.User{
 					Name:      "Widdy",
 					Email:     "widdy@gmail.com",
 					Password:  string(password),
@@ -383,7 +383,7 @@ var _ = Describe("Auth API", func() {
 				tx, _ := database.Begin()
 				userRepository := repository.NewUserRepository()
 				password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-				_, _ = userRepository.Create(context.Background(), tx, entity.User{
+				_, _ = userRepository.Create(context.Background(), tx, &entity.User{
 					Name:      "Widdy",
 					Email:     "widdy@gmail.com",
 					Password:  string(password),
@@ -547,7 +547,7 @@ var _ = Describe("Auth API", func() {
 				tx, _ := database.Begin()
 				userRepository := repository.NewUserRepository()
 				password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-				_, _ = userRepository.Create(context.Background(), tx, entity.User{
+				_, _ = userRepository.Create(context.Background(), tx, &entity.User{
 					Name:      "Widdy",
 					Email:     "widdy@gmail.com",
 					Password:  string(password),

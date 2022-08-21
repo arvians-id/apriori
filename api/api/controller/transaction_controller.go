@@ -98,7 +98,7 @@ func (controller *TransactionController) Create(c *gin.Context) {
 		return
 	}
 
-	transaction, err := controller.TransactionService.Create(c.Request.Context(), request)
+	transaction, err := controller.TransactionService.Create(c.Request.Context(), &request)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
@@ -154,7 +154,7 @@ func (controller *TransactionController) Update(c *gin.Context) {
 	noTransactionParam := c.Param("number_transaction")
 
 	request.NoTransaction = noTransactionParam
-	transaction, err := controller.TransactionService.Update(c.Request.Context(), request)
+	transaction, err := controller.TransactionService.Update(c.Request.Context(), &request)
 	if err != nil {
 		if err.Error() == response.ErrorNotFound {
 			response.ReturnErrorNotFound(c, err, nil)

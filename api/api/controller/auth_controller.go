@@ -58,7 +58,7 @@ func (controller *AuthController) Login(c *gin.Context) {
 		return
 	}
 
-	user, err := controller.UserService.FindByEmail(c.Request.Context(), request)
+	user, err := controller.UserService.FindByEmail(c.Request.Context(), &request)
 	if err != nil {
 		if err.Error() == response.ErrorNotFound {
 			response.ReturnErrorNotFound(c, err, nil)
@@ -131,7 +131,7 @@ func (controller *AuthController) Register(c *gin.Context) {
 		return
 	}
 
-	user, err := controller.UserService.Create(c.Request.Context(), request)
+	user, err := controller.UserService.Create(c.Request.Context(), &request)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
@@ -184,7 +184,7 @@ func (controller *AuthController) VerifyResetPassword(c *gin.Context) {
 	}
 
 	request.Token = c.Query("signature")
-	err = controller.PasswordResetService.Verify(c.Request.Context(), request)
+	err = controller.PasswordResetService.Verify(c.Request.Context(), &request)
 	if err != nil {
 		if err.Error() == response.ErrorNotFound {
 			response.ReturnErrorNotFound(c, err, nil)

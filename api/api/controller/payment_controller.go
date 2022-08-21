@@ -82,7 +82,7 @@ func (controller *PaymentController) UpdateReceiptNumber(c *gin.Context) {
 	}
 
 	request.OrderId = c.Param("order_id")
-	err = controller.PaymentService.UpdateReceiptNumber(c.Request.Context(), request)
+	err = controller.PaymentService.UpdateReceiptNumber(c.Request.Context(), &request)
 	if err != nil {
 		if err.Error() == response.ErrorNotFound {
 			response.ReturnErrorNotFound(c, err, nil)
@@ -108,7 +108,7 @@ func (controller *PaymentController) Pay(c *gin.Context) {
 	rajaShipping.CourierService = c.PostForm("courier_service")
 	rajaShipping.ShippingCost = int64(utils.StrToInt(c.PostForm("shipping_cost")))
 
-	data, err := controller.PaymentService.GetToken(c.Request.Context(), grossAmount, userId, customerName, items, rajaShipping)
+	data, err := controller.PaymentService.GetToken(c.Request.Context(), grossAmount, userId, customerName, items, &rajaShipping)
 	if err != nil {
 		response.ReturnErrorBadRequest(c, err, nil)
 		return

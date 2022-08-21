@@ -109,7 +109,7 @@ func (controller *commentController) Create(c *gin.Context) {
 		return
 	}
 
-	comment, err := controller.CommentService.Create(c.Request.Context(), request)
+	comment, err := controller.CommentService.Create(c.Request.Context(), &request)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return

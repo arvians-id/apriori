@@ -15,15 +15,15 @@ import (
 )
 
 type AprioriService interface {
-	FindAll(ctx context.Context) ([]model.GetAprioriResponse, error)
-	FindAllByActive(ctx context.Context) ([]model.GetAprioriResponse, error)
-	FindAllByCode(ctx context.Context, code string) ([]model.GetAprioriResponse, error)
-	FindByCodeAndId(ctx context.Context, code string, id int) (model.GetProductRecommendationResponse, error)
-	Create(ctx context.Context, requests []model.CreateAprioriRequest) error
-	Update(ctx context.Context, request model.UpdateAprioriRequest) (model.GetAprioriResponse, error)
+	FindAll(ctx context.Context) ([]*model.GetAprioriResponse, error)
+	FindAllByActive(ctx context.Context) ([]*model.GetAprioriResponse, error)
+	FindAllByCode(ctx context.Context, code string) ([]*model.GetAprioriResponse, error)
+	FindByCodeAndId(ctx context.Context, code string, id int) (*model.GetProductRecommendationResponse, error)
+	Create(ctx context.Context, requests []*model.CreateAprioriRequest) error
+	Update(ctx context.Context, request *model.UpdateAprioriRequest) (*model.GetAprioriResponse, error)
 	UpdateStatus(ctx context.Context, code string) error
 	Delete(ctx context.Context, code string) error
-	Generate(ctx context.Context, request model.GenerateAprioriRequest) ([]model.GetGenerateAprioriResponse, error)
+	Generate(ctx context.Context, request *model.GenerateAprioriRequest) ([]*model.GetGenerateAprioriResponse, error)
 }
 
 type aprioriService struct {
@@ -44,19 +44,19 @@ func NewAprioriService(transactionRepository *repository.TransactionRepository, 
 	}
 }
 
-func (service *aprioriService) FindAll(ctx context.Context) ([]model.GetAprioriResponse, error) {
+func (service *aprioriService) FindAll(ctx context.Context) ([]*model.GetAprioriResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return []model.GetAprioriResponse{}, err
+		return nil, err
 	}
 	defer utils.CommitOrRollback(tx)
 
 	apriories, err := service.AprioriRepository.FindAll(ctx, tx)
 	if err != nil {
-		return []model.GetAprioriResponse{}, err
+		return nil, err
 	}
 
-	var aprioriResponses []model.GetAprioriResponse
+	var aprioriResponses []*model.GetAprioriResponse
 	for _, apriori := range apriories {
 		aprioriResponses = append(aprioriResponses, utils.ToAprioriResponse(apriori))
 	}
@@ -64,19 +64,19 @@ func (service *aprioriService) FindAll(ctx context.Context) ([]model.GetAprioriR
 	return aprioriResponses, nil
 }
 
-func (service *aprioriService) FindAllByActive(ctx context.Context) ([]model.GetAprioriResponse, error) {
+func (service *aprioriService) FindAllByActive(ctx context.Context) ([]*model.GetAprioriResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return []model.GetAprioriResponse{}, err
+		return nil, err
 	}
 	defer utils.CommitOrRollback(tx)
 
 	apriories, err := service.AprioriRepository.FindAllByActive(ctx, tx)
 	if err != nil {
-		return []model.GetAprioriResponse{}, err
+		return nil, err
 	}
 
-	var aprioriResponses []model.GetAprioriResponse
+	var aprioriResponses []*model.GetAprioriResponse
 	for _, apriori := range apriories {
 		aprioriResponses = append(aprioriResponses, utils.ToAprioriResponse(apriori))
 	}
@@ -84,19 +84,19 @@ func (service *aprioriService) FindAllByActive(ctx context.Context) ([]model.Get
 	return aprioriResponses, nil
 }
 
-func (service *aprioriService) FindAllByCode(ctx context.Context, code string) ([]model.GetAprioriResponse, error) {
+func (service *aprioriService) FindAllByCode(ctx context.Context, code string) ([]*model.GetAprioriResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return []model.GetAprioriResponse{}, err
+		return nil, err
 	}
 	defer utils.CommitOrRollback(tx)
 
 	apriories, err := service.AprioriRepository.FindAllByCode(ctx, tx, code)
 	if err != nil {
-		return []model.GetAprioriResponse{}, err
+		return nil, err
 	}
 
-	var aprioriResponses []model.GetAprioriResponse
+	var aprioriResponses []*model.GetAprioriResponse
 	for _, apriori := range apriories {
 		aprioriResponses = append(aprioriResponses, utils.ToAprioriResponse(apriori))
 	}
@@ -104,16 +104,16 @@ func (service *aprioriService) FindAllByCode(ctx context.Context, code string) (
 	return aprioriResponses, nil
 }
 
-func (service *aprioriService) FindByCodeAndId(ctx context.Context, code string, id int) (model.GetProductRecommendationResponse, error) {
+func (service *aprioriService) FindByCodeAndId(ctx context.Context, code string, id int) (*model.GetProductRecommendationResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return model.GetProductRecommendationResponse{}, err
+		return &model.GetProductRecommendationResponse{}, err
 	}
 	defer utils.CommitOrRollback(tx)
 
 	apriori, err := service.AprioriRepository.FindByCodeAndId(ctx, tx, code, id)
 	if err != nil {
-		return model.GetProductRecommendationResponse{}, err
+		return &model.GetProductRecommendationResponse{}, err
 	}
 
 	var totalPrice, mass int
@@ -124,7 +124,7 @@ func (service *aprioriService) FindByCodeAndId(ctx context.Context, code string,
 		mass += product.Mass
 	}
 
-	return model.GetProductRecommendationResponse{
+	return &model.GetProductRecommendationResponse{
 		AprioriId:          apriori.IdApriori,
 		AprioriCode:        apriori.Code,
 		AprioriItem:        apriori.Item,
@@ -137,7 +137,7 @@ func (service *aprioriService) FindByCodeAndId(ctx context.Context, code string,
 	}, nil
 }
 
-func (service *aprioriService) Create(ctx context.Context, requests []model.CreateAprioriRequest) error {
+func (service *aprioriService) Create(ctx context.Context, requests []*model.CreateAprioriRequest) error {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return err
@@ -149,10 +149,10 @@ func (service *aprioriService) Create(ctx context.Context, requests []model.Crea
 		return err
 	}
 
-	var aprioriRequests []entity.Apriori
+	var aprioriRequests []*entity.Apriori
 	code := utils.RandomString(10)
 	for _, request := range requests {
-		aprioriRequests = append(aprioriRequests, entity.Apriori{
+		aprioriRequests = append(aprioriRequests, &entity.Apriori{
 			Code:       code,
 			Item:       request.Item,
 			Discount:   request.Discount,
@@ -173,16 +173,16 @@ func (service *aprioriService) Create(ctx context.Context, requests []model.Crea
 	return nil
 }
 
-func (service *aprioriService) Update(ctx context.Context, request model.UpdateAprioriRequest) (model.GetAprioriResponse, error) {
+func (service *aprioriService) Update(ctx context.Context, request *model.UpdateAprioriRequest) (*model.GetAprioriResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return model.GetAprioriResponse{}, err
+		return &model.GetAprioriResponse{}, err
 	}
 	defer utils.CommitOrRollback(tx)
 
-	apriori, err := service.AprioriRepository.FindByCodeAndId(ctx, tx, request.Code, int(request.IdApriori))
+	apriori, err := service.AprioriRepository.FindByCodeAndId(ctx, tx, request.Code, request.IdApriori)
 	if err != nil {
-		return model.GetAprioriResponse{}, err
+		return &model.GetAprioriResponse{}, err
 	}
 
 	image := apriori.Image
@@ -199,9 +199,9 @@ func (service *aprioriService) Update(ctx context.Context, request model.UpdateA
 		},
 		Image: image,
 	}
-	aprioriResponse, err := service.AprioriRepository.Update(ctx, tx, aprioriRequest)
+	aprioriResponse, err := service.AprioriRepository.Update(ctx, tx, &aprioriRequest)
 	if err != nil {
-		return model.GetAprioriResponse{}, err
+		return &model.GetAprioriResponse{}, err
 	}
 
 	return utils.ToAprioriResponse(aprioriResponse), nil
@@ -257,14 +257,14 @@ func (service *aprioriService) Delete(ctx context.Context, code string) error {
 	return nil
 }
 
-func (service *aprioriService) Generate(ctx context.Context, request model.GenerateAprioriRequest) ([]model.GetGenerateAprioriResponse, error) {
+func (service *aprioriService) Generate(ctx context.Context, request *model.GenerateAprioriRequest) ([]*model.GetGenerateAprioriResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
 	}
 	defer utils.CommitOrRollback(tx)
 
-	var apriori []model.GetGenerateAprioriResponse
+	var apriori []*model.GetGenerateAprioriResponse
 
 	// Get all transaction from database
 	transactionsSet, err := service.TransactionRepository.FindAllItemSet(ctx, tx, request.StartDate, request.EndDate)
@@ -280,7 +280,7 @@ func (service *aprioriService) Generate(ctx context.Context, request model.Gener
 
 	// Get one item set
 	for i := 0; i < len(oneSet); i++ {
-		apriori = append(apriori, model.GetGenerateAprioriResponse{
+		apriori = append(apriori, &model.GetGenerateAprioriResponse{
 			ItemSet:     []string{oneSet[i]},
 			Support:     support[i],
 			Iterate:     1,
@@ -324,7 +324,7 @@ func (service *aprioriService) Generate(ctx context.Context, request model.Gener
 			countCandidates := utils.FindCandidate(dataTemp[i], transactions)
 			result := float64(countCandidates) / float64(len(transactionsSet)) * 100
 			if result >= request.MinimumSupport {
-				apriori = append(apriori, model.GetGenerateAprioriResponse{
+				apriori = append(apriori, &model.GetGenerateAprioriResponse{
 					ItemSet:     dataTemp[i],
 					Support:     math.Round(result*100) / 100,
 					Iterate:     int32(iterate) + 2,
@@ -333,7 +333,7 @@ func (service *aprioriService) Generate(ctx context.Context, request model.Gener
 					RangeDate:   request.StartDate + " - " + request.EndDate,
 				})
 			} else {
-				apriori = append(apriori, model.GetGenerateAprioriResponse{
+				apriori = append(apriori, &model.GetGenerateAprioriResponse{
 					ItemSet:     dataTemp[i],
 					Support:     math.Round(result*100) / 100,
 					Iterate:     int32(iterate) + 2,
@@ -402,7 +402,7 @@ func (service *aprioriService) Generate(ctx context.Context, request model.Gener
 	// Replace the last item set and add discount and confidence
 	for i := 0; i < len(discount); i++ {
 		if discount[i].Confidence >= request.MinimumConfidence {
-			apriori = append(apriori, model.GetGenerateAprioriResponse{
+			apriori = append(apriori, &model.GetGenerateAprioriResponse{
 				ItemSet:     discount[i].ItemSet,
 				Support:     math.Round(discount[i].Support*100) / 100,
 				Iterate:     discount[i].Iterate + 1,

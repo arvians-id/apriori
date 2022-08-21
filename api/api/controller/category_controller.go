@@ -97,7 +97,7 @@ func (controller *categoryController) Create(c *gin.Context) {
 		return
 	}
 
-	category, err := controller.categoryService.Create(c.Request.Context(), request)
+	category, err := controller.categoryService.Create(c.Request.Context(), &request)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
@@ -118,7 +118,7 @@ func (controller *categoryController) Update(c *gin.Context) {
 
 	request.IdCategory = utils.StrToInt(c.Param("id"))
 
-	category, err := controller.categoryService.Update(c.Request.Context(), request)
+	category, err := controller.categoryService.Update(c.Request.Context(), &request)
 	if err != nil {
 		if err.Error() == response.ErrorNotFound {
 			response.ReturnErrorNotFound(c, err, nil)

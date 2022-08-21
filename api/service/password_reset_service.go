@@ -16,8 +16,8 @@ import (
 )
 
 type PasswordResetService interface {
-	CreateOrUpdateByEmail(ctx context.Context, email string) (model.GetPasswordResetResponse, error)
-	Verify(ctx context.Context, request model.UpdateResetPasswordUserRequest) error
+	CreateOrUpdateByEmail(ctx context.Context, email string) (*model.GetPasswordResetResponse, error)
+	Verify(ctx context.Context, request *model.UpdateResetPasswordUserRequest) error
 }
 
 type passwordResetService struct {
@@ -34,10 +34,10 @@ func NewPasswordResetService(resetRepository *repository.PasswordResetRepository
 	}
 }
 
-func (service *passwordResetService) CreateOrUpdateByEmail(ctx context.Context, email string) (model.GetPasswordResetResponse, error) {
+func (service *passwordResetService) CreateOrUpdateByEmail(ctx context.Context, email string) (*model.GetPasswordResetResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return model.GetPasswordResetResponse{}, err
+		return &model.GetPasswordResetResponse{}, err
 	}
 	defer utils.CommitOrRollback(tx)
 
@@ -54,31 +54,31 @@ func (service *passwordResetService) CreateOrUpdateByEmail(ctx context.Context, 
 	// Check if email is exists in table users
 	user, err := service.UserRepository.FindByEmail(ctx, tx, email)
 	if err != nil {
-		return model.GetPasswordResetResponse{}, err
+		return &model.GetPasswordResetResponse{}, err
 	}
 
 	// Check If email is exists in table password_resets
 	_, err = service.PasswordResetRepository.FindByEmail(ctx, tx, user.Email)
 	if err != nil {
 		// Create new data if not exists
-		passwordResetResponse, err := service.PasswordResetRepository.Create(ctx, tx, passwordResetRequest)
+		passwordResetResponse, err := service.PasswordResetRepository.Create(ctx, tx, &passwordResetRequest)
 		if err != nil {
-			return model.GetPasswordResetResponse{}, err
+			return &model.GetPasswordResetResponse{}, err
 		}
 
 		return utils.ToPasswordResetResponse(passwordResetResponse), nil
 	}
 
 	// Update data if exists
-	passwordResetResponse, err := service.PasswordResetRepository.Update(ctx, tx, passwordResetRequest)
+	passwordResetResponse, err := service.PasswordResetRepository.Update(ctx, tx, &passwordResetRequest)
 	if err != nil {
-		return model.GetPasswordResetResponse{}, err
+		return &model.GetPasswordResetResponse{}, err
 	}
 
 	return utils.ToPasswordResetResponse(passwordResetResponse), nil
 }
 
-func (service *passwordResetService) Verify(ctx context.Context, request model.UpdateResetPasswordUserRequest) error {
+func (service *passwordResetService) Verify(ctx context.Context, request *model.UpdateResetPasswordUserRequest) error {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return err
@@ -91,7 +91,7 @@ func (service *passwordResetService) Verify(ctx context.Context, request model.U
 		Token: request.Token,
 	}
 
-	reset, err := service.PasswordResetRepository.FindByEmailAndToken(ctx, tx, passwordResetRequest)
+	reset, err := service.PasswordResetRepository.FindByEmailAndToken(ctx, tx, &passwordResetRequest)
 	if err != nil {
 		return err
 	}

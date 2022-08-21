@@ -9,9 +9,9 @@ import (
 )
 
 type UserOrderService interface {
-	FindAllByPayloadId(ctx context.Context, payloadId int) ([]model.GetUserOrderResponse, error)
-	FindAllByUserId(ctx context.Context, userId int) ([]model.GetUserOrderRelationByUserIdResponse, error)
-	FindById(ctx context.Context, id int) (model.GetUserOrderResponse, error)
+	FindAllByPayloadId(ctx context.Context, payloadId int) ([]*model.GetUserOrderResponse, error)
+	FindAllByUserId(ctx context.Context, userId int) ([]*model.GetUserOrderRelationByUserIdResponse, error)
+	FindById(ctx context.Context, id int) (*model.GetUserOrderResponse, error)
 }
 
 type userOrderService struct {
@@ -30,7 +30,7 @@ func NewUserOrderService(paymentRepository *repository.PaymentRepository, userOr
 	}
 }
 
-func (service *userOrderService) FindAllByPayloadId(ctx context.Context, payloadId int) ([]model.GetUserOrderResponse, error) {
+func (service *userOrderService) FindAllByPayloadId(ctx context.Context, payloadId int) ([]*model.GetUserOrderResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -42,7 +42,7 @@ func (service *userOrderService) FindAllByPayloadId(ctx context.Context, payload
 		return nil, err
 	}
 
-	var userOrderResponses []model.GetUserOrderResponse
+	var userOrderResponses []*model.GetUserOrderResponse
 	for _, userOrder := range userOrders {
 		userOrderResponses = append(userOrderResponses, utils.ToUserOrderResponse(userOrder))
 	}
@@ -50,7 +50,7 @@ func (service *userOrderService) FindAllByPayloadId(ctx context.Context, payload
 	return userOrderResponses, nil
 }
 
-func (service *userOrderService) FindAllByUserId(ctx context.Context, userId int) ([]model.GetUserOrderRelationByUserIdResponse, error) {
+func (service *userOrderService) FindAllByUserId(ctx context.Context, userId int) ([]*model.GetUserOrderRelationByUserIdResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -67,7 +67,7 @@ func (service *userOrderService) FindAllByUserId(ctx context.Context, userId int
 		return nil, err
 	}
 
-	var userOrderResponses []model.GetUserOrderRelationByUserIdResponse
+	var userOrderResponses []*model.GetUserOrderRelationByUserIdResponse
 	for _, userOrder := range userOrders {
 		userOrderResponses = append(userOrderResponses, utils.ToUserOrderRelationByUserIdResponse(userOrder))
 	}
@@ -75,16 +75,16 @@ func (service *userOrderService) FindAllByUserId(ctx context.Context, userId int
 	return userOrderResponses, nil
 }
 
-func (service *userOrderService) FindById(ctx context.Context, id int) (model.GetUserOrderResponse, error) {
+func (service *userOrderService) FindById(ctx context.Context, id int) (*model.GetUserOrderResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return model.GetUserOrderResponse{}, err
+		return &model.GetUserOrderResponse{}, err
 	}
 	defer utils.CommitOrRollback(tx)
 
 	userOrderResponse, err := service.UserOrderRepository.FindById(ctx, tx, id)
 	if err != nil {
-		return model.GetUserOrderResponse{}, err
+		return &model.GetUserOrderResponse{}, err
 	}
 
 	return utils.ToUserOrderResponse(userOrderResponse), nil

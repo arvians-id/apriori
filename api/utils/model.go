@@ -5,8 +5,8 @@ import (
 	"apriori/model"
 )
 
-func ToUserResponse(user entity.User) model.GetUserResponse {
-	return model.GetUserResponse{
+func ToUserResponse(user *entity.User) *model.GetUserResponse {
+	return &model.GetUserResponse{
 		IdUser:    user.IdUser,
 		Role:      user.Role,
 		Name:      user.Name,
@@ -18,16 +18,16 @@ func ToUserResponse(user entity.User) model.GetUserResponse {
 	}
 }
 
-func ToPasswordResetResponse(reset entity.PasswordReset) model.GetPasswordResetResponse {
-	return model.GetPasswordResetResponse{
+func ToPasswordResetResponse(reset *entity.PasswordReset) *model.GetPasswordResetResponse {
+	return &model.GetPasswordResetResponse{
 		Email:   reset.Email,
 		Token:   reset.Token,
 		Expired: reset.Expired,
 	}
 }
 
-func ToProductResponse(product entity.Product) model.GetProductResponse {
-	return model.GetProductResponse{
+func ToProductResponse(product *entity.Product) *model.GetProductResponse {
+	return &model.GetProductResponse{
 		IdProduct:   product.IdProduct,
 		Code:        product.Code,
 		Name:        product.Name,
@@ -42,8 +42,8 @@ func ToProductResponse(product entity.Product) model.GetProductResponse {
 	}
 }
 
-func ToTransactionResponse(transaction entity.Transaction) model.GetTransactionResponse {
-	return model.GetTransactionResponse{
+func ToTransactionResponse(transaction *entity.Transaction) *model.GetTransactionResponse {
+	return &model.GetTransactionResponse{
 		IdTransaction: transaction.IdTransaction,
 		ProductName:   transaction.ProductName,
 		CustomerName:  transaction.CustomerName,
@@ -53,8 +53,8 @@ func ToTransactionResponse(transaction entity.Transaction) model.GetTransactionR
 	}
 }
 
-func ToAprioriResponse(apriori entity.Apriori) model.GetAprioriResponse {
-	return model.GetAprioriResponse{
+func ToAprioriResponse(apriori *entity.Apriori) *model.GetAprioriResponse {
+	return &model.GetAprioriResponse{
 		IdApriori:   apriori.IdApriori,
 		Code:        apriori.Code,
 		Item:        apriori.Item,
@@ -69,8 +69,8 @@ func ToAprioriResponse(apriori entity.Apriori) model.GetAprioriResponse {
 	}
 }
 
-func ToPaymentResponse(payment entity.Payment) model.GetPaymentResponse {
-	return model.GetPaymentResponse{
+func ToPaymentResponse(payment *entity.Payment) *model.GetPaymentResponse {
+	return &model.GetPaymentResponse{
 		IdPayload:         payment.IdPayload,
 		UserId:            payment.UserId.String,
 		OrderId:           payment.OrderId.String,
@@ -95,8 +95,8 @@ func ToPaymentResponse(payment entity.Payment) model.GetPaymentResponse {
 	}
 }
 
-func ToPaymentRelationResponse(payment entity.PaymentRelation) model.GetPaymentRelationResponse {
-	return model.GetPaymentRelationResponse{
+func ToPaymentRelationResponse(payment *entity.PaymentRelation) *model.GetPaymentRelationResponse {
+	return &model.GetPaymentRelationResponse{
 		IdPayload:         payment.Payment.IdPayload,
 		UserId:            payment.Payment.UserId.String,
 		OrderId:           payment.Payment.OrderId.String,
@@ -122,8 +122,8 @@ func ToPaymentRelationResponse(payment entity.PaymentRelation) model.GetPaymentR
 	}
 }
 
-func ToUserOrderResponse(userOrder entity.UserOrder) model.GetUserOrderResponse {
-	return model.GetUserOrderResponse{
+func ToUserOrderResponse(userOrder *entity.UserOrder) *model.GetUserOrderResponse {
+	return &model.GetUserOrderResponse{
 		IdOrder:        userOrder.IdOrder,
 		PayloadId:      userOrder.PayloadId,
 		Code:           userOrder.Code,
@@ -135,23 +135,23 @@ func ToUserOrderResponse(userOrder entity.UserOrder) model.GetUserOrderResponse 
 	}
 }
 
-func ToUserOrderRelationByUserIdResponse(userOrder entity.UserOrderRelationByUserId) model.GetUserOrderRelationByUserIdResponse {
-	return model.GetUserOrderRelationByUserIdResponse{
-		IdOrder:           userOrder.IdOrder,
-		PayloadId:         userOrder.PayloadId,
-		Code:              userOrder.Code,
-		Name:              userOrder.Name,
-		Price:             userOrder.Price,
-		Image:             userOrder.Image,
-		Quantity:          userOrder.Quantity,
-		TotalPriceItem:    userOrder.TotalPriceItem,
+func ToUserOrderRelationByUserIdResponse(userOrder *entity.UserOrderRelationByUserId) *model.GetUserOrderRelationByUserIdResponse {
+	return &model.GetUserOrderRelationByUserIdResponse{
+		IdOrder:           userOrder.UserOrder.IdOrder,
+		PayloadId:         userOrder.UserOrder.PayloadId,
+		Code:              userOrder.UserOrder.Code,
+		Name:              userOrder.UserOrder.Name,
+		Price:             userOrder.UserOrder.Price,
+		Image:             userOrder.UserOrder.Image,
+		Quantity:          userOrder.UserOrder.Quantity,
+		TotalPriceItem:    userOrder.UserOrder.TotalPriceItem,
 		OrderId:           userOrder.OrderId,
 		TransactionStatus: userOrder.TransactionStatus,
 	}
 }
 
-func ToCategoryResponse(category entity.Category) model.GetCategoryResponse {
-	return model.GetCategoryResponse{
+func ToCategoryResponse(category *entity.Category) *model.GetCategoryResponse {
+	return &model.GetCategoryResponse{
 		IdCategory: category.IdCategory,
 		Name:       category.Name,
 		CreatedAt:  category.CreatedAt.String(),
@@ -159,8 +159,8 @@ func ToCategoryResponse(category entity.Category) model.GetCategoryResponse {
 	}
 }
 
-func ToCommentResponse(comment entity.Comment) model.GetCommentResponse {
-	return model.GetCommentResponse{
+func ToCommentResponse(comment *entity.Comment) *model.GetCommentResponse {
+	return &model.GetCommentResponse{
 		IdComment:   comment.IdComment,
 		UserOrderId: comment.UserOrderId,
 		ProductCode: comment.ProductCode,
@@ -173,8 +173,8 @@ func ToCommentResponse(comment entity.Comment) model.GetCommentResponse {
 	}
 }
 
-func ToRatingResponse(rating entity.RatingFromComment) model.GetRatingResponse {
-	return model.GetRatingResponse{
+func ToRatingResponse(rating *entity.RatingFromComment) *model.GetRatingResponse {
+	return &model.GetRatingResponse{
 		Rating:        rating.Rating,
 		ResultRating:  rating.ResultRating,
 		ResultComment: rating.ResultComment,

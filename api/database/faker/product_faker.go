@@ -62,7 +62,7 @@ func (p *ProductFaker) SetImage(image string) *ProductFaker {
 }
 
 func (p *ProductFaker) Seed(service service.ProductService) *model.CreateProductRequest {
-	_, _ = service.Create(context.Background(), model.CreateProductRequest{
+	_, _ = service.Create(context.Background(), &model.CreateProductRequest{
 		Code:        p.Product.Code,
 		Name:        p.Product.Name,
 		Price:       p.Product.Price,

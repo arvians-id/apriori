@@ -17,13 +17,13 @@ import (
 
 type PaymentService interface {
 	GetClient()
-	FindAll(ctx context.Context) ([]model.GetPaymentRelationResponse, error)
-	FindAllByUserId(ctx context.Context, userId int) ([]model.GetPaymentResponse, error)
-	FindByOrderId(ctx context.Context, orderId string) (model.GetPaymentResponse, error)
+	FindAll(ctx context.Context) ([]*model.GetPaymentRelationResponse, error)
+	FindAllByUserId(ctx context.Context, userId int) ([]*model.GetPaymentResponse, error)
+	FindByOrderId(ctx context.Context, orderId string) (*model.GetPaymentResponse, error)
 	CreateOrUpdate(ctx context.Context, request map[string]interface{}) error
-	UpdateReceiptNumber(ctx context.Context, request model.AddReceiptNumberRequest) error
+	UpdateReceiptNumber(ctx context.Context, request *model.AddReceiptNumberRequest) error
 	Delete(ctx context.Context, orderId string) error
-	GetToken(ctx context.Context, amount int64, userId int, customerName string, items []string, rajaShipping model.GetRajaOngkirResponse) (map[string]interface{}, error)
+	GetToken(ctx context.Context, amount int64, userId int, customerName string, items []string, rajaShipping *model.GetRajaOngkirResponse) (map[string]interface{}, error)
 }
 
 type paymentService struct {
@@ -60,7 +60,7 @@ func (service *paymentService) GetClient() {
 	}
 }
 
-func (service *paymentService) FindAll(ctx context.Context) ([]model.GetPaymentRelationResponse, error) {
+func (service *paymentService) FindAll(ctx context.Context) ([]*model.GetPaymentRelationResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -72,7 +72,7 @@ func (service *paymentService) FindAll(ctx context.Context) ([]model.GetPaymentR
 		return nil, err
 	}
 
-	var paymentResponses []model.GetPaymentRelationResponse
+	var paymentResponses []*model.GetPaymentRelationResponse
 	for _, payment := range payments {
 		paymentResponses = append(paymentResponses, utils.ToPaymentRelationResponse(payment))
 	}
@@ -80,7 +80,7 @@ func (service *paymentService) FindAll(ctx context.Context) ([]model.GetPaymentR
 	return paymentResponses, nil
 }
 
-func (service *paymentService) FindAllByUserId(ctx context.Context, userId int) ([]model.GetPaymentResponse, error) {
+func (service *paymentService) FindAllByUserId(ctx context.Context, userId int) ([]*model.GetPaymentResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -92,7 +92,7 @@ func (service *paymentService) FindAllByUserId(ctx context.Context, userId int) 
 		return nil, err
 	}
 
-	var paymentResponses []model.GetPaymentResponse
+	var paymentResponses []*model.GetPaymentResponse
 	for _, payment := range payments {
 		paymentResponses = append(paymentResponses, utils.ToPaymentResponse(payment))
 	}
@@ -100,16 +100,16 @@ func (service *paymentService) FindAllByUserId(ctx context.Context, userId int) 
 	return paymentResponses, nil
 }
 
-func (service *paymentService) FindByOrderId(ctx context.Context, orderId string) (model.GetPaymentResponse, error) {
+func (service *paymentService) FindByOrderId(ctx context.Context, orderId string) (*model.GetPaymentResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return model.GetPaymentResponse{}, err
+		return &model.GetPaymentResponse{}, err
 	}
 	defer utils.CommitOrRollback(tx)
 
 	paymentResponse, err := service.PaymentRepository.FindByOrderId(ctx, tx, orderId)
 	if err != nil {
-		return model.GetPaymentResponse{}, err
+		return &model.GetPaymentResponse{}, err
 	}
 
 	return utils.ToPaymentResponse(paymentResponse), nil
@@ -212,7 +212,7 @@ func (service *paymentService) CreateOrUpdate(ctx context.Context, request map[s
 
 	checkTransaction, _ := service.PaymentRepository.FindByOrderId(ctx, tx, request["order_id"].(string))
 	if checkTransaction.OrderId.Valid {
-		err := service.PaymentRepository.Update(ctx, tx, paymentRequest)
+		err := service.PaymentRepository.Update(ctx, tx, &paymentRequest)
 		if err != nil {
 			return err
 		}
@@ -237,7 +237,7 @@ func (service *paymentService) CreateOrUpdate(ctx context.Context, request map[s
 				UpdatedAt:     timeNow,
 			}
 
-			_, err = service.TransactionRepository.Create(ctx, tx, transaction)
+			_, err = service.TransactionRepository.Create(ctx, tx, &transaction)
 			if err != nil {
 				return err
 			}
@@ -247,7 +247,7 @@ func (service *paymentService) CreateOrUpdate(ctx context.Context, request map[s
 	return nil
 }
 
-func (service *paymentService) UpdateReceiptNumber(ctx context.Context, request model.AddReceiptNumberRequest) error {
+func (service *paymentService) UpdateReceiptNumber(ctx context.Context, request *model.AddReceiptNumberRequest) error {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return err
@@ -266,7 +266,7 @@ func (service *paymentService) UpdateReceiptNumber(ctx context.Context, request 
 			Valid:  true,
 		},
 	}
-	err = service.PaymentRepository.UpdateReceiptNumber(ctx, tx, paymentRequest)
+	err = service.PaymentRepository.UpdateReceiptNumber(ctx, tx, &paymentRequest)
 	if err != nil {
 		return err
 	}
@@ -293,7 +293,7 @@ func (service *paymentService) Delete(ctx context.Context, orderId string) error
 
 	return nil
 }
-func (service *paymentService) GetToken(ctx context.Context, amount int64, userId int, customerName string, items []string, rajaShipping model.GetRajaOngkirResponse) (map[string]interface{}, error) {
+func (service *paymentService) GetToken(ctx context.Context, amount int64, userId int, customerName string, items []string, rajaShipping *model.GetRajaOngkirResponse) (map[string]interface{}, error) {
 	service.GetClient()
 
 	var test []map[string]interface{}
@@ -377,7 +377,7 @@ func (service *paymentService) GetToken(ctx context.Context, amount int64, userI
 			Valid:  true,
 		},
 	}
-	payment, err := service.PaymentRepository.Create(ctx, tx, paymentRequest)
+	payment, err := service.PaymentRepository.Create(ctx, tx, &paymentRequest)
 	if err != nil {
 		return nil, err
 	}
@@ -406,7 +406,7 @@ func (service *paymentService) GetToken(ctx context.Context, amount int64, userI
 			Quantity:       int(value["quantity"].(float64)),
 			TotalPriceItem: int64(value["totalPricePerItem"].(float64)),
 		}
-		err := service.UserOrderRepository.Create(ctx, tx, itemRequest)
+		err := service.UserOrderRepository.Create(ctx, tx, &itemRequest)
 		if err != nil {
 			return nil, err
 		}

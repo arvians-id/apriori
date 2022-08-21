@@ -12,14 +12,7 @@ type UserOrder struct {
 }
 
 type UserOrderRelationByUserId struct {
-	IdOrder           int
-	PayloadId         int
-	Code              string
-	Name              string
-	Price             int64
-	Image             string
-	Quantity          int
-	TotalPriceItem    int64
+	UserOrder         UserOrder
 	OrderId           string
 	TransactionStatus string
 }

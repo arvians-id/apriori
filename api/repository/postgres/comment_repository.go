@@ -5,6 +5,7 @@ import (
 	"apriori/repository"
 	"context"
 	"database/sql"
+	"log"
 )
 
 type commentRepository struct {
@@ -14,7 +15,7 @@ func NewCommentRepository() repository.CommentRepository {
 	return &commentRepository{}
 }
 
-func (repository *commentRepository) FindAllRatingByProductCode(ctx context.Context, tx *sql.Tx, productCode string) ([]entity.RatingFromComment, error) {
+func (repository *commentRepository) FindAllRatingByProductCode(ctx context.Context, tx *sql.Tx, productCode string) ([]*entity.RatingFromComment, error) {
 	query := `SELECT rating, rating * COUNT(rating) as result_rating, SUM(CASE WHEN description != '' THEN 1 ELSE 0 END) as result_comment 
 			  FROM comments 
 			  WHERE product_code = $1 
@@ -27,11 +28,12 @@ func (repository *commentRepository) FindAllRatingByProductCode(ctx context.Cont
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
 		if err != nil {
+			log.Println(err)
 			return
 		}
 	}(rows)
 
-	var ratings []entity.RatingFromComment
+	var ratings []*entity.RatingFromComment
 	for rows.Next() {
 		var rating entity.RatingFromComment
 		err := rows.Scan(
@@ -43,13 +45,13 @@ func (repository *commentRepository) FindAllRatingByProductCode(ctx context.Cont
 			return nil, err
 		}
 
-		ratings = append(ratings, rating)
+		ratings = append(ratings, &rating)
 	}
 
 	return ratings, nil
 }
 
-func (repository *commentRepository) FindAllByProductCode(ctx context.Context, tx *sql.Tx, productCode string, rating string, tags string) ([]entity.Comment, error) {
+func (repository *commentRepository) FindAllByProductCode(ctx context.Context, tx *sql.Tx, productCode string, rating string, tags string) ([]*entity.Comment, error) {
 	query := `SELECT c.*,u.id_user,u.name 
 			  FROM comments c 
 				LEFT JOIN user_orders uo ON uo.id_order = c.user_order_id 
@@ -64,11 +66,12 @@ func (repository *commentRepository) FindAllByProductCode(ctx context.Context, t
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
 		if err != nil {
+			log.Println(err)
 			return
 		}
 	}(rows)
 
-	var comments []entity.Comment
+	var comments []*entity.Comment
 	for rows.Next() {
 		var comment entity.Comment
 		err := rows.Scan(
@@ -86,13 +89,13 @@ func (repository *commentRepository) FindAllByProductCode(ctx context.Context, t
 			return nil, err
 		}
 
-		comments = append(comments, comment)
+		comments = append(comments, &comment)
 	}
 
 	return comments, nil
 }
 
-func (repository *commentRepository) FindById(ctx context.Context, tx *sql.Tx, id int) (entity.Comment, error) {
+func (repository *commentRepository) FindById(ctx context.Context, tx *sql.Tx, id int) (*entity.Comment, error) {
 	query := `SELECT c.*,u.id_user,u.name 
 			  FROM comments c 
 				LEFT JOIN user_orders uo ON uo.id_order = c.user_order_id 
@@ -114,13 +117,13 @@ func (repository *commentRepository) FindById(ctx context.Context, tx *sql.Tx, i
 		&comment.UserName,
 	)
 	if err != nil {
-		return entity.Comment{}, err
+		return &entity.Comment{}, err
 	}
 
-	return comment, nil
+	return &comment, nil
 }
 
-func (repository *commentRepository) FindByUserOrderId(ctx context.Context, tx *sql.Tx, userOrderId int) (entity.Comment, error) {
+func (repository *commentRepository) FindByUserOrderId(ctx context.Context, tx *sql.Tx, userOrderId int) (*entity.Comment, error) {
 	query := `SELECT c.*,u.id_user,u.name 
 			  FROM comments c 
 				LEFT JOIN user_orders uo ON uo.id_order = c.user_order_id 
@@ -142,14 +145,14 @@ func (repository *commentRepository) FindByUserOrderId(ctx context.Context, tx *
 		&comment.UserName,
 	)
 	if err != nil {
-		return entity.Comment{}, err
+		return &entity.Comment{}, err
 	}
 
-	return comment, nil
+	return &comment, nil
 
 }
 
-func (repository *commentRepository) Create(ctx context.Context, tx *sql.Tx, comment entity.Comment) (entity.Comment, error) {
+func (repository *commentRepository) Create(ctx context.Context, tx *sql.Tx, comment *entity.Comment) (*entity.Comment, error) {
 	id := 0
 	query := `INSERT INTO comments (user_order_id, product_code, description, tag, rating, created_at) 
 			  VALUES ($1, $2, $3, $4, $5, $6) RETURNING id_comment`
@@ -165,7 +168,7 @@ func (repository *commentRepository) Create(ctx context.Context, tx *sql.Tx, com
 	)
 	err := queryContext.Scan(&id)
 	if err != nil {
-		return entity.Comment{}, err
+		return &entity.Comment{}, err
 	}
 
 	comment.IdComment = id

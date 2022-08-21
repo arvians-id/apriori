@@ -43,7 +43,7 @@ func (controller *ProductController) Route(router *gin.Engine) *gin.Engine {
 		unauthorized.GET("/products", controller.FindAllByUser)
 		unauthorized.GET("/products/:code/category", controller.FindAllSimilarCategory)
 		unauthorized.GET("/products/:code/recommendation", controller.FindAllRecommendation)
-		unauthorized.GET("/products/:code", controller.FindById)
+		unauthorized.GET("/products/:code", controller.FindByCode)
 	}
 
 	return router
@@ -103,7 +103,7 @@ func (controller *ProductController) FindAllRecommendation(c *gin.Context) {
 	response.ReturnSuccessOK(c, "OK", products)
 }
 
-func (controller *ProductController) FindById(c *gin.Context) {
+func (controller *ProductController) FindByCode(c *gin.Context) {
 	codeParam := c.Param("code")
 	key := fmt.Sprintf("product-%s", codeParam)
 	productCache, err := controller.CacheService.Get(c, key)
@@ -132,7 +132,7 @@ func (controller *ProductController) FindById(c *gin.Context) {
 		return
 	}
 
-	var productCacheResponse model.GetProductResponse
+	var productCacheResponse *model.GetProductResponse
 	err = json.Unmarshal(bytes.NewBufferString(productCache).Bytes(), &productCacheResponse)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
@@ -163,7 +163,7 @@ func (controller *ProductController) Create(c *gin.Context) {
 	}
 
 	request.Image = filePath
-	product, err := controller.ProductService.Create(c.Request.Context(), request)
+	product, err := controller.ProductService.Create(c.Request.Context(), &request)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
@@ -195,7 +195,7 @@ func (controller *ProductController) Update(c *gin.Context) {
 	}
 
 	request.Code = params
-	product, err := controller.ProductService.Update(c.Request.Context(), request)
+	product, err := controller.ProductService.Update(c.Request.Context(), &request)
 	if err != nil {
 		if err.Error() == response.ErrorNotFound {
 			response.ReturnErrorNotFound(c, err, nil)

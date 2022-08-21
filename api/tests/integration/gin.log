@@ -32,7 +32,7 @@
 [GIN-debug] GET    /api/products             --> apriori/api/controller.(*ProductController).FindAllByUser-fm (6 handlers)
 [GIN-debug] GET    /api/products/:code/category --> apriori/api/controller.(*ProductController).FindAllSimilarCategory-fm (6 handlers)
 [GIN-debug] GET    /api/products/:code/recommendation --> apriori/api/controller.(*ProductController).FindAllRecommendation-fm (6 handlers)
-[GIN-debug] GET    /api/products/:code       --> apriori/api/controller.(*ProductController).FindById-fm (6 handlers)
+[GIN-debug] GET    /api/products/:code       --> apriori/api/controller.(*ProductController).FindByCode-fm (6 handlers)
 [GIN-debug] GET    /api/transactions         --> apriori/api/controller.(*TransactionController).FindAll-fm (7 handlers)
 [GIN-debug] GET    /api/transactions/:number_transaction --> apriori/api/controller.(*TransactionController).FindByNoTransaction-fm (7 handlers)
 [GIN-debug] POST   /api/transactions         --> apriori/api/controller.(*TransactionController).Create-fm (7 handlers)

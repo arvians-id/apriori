@@ -5,6 +5,7 @@ import (
 	"apriori/repository"
 	"context"
 	"database/sql"
+	"log"
 )
 
 type userRepository struct {
@@ -14,20 +15,21 @@ func NewUserRepository() repository.UserRepository {
 	return &userRepository{}
 }
 
-func (repository *userRepository) FindAll(ctx context.Context, tx *sql.Tx) ([]entity.User, error) {
+func (repository *userRepository) FindAll(ctx context.Context, tx *sql.Tx) ([]*entity.User, error) {
 	query := "SELECT * FROM users ORDER BY id_user DESC"
 	rows, err := tx.QueryContext(ctx, query)
 	if err != nil {
-		return []entity.User{}, err
+		return nil, err
 	}
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
 		if err != nil {
+			log.Println(err)
 			return
 		}
 	}(rows)
 
-	var users []entity.User
+	var users []*entity.User
 	for rows.Next() {
 		var user entity.User
 		err := rows.Scan(
@@ -42,16 +44,16 @@ func (repository *userRepository) FindAll(ctx context.Context, tx *sql.Tx) ([]en
 			&user.UpdatedAt,
 		)
 		if err != nil {
-			return []entity.User{}, err
+			return nil, err
 		}
 
-		users = append(users, user)
+		users = append(users, &user)
 	}
 
 	return users, nil
 }
 
-func (repository *userRepository) FindById(ctx context.Context, tx *sql.Tx, id int) (entity.User, error) {
+func (repository *userRepository) FindById(ctx context.Context, tx *sql.Tx, id int) (*entity.User, error) {
 	query := "SELECT * FROM users WHERE id_user = $1"
 	row := tx.QueryRowContext(ctx, query, id)
 
@@ -68,13 +70,13 @@ func (repository *userRepository) FindById(ctx context.Context, tx *sql.Tx, id i
 		&user.UpdatedAt,
 	)
 	if err != nil {
-		return entity.User{}, err
+		return &entity.User{}, err
 	}
 
-	return user, nil
+	return &user, nil
 }
 
-func (repository *userRepository) FindByEmail(ctx context.Context, tx *sql.Tx, email string) (entity.User, error) {
+func (repository *userRepository) FindByEmail(ctx context.Context, tx *sql.Tx, email string) (*entity.User, error) {
 	query := "SELECT * FROM users WHERE email = $1"
 	row := tx.QueryRowContext(ctx, query, email)
 
@@ -91,13 +93,13 @@ func (repository *userRepository) FindByEmail(ctx context.Context, tx *sql.Tx, e
 		&user.UpdatedAt,
 	)
 	if err != nil {
-		return entity.User{}, err
+		return &entity.User{}, err
 	}
 
-	return user, nil
+	return &user, nil
 }
 
-func (repository *userRepository) Create(ctx context.Context, tx *sql.Tx, user entity.User) (entity.User, error) {
+func (repository *userRepository) Create(ctx context.Context, tx *sql.Tx, user *entity.User) (*entity.User, error) {
 	id := 0
 	query := "INSERT INTO users (role,name,email,address,phone,password,created_at,updated_at) VALUES($1,$2,$3,$4,$5,$6,$7,$8) RETURNING id_user"
 	row := tx.QueryRowContext(
@@ -114,7 +116,7 @@ func (repository *userRepository) Create(ctx context.Context, tx *sql.Tx, user e
 	)
 	err := row.Scan(&id)
 	if err != nil {
-		return entity.User{}, err
+		return &entity.User{}, err
 	}
 
 	user.IdUser = id
@@ -122,7 +124,7 @@ func (repository *userRepository) Create(ctx context.Context, tx *sql.Tx, user e
 	return user, nil
 }
 
-func (repository *userRepository) Update(ctx context.Context, tx *sql.Tx, user entity.User) (entity.User, error) {
+func (repository *userRepository) Update(ctx context.Context, tx *sql.Tx, user *entity.User) (*entity.User, error) {
 	query := "UPDATE users SET name = $1, email = $2, address = $3, phone = $4, password = $5, updated_at = $6 WHERE id_user = $7"
 	_, err := tx.ExecContext(
 		ctx,
@@ -136,13 +138,13 @@ func (repository *userRepository) Update(ctx context.Context, tx *sql.Tx, user e
 		user.IdUser,
 	)
 	if err != nil {
-		return entity.User{}, err
+		return &entity.User{}, err
 	}
 
 	return user, nil
 }
 
-func (repository *userRepository) UpdatePassword(ctx context.Context, tx *sql.Tx, user entity.User) error {
+func (repository *userRepository) UpdatePassword(ctx context.Context, tx *sql.Tx, user *entity.User) error {
 	query := "UPDATE users SET password = $1, updated_at = $2 WHERE email = $3"
 	_, err := tx.ExecContext(ctx, query, user.Password, user.UpdatedAt, user.Email)
 	if err != nil {
