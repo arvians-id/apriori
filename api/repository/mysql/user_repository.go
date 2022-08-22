@@ -1,126 +1,153 @@
-package mysql
+package postgres
 
 import (
 	"apriori/entity"
 	"apriori/repository"
 	"context"
 	"database/sql"
-	"errors"
+	"log"
 )
 
-type userRepository struct {
+type UserRepositoryImpl struct {
 }
 
 func NewUserRepository() repository.UserRepository {
-	return &userRepository{}
+	return &UserRepositoryImpl{}
 }
 
-func (repository *userRepository) FindAll(ctx context.Context, tx *sql.Tx) ([]entity.User, error) {
+func (repository *UserRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) ([]*entity.User, error) {
 	query := "SELECT * FROM users ORDER BY id_user DESC"
-	queryContext, err := tx.QueryContext(ctx, query)
+	rows, err := tx.QueryContext(ctx, query)
 	if err != nil {
-		return []entity.User{}, err
+		return nil, err
 	}
-	defer func(queryContext *sql.Rows) {
-		err := queryContext.Close()
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
 		if err != nil {
+			log.Println(err)
 			return
 		}
-	}(queryContext)
+	}(rows)
 
-	var users []entity.User
-	for queryContext.Next() {
+	var users []*entity.User
+	for rows.Next() {
 		var user entity.User
-		err := queryContext.Scan(&user.IdUser, &user.Role, &user.Name, &user.Email, &user.Address, &user.Phone, &user.Password, &user.CreatedAt, &user.UpdatedAt)
+		err := rows.Scan(
+			&user.IdUser,
+			&user.Role,
+			&user.Name,
+			&user.Email,
+			&user.Address,
+			&user.Phone,
+			&user.Password,
+			&user.CreatedAt,
+			&user.UpdatedAt,
+		)
 		if err != nil {
-			return []entity.User{}, err
+			return nil, err
 		}
-		users = append(users, user)
+
+		users = append(users, &user)
 	}
 
 	return users, nil
 }
 
-func (repository *userRepository) FindById(ctx context.Context, tx *sql.Tx, userId uint64) (entity.User, error) {
+func (repository *UserRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, id int) (*entity.User, error) {
 	query := "SELECT * FROM users WHERE id_user = ?"
-	queryContext, err := tx.QueryContext(ctx, query, userId)
-	if err != nil {
-		return entity.User{}, err
-	}
-	defer func(queryContext *sql.Rows) {
-		err := queryContext.Close()
-		if err != nil {
-			return
-		}
-	}(queryContext)
+	row := tx.QueryRowContext(ctx, query, id)
 
 	var user entity.User
-	if queryContext.Next() {
-		err := queryContext.Scan(&user.IdUser, &user.Role, &user.Name, &user.Email, &user.Address, &user.Phone, &user.Password, &user.CreatedAt, &user.UpdatedAt)
-		if err != nil {
-			return entity.User{}, err
-		}
-
-		return user, nil
+	err := row.Scan(
+		&user.IdUser,
+		&user.Role,
+		&user.Name,
+		&user.Email,
+		&user.Address,
+		&user.Phone,
+		&user.Password,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+	if err != nil {
+		return &entity.User{}, err
 	}
 
-	return user, errors.New("user not found")
+	return &user, nil
 }
 
-func (repository *userRepository) FindByEmail(ctx context.Context, tx *sql.Tx, email string) (entity.User, error) {
+func (repository *UserRepositoryImpl) FindByEmail(ctx context.Context, tx *sql.Tx, email string) (*entity.User, error) {
 	query := "SELECT * FROM users WHERE email = ?"
-	queryContext, err := tx.QueryContext(ctx, query, email)
-	if err != nil {
-		return entity.User{}, err
-	}
-	defer func(queryContext *sql.Rows) {
-		err := queryContext.Close()
-		if err != nil {
-			return
-		}
-	}(queryContext)
+	row := tx.QueryRowContext(ctx, query, email)
 
 	var user entity.User
-	if queryContext.Next() {
-		err := queryContext.Scan(&user.IdUser, &user.Role, &user.Name, &user.Email, &user.Address, &user.Phone, &user.Password, &user.CreatedAt, &user.UpdatedAt)
-		if err != nil {
-			return entity.User{}, err
-		}
-
-		return user, nil
+	err := row.Scan(
+		&user.IdUser,
+		&user.Role,
+		&user.Name,
+		&user.Email,
+		&user.Address,
+		&user.Phone,
+		&user.Password,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+	if err != nil {
+		return &entity.User{}, err
 	}
 
-	return user, errors.New("email not found")
+	return &user, nil
 }
 
-func (repository *userRepository) Create(ctx context.Context, tx *sql.Tx, user entity.User) (entity.User, error) {
+func (repository *UserRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, user *entity.User) (*entity.User, error) {
 	query := "INSERT INTO users (role,name,email,address,phone,password,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?)"
-	row, err := tx.ExecContext(ctx, query, user.Role, user.Name, user.Email, user.Address, user.Phone, user.Password, user.CreatedAt, user.UpdatedAt)
+	row, err := tx.ExecContext(
+		ctx,
+		query,
+		user.Role,
+		user.Name,
+		user.Email,
+		user.Address,
+		user.Phone,
+		user.Password,
+		user.CreatedAt,
+		user.UpdatedAt,
+	)
 	if err != nil {
-		return entity.User{}, err
+		return &entity.User{}, err
 	}
 
 	id, err := row.LastInsertId()
 	if err != nil {
-		return entity.User{}, err
+		return &entity.User{}, err
 	}
 
-	user.IdUser = uint64(id)
+	user.IdUser = int(id)
 
 	return user, nil
 }
 
-func (repository *userRepository) Update(ctx context.Context, tx *sql.Tx, user entity.User) (entity.User, error) {
+func (repository *UserRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, user *entity.User) (*entity.User, error) {
 	query := "UPDATE users SET name = ?, email = ?, address = ?, phone = ?, password = ?, updated_at = ? WHERE id_user = ?"
-	_, err := tx.ExecContext(ctx, query, user.Name, user.Email, user.Address, user.Phone, user.Password, user.UpdatedAt, user.IdUser)
+	_, err := tx.ExecContext(
+		ctx,
+		query,
+		user.Name,
+		user.Email,
+		user.Address,
+		user.Phone,
+		user.Password,
+		user.UpdatedAt,
+		user.IdUser,
+	)
 	if err != nil {
-		return entity.User{}, err
+		return &entity.User{}, err
 	}
 
 	return user, nil
 }
 
-func (repository *userRepository) UpdatePassword(ctx context.Context, tx *sql.Tx, user entity.User) error {
+func (repository *UserRepositoryImpl) UpdatePassword(ctx context.Context, tx *sql.Tx, user *entity.User) error {
 	query := "UPDATE users SET password = ?, updated_at = ? WHERE email = ?"
 	_, err := tx.ExecContext(ctx, query, user.Password, user.UpdatedAt, user.Email)
 	if err != nil {
@@ -130,9 +157,9 @@ func (repository *userRepository) UpdatePassword(ctx context.Context, tx *sql.Tx
 	return nil
 }
 
-func (repository *userRepository) Delete(ctx context.Context, tx *sql.Tx, userId uint64) error {
+func (repository *UserRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, id int) error {
 	query := "DELETE FROM users WHERE id_user = ?"
-	_, err := tx.ExecContext(ctx, query, userId)
+	_, err := tx.ExecContext(ctx, query, id)
 	if err != nil {
 		return err
 	}

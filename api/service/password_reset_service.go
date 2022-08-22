@@ -2,9 +2,9 @@ package service
 
 import (
 	"apriori/entity"
+	"apriori/helper"
 	"apriori/model"
 	"apriori/repository"
-	"apriori/utils"
 	"context"
 	"crypto/md5"
 	"database/sql"
@@ -15,31 +15,30 @@ import (
 	"time"
 )
 
-type PasswordResetService interface {
-	CreateOrUpdateByEmail(ctx context.Context, email string) (*model.GetPasswordResetResponse, error)
-	Verify(ctx context.Context, request *model.UpdateResetPasswordUserRequest) error
-}
-
-type passwordResetService struct {
+type PasswordResetServiceImpl struct {
 	PasswordResetRepository repository.PasswordResetRepository
 	UserRepository          repository.UserRepository
 	DB                      *sql.DB
 }
 
-func NewPasswordResetService(resetRepository *repository.PasswordResetRepository, userRepository *repository.UserRepository, db *sql.DB) PasswordResetService {
-	return &passwordResetService{
+func NewPasswordResetService(
+	resetRepository *repository.PasswordResetRepository,
+	userRepository *repository.UserRepository,
+	db *sql.DB,
+) PasswordResetService {
+	return &PasswordResetServiceImpl{
 		PasswordResetRepository: *resetRepository,
 		UserRepository:          *userRepository,
 		DB:                      db,
 	}
 }
 
-func (service *passwordResetService) CreateOrUpdateByEmail(ctx context.Context, email string) (*model.GetPasswordResetResponse, error) {
+func (service *PasswordResetServiceImpl) CreateOrUpdateByEmail(ctx context.Context, email string) (*model.GetPasswordResetResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return &model.GetPasswordResetResponse{}, err
 	}
-	defer utils.CommitOrRollback(tx)
+	defer helper.CommitOrRollback(tx)
 
 	timestamp := time.Now().Add(1 * time.Hour).Unix()
 	timestampString := strconv.Itoa(int(timestamp))
@@ -66,7 +65,7 @@ func (service *passwordResetService) CreateOrUpdateByEmail(ctx context.Context, 
 			return &model.GetPasswordResetResponse{}, err
 		}
 
-		return utils.ToPasswordResetResponse(passwordResetResponse), nil
+		return helper.ToPasswordResetResponse(passwordResetResponse), nil
 	}
 
 	// Update data if exists
@@ -75,15 +74,15 @@ func (service *passwordResetService) CreateOrUpdateByEmail(ctx context.Context, 
 		return &model.GetPasswordResetResponse{}, err
 	}
 
-	return utils.ToPasswordResetResponse(passwordResetResponse), nil
+	return helper.ToPasswordResetResponse(passwordResetResponse), nil
 }
 
-func (service *passwordResetService) Verify(ctx context.Context, request *model.UpdateResetPasswordUserRequest) error {
+func (service *PasswordResetServiceImpl) Verify(ctx context.Context, request *model.UpdateResetPasswordUserRequest) error {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return err
 	}
-	defer utils.CommitOrRollback(tx)
+	defer helper.CommitOrRollback(tx)
 
 	// Check if email and token is exists in table password_resets
 	passwordResetRequest := entity.PasswordReset{
@@ -117,7 +116,7 @@ func (service *passwordResetService) Verify(ctx context.Context, request *model.
 	}
 
 	// Update the password
-	timeNow, err := time.Parse(utils.TimeFormat, now.Format(utils.TimeFormat))
+	timeNow, err := time.Parse(helper.TimeFormat, now.Format(helper.TimeFormat))
 	if err != nil {
 		return err
 	}

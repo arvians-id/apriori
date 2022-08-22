@@ -3,9 +3,9 @@ package controller
 import (
 	"apriori/api/middleware"
 	"apriori/api/response"
+	"apriori/helper"
 	"apriori/model"
 	"apriori/service"
-	"apriori/utils"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -21,7 +21,11 @@ type ProductController struct {
 	CacheService   service.CacheService
 }
 
-func NewProductController(productService *service.ProductService, storageService *service.StorageService, cacheService *service.CacheService) *ProductController {
+func NewProductController(
+	productService *service.ProductService,
+	storageService *service.StorageService,
+	cacheService *service.CacheService,
+) *ProductController {
 	return &ProductController{
 		ProductService: *productService,
 		StorageService: *storageService,
@@ -147,9 +151,9 @@ func (controller *ProductController) Create(c *gin.Context) {
 	request.Code = c.PostForm("code")
 	request.Name = c.PostForm("name")
 	request.Description = c.PostForm("description")
-	request.Price = utils.StrToInt(c.PostForm("price"))
+	request.Price = helper.StrToInt(c.PostForm("price"))
 	request.Category = c.PostForm("category")
-	request.Mass = utils.StrToInt(c.PostForm("mass"))
+	request.Mass = helper.StrToInt(c.PostForm("mass"))
 
 	file, header, err := c.Request.FormFile("image")
 	filePath := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/assets/%s", os.Getenv("AWS_BUCKET"), os.Getenv("AWS_REGION"), "no-image.png")
@@ -177,10 +181,10 @@ func (controller *ProductController) Update(c *gin.Context) {
 	request.Code = c.Param("code")
 	request.Name = c.PostForm("name")
 	request.Description = c.PostForm("description")
-	request.Price = utils.StrToInt(c.PostForm("price"))
+	request.Price = helper.StrToInt(c.PostForm("price"))
 	request.Category = c.PostForm("category")
-	request.IsEmpty = utils.StrToInt(c.PostForm("is_empty"))
-	request.Mass = utils.StrToInt(c.PostForm("mass"))
+	request.IsEmpty = helper.StrToInt(c.PostForm("is_empty"))
+	request.Mass = helper.StrToInt(c.PostForm("mass"))
 	params := c.Param("code")
 
 	file, header, err := c.Request.FormFile("image")

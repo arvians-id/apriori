@@ -3,9 +3,9 @@ package controller
 import (
 	"apriori/api/middleware"
 	"apriori/api/response"
+	"apriori/helper"
 	"apriori/model"
 	"apriori/service"
-	"apriori/utils"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -20,7 +20,11 @@ type AprioriController struct {
 	CacheService   service.CacheService
 }
 
-func NewAprioriController(aprioriService service.AprioriService, storageService *service.StorageService, cacheService *service.CacheService) *AprioriController {
+func NewAprioriController(
+	aprioriService service.AprioriService,
+	storageService *service.StorageService,
+	cacheService *service.CacheService,
+) *AprioriController {
 	return &AprioriController{
 		AprioriService: aprioriService,
 		StorageService: *storageService,
@@ -87,7 +91,7 @@ func (controller *AprioriController) FindAllByCode(c *gin.Context) {
 
 func (controller *AprioriController) FindByCodeAndId(c *gin.Context) {
 	codeParam := c.Param("code")
-	idParam := utils.StrToInt(c.Param("id"))
+	idParam := helper.StrToInt(c.Param("id"))
 	apriori, err := controller.AprioriService.FindByCodeAndId(c.Request.Context(), codeParam, idParam)
 	if err != nil {
 		if err.Error() == response.ErrorNotFound {
@@ -104,7 +108,7 @@ func (controller *AprioriController) FindByCodeAndId(c *gin.Context) {
 
 func (controller *AprioriController) Update(c *gin.Context) {
 	codeParam := c.Param("code")
-	idParam := utils.StrToInt(c.Param("id"))
+	idParam := helper.StrToInt(c.Param("id"))
 	description := c.PostForm("description")
 	file, header, err := c.Request.FormFile("image")
 	filePath := ""

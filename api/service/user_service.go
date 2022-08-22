@@ -2,9 +2,9 @@ package service
 
 import (
 	"apriori/entity"
+	"apriori/helper"
 	"apriori/model"
 	"apriori/repository"
-	"apriori/utils"
 	"context"
 	"database/sql"
 	"errors"
@@ -12,33 +12,24 @@ import (
 	"time"
 )
 
-type UserService interface {
-	FindAll(ctx context.Context) ([]*model.GetUserResponse, error)
-	FindById(ctx context.Context, id int) (*model.GetUserResponse, error)
-	FindByEmail(ctx context.Context, request *model.GetUserCredentialRequest) (*model.GetUserResponse, error)
-	Create(ctx context.Context, request *model.CreateUserRequest) (*model.GetUserResponse, error)
-	Update(ctx context.Context, request *model.UpdateUserRequest) (*model.GetUserResponse, error)
-	Delete(ctx context.Context, id int) error
-}
-
-type userService struct {
+type UserServiceImpl struct {
 	UserRepository repository.UserRepository
 	DB             *sql.DB
 }
 
 func NewUserService(userRepository *repository.UserRepository, db *sql.DB) UserService {
-	return &userService{
+	return &UserServiceImpl{
 		UserRepository: *userRepository,
 		DB:             db,
 	}
 }
 
-func (service *userService) FindAll(ctx context.Context) ([]*model.GetUserResponse, error) {
+func (service *UserServiceImpl) FindAll(ctx context.Context) ([]*model.GetUserResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
 	}
-	defer utils.CommitOrRollback(tx)
+	defer helper.CommitOrRollback(tx)
 
 	users, err := service.UserRepository.FindAll(ctx, tx)
 	if err != nil {
@@ -47,33 +38,33 @@ func (service *userService) FindAll(ctx context.Context) ([]*model.GetUserRespon
 
 	var userResponses []*model.GetUserResponse
 	for _, user := range users {
-		userResponses = append(userResponses, utils.ToUserResponse(user))
+		userResponses = append(userResponses, helper.ToUserResponse(user))
 	}
 
 	return userResponses, nil
 }
 
-func (service *userService) FindById(ctx context.Context, id int) (*model.GetUserResponse, error) {
+func (service *UserServiceImpl) FindById(ctx context.Context, id int) (*model.GetUserResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return &model.GetUserResponse{}, err
 	}
-	defer utils.CommitOrRollback(tx)
+	defer helper.CommitOrRollback(tx)
 
 	userResponse, err := service.UserRepository.FindById(ctx, tx, id)
 	if err != nil {
 		return &model.GetUserResponse{}, err
 	}
 
-	return utils.ToUserResponse(userResponse), nil
+	return helper.ToUserResponse(userResponse), nil
 }
 
-func (service *userService) FindByEmail(ctx context.Context, request *model.GetUserCredentialRequest) (*model.GetUserResponse, error) {
+func (service *UserServiceImpl) FindByEmail(ctx context.Context, request *model.GetUserCredentialRequest) (*model.GetUserResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return &model.GetUserResponse{}, err
 	}
-	defer utils.CommitOrRollback(tx)
+	defer helper.CommitOrRollback(tx)
 
 	userResponse, err := service.UserRepository.FindByEmail(ctx, tx, request.Email)
 	if err != nil {
@@ -85,22 +76,22 @@ func (service *userService) FindByEmail(ctx context.Context, request *model.GetU
 		return &model.GetUserResponse{}, errors.New("wrong password")
 	}
 
-	return utils.ToUserResponse(userResponse), nil
+	return helper.ToUserResponse(userResponse), nil
 }
 
-func (service *userService) Create(ctx context.Context, request *model.CreateUserRequest) (*model.GetUserResponse, error) {
+func (service *UserServiceImpl) Create(ctx context.Context, request *model.CreateUserRequest) (*model.GetUserResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return &model.GetUserResponse{}, err
 	}
-	defer utils.CommitOrRollback(tx)
+	defer helper.CommitOrRollback(tx)
 
 	password, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
 	if err != nil {
 		return &model.GetUserResponse{}, err
 	}
 
-	timeNow, err := time.Parse(utils.TimeFormat, time.Now().Format(utils.TimeFormat))
+	timeNow, err := time.Parse(helper.TimeFormat, time.Now().Format(helper.TimeFormat))
 	if err != nil {
 		return &model.GetUserResponse{}, err
 	}
@@ -120,15 +111,15 @@ func (service *userService) Create(ctx context.Context, request *model.CreateUse
 		return &model.GetUserResponse{}, err
 	}
 
-	return utils.ToUserResponse(userResponse), nil
+	return helper.ToUserResponse(userResponse), nil
 }
 
-func (service *userService) Update(ctx context.Context, request *model.UpdateUserRequest) (*model.GetUserResponse, error) {
+func (service *UserServiceImpl) Update(ctx context.Context, request *model.UpdateUserRequest) (*model.GetUserResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return &model.GetUserResponse{}, err
 	}
-	defer utils.CommitOrRollback(tx)
+	defer helper.CommitOrRollback(tx)
 
 	user, err := service.UserRepository.FindById(ctx, tx, request.IdUser)
 	if err != nil {
@@ -145,7 +136,7 @@ func (service *userService) Update(ctx context.Context, request *model.UpdateUse
 		newPassword = string(password)
 	}
 
-	timeNow, err := time.Parse(utils.TimeFormat, time.Now().Format(utils.TimeFormat))
+	timeNow, err := time.Parse(helper.TimeFormat, time.Now().Format(helper.TimeFormat))
 	if err != nil {
 		return &model.GetUserResponse{}, err
 	}
@@ -162,15 +153,15 @@ func (service *userService) Update(ctx context.Context, request *model.UpdateUse
 		return &model.GetUserResponse{}, err
 	}
 
-	return utils.ToUserResponse(userResponse), nil
+	return helper.ToUserResponse(userResponse), nil
 }
 
-func (service *userService) Delete(ctx context.Context, id int) error {
+func (service *UserServiceImpl) Delete(ctx context.Context, id int) error {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return err
 	}
-	defer utils.CommitOrRollback(tx)
+	defer helper.CommitOrRollback(tx)
 
 	user, err := service.UserRepository.FindById(ctx, tx, id)
 	if err != nil {

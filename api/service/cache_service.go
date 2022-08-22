@@ -2,7 +2,7 @@ package service
 
 import (
 	"apriori/config"
-	"apriori/utils"
+	"apriori/helper"
 	"bytes"
 	"context"
 	"encoding/json"
@@ -11,15 +11,7 @@ import (
 	"time"
 )
 
-type CacheService interface {
-	GetClient() (*redis.Client, error)
-	Get(ctx context.Context, key string) (string, error)
-	Set(ctx context.Context, key string, value interface{}) error
-	Del(ctx context.Context, key ...string) error
-	FlushDB(ctx context.Context) error
-}
-
-type cacheService struct {
+type CacheServiceImpl struct {
 	Addr     string
 	Password string
 	DB       int
@@ -28,17 +20,17 @@ type cacheService struct {
 
 func NewCacheService(configuration config.Config) CacheService {
 	host := fmt.Sprintf("%s:%s", configuration.Get("REDIS_HOST"), configuration.Get("REDIS_PORT"))
-	db := utils.StrToInt(configuration.Get("REDIS_DB"))
+	db := helper.StrToInt(configuration.Get("REDIS_DB"))
 
-	return &cacheService{
+	return &CacheServiceImpl{
 		Addr:     host,
 		Password: configuration.Get("REDIS_PASSWORD"),
 		DB:       db,
-		Expired:  utils.StrToInt(configuration.Get("REDIS_EXPIRED")),
+		Expired:  helper.StrToInt(configuration.Get("REDIS_EXPIRED")),
 	}
 }
 
-func (cache *cacheService) GetClient() (*redis.Client, error) {
+func (cache *CacheServiceImpl) GetClient() (*redis.Client, error) {
 	rdb := redis.NewClient(&redis.Options{
 		Addr:     cache.Addr,
 		Password: cache.Password,
@@ -48,7 +40,7 @@ func (cache *cacheService) GetClient() (*redis.Client, error) {
 	return rdb, nil
 }
 
-func (cache *cacheService) Get(ctx context.Context, key string) (string, error) {
+func (cache *CacheServiceImpl) Get(ctx context.Context, key string) (string, error) {
 	rdb, err := cache.GetClient()
 	if err != nil {
 		return "", err
@@ -62,7 +54,7 @@ func (cache *cacheService) Get(ctx context.Context, key string) (string, error) 
 	return value, nil
 }
 
-func (cache *cacheService) Set(ctx context.Context, key string, value interface{}) error {
+func (cache *CacheServiceImpl) Set(ctx context.Context, key string, value interface{}) error {
 	rdb, err := cache.GetClient()
 	if err != nil {
 		return err
@@ -81,7 +73,7 @@ func (cache *cacheService) Set(ctx context.Context, key string, value interface{
 	return nil
 }
 
-func (cache *cacheService) Del(ctx context.Context, key ...string) error {
+func (cache *CacheServiceImpl) Del(ctx context.Context, key ...string) error {
 	rdb, err := cache.GetClient()
 	if err != nil {
 		return err
@@ -97,7 +89,7 @@ func (cache *cacheService) Del(ctx context.Context, key ...string) error {
 	return nil
 }
 
-func (cache *cacheService) FlushDB(ctx context.Context) error {
+func (cache *CacheServiceImpl) FlushDB(ctx context.Context) error {
 	rdb, err := cache.GetClient()
 	if err != nil {
 		return err

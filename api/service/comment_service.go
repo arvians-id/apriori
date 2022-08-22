@@ -2,43 +2,39 @@ package service
 
 import (
 	"apriori/entity"
+	"apriori/helper"
 	"apriori/model"
 	"apriori/repository"
-	"apriori/utils"
 	"context"
 	"database/sql"
 	"strings"
 	"time"
 )
 
-type CommentService interface {
-	FindAllRatingByProductCode(ctx context.Context, productCode string) ([]*model.GetRatingResponse, error)
-	FindAllByProductCode(ctx context.Context, productCode string, rating string, tags string) ([]*model.GetCommentResponse, error)
-	FindById(ctx context.Context, id int) (*model.GetCommentResponse, error)
-	FindByUserOrderId(ctx context.Context, userOrderId int) (*model.GetCommentResponse, error)
-	Create(ctx context.Context, request *model.CreateCommentRequest) (*model.GetCommentResponse, error)
-}
-
-type commentService struct {
+type CommentServiceImpl struct {
 	CommentRepository repository.CommentRepository
 	ProductRepository repository.ProductRepository
 	db                *sql.DB
 }
 
-func NewCommentService(commentRepository *repository.CommentRepository, productRepository *repository.ProductRepository, db *sql.DB) CommentService {
-	return &commentService{
+func NewCommentService(
+	commentRepository *repository.CommentRepository,
+	productRepository *repository.ProductRepository,
+	db *sql.DB,
+) CommentService {
+	return &CommentServiceImpl{
 		CommentRepository: *commentRepository,
 		ProductRepository: *productRepository,
 		db:                db,
 	}
 }
 
-func (service *commentService) FindAllRatingByProductCode(ctx context.Context, productCode string) ([]*model.GetRatingResponse, error) {
+func (service *CommentServiceImpl) FindAllRatingByProductCode(ctx context.Context, productCode string) ([]*model.GetRatingResponse, error) {
 	tx, err := service.db.Begin()
 	if err != nil {
 		return nil, err
 	}
-	defer utils.CommitOrRollback(tx)
+	defer helper.CommitOrRollback(tx)
 
 	product, err := service.ProductRepository.FindByCode(ctx, tx, productCode)
 	if err != nil {
@@ -52,18 +48,18 @@ func (service *commentService) FindAllRatingByProductCode(ctx context.Context, p
 
 	var ratingResponses []*model.GetRatingResponse
 	for _, comment := range ratings {
-		ratingResponses = append(ratingResponses, utils.ToRatingResponse(comment))
+		ratingResponses = append(ratingResponses, helper.ToRatingResponse(comment))
 	}
 
 	return ratingResponses, nil
 }
 
-func (service *commentService) FindAllByProductCode(ctx context.Context, productCode string, rating string, tags string) ([]*model.GetCommentResponse, error) {
+func (service *CommentServiceImpl) FindAllByProductCode(ctx context.Context, productCode string, rating string, tags string) ([]*model.GetCommentResponse, error) {
 	tx, err := service.db.Begin()
 	if err != nil {
 		return nil, err
 	}
-	defer utils.CommitOrRollback(tx)
+	defer helper.CommitOrRollback(tx)
 
 	product, err := service.ProductRepository.FindByCode(ctx, tx, productCode)
 	if err != nil {
@@ -79,50 +75,50 @@ func (service *commentService) FindAllByProductCode(ctx context.Context, product
 
 	var commentResponses []*model.GetCommentResponse
 	for _, comment := range comments {
-		commentResponses = append(commentResponses, utils.ToCommentResponse(comment))
+		commentResponses = append(commentResponses, helper.ToCommentResponse(comment))
 	}
 
 	return commentResponses, nil
 }
 
-func (service *commentService) FindById(ctx context.Context, id int) (*model.GetCommentResponse, error) {
+func (service *CommentServiceImpl) FindById(ctx context.Context, id int) (*model.GetCommentResponse, error) {
 	tx, err := service.db.Begin()
 	if err != nil {
 		return &model.GetCommentResponse{}, err
 	}
-	defer utils.CommitOrRollback(tx)
+	defer helper.CommitOrRollback(tx)
 
 	commentResponse, err := service.CommentRepository.FindById(ctx, tx, id)
 	if err != nil {
 		return &model.GetCommentResponse{}, err
 	}
 
-	return utils.ToCommentResponse(commentResponse), nil
+	return helper.ToCommentResponse(commentResponse), nil
 }
 
-func (service *commentService) FindByUserOrderId(ctx context.Context, userOrderId int) (*model.GetCommentResponse, error) {
+func (service *CommentServiceImpl) FindByUserOrderId(ctx context.Context, userOrderId int) (*model.GetCommentResponse, error) {
 	tx, err := service.db.Begin()
 	if err != nil {
 		return &model.GetCommentResponse{}, err
 	}
-	defer utils.CommitOrRollback(tx)
+	defer helper.CommitOrRollback(tx)
 
 	commentResponse, err := service.CommentRepository.FindByUserOrderId(ctx, tx, userOrderId)
 	if err != nil {
 		return &model.GetCommentResponse{}, err
 	}
 
-	return utils.ToCommentResponse(commentResponse), nil
+	return helper.ToCommentResponse(commentResponse), nil
 }
 
-func (service *commentService) Create(ctx context.Context, request *model.CreateCommentRequest) (*model.GetCommentResponse, error) {
+func (service *CommentServiceImpl) Create(ctx context.Context, request *model.CreateCommentRequest) (*model.GetCommentResponse, error) {
 	tx, err := service.db.Begin()
 	if err != nil {
 		return &model.GetCommentResponse{}, err
 	}
-	defer utils.CommitOrRollback(tx)
+	defer helper.CommitOrRollback(tx)
 
-	timeNow, err := time.Parse(utils.TimeFormat, time.Now().Format(utils.TimeFormat))
+	timeNow, err := time.Parse(helper.TimeFormat, time.Now().Format(helper.TimeFormat))
 	if err != nil {
 		return &model.GetCommentResponse{}, err
 	}
@@ -147,5 +143,5 @@ func (service *commentService) Create(ctx context.Context, request *model.Create
 		return &model.GetCommentResponse{}, err
 	}
 
-	return utils.ToCommentResponse(commentResponse), nil
+	return helper.ToCommentResponse(commentResponse), nil
 }

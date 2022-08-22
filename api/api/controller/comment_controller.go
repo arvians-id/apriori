@@ -3,23 +3,23 @@ package controller
 import (
 	"apriori/api/middleware"
 	"apriori/api/response"
+	"apriori/helper"
 	"apriori/model"
 	"apriori/service"
-	"apriori/utils"
 	"github.com/gin-gonic/gin"
 )
 
-type commentController struct {
+type CommentController struct {
 	CommentService service.CommentService
 }
 
-func NewCommentController(commentService *service.CommentService) *commentController {
-	return &commentController{
+func NewCommentController(commentService *service.CommentService) *CommentController {
+	return &CommentController{
 		CommentService: *commentService,
 	}
 }
 
-func (controller *commentController) Route(router *gin.Engine) *gin.Engine {
+func (controller *CommentController) Route(router *gin.Engine) *gin.Engine {
 	authorized := router.Group("/api", middleware.AuthJwtMiddleware())
 	{
 		authorized.POST("/comments", controller.Create)
@@ -36,7 +36,7 @@ func (controller *commentController) Route(router *gin.Engine) *gin.Engine {
 	return router
 }
 
-func (controller *commentController) FindAllByProductCode(c *gin.Context) {
+func (controller *CommentController) FindAllByProductCode(c *gin.Context) {
 	productCodeParam := c.Param("product_code")
 	tagsQuery := c.Query("tags")
 	ratingQuery := c.Query("rating")
@@ -54,8 +54,8 @@ func (controller *commentController) FindAllByProductCode(c *gin.Context) {
 	response.ReturnSuccessOK(c, "OK", comments)
 }
 
-func (controller *commentController) FindById(c *gin.Context) {
-	idParam := utils.StrToInt(c.Param("id"))
+func (controller *CommentController) FindById(c *gin.Context) {
+	idParam := helper.StrToInt(c.Param("id"))
 	comment, err := controller.CommentService.FindById(c.Request.Context(), idParam)
 	if err != nil {
 		if err.Error() == response.ErrorNotFound {
@@ -70,7 +70,7 @@ func (controller *commentController) FindById(c *gin.Context) {
 	response.ReturnSuccessOK(c, "OK", comment)
 }
 
-func (controller *commentController) FindAllRatingByProductCode(c *gin.Context) {
+func (controller *CommentController) FindAllRatingByProductCode(c *gin.Context) {
 	productCodeParam := c.Param("product_code")
 	comments, err := controller.CommentService.FindAllRatingByProductCode(c.Request.Context(), productCodeParam)
 	if err != nil {
@@ -86,8 +86,8 @@ func (controller *commentController) FindAllRatingByProductCode(c *gin.Context) 
 	response.ReturnSuccessOK(c, "OK", comments)
 }
 
-func (controller *commentController) FindByUserOrderId(c *gin.Context) {
-	userOrderIdParam := utils.StrToInt(c.Param("user_order_id"))
+func (controller *CommentController) FindByUserOrderId(c *gin.Context) {
+	userOrderIdParam := helper.StrToInt(c.Param("user_order_id"))
 	comment, err := controller.CommentService.FindByUserOrderId(c.Request.Context(), userOrderIdParam)
 	if err != nil {
 		if err.Error() == response.ErrorNotFound {
@@ -102,7 +102,7 @@ func (controller *commentController) FindByUserOrderId(c *gin.Context) {
 	response.ReturnSuccessOK(c, "OK", comment)
 }
 
-func (controller *commentController) Create(c *gin.Context) {
+func (controller *CommentController) Create(c *gin.Context) {
 	var request model.CreateCommentRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		response.ReturnErrorBadRequest(c, err, nil)

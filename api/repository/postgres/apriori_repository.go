@@ -9,14 +9,14 @@ import (
 	"log"
 )
 
-type aprioriRepository struct {
+type AprioriRepositoryImpl struct {
 }
 
 func NewAprioriRepository() repository.AprioriRepository {
-	return &aprioriRepository{}
+	return &AprioriRepositoryImpl{}
 }
 
-func (repository *aprioriRepository) FindAll(ctx context.Context, tx *sql.Tx) ([]*entity.Apriori, error) {
+func (repository *AprioriRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) ([]*entity.Apriori, error) {
 	query := `SELECT code,range_date,created_at,is_active 
 			  FROM apriories 
 			  GROUP BY code,range_date,created_at,is_active 
@@ -47,7 +47,7 @@ func (repository *aprioriRepository) FindAll(ctx context.Context, tx *sql.Tx) ([
 	return apriories, nil
 }
 
-func (repository *aprioriRepository) FindAllByActive(ctx context.Context, tx *sql.Tx) ([]*entity.Apriori, error) {
+func (repository *AprioriRepositoryImpl) FindAllByActive(ctx context.Context, tx *sql.Tx) ([]*entity.Apriori, error) {
 	query := `SELECT * FROM apriories WHERE is_active = 1 ORDER BY discount DESC`
 	rows, err := tx.QueryContext(ctx, query)
 	if err != nil {
@@ -91,7 +91,7 @@ func (repository *aprioriRepository) FindAllByActive(ctx context.Context, tx *sq
 	return apriories, nil
 }
 
-func (repository *aprioriRepository) FindAllByCode(ctx context.Context, tx *sql.Tx, code string) ([]*entity.Apriori, error) {
+func (repository *AprioriRepositoryImpl) FindAllByCode(ctx context.Context, tx *sql.Tx, code string) ([]*entity.Apriori, error) {
 	query := `SELECT * FROM apriories WHERE code = $1`
 	rows, err := tx.QueryContext(ctx, query, code)
 	if err != nil {
@@ -135,7 +135,7 @@ func (repository *aprioriRepository) FindAllByCode(ctx context.Context, tx *sql.
 	return apriories, nil
 }
 
-func (repository *aprioriRepository) FindByCodeAndId(ctx context.Context, tx *sql.Tx, code string, id int) (*entity.Apriori, error) {
+func (repository *AprioriRepositoryImpl) FindByCodeAndId(ctx context.Context, tx *sql.Tx, code string, id int) (*entity.Apriori, error) {
 	query := `SELECT * FROM apriories WHERE code = $1 AND id_apriori = $2`
 	row := tx.QueryRowContext(ctx, query, code, id)
 
@@ -160,7 +160,7 @@ func (repository *aprioriRepository) FindByCodeAndId(ctx context.Context, tx *sq
 	return &apriori, nil
 }
 
-func (repository *aprioriRepository) Create(ctx context.Context, tx *sql.Tx, apriories []*entity.Apriori) error {
+func (repository *AprioriRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, apriories []*entity.Apriori) error {
 	for _, apriori := range apriories {
 		query := `INSERT INTO apriories(code,item,discount,support,confidence,range_date,is_active,image,created_at) 
 				  VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9)`
@@ -185,7 +185,7 @@ func (repository *aprioriRepository) Create(ctx context.Context, tx *sql.Tx, apr
 	return nil
 }
 
-func (repository *aprioriRepository) Update(ctx context.Context, tx *sql.Tx, apriori *entity.Apriori) (*entity.Apriori, error) {
+func (repository *AprioriRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, apriori *entity.Apriori) (*entity.Apriori, error) {
 	query := `UPDATE apriories SET description = $1, image = $2 WHERE code = $3 AND id_apriori = $4`
 	_, err := tx.ExecContext(ctx, query, apriori.Description, apriori.Image, apriori.Code, apriori.IdApriori)
 	if err != nil {
@@ -195,7 +195,7 @@ func (repository *aprioriRepository) Update(ctx context.Context, tx *sql.Tx, apr
 	return apriori, nil
 }
 
-func (repository *aprioriRepository) UpdateAllStatus(ctx context.Context, tx *sql.Tx, status int) error {
+func (repository *AprioriRepositoryImpl) UpdateAllStatus(ctx context.Context, tx *sql.Tx, status int) error {
 	query := `UPDATE apriories SET is_active = $1`
 	_, err := tx.ExecContext(ctx, query, status)
 	if err != nil {
@@ -205,7 +205,7 @@ func (repository *aprioriRepository) UpdateAllStatus(ctx context.Context, tx *sq
 	return nil
 }
 
-func (repository *aprioriRepository) UpdateStatusByCode(ctx context.Context, tx *sql.Tx, code string, status int) error {
+func (repository *AprioriRepositoryImpl) UpdateStatusByCode(ctx context.Context, tx *sql.Tx, code string, status int) error {
 	query := `UPDATE apriories SET is_active = $1 WHERE code = $2`
 	_, err := tx.ExecContext(ctx, query, status, code)
 	if err != nil {
@@ -215,7 +215,7 @@ func (repository *aprioriRepository) UpdateStatusByCode(ctx context.Context, tx 
 	return nil
 }
 
-func (repository *aprioriRepository) Delete(ctx context.Context, tx *sql.Tx, code string) error {
+func (repository *AprioriRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, code string) error {
 	query := `DELETE FROM apriories WHERE code = $1`
 	_, err := tx.ExecContext(ctx, query, code)
 	if err != nil {

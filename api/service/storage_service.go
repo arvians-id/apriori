@@ -2,7 +2,7 @@ package service
 
 import (
 	"apriori/config"
-	"apriori/utils"
+	"apriori/helper"
 	"fmt"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
@@ -15,15 +15,7 @@ import (
 	"sync"
 )
 
-type StorageService interface {
-	UploadFile(c *gin.Context, image *multipart.FileHeader) (chan string, error)
-	UploadFileS3(file multipart.File, header *multipart.FileHeader) (string, error)
-	WaitUploadFileS3(file multipart.File, header *multipart.FileHeader, wg *sync.WaitGroup) (string, error)
-	//DeleteFileS3(fileName string) error
-	//WaitDeleteFileS3(fileName string, wg *sync.WaitGroup) error
-}
-
-type storageService struct {
+type StorageServiceImpl struct {
 	AccessKeyID     string
 	SecretAccessKey string
 	MyRegion        string
@@ -31,7 +23,7 @@ type storageService struct {
 }
 
 func NewStorageService(cofiguration config.Config) StorageService {
-	return &storageService{
+	return &StorageServiceImpl{
 		AccessKeyID:     cofiguration.Get("AWS_ACCESS_KEY_ID"),
 		SecretAccessKey: cofiguration.Get("AWS_SECRET_KEY"),
 		MyRegion:        cofiguration.Get("AWS_REGION"),
@@ -39,7 +31,7 @@ func NewStorageService(cofiguration config.Config) StorageService {
 	}
 }
 
-func (service *storageService) ConnectToAWS() (*session.Session, error) {
+func (service *StorageServiceImpl) ConnectToAWS() (*session.Session, error) {
 	sess, err := session.NewSession(
 		&aws.Config{
 			Region:      aws.String(service.MyRegion),
@@ -53,13 +45,13 @@ func (service *storageService) ConnectToAWS() (*session.Session, error) {
 	return sess, nil
 }
 
-func (service *storageService) UploadFile(c *gin.Context, image *multipart.FileHeader) (chan string, error) {
+func (service *StorageServiceImpl) UploadFile(c *gin.Context, image *multipart.FileHeader) (chan string, error) {
 	newFileName := make(chan string)
 	go func() {
 		extension := strings.Split(image.Filename, ".")
-		newFileNames := utils.RandomString(10) + "." + extension[len(extension)-1]
+		newFileNames := helper.RandomString(10) + "." + extension[len(extension)-1]
 
-		path, err := utils.GetPath("/assets/", newFileNames)
+		path, err := helper.GetPath("/assets/", newFileNames)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -73,7 +65,7 @@ func (service *storageService) UploadFile(c *gin.Context, image *multipart.FileH
 	return newFileName, nil
 }
 
-func (service *storageService) WaitUploadFileS3(file multipart.File, header *multipart.FileHeader, wg *sync.WaitGroup) (string, error) {
+func (service *StorageServiceImpl) WaitUploadFileS3(file multipart.File, header *multipart.FileHeader, wg *sync.WaitGroup) (string, error) {
 	fileName := make(chan string)
 	wg.Add(1)
 	go func() {
@@ -84,7 +76,7 @@ func (service *storageService) WaitUploadFileS3(file multipart.File, header *mul
 			log.Fatal(err)
 		}
 		headerFileName := strings.Split(header.Filename, ".")
-		fileNames := utils.RandomString(10) + "." + headerFileName[len(headerFileName)-1]
+		fileNames := helper.RandomString(10) + "." + headerFileName[len(headerFileName)-1]
 		fileName <- fileNames
 
 		_, err = s3.New(sess).PutObject(&s3.PutObjectInput{
@@ -106,7 +98,7 @@ func (service *storageService) WaitUploadFileS3(file multipart.File, header *mul
 	return filePath, nil
 }
 
-func (service *storageService) UploadFileS3(file multipart.File, header *multipart.FileHeader) (string, error) {
+func (service *StorageServiceImpl) UploadFileS3(file multipart.File, header *multipart.FileHeader) (string, error) {
 	fileName := make(chan string)
 	go func() {
 		sess, err := service.ConnectToAWS()
@@ -114,7 +106,7 @@ func (service *storageService) UploadFileS3(file multipart.File, header *multipa
 			log.Fatal(err)
 		}
 		headerFileName := strings.Split(header.Filename, ".")
-		fileNames := utils.RandomString(10) + "." + headerFileName[len(headerFileName)-1]
+		fileNames := helper.RandomString(10) + "." + headerFileName[len(headerFileName)-1]
 		fileName <- fileNames
 
 		_, err = s3.New(sess).PutObject(&s3.PutObjectInput{
@@ -136,7 +128,7 @@ func (service *storageService) UploadFileS3(file multipart.File, header *multipa
 	return filePath, nil
 }
 
-//func (service *storageService) DeleteFileS3(fileName string) error {
+//func (service *StorageServiceImpl) DeleteFileS3(fileName string) error {
 //	headerFileName := strings.Split(fileName, "/")
 //	oldFileName := headerFileName[len(headerFileName)-1]
 //	if oldFileName == "no-image.png" {
@@ -163,7 +155,7 @@ func (service *storageService) UploadFileS3(file multipart.File, header *multipa
 //	return nil
 //}
 //
-//func (service *storageService) WaitDeleteFileS3(oldFileName string, wg *sync.WaitGroup) error {
+//func (service *StorageServiceImpl) WaitDeleteFileS3(oldFileName string, wg *sync.WaitGroup) error {
 //	wg.Add(1)
 //	go func() {
 //		defer wg.Done()

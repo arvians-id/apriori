@@ -3,9 +3,9 @@ package controller
 import (
 	"apriori/api/middleware"
 	"apriori/api/response"
+	"apriori/helper"
 	"apriori/model"
 	"apriori/service"
-	"apriori/utils"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -19,7 +19,12 @@ type PaymentController struct {
 	CacheService     service.CacheService
 }
 
-func NewPaymentController(paymentService *service.PaymentService, userOrderService *service.UserOrderService, emailService service.EmailService, cacheService *service.CacheService) *PaymentController {
+func NewPaymentController(
+	paymentService *service.PaymentService,
+	userOrderService *service.UserOrderService,
+	emailService service.EmailService,
+	cacheService *service.CacheService,
+) *PaymentController {
 	return &PaymentController{
 		PaymentService:   *paymentService,
 		UserOrderService: *userOrderService,
@@ -97,16 +102,16 @@ func (controller *PaymentController) UpdateReceiptNumber(c *gin.Context) {
 }
 
 func (controller *PaymentController) Pay(c *gin.Context) {
-	grossAmount := int64(utils.StrToInt(c.PostForm("gross_amount")))
+	grossAmount := int64(helper.StrToInt(c.PostForm("gross_amount")))
 	items := c.PostFormArray("items")
-	userId := utils.StrToInt(c.PostForm("user_id"))
+	userId := helper.StrToInt(c.PostForm("user_id"))
 	customerName := c.PostForm("customer_name")
 
 	var rajaShipping model.GetRajaOngkirResponse
 	rajaShipping.Address = c.PostForm("address")
 	rajaShipping.Courier = c.PostForm("courier")
 	rajaShipping.CourierService = c.PostForm("courier_service")
-	rajaShipping.ShippingCost = int64(utils.StrToInt(c.PostForm("shipping_cost")))
+	rajaShipping.ShippingCost = int64(helper.StrToInt(c.PostForm("shipping_cost")))
 
 	data, err := controller.PaymentService.GetToken(c.Request.Context(), grossAmount, userId, customerName, items, &rajaShipping)
 	if err != nil {
@@ -141,9 +146,9 @@ func (controller *PaymentController) Notification(c *gin.Context) {
 	}
 
 	// delete previous cache
-	key := fmt.Sprintf("user-order-id-%v", utils.StrToInt(resArray["custom_field2"].(string)))
-	key2 := fmt.Sprintf("user-order-payment-%v", utils.StrToInt(resArray["custom_field1"].(string)))
-	key3 := fmt.Sprintf("user-order-rate-%v", utils.StrToInt(resArray["custom_field1"].(string)))
+	key := fmt.Sprintf("user-order-id-%v", helper.StrToInt(resArray["custom_field2"].(string)))
+	key2 := fmt.Sprintf("user-order-payment-%v", helper.StrToInt(resArray["custom_field1"].(string)))
+	key3 := fmt.Sprintf("user-order-rate-%v", helper.StrToInt(resArray["custom_field1"].(string)))
 	_ = controller.CacheService.Del(c.Request.Context(), key, key2, key3)
 
 	response.ReturnSuccessOK(c, "OK", nil)

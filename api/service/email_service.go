@@ -7,18 +7,14 @@ import (
 	"strconv"
 )
 
-type EmailService interface {
-	SendEmailWithText(toEmail string, message string) error
-}
-
-type emailService struct {
+type EmailServiceImpl struct {
 }
 
 func NewEmailService() EmailService {
-	return &emailService{}
+	return &EmailServiceImpl{}
 }
 
-func (service *emailService) SendEmailWithText(toEmail string, message string) error {
+func (service *EmailServiceImpl) SendEmailWithText(toEmail string, message string) error {
 	go func() {
 		mailer := gomail.NewMessage()
 		mailer.SetHeader("From", os.Getenv("MAIL_FROM_ADDRESS"))

@@ -8,14 +8,14 @@ import (
 	"log"
 )
 
-type userOrderRepository struct {
+type UserOrderRepositoryImpl struct {
 }
 
 func NewUserOrderRepository() repository.UserOrderRepository {
-	return &userOrderRepository{}
+	return &UserOrderRepositoryImpl{}
 }
 
-func (repository *userOrderRepository) FindAllByPayloadId(ctx context.Context, tx *sql.Tx, payloadId string) ([]*entity.UserOrder, error) {
+func (repository *UserOrderRepositoryImpl) FindAllByPayloadId(ctx context.Context, tx *sql.Tx, payloadId string) ([]*entity.UserOrder, error) {
 	query := "SELECT * FROM user_orders WHERE payload_id = $1"
 	rows, err := tx.QueryContext(ctx, query, payloadId)
 	if err != nil {
@@ -52,7 +52,7 @@ func (repository *userOrderRepository) FindAllByPayloadId(ctx context.Context, t
 	return userOrders, nil
 }
 
-func (repository *userOrderRepository) FindAllByUserId(ctx context.Context, tx *sql.Tx, userId int) ([]*entity.UserOrderRelationByUserId, error) {
+func (repository *UserOrderRepositoryImpl) FindAllByUserId(ctx context.Context, tx *sql.Tx, userId int) ([]*entity.UserOrderRelationByUserId, error) {
 	query := `SELECT 
 				id_order,
 			    payload_id,
@@ -105,7 +105,7 @@ func (repository *userOrderRepository) FindAllByUserId(ctx context.Context, tx *
 	return userOrders, nil
 }
 
-func (repository *userOrderRepository) FindById(ctx context.Context, tx *sql.Tx, id int) (*entity.UserOrder, error) {
+func (repository *UserOrderRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, id int) (*entity.UserOrder, error) {
 	query := `SELECT * FROM user_orders WHERE id_order = $1`
 	row := tx.QueryRowContext(ctx, query, id)
 
@@ -127,7 +127,7 @@ func (repository *userOrderRepository) FindById(ctx context.Context, tx *sql.Tx,
 	return &userOrder, nil
 }
 
-func (repository *userOrderRepository) Create(ctx context.Context, tx *sql.Tx, userOrder *entity.UserOrder) error {
+func (repository *UserOrderRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, userOrder *entity.UserOrder) error {
 	query := `INSERT INTO user_orders(payload_id,code,name,price,image,quantity,total_price_item) VALUES($1,$2,$3,$4,$5,$6,$7)`
 	_, err := tx.ExecContext(
 		ctx,

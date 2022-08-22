@@ -8,14 +8,14 @@ import (
 	"log"
 )
 
-type productRepository struct {
+type ProductRepositoryImpl struct {
 }
 
 func NewProductRepository() repository.ProductRepository {
-	return &productRepository{}
+	return &ProductRepositoryImpl{}
 }
 
-func (repository *productRepository) FindAllByAdmin(ctx context.Context, tx *sql.Tx) ([]*entity.Product, error) {
+func (repository *ProductRepositoryImpl) FindAllByAdmin(ctx context.Context, tx *sql.Tx) ([]*entity.Product, error) {
 	query := "SELECT * FROM products ORDER BY id_product DESC"
 	rows, err := tx.QueryContext(ctx, query)
 	if err != nil {
@@ -55,7 +55,7 @@ func (repository *productRepository) FindAllByAdmin(ctx context.Context, tx *sql
 	return products, nil
 }
 
-func (repository *productRepository) FindAll(ctx context.Context, tx *sql.Tx, search string, category string) ([]*entity.Product, error) {
+func (repository *ProductRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx, search string, category string) ([]*entity.Product, error) {
 	query := `SELECT * FROM products 
 			  WHERE LOWER(name) LIKE $1 AND LOWER(category) LIKE $2 AND is_empty = 0 
 			  ORDER BY id_product DESC`
@@ -97,7 +97,7 @@ func (repository *productRepository) FindAll(ctx context.Context, tx *sql.Tx, se
 	return products, nil
 }
 
-func (repository *productRepository) FindAllBySimilarCategory(ctx context.Context, tx *sql.Tx, category string) ([]*entity.Product, error) {
+func (repository *ProductRepositoryImpl) FindAllBySimilarCategory(ctx context.Context, tx *sql.Tx, category string) ([]*entity.Product, error) {
 	query := `SELECT * FROM products 
 			  WHERE category SIMILAR TO $1 AND is_empty = 0 
 			  ORDER BY random() DESC LIMIT 4`
@@ -139,7 +139,7 @@ func (repository *productRepository) FindAllBySimilarCategory(ctx context.Contex
 	return products, nil
 }
 
-func (repository *productRepository) FindById(ctx context.Context, tx *sql.Tx, id int) (*entity.Product, error) {
+func (repository *ProductRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, id int) (*entity.Product, error) {
 	query := "SELECT * FROM products WHERE id_product = $1"
 	row := tx.QueryRowContext(ctx, query, id)
 
@@ -164,7 +164,7 @@ func (repository *productRepository) FindById(ctx context.Context, tx *sql.Tx, i
 	return &product, nil
 }
 
-func (repository *productRepository) FindByName(ctx context.Context, tx *sql.Tx, name string) (*entity.Product, error) {
+func (repository *ProductRepositoryImpl) FindByName(ctx context.Context, tx *sql.Tx, name string) (*entity.Product, error) {
 	query := "SELECT * FROM products WHERE name = $1"
 	row := tx.QueryRowContext(ctx, query, name)
 
@@ -189,7 +189,7 @@ func (repository *productRepository) FindByName(ctx context.Context, tx *sql.Tx,
 	return &product, nil
 }
 
-func (repository *productRepository) FindByCode(ctx context.Context, tx *sql.Tx, code string) (*entity.Product, error) {
+func (repository *ProductRepositoryImpl) FindByCode(ctx context.Context, tx *sql.Tx, code string) (*entity.Product, error) {
 	query := "SELECT * FROM products WHERE code = $1"
 	row := tx.QueryRowContext(ctx, query, code)
 
@@ -214,7 +214,7 @@ func (repository *productRepository) FindByCode(ctx context.Context, tx *sql.Tx,
 	return &product, nil
 }
 
-func (repository *productRepository) Create(ctx context.Context, tx *sql.Tx, product *entity.Product) (*entity.Product, error) {
+func (repository *ProductRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, product *entity.Product) (*entity.Product, error) {
 	id := 0
 	query := `INSERT INTO products (code,name,description,price,category,is_empty,mass,image,created_at,updated_at) 
 			  VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10) RETURNING id_product`
@@ -242,7 +242,7 @@ func (repository *productRepository) Create(ctx context.Context, tx *sql.Tx, pro
 	return product, nil
 }
 
-func (repository *productRepository) Update(ctx context.Context, tx *sql.Tx, product *entity.Product) (*entity.Product, error) {
+func (repository *ProductRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, product *entity.Product) (*entity.Product, error) {
 	query := `UPDATE products 
 			  SET name = $1, 
 			      description = $2, 
@@ -273,7 +273,7 @@ func (repository *productRepository) Update(ctx context.Context, tx *sql.Tx, pro
 	return product, nil
 }
 
-func (repository *productRepository) Delete(ctx context.Context, tx *sql.Tx, code string) error {
+func (repository *ProductRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, code string) error {
 	query := "DELETE FROM products WHERE code = $1"
 	_, err := tx.ExecContext(ctx, query, code)
 	if err != nil {

@@ -7,14 +7,14 @@ import (
 	"database/sql"
 )
 
-type passwordResetRepository struct {
+type PasswordResetRepositoryImpl struct {
 }
 
 func NewPasswordResetRepository() repository.PasswordResetRepository {
-	return &passwordResetRepository{}
+	return &PasswordResetRepositoryImpl{}
 }
 
-func (repository *passwordResetRepository) FindByEmailAndToken(ctx context.Context, tx *sql.Tx, passwordReset *entity.PasswordReset) (*entity.PasswordReset, error) {
+func (repository *PasswordResetRepositoryImpl) FindByEmailAndToken(ctx context.Context, tx *sql.Tx, passwordReset *entity.PasswordReset) (*entity.PasswordReset, error) {
 	query := "SELECT * FROM password_resets WHERE email = $1 AND token = $2"
 	row := tx.QueryRowContext(ctx, query, passwordReset.Email, passwordReset.Token)
 
@@ -27,7 +27,7 @@ func (repository *passwordResetRepository) FindByEmailAndToken(ctx context.Conte
 
 }
 
-func (repository *passwordResetRepository) FindByEmail(ctx context.Context, tx *sql.Tx, email string) (*entity.PasswordReset, error) {
+func (repository *PasswordResetRepositoryImpl) FindByEmail(ctx context.Context, tx *sql.Tx, email string) (*entity.PasswordReset, error) {
 	query := "SELECT * FROM password_resets WHERE email = $1"
 	row := tx.QueryRowContext(ctx, query, email)
 
@@ -40,7 +40,7 @@ func (repository *passwordResetRepository) FindByEmail(ctx context.Context, tx *
 	return &passwordReset, nil
 }
 
-func (repository *passwordResetRepository) Create(ctx context.Context, tx *sql.Tx, passwordReset *entity.PasswordReset) (*entity.PasswordReset, error) {
+func (repository *PasswordResetRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, passwordReset *entity.PasswordReset) (*entity.PasswordReset, error) {
 	query := "INSERT INTO password_resets (email,token,expired) VALUES($1,$2,$3)"
 	_, err := tx.ExecContext(ctx, query, passwordReset.Email, passwordReset.Token, passwordReset.Expired)
 	if err != nil {
@@ -50,7 +50,7 @@ func (repository *passwordResetRepository) Create(ctx context.Context, tx *sql.T
 	return passwordReset, nil
 }
 
-func (repository *passwordResetRepository) Update(ctx context.Context, tx *sql.Tx, passwordReset *entity.PasswordReset) (*entity.PasswordReset, error) {
+func (repository *PasswordResetRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, passwordReset *entity.PasswordReset) (*entity.PasswordReset, error) {
 	query := "UPDATE password_resets SET token = $1, expired = $2 WHERE email = $3"
 	_, err := tx.ExecContext(ctx, query, passwordReset.Token, passwordReset.Expired, passwordReset.Email)
 	if err != nil {
@@ -60,7 +60,7 @@ func (repository *passwordResetRepository) Update(ctx context.Context, tx *sql.T
 	return passwordReset, nil
 }
 
-func (repository *passwordResetRepository) Delete(ctx context.Context, tx *sql.Tx, email string) error {
+func (repository *PasswordResetRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, email string) error {
 	query := "DELETE FROM password_resets WHERE email = $1"
 	_, err := tx.ExecContext(ctx, query, email)
 	if err != nil {

@@ -1,81 +1,71 @@
-package mysql
+package postgres
 
 import (
 	"apriori/entity"
 	"apriori/repository"
 	"context"
 	"database/sql"
-	"errors"
+	"log"
 )
 
-type categoryRepository struct {
+type CategoryRepositoryImpl struct {
 }
 
 func NewCategoryRepository() repository.CategoryRepository {
-	return &categoryRepository{}
+	return &CategoryRepositoryImpl{}
 }
 
-func (repository *categoryRepository) FindAll(ctx context.Context, tx *sql.Tx) ([]entity.Category, error) {
+func (repository *CategoryRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) ([]*entity.Category, error) {
 	query := "SELECT * FROM categories ORDER BY id_category DESC"
-	queryContext, err := tx.QueryContext(ctx, query)
+	rows, err := tx.QueryContext(ctx, query)
 	if err != nil {
-		return []entity.Category{}, err
+		return nil, err
 	}
-	defer func(queryContext *sql.Rows) {
-		err := queryContext.Close()
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
 		if err != nil {
+			log.Println(err)
 			return
 		}
-	}(queryContext)
+	}(rows)
 
-	var categories []entity.Category
-	for queryContext.Next() {
+	var categories []*entity.Category
+	for rows.Next() {
 		var category entity.Category
-		err := queryContext.Scan(&category.IdCategory, &category.Name, &category.CreatedAt, &category.UpdatedAt)
+		err := rows.Scan(&category.IdCategory, &category.Name, &category.CreatedAt, &category.UpdatedAt)
 		if err != nil {
-			return []entity.Category{}, err
+			return nil, err
 		}
-		categories = append(categories, category)
+
+		categories = append(categories, &category)
 	}
 
 	return categories, nil
 }
 
-func (repository *categoryRepository) FindById(ctx context.Context, tx *sql.Tx, categoryId int) (entity.Category, error) {
+func (repository *CategoryRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, id int) (*entity.Category, error) {
 	query := "SELECT * FROM categories WHERE id_category = ?"
-	queryContext, err := tx.QueryContext(ctx, query, categoryId)
-	if err != nil {
-		return entity.Category{}, err
-	}
-	defer func(queryContext *sql.Rows) {
-		err := queryContext.Close()
-		if err != nil {
-			return
-		}
-	}(queryContext)
+	row := tx.QueryRowContext(ctx, query, id)
 
 	var category entity.Category
-	if queryContext.Next() {
-		err := queryContext.Scan(&category.IdCategory, &category.Name, &category.CreatedAt, &category.UpdatedAt)
-		if err != nil {
-			return entity.Category{}, err
-		}
-
-		return category, nil
+	err := row.Scan(&category.IdCategory, &category.Name, &category.CreatedAt, &category.UpdatedAt)
+	if err != nil {
+		return &entity.Category{}, err
 	}
 
-	return category, errors.New("category not found")
+	return &category, nil
 }
 
-func (repository *categoryRepository) Create(ctx context.Context, tx *sql.Tx, category entity.Category) (entity.Category, error) {
+func (repository *CategoryRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, category *entity.Category) (*entity.Category, error) {
 	query := "INSERT INTO categories (name,created_at,updated_at) VALUES(?,?,?)"
 	row, err := tx.ExecContext(ctx, query, category.Name, category.CreatedAt, category.UpdatedAt)
 	if err != nil {
-		return entity.Category{}, err
+		return &entity.Category{}, err
 	}
+
 	id, err := row.LastInsertId()
 	if err != nil {
-		return entity.Category{}, err
+		return &entity.Category{}, err
 	}
 
 	category.IdCategory = int(id)
@@ -83,19 +73,19 @@ func (repository *categoryRepository) Create(ctx context.Context, tx *sql.Tx, ca
 	return category, nil
 }
 
-func (repository *categoryRepository) Update(ctx context.Context, tx *sql.Tx, category entity.Category) (entity.Category, error) {
+func (repository *CategoryRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, category *entity.Category) (*entity.Category, error) {
 	query := "UPDATE categories SET name = ?, updated_at = ? WHERE id_category = ?"
 	_, err := tx.ExecContext(ctx, query, category.Name, category.UpdatedAt, category.IdCategory)
 	if err != nil {
-		return entity.Category{}, err
+		return &entity.Category{}, err
 	}
 
 	return category, nil
 }
 
-func (repository *categoryRepository) Delete(ctx context.Context, tx *sql.Tx, categoryId int) error {
+func (repository *CategoryRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, id int) error {
 	query := "DELETE FROM categories WHERE id_category = ?"
-	_, err := tx.ExecContext(ctx, query, categoryId)
+	_, err := tx.ExecContext(ctx, query, id)
 	if err != nil {
 		return err
 	}

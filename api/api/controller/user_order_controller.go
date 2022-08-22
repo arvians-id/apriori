@@ -3,9 +3,9 @@ package controller
 import (
 	"apriori/api/middleware"
 	"apriori/api/response"
+	"apriori/helper"
 	"apriori/model"
 	"apriori/service"
-	"apriori/utils"
 	"bytes"
 	"encoding/json"
 	"errors"
@@ -20,7 +20,11 @@ type UserOrderController struct {
 	CacheService     service.CacheService
 }
 
-func NewUserOrderController(paymentService *service.PaymentService, UserOrderService *service.UserOrderService, cacheService *service.CacheService) *UserOrderController {
+func NewUserOrderController(
+	paymentService *service.PaymentService,
+	UserOrderService *service.UserOrderService,
+	cacheService *service.CacheService,
+) *UserOrderController {
 	return &UserOrderController{
 		PaymentService:   *paymentService,
 		UserOrderService: *UserOrderService,
@@ -163,7 +167,7 @@ func (controller *UserOrderController) FindAllById(c *gin.Context) {
 }
 
 func (controller *UserOrderController) FindById(c *gin.Context) {
-	orderIdParam := utils.StrToInt(c.Param("order_id"))
+	orderIdParam := helper.StrToInt(c.Param("order_id"))
 
 	userOrder, err := controller.UserOrderService.FindById(c.Request.Context(), orderIdParam)
 	if err != nil {

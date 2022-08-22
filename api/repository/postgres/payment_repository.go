@@ -8,14 +8,14 @@ import (
 	"log"
 )
 
-type paymentRepository struct {
+type PaymentRepositoryImpl struct {
 }
 
 func NewPaymentRepository() repository.PaymentRepository {
-	return &paymentRepository{}
+	return &PaymentRepositoryImpl{}
 }
 
-func (repository *paymentRepository) FindAll(ctx context.Context, tx *sql.Tx) ([]*entity.PaymentRelation, error) {
+func (repository *PaymentRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) ([]*entity.PaymentRelation, error) {
 	query := `SELECT payloads.*,users.name 
 			  FROM payloads
 			  	LEFT JOIN users ON users.id_user = payloads.user_id
@@ -69,7 +69,7 @@ func (repository *paymentRepository) FindAll(ctx context.Context, tx *sql.Tx) ([
 	return payments, nil
 }
 
-func (repository *paymentRepository) FindAllByUserId(ctx context.Context, tx *sql.Tx, userId int) ([]*entity.Payment, error) {
+func (repository *PaymentRepositoryImpl) FindAllByUserId(ctx context.Context, tx *sql.Tx, userId int) ([]*entity.Payment, error) {
 	query := `SELECT * FROM payloads 
 			  WHERE user_id = $1 
 			  ORDER BY settlement_time DESC, bank_type DESC`
@@ -121,7 +121,7 @@ func (repository *paymentRepository) FindAllByUserId(ctx context.Context, tx *sq
 	return payments, nil
 }
 
-func (repository *paymentRepository) FindByOrderId(ctx context.Context, tx *sql.Tx, orderId string) (*entity.Payment, error) {
+func (repository *PaymentRepositoryImpl) FindByOrderId(ctx context.Context, tx *sql.Tx, orderId string) (*entity.Payment, error) {
 	query := "SELECT * FROM payloads WHERE order_id = $1"
 	row := tx.QueryRowContext(ctx, query, orderId)
 
@@ -156,7 +156,7 @@ func (repository *paymentRepository) FindByOrderId(ctx context.Context, tx *sql.
 	return &payment, nil
 }
 
-func (repository *paymentRepository) Create(ctx context.Context, tx *sql.Tx, payment *entity.Payment) (*entity.Payment, error) {
+func (repository *PaymentRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, payment *entity.Payment) (*entity.Payment, error) {
 	id := 0
 	query := `INSERT INTO payloads(user_id,order_id,transaction_time,transaction_status,transaction_id,status_code,signature_key,settlement_time,payment_type,merchant_id,gross_amount,fraud_status,bank_type,va_number,biller_code,bill_key,receipt_number,address,courier,courier_service) 
 			  VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18,$19,$20)  RETURNING id_payload`
@@ -194,7 +194,7 @@ func (repository *paymentRepository) Create(ctx context.Context, tx *sql.Tx, pay
 	return payment, nil
 }
 
-func (repository *paymentRepository) Update(ctx context.Context, tx *sql.Tx, payment *entity.Payment) error {
+func (repository *PaymentRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, payment *entity.Payment) error {
 	query := `UPDATE payloads 
          	  SET user_id = $1,
          	      order_id = $2,
@@ -241,7 +241,7 @@ func (repository *paymentRepository) Update(ctx context.Context, tx *sql.Tx, pay
 	return nil
 }
 
-func (repository *paymentRepository) UpdateReceiptNumber(ctx context.Context, tx *sql.Tx, payment *entity.Payment) error {
+func (repository *PaymentRepositoryImpl) UpdateReceiptNumber(ctx context.Context, tx *sql.Tx, payment *entity.Payment) error {
 	query := `UPDATE payloads SET receipt_number = $1 WHERE order_id = $2`
 	_, err := tx.ExecContext(ctx, query, payment.ReceiptNumber, payment.OrderId)
 	if err != nil {
@@ -251,7 +251,7 @@ func (repository *paymentRepository) UpdateReceiptNumber(ctx context.Context, tx
 	return nil
 }
 
-func (repository *paymentRepository) Delete(ctx context.Context, tx *sql.Tx, orderId string) error {
+func (repository *PaymentRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, orderId string) error {
 	query := "DELETE FROM payloads WHERE order_id = $1"
 	_, err := tx.ExecContext(ctx, query, orderId)
 	if err != nil {

@@ -3,9 +3,9 @@ package controller
 import (
 	"apriori/api/middleware"
 	"apriori/api/response"
+	"apriori/helper"
 	"apriori/model"
 	"apriori/service"
-	"apriori/utils"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -13,19 +13,22 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-type categoryController struct {
+type CategoryController struct {
 	categoryService service.CategoryService
 	CacheService    service.CacheService
 }
 
-func NewCategoryController(categoryService *service.CategoryService, cacheService *service.CacheService) *categoryController {
-	return &categoryController{
+func NewCategoryController(
+	categoryService *service.CategoryService,
+	cacheService *service.CacheService,
+) *CategoryController {
+	return &CategoryController{
 		categoryService: *categoryService,
 		CacheService:    *cacheService,
 	}
 }
 
-func (controller *categoryController) Route(router *gin.Engine) *gin.Engine {
+func (controller *CategoryController) Route(router *gin.Engine) *gin.Engine {
 	authorized := router.Group("/api", middleware.AuthJwtMiddleware())
 	{
 		authorized.GET("/categories/:id", controller.FindById)
@@ -42,7 +45,7 @@ func (controller *categoryController) Route(router *gin.Engine) *gin.Engine {
 	return router
 }
 
-func (controller *categoryController) FindAll(c *gin.Context) {
+func (controller *CategoryController) FindAll(c *gin.Context) {
 	categoriesCache, err := controller.CacheService.Get(c.Request.Context(), "categories")
 	if err == redis.Nil {
 		categories, err := controller.categoryService.FindAll(c.Request.Context())
@@ -74,8 +77,8 @@ func (controller *categoryController) FindAll(c *gin.Context) {
 	response.ReturnSuccessOK(c, "OK", categoryCacheResponses)
 }
 
-func (controller *categoryController) FindById(c *gin.Context) {
-	idParam := utils.StrToInt(c.Param("id"))
+func (controller *CategoryController) FindById(c *gin.Context) {
+	idParam := helper.StrToInt(c.Param("id"))
 	category, err := controller.categoryService.FindById(c.Request.Context(), idParam)
 	if err != nil {
 		if err.Error() == response.ErrorNotFound {
@@ -90,7 +93,7 @@ func (controller *categoryController) FindById(c *gin.Context) {
 	response.ReturnSuccessOK(c, "OK", category)
 }
 
-func (controller *categoryController) Create(c *gin.Context) {
+func (controller *CategoryController) Create(c *gin.Context) {
 	var request model.CreateCategoryRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		response.ReturnErrorBadRequest(c, err, nil)
@@ -109,14 +112,14 @@ func (controller *categoryController) Create(c *gin.Context) {
 	response.ReturnSuccessOK(c, "OK", category)
 }
 
-func (controller *categoryController) Update(c *gin.Context) {
+func (controller *CategoryController) Update(c *gin.Context) {
 	var request model.UpdateCategoryRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
-	request.IdCategory = utils.StrToInt(c.Param("id"))
+	request.IdCategory = helper.StrToInt(c.Param("id"))
 
 	category, err := controller.categoryService.Update(c.Request.Context(), &request)
 	if err != nil {
@@ -135,8 +138,8 @@ func (controller *categoryController) Update(c *gin.Context) {
 	response.ReturnSuccessOK(c, "OK", category)
 }
 
-func (controller *categoryController) Delete(c *gin.Context) {
-	idParam := utils.StrToInt(c.Param("id"))
+func (controller *CategoryController) Delete(c *gin.Context) {
+	idParam := helper.StrToInt(c.Param("id"))
 	err := controller.categoryService.Delete(c.Request.Context(), idParam)
 	if err != nil {
 		if err.Error() == response.ErrorNotFound {

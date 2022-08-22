@@ -3,9 +3,9 @@ package controller
 import (
 	"apriori/api/middleware"
 	"apriori/api/response"
+	"apriori/helper"
 	"apriori/model"
 	"apriori/service"
-	"apriori/utils"
 	"errors"
 	"github.com/gin-gonic/gin"
 )
@@ -92,7 +92,7 @@ func (controller *UserController) FindAll(c *gin.Context) {
 
 func (controller *UserController) FindById(c *gin.Context) {
 	idParam := c.Param("id")
-	id := utils.StrToInt(idParam)
+	id := helper.StrToInt(idParam)
 
 	user, err := controller.UserService.FindById(c.Request.Context(), id)
 	if err != nil {
@@ -133,7 +133,7 @@ func (controller *UserController) Update(c *gin.Context) {
 		return
 	}
 
-	idParam := utils.StrToInt(c.Param("id"))
+	idParam := helper.StrToInt(c.Param("id"))
 	request.IdUser = idParam
 	user, err := controller.UserService.Update(c.Request.Context(), &request)
 	if err != nil {
@@ -151,7 +151,7 @@ func (controller *UserController) Update(c *gin.Context) {
 
 func (controller *UserController) Delete(c *gin.Context) {
 	idParam := c.Param("id")
-	id := utils.StrToInt(idParam)
+	id := helper.StrToInt(idParam)
 
 	err := controller.UserService.Delete(c.Request.Context(), id)
 	if err != nil {

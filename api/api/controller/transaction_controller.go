@@ -3,9 +3,9 @@ package controller
 import (
 	"apriori/api/middleware"
 	"apriori/api/response"
+	"apriori/helper"
 	"apriori/model"
 	"apriori/service"
-	"apriori/utils"
 	"bytes"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
@@ -19,7 +19,11 @@ type TransactionController struct {
 	CacheService       service.CacheService
 }
 
-func NewTransactionController(transactionService *service.TransactionService, storageService *service.StorageService, cacheService *service.CacheService) *TransactionController {
+func NewTransactionController(
+	transactionService *service.TransactionService,
+	storageService *service.StorageService,
+	cacheService *service.CacheService,
+) *TransactionController {
 	return &TransactionController{
 		TransactionService: *transactionService,
 		StorageService:     *storageService,
@@ -125,7 +129,7 @@ func (controller *TransactionController) CreateByCsv(c *gin.Context) {
 	}
 	wg.Wait()
 
-	data, err := utils.OpenCsvFile(pathName)
+	data, err := helper.OpenCsvFile(pathName)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return

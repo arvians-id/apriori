@@ -1,7 +1,7 @@
 package service
 
 import (
-	"apriori/utils"
+	"apriori/helper"
 	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt"
@@ -21,20 +21,15 @@ type TokenDetails struct {
 	AtExpires    int64
 	RtExpires    int64
 }
-type JwtService interface {
-	GenerateToken(IdUser int, expirationTime time.Time) (*TokenDetails, error)
-	RefreshToken(refreshToken string) (*TokenDetails, error)
-	ValidateToken(token string) (*jwt.Token, error)
-}
 
-type jwtService struct {
+type JwtServiceImpl struct {
 	accessSecretKey  string
 	refreshSecretKey string
 	jwtSigningMethod jwt.SigningMethod
 }
 
 func NewJwtService() JwtService {
-	return &jwtService{
+	return &JwtServiceImpl{
 		accessSecretKey:  getAccessSecretKey(),
 		refreshSecretKey: getRefreshSecretKey(),
 		jwtSigningMethod: jwt.SigningMethodHS256,
@@ -48,7 +43,7 @@ func getRefreshSecretKey() string {
 	return os.Getenv("JWT_SECRET_REFRESH_KEY")
 }
 
-func (service *jwtService) GenerateToken(id int, expirationTime time.Time) (*TokenDetails, error) {
+func (service *JwtServiceImpl) GenerateToken(id int, expirationTime time.Time) (*TokenDetails, error) {
 	tokens := &TokenDetails{}
 	tokens.AtExpires = expirationTime.Unix()
 	expiredTimeRefresh, _ := strconv.Atoi(os.Getenv("JWT_REFRESH_EXPIRED_TIME"))
@@ -87,7 +82,7 @@ func (service *jwtService) GenerateToken(id int, expirationTime time.Time) (*Tok
 	return tokens, nil
 }
 
-func (service *jwtService) RefreshToken(refreshToken string) (*TokenDetails, error) {
+func (service *JwtServiceImpl) RefreshToken(refreshToken string) (*TokenDetails, error) {
 	token, err := jwt.Parse(refreshToken, func(token *jwt.Token) (interface{}, error) {
 		method, ok := token.Method.(*jwt.SigningMethodHMAC)
 		if !ok {
@@ -112,7 +107,7 @@ func (service *jwtService) RefreshToken(refreshToken string) (*TokenDetails, err
 	}
 
 	// Get id user
-	id := utils.StrToInt(claims["id_user"].(string))
+	id := helper.StrToInt(claims["id_user"].(string))
 
 	// Delete the previous Refresh Token
 	// --
@@ -130,7 +125,7 @@ func (service *jwtService) RefreshToken(refreshToken string) (*TokenDetails, err
 	return tokens, nil
 }
 
-func (service *jwtService) ValidateToken(token string) (*jwt.Token, error) {
+func (service *JwtServiceImpl) ValidateToken(token string) (*jwt.Token, error) {
 	return jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		method, ok := token.Method.(*jwt.SigningMethodHMAC)
 

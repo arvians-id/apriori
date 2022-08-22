@@ -1,37 +1,38 @@
-package mysql
+package postgres
 
 import (
 	"apriori/entity"
 	"apriori/repository"
 	"context"
 	"database/sql"
-	"errors"
+	"log"
 )
 
-type productRepository struct {
+type ProductRepositoryImpl struct {
 }
 
 func NewProductRepository() repository.ProductRepository {
-	return &productRepository{}
+	return &ProductRepositoryImpl{}
 }
 
-func (repository *productRepository) FindAllOnAdmin(ctx context.Context, tx *sql.Tx) ([]entity.Product, error) {
+func (repository *ProductRepositoryImpl) FindAllByAdmin(ctx context.Context, tx *sql.Tx) ([]*entity.Product, error) {
 	query := "SELECT * FROM products ORDER BY id_product DESC"
-	queryContext, err := tx.QueryContext(ctx, query)
+	rows, err := tx.QueryContext(ctx, query)
 	if err != nil {
-		return []entity.Product{}, err
+		return nil, err
 	}
-	defer func(queryContext *sql.Rows) {
-		err := queryContext.Close()
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
 		if err != nil {
+			log.Println(err)
 			return
 		}
-	}(queryContext)
+	}(rows)
 
-	var products []entity.Product
-	for queryContext.Next() {
+	var products []*entity.Product
+	for rows.Next() {
 		var product entity.Product
-		err := queryContext.Scan(
+		err := rows.Scan(
 			&product.IdProduct,
 			&product.Code,
 			&product.Name,
@@ -45,31 +46,35 @@ func (repository *productRepository) FindAllOnAdmin(ctx context.Context, tx *sql
 			&product.UpdatedAt,
 		)
 		if err != nil {
-			return []entity.Product{}, err
+			return nil, err
 		}
-		products = append(products, product)
+
+		products = append(products, &product)
 	}
 
 	return products, nil
 }
 
-func (repository *productRepository) FindAll(ctx context.Context, tx *sql.Tx, search string, category string) ([]entity.Product, error) {
-	query := "SELECT * FROM products WHERE name LIKE ? AND category LIKE ? ORDER BY id_product DESC"
-	queryContext, err := tx.QueryContext(ctx, query, "%"+search+"%", "%"+category+"%")
+func (repository *ProductRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx, search string, category string) ([]*entity.Product, error) {
+	query := `SELECT * FROM products 
+			  WHERE LOWER(name) LIKE ? AND LOWER(category) LIKE ? AND is_empty = 0 
+			  ORDER BY id_product DESC`
+	rows, err := tx.QueryContext(ctx, query, "%"+search+"%", "%"+category+"%")
 	if err != nil {
-		return []entity.Product{}, err
+		return nil, err
 	}
-	defer func(queryContext *sql.Rows) {
-		err := queryContext.Close()
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
 		if err != nil {
+			log.Println(err)
 			return
 		}
-	}(queryContext)
+	}(rows)
 
-	var products []entity.Product
-	for queryContext.Next() {
+	var products []*entity.Product
+	for rows.Next() {
 		var product entity.Product
-		err := queryContext.Scan(
+		err := rows.Scan(
 			&product.IdProduct,
 			&product.Code,
 			&product.Name,
@@ -83,160 +88,195 @@ func (repository *productRepository) FindAll(ctx context.Context, tx *sql.Tx, se
 			&product.UpdatedAt,
 		)
 		if err != nil {
-			return []entity.Product{}, err
+			return nil, err
 		}
-		products = append(products, product)
+
+		products = append(products, &product)
 	}
 
 	return products, nil
 }
 
-func (repository *productRepository) FindAllSimilarCategory(ctx context.Context, tx *sql.Tx, category string) ([]entity.Product, error) {
-	panic("implement me")
+func (repository *ProductRepositoryImpl) FindAllBySimilarCategory(ctx context.Context, tx *sql.Tx, category string) ([]*entity.Product, error) {
+	query := `SELECT * FROM products 
+			  WHERE category SIMILAR TO ? AND is_empty = 0 
+			  ORDER BY random() DESC LIMIT 4`
+	rows, err := tx.QueryContext(ctx, query, "%("+category+")%")
+	if err != nil {
+		return nil, err
+	}
+	defer func(rows *sql.Rows) {
+		err := rows.Close()
+		if err != nil {
+			log.Println(err)
+			return
+		}
+	}(rows)
+
+	var products []*entity.Product
+	for rows.Next() {
+		var product entity.Product
+		err := rows.Scan(
+			&product.IdProduct,
+			&product.Code,
+			&product.Name,
+			&product.Description,
+			&product.Price,
+			&product.Category,
+			&product.IsEmpty,
+			&product.Mass,
+			&product.Image,
+			&product.CreatedAt,
+			&product.UpdatedAt,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		products = append(products, &product)
+	}
+
+	return products, nil
 }
 
-func (repository *productRepository) FindById(ctx context.Context, tx *sql.Tx, productId uint64) (entity.Product, error) {
+func (repository *ProductRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, id int) (*entity.Product, error) {
 	query := "SELECT * FROM products WHERE id_product = ?"
-	queryContext, err := tx.QueryContext(ctx, query, productId)
-	if err != nil {
-		return entity.Product{}, err
-	}
-	defer func(queryContext *sql.Rows) {
-		err := queryContext.Close()
-		if err != nil {
-			return
-		}
-	}(queryContext)
+	row := tx.QueryRowContext(ctx, query, id)
 
 	var product entity.Product
-	if queryContext.Next() {
-		err := queryContext.Scan(
-			&product.IdProduct,
-			&product.Code,
-			&product.Name,
-			&product.Description,
-			&product.Price,
-			&product.Category,
-			&product.IsEmpty,
-			&product.Mass,
-			&product.Image,
-			&product.CreatedAt,
-			&product.UpdatedAt,
-		)
-		if err != nil {
-			return entity.Product{}, err
-		}
-
-		return product, nil
+	err := row.Scan(
+		&product.IdProduct,
+		&product.Code,
+		&product.Name,
+		&product.Description,
+		&product.Price,
+		&product.Category,
+		&product.IsEmpty,
+		&product.Mass,
+		&product.Image,
+		&product.CreatedAt,
+		&product.UpdatedAt,
+	)
+	if err != nil {
+		return &entity.Product{}, err
 	}
 
-	return product, errors.New("product not found")
+	return &product, nil
 }
 
-func (repository *productRepository) FindByName(ctx context.Context, tx *sql.Tx, name string) (entity.Product, error) {
+func (repository *ProductRepositoryImpl) FindByName(ctx context.Context, tx *sql.Tx, name string) (*entity.Product, error) {
 	query := "SELECT * FROM products WHERE name = ?"
-	queryContext, err := tx.QueryContext(ctx, query, name)
-	if err != nil {
-		return entity.Product{}, err
-	}
-	defer func(queryContext *sql.Rows) {
-		err := queryContext.Close()
-		if err != nil {
-			return
-		}
-	}(queryContext)
+	row := tx.QueryRowContext(ctx, query, name)
 
 	var product entity.Product
-	if queryContext.Next() {
-		err := queryContext.Scan(
-			&product.IdProduct,
-			&product.Code,
-			&product.Name,
-			&product.Description,
-			&product.Price,
-			&product.Category,
-			&product.IsEmpty,
-			&product.Mass,
-			&product.Image,
-			&product.CreatedAt,
-			&product.UpdatedAt,
-		)
-		if err != nil {
-			return entity.Product{}, err
-		}
-
-		return product, nil
+	err := row.Scan(
+		&product.IdProduct,
+		&product.Code,
+		&product.Name,
+		&product.Description,
+		&product.Price,
+		&product.Category,
+		&product.IsEmpty,
+		&product.Mass,
+		&product.Image,
+		&product.CreatedAt,
+		&product.UpdatedAt,
+	)
+	if err != nil {
+		return &entity.Product{}, err
 	}
 
-	return product, errors.New("product not found")
+	return &product, nil
 }
 
-func (repository *productRepository) FindByCode(ctx context.Context, tx *sql.Tx, code string) (entity.Product, error) {
+func (repository *ProductRepositoryImpl) FindByCode(ctx context.Context, tx *sql.Tx, code string) (*entity.Product, error) {
 	query := "SELECT * FROM products WHERE code = ?"
-	queryContext, err := tx.QueryContext(ctx, query, code)
-	if err != nil {
-		return entity.Product{}, err
-	}
-	defer func(queryContext *sql.Rows) {
-		err := queryContext.Close()
-		if err != nil {
-			return
-		}
-	}(queryContext)
+	row := tx.QueryRowContext(ctx, query, code)
 
 	var product entity.Product
-	if queryContext.Next() {
-		err := queryContext.Scan(
-			&product.IdProduct,
-			&product.Code,
-			&product.Name,
-			&product.Description,
-			&product.Price,
-			&product.Category,
-			&product.IsEmpty,
-			&product.Mass,
-			&product.Image,
-			&product.CreatedAt,
-			&product.UpdatedAt,
-		)
-		if err != nil {
-			return entity.Product{}, err
-		}
-
-		return product, nil
+	err := row.Scan(
+		&product.IdProduct,
+		&product.Code,
+		&product.Name,
+		&product.Description,
+		&product.Price,
+		&product.Category,
+		&product.IsEmpty,
+		&product.Mass,
+		&product.Image,
+		&product.CreatedAt,
+		&product.UpdatedAt,
+	)
+	if err != nil {
+		return &entity.Product{}, err
 	}
 
-	return product, errors.New("product not found")
+	return &product, nil
 }
 
-func (repository *productRepository) Create(ctx context.Context, tx *sql.Tx, product entity.Product) (entity.Product, error) {
-	query := "INSERT INTO products (code,name,description,price,category,is_empty,mass,image,created_at,updated_at) VALUES(?,?,?,?,?,?,?,?,?,?)"
-	row, err := tx.ExecContext(ctx, query, product.Code, product.Name, product.Description, product.Price, product.Category, product.IsEmpty, product.Mass, product.Image, product.CreatedAt, product.UpdatedAt)
+func (repository *ProductRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, product *entity.Product) (*entity.Product, error) {
+	query := `INSERT INTO products (code,name,description,price,category,is_empty,mass,image,created_at,updated_at) 
+			  VALUES(?,?,?,?,?,?,?,?,?,?)`
+	row, err := tx.ExecContext(
+		ctx,
+		query,
+		product.Code,
+		product.Name,
+		product.Description,
+		product.Price,
+		product.Category,
+		product.IsEmpty,
+		product.Mass,
+		product.Image,
+		product.CreatedAt,
+		product.UpdatedAt,
+	)
 	if err != nil {
-		return entity.Product{}, err
+		return &entity.Product{}, err
 	}
 
 	id, err := row.LastInsertId()
 	if err != nil {
-		return entity.Product{}, err
+		return &entity.Product{}, err
 	}
 
-	product.IdProduct = uint64(id)
+	product.IdProduct = int(id)
 
 	return product, nil
 }
 
-func (repository *productRepository) Update(ctx context.Context, tx *sql.Tx, product entity.Product) (entity.Product, error) {
-	query := "UPDATE products SET name = ?, description = ?, price = ?, category = ?, is_empty = ?, mass = ?, image = ?, updated_at = ? WHERE code = ?"
-	_, err := tx.ExecContext(ctx, query, product.Name, product.Description, product.Price, product.Category, product.IsEmpty, product.Mass, product.Image, product.UpdatedAt, product.Code)
+func (repository *ProductRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, product *entity.Product) (*entity.Product, error) {
+	query := `UPDATE products 
+			  SET name = ?, 
+			      description = ?, 
+			      price = ?,
+			      category = ?,
+			      is_empty = ?, 
+			      mass = ?, 
+			      image = ?, 
+			      updated_at = ?
+			  WHERE code = ?`
+	_, err := tx.ExecContext(
+		ctx,
+		query,
+		product.Name,
+		product.Description,
+		product.Price,
+		product.Category,
+		product.IsEmpty,
+		product.Mass,
+		product.Image,
+		product.UpdatedAt,
+		product.Code,
+	)
 	if err != nil {
-		return entity.Product{}, err
+		return &entity.Product{}, err
 	}
 
 	return product, nil
 }
 
-func (repository *productRepository) Delete(ctx context.Context, tx *sql.Tx, code string) error {
+func (repository *ProductRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, code string) error {
 	query := "DELETE FROM products WHERE code = ?"
 	_, err := tx.ExecContext(ctx, query, code)
 	if err != nil {

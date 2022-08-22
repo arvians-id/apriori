@@ -2,7 +2,7 @@ package controller
 
 import (
 	"apriori/api/response"
-	"apriori/utils"
+	"apriori/helper"
 	"bytes"
 	"encoding/json"
 	"fmt"
@@ -13,20 +13,20 @@ import (
 	"strings"
 )
 
-type rajaOngkirController struct {
+type RajaOngkirController struct {
 }
 
-func NewRajaOngkirController() *rajaOngkirController {
-	return &rajaOngkirController{}
+func NewRajaOngkirController() *RajaOngkirController {
+	return &RajaOngkirController{}
 }
 
-func (controller *rajaOngkirController) Route(router *gin.Engine) *gin.Engine {
+func (controller *RajaOngkirController) Route(router *gin.Engine) *gin.Engine {
 	router.GET("/api/raja-ongkir/:place", controller.FindAll)
 	router.POST("/api/raja-ongkir/cost", controller.GetCost)
 	return router
 }
 
-func (controller *rajaOngkirController) FindAll(c *gin.Context) {
+func (controller *RajaOngkirController) FindAll(c *gin.Context) {
 	placeParam := c.Param("place")
 	if placeParam == "province" {
 		placeParam = "province"
@@ -55,8 +55,8 @@ func (controller *rajaOngkirController) FindAll(c *gin.Context) {
 	})
 }
 
-func (controller *rajaOngkirController) GetCost(c *gin.Context) {
-	weight := utils.StrToInt(c.PostForm("weight"))
+func (controller *RajaOngkirController) GetCost(c *gin.Context) {
+	weight := helper.StrToInt(c.PostForm("weight"))
 	payload := fmt.Sprintf("origin=%v&destination=%v&weight=%v&courier=%v", c.PostForm("origin"), c.PostForm("destination"), weight, c.PostForm("courier"))
 	data := strings.NewReader(payload)
 	req, _ := http.NewRequest("POST", "https://api.rajaongkir.com/starter/cost", data)

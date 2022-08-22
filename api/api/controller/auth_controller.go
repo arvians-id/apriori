@@ -22,7 +22,12 @@ type AuthController struct {
 	PasswordResetService service.PasswordResetService
 }
 
-func NewAuthController(userService *service.UserService, jwtService service.JwtService, emailService service.EmailService, passwordResetService *service.PasswordResetService) *AuthController {
+func NewAuthController(
+	userService *service.UserService,
+	jwtService service.JwtService,
+	emailService service.EmailService,
+	passwordResetService *service.PasswordResetService,
+) *AuthController {
 	return &AuthController{
 		UserService:          *userService,
 		JwtService:           jwtService,
