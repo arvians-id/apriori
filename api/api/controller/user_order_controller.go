@@ -168,7 +168,6 @@ func (controller *UserOrderController) FindAllById(c *gin.Context) {
 
 func (controller *UserOrderController) FindById(c *gin.Context) {
 	orderIdParam := helper.StrToInt(c.Param("order_id"))
-
 	userOrder, err := controller.UserOrderService.FindById(c.Request.Context(), orderIdParam)
 	if err != nil {
 		if err.Error() == response.ErrorNotFound {

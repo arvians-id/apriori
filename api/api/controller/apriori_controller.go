@@ -121,12 +121,12 @@ func (controller *AprioriController) Update(c *gin.Context) {
 		filePath = pathName
 	}
 
-	var request *model.UpdateAprioriRequest
+	var request model.UpdateAprioriRequest
 	request.IdApriori = idParam
 	request.Code = codeParam
 	request.Description = description
 	request.Image = filePath
-	apriories, err := controller.AprioriService.Update(c.Request.Context(), request)
+	apriories, err := controller.AprioriService.Update(c.Request.Context(), &request)
 	if err != nil {
 		if err.Error() == response.ErrorNotFound {
 			response.ReturnErrorNotFound(c, err, nil)
@@ -201,7 +201,7 @@ func (controller *AprioriController) Delete(c *gin.Context) {
 
 }
 func (controller *AprioriController) Generate(c *gin.Context) {
-	var request *model.GenerateAprioriRequest
+	var request model.GenerateAprioriRequest
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
@@ -211,7 +211,7 @@ func (controller *AprioriController) Generate(c *gin.Context) {
 	key := fmt.Sprintf("%v%v%v%v%s%s", request.MinimumDiscount, request.MaximumDiscount, request.MinimumSupport, request.MinimumConfidence, request.StartDate, request.EndDate)
 	aprioriCache, err := controller.CacheService.Get(c, key)
 	if err == redis.Nil {
-		apriori, err := controller.AprioriService.Generate(c.Request.Context(), request)
+		apriori, err := controller.AprioriService.Generate(c.Request.Context(), &request)
 		if err != nil {
 			response.ReturnErrorInternalServerError(c, err, nil)
 			return

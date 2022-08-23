@@ -3,7 +3,6 @@ package controller
 import (
 	"apriori/api/response"
 	"apriori/helper"
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -44,7 +43,7 @@ func (controller *RajaOngkirController) FindAll(c *gin.Context) {
 	body, _ := ioutil.ReadAll(res.Body)
 
 	var rajaOngkirModel interface{}
-	err := json.Unmarshal(bytes.NewBufferString(string(body)).Bytes(), &rajaOngkirModel)
+	err := json.Unmarshal(body, &rajaOngkirModel)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
@@ -68,7 +67,7 @@ func (controller *RajaOngkirController) GetCost(c *gin.Context) {
 	body, _ := ioutil.ReadAll(res.Body)
 
 	var rajaOngkirModel interface{}
-	err := json.Unmarshal(bytes.NewBufferString(string(body)).Bytes(), &rajaOngkirModel)
+	err := json.Unmarshal(body, &rajaOngkirModel)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return

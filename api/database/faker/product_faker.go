@@ -55,9 +55,10 @@ func (p *ProductFaker) SetMass() *ProductFaker {
 func (p *ProductFaker) SetImage(image string) *ProductFaker {
 	if image == "" {
 		p.Product.Image = fmt.Sprintf("https://%s.s3.%s.amazonaws.com/assets/%s", os.Getenv("AWS_BUCKET"), os.Getenv("AWS_REGION"), "no-image.png")
-	} else {
-		p.Product.Image = image
+		return p
 	}
+
+	p.Product.Image = image
 	return p
 }
 

@@ -136,7 +136,7 @@ func (controller *ProductController) FindByCode(c *gin.Context) {
 		return
 	}
 
-	var productCacheResponse *model.GetProductResponse
+	var productCacheResponse model.GetProductResponse
 	err = json.Unmarshal(bytes.NewBufferString(productCache).Bytes(), &productCacheResponse)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)

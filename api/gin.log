@@ -68,55 +68,461 @@
 [GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
 Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
 [GIN-debug] Listening and serving HTTP on :8080
-[GIN] 2022/08/22 - 13:33:57 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
-[GIN] 2022/08/22 - 13:33:57 | 204 |            0s |             ::1 | OPTIONS  "/api/profile"
-[GIN] 2022/08/22 - 13:33:57 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
-[GIN] 2022/08/22 - 13:33:57 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
-[GIN] 2022/08/22 - 13:33:57 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
-::1 - [Mon, 22 Aug 2022 13:33:57 +07] "GET /api/auth/token HTTP/1.1 200 325.6µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
-[GIN] 2022/08/22 - 13:33:57 | 200 |       325.6µs |             ::1 | GET      "/api/auth/token"
-::1 - [Mon, 22 Aug 2022 13:33:57 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
-[GIN] 2022/08/22 - 13:33:57 | 200 |            0s |             ::1 | GET      "/api/auth/token"
-::1 - [Mon, 22 Aug 2022 13:33:57 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
-[GIN] 2022/08/22 - 13:33:57 | 200 |       504.3µs |             ::1 | GET      "/api/auth/token"
-::1 - [Mon, 22 Aug 2022 13:33:57 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
-[GIN] 2022/08/22 - 13:33:57 | 200 |            0s |             ::1 | GET      "/api/auth/token"
-::1 - [Mon, 22 Aug 2022 13:33:57 +07] "GET /api/profile HTTP/1.1 200 6.1084ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
-[GIN] 2022/08/22 - 13:33:57 | 200 |      6.1084ms |             ::1 | GET      "/api/profile"
-::1 - [Mon, 22 Aug 2022 13:33:57 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
-[GIN] 2022/08/22 - 13:33:57 | 200 |       163.4µs |             ::1 | GET      "/api/auth/token"
-::1 - [Mon, 22 Aug 2022 13:33:57 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
-[GIN] 2022/08/22 - 13:33:57 | 200 |            0s |             ::1 | GET      "/api/auth/token"
-::1 - [Mon, 22 Aug 2022 13:33:57 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
-[GIN] 2022/08/22 - 13:33:57 | 200 |            0s |             ::1 | GET      "/api/auth/token"
-::1 - [Mon, 22 Aug 2022 13:33:57 +07] "GET /api/auth/token HTTP/1.1 200 537.5µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
-[GIN] 2022/08/22 - 13:33:57 | 200 |       537.5µs |             ::1 | GET      "/api/auth/token"
-::1 - [Mon, 22 Aug 2022 13:33:57 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
-[GIN] 2022/08/22 - 13:33:57 | 200 |            0s |             ::1 | GET      "/api/auth/token"
-::1 - [Mon, 22 Aug 2022 13:33:57 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
-[GIN] 2022/08/22 - 13:33:57 | 200 |            0s |             ::1 | GET      "/api/auth/token"
-::1 - [Mon, 22 Aug 2022 13:33:57 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
-[GIN] 2022/08/22 - 13:33:57 | 200 |       139.7µs |             ::1 | GET      "/api/auth/token"
-::1 - [Mon, 22 Aug 2022 13:33:57 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
-::1 - [Mon, 22 Aug 2022 13:33:57 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
-[GIN] 2022/08/22 - 13:33:57 | 200 |            0s |             ::1 | GET      "/api/auth/token"
-[GIN] 2022/08/22 - 13:33:57 | 200 |            0s |             ::1 | GET      "/api/auth/token"
-::1 - [Mon, 22 Aug 2022 13:33:57 +07] "GET /api/auth/token HTTP/1.1 200 531.6µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
-[GIN] 2022/08/22 - 13:33:57 | 200 |       684.1µs |             ::1 | GET      "/api/auth/token"
-::1 - [Mon, 22 Aug 2022 13:33:57 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
-[GIN] 2022/08/22 - 13:33:57 | 200 |            0s |             ::1 | GET      "/api/auth/token"
-::1 - [Mon, 22 Aug 2022 13:33:57 +07] "GET /api/profile HTTP/1.1 200 4.6908ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
-[GIN] 2022/08/22 - 13:33:57 | 200 |      4.6908ms |             ::1 | GET      "/api/profile"
-[GIN] 2022/08/22 - 13:33:57 | 204 |            0s |             ::1 | OPTIONS  "/api/products"
-[GIN] 2022/08/22 - 13:33:57 | 204 |            0s |             ::1 | OPTIONS  "/api/apriori/actives"
-[GIN] 2022/08/22 - 13:33:57 | 204 |            0s |             ::1 | OPTIONS  "/api/categories"
-::1 - [Mon, 22 Aug 2022 13:33:57 +07] "GET /api/profile HTTP/1.1 200 30.5572ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
-[GIN] 2022/08/22 - 13:33:57 | 200 |     30.5572ms |             ::1 | GET      "/api/profile"
-::1 - [Mon, 22 Aug 2022 13:33:57 +07] "GET /api/profile HTTP/1.1 200 28.6995ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
-[GIN] 2022/08/22 - 13:33:57 | 200 |     29.2261ms |             ::1 | GET      "/api/profile"
-::1 - [Mon, 22 Aug 2022 13:33:57 +07] "GET /api/apriori/actives HTTP/1.1 200 5.3386ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
-[GIN] 2022/08/22 - 13:33:57 | 200 |      5.3386ms |             ::1 | GET      "/api/apriori/actives"
-::1 - [Mon, 22 Aug 2022 13:33:57 +07] "GET /api/products HTTP/1.1 200 7.4712ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
-[GIN] 2022/08/22 - 13:33:57 | 200 |      7.4712ms |             ::1 | GET      "/api/products"
-::1 - [Mon, 22 Aug 2022 13:33:57 +07] "GET /api/categories HTTP/1.1 200 12.5228ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
-[GIN] 2022/08/22 - 13:33:57 | 200 |     12.5228ms |             ::1 | GET      "/api/categories"
+[GIN] 2022/08/23 - 11:18:49 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/23 - 11:18:49 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/23 - 11:18:49 | 204 |            0s |             ::1 | OPTIONS  "/api/profile"
+[GIN] 2022/08/23 - 11:18:49 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/23 - 11:18:49 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:49 +07] "GET /api/auth/token HTTP/1.1 200 339µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:49 | 200 |         339µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:49 +07] "GET /api/auth/token HTTP/1.1 200 257.9µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:49 | 200 |       257.9µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:49 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:49 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:49 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:49 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:49 +07] "GET /api/profile HTTP/1.1 200 6.665ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:49 | 200 |       6.665ms |             ::1 | GET      "/api/profile"
+::1 - [Tue, 23 Aug 2022 11:18:49 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:49 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:49 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:49 | 200 |         530µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:49 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:49 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:49 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:49 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:49 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:49 | 200 |       518.7µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:49 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:49 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:49 +07] "GET /api/auth/token HTTP/1.1 200 528.3µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:49 | 200 |       528.3µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:49 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:49 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:49 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:49 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:49 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:49 | 200 |       535.7µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:49 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:49 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:49 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:49 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:49 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:49 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:49 +07] "GET /api/profile HTTP/1.1 200 3.8487ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:49 | 200 |      3.8487ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/23 - 11:18:49 | 204 |            0s |             ::1 | OPTIONS  "/api/user-order/user"
+::1 - [Tue, 23 Aug 2022 11:18:49 +07] "GET /api/user-order/user HTTP/1.1 200 2.7378ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:49 | 200 |      3.2715ms |             ::1 | GET      "/api/user-order/user"
+::1 - [Tue, 23 Aug 2022 11:18:49 +07] "GET /api/profile HTTP/1.1 200 25.6403ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:49 | 200 |     25.6403ms |             ::1 | GET      "/api/profile"
+::1 - [Tue, 23 Aug 2022 11:18:49 +07] "GET /api/profile HTTP/1.1 200 27.2679ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:49 | 200 |     27.2679ms |             ::1 | GET      "/api/profile"
+::1 - [Tue, 23 Aug 2022 11:18:50 +07] "GET /api/auth/token HTTP/1.1 200 826.7µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:50 | 200 |       826.7µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:50 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:50 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:50 +07] "GET /api/auth/token HTTP/1.1 200 161.1µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:50 | 200 |       161.1µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:50 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:50 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:50 +07] "GET /api/profile HTTP/1.1 200 3.5617ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:50 | 200 |      3.5617ms |             ::1 | GET      "/api/profile"
+::1 - [Tue, 23 Aug 2022 11:18:50 +07] "GET /api/auth/token HTTP/1.1 200 464.6µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+::1 - [Tue, 23 Aug 2022 11:18:50 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:50 | 200 |       464.6µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/23 - 11:18:50 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:50 +07] "GET /api/auth/token HTTP/1.1 200 227.3µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:50 | 200 |       227.3µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:50 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:50 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:50 +07] "GET /api/auth/token HTTP/1.1 200 1.015ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:50 | 200 |       1.015ms |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:50 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:50 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:50 +07] "GET /api/profile HTTP/1.1 200 2.9412ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:50 | 200 |      2.9412ms |             ::1 | GET      "/api/profile"
+::1 - [Tue, 23 Aug 2022 11:18:50 +07] "GET /api/profile HTTP/1.1 200 3.1054ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:50 | 200 |       3.221ms |             ::1 | GET      "/api/profile"
+::1 - [Tue, 23 Aug 2022 11:18:51 +07] "GET /api/auth/token HTTP/1.1 200 178.5µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:51 | 200 |       178.5µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:51 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:51 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:51 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:51 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:51 +07] "GET /api/auth/token HTTP/1.1 200 681.8µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:51 | 200 |       681.8µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:51 +07] "GET /api/profile HTTP/1.1 200 3.6953ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:51 | 200 |      3.6953ms |             ::1 | GET      "/api/profile"
+::1 - [Tue, 23 Aug 2022 11:18:51 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:51 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:51 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:51 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:51 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:51 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:51 +07] "GET /api/auth/token HTTP/1.1 200 529µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:51 | 200 |         529µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:51 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:51 | 200 |       516.5µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:51 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:51 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:51 +07] "GET /api/profile HTTP/1.1 200 3.7216ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:51 | 200 |      3.7216ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/23 - 11:18:51 | 204 |            0s |             ::1 | OPTIONS  "/api/apriori"
+::1 - [Tue, 23 Aug 2022 11:18:51 +07] "GET /api/apriori HTTP/1.1 200 8.6716ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:51 | 200 |      8.6716ms |             ::1 | GET      "/api/apriori"
+::1 - [Tue, 23 Aug 2022 11:18:54 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:54 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:54 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:54 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:54 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:54 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:54 +07] "GET /api/auth/token HTTP/1.1 200 54.4µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:54 | 200 |        54.4µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:54 +07] "GET /api/profile HTTP/1.1 200 3.3155ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:54 | 200 |      3.3155ms |             ::1 | GET      "/api/profile"
+::1 - [Tue, 23 Aug 2022 11:18:54 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:54 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:54 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:54 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:54 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:54 | 200 |       528.6µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:54 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:54 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:54 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:54 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:54 +07] "GET /api/profile HTTP/1.1 200 3.1742ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:54 | 200 |      3.1742ms |             ::1 | GET      "/api/profile"
+::1 - [Tue, 23 Aug 2022 11:18:54 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:54 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:54 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:54 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:54 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:54 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:54 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:54 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:54 +07] "GET /api/profile HTTP/1.1 200 3.1783ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:54 | 200 |      3.1783ms |             ::1 | GET      "/api/profile"
+::1 - [Tue, 23 Aug 2022 11:18:54 +07] "GET /api/auth/token HTTP/1.1 200 695.1µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:54 | 200 |       695.1µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:54 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:54 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:54 +07] "GET /api/auth/token HTTP/1.1 200 465.5µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:54 | 200 |       465.5µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:54 +07] "GET /api/auth/token HTTP/1.1 200 504.9µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:54 | 200 |       504.9µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:54 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:54 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:54 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:54 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:54 +07] "GET /api/profile HTTP/1.1 200 2.8564ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:54 | 200 |      3.3699ms |             ::1 | GET      "/api/profile"
+::1 - [Tue, 23 Aug 2022 11:18:54 +07] "GET /api/apriori HTTP/1.1 200 4.113ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:54 | 200 |      4.3811ms |             ::1 | GET      "/api/apriori"
+[GIN] 2022/08/23 - 11:18:56 | 204 |            0s |             ::1 | OPTIONS  "/api/apriori/EVkoIbymQq"
+[GIN] 2022/08/23 - 11:18:56 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:56 +07] "GET /api/auth/token HTTP/1.1 200 510.9µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:56 | 200 |       510.9µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:56 +07] "DELETE /api/apriori/EVkoIbymQq HTTP/1.1 200 10.4112ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:56 | 200 |     10.4112ms |             ::1 | DELETE   "/api/apriori/EVkoIbymQq"
+::1 - [Tue, 23 Aug 2022 11:18:57 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:57 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/23 - 11:18:57 | 204 |            0s |             ::1 | OPTIONS  "/api/apriori"
+::1 - [Tue, 23 Aug 2022 11:18:57 +07] "GET /api/apriori HTTP/1.1 200 4.1373ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:57 | 200 |      4.1373ms |             ::1 | GET      "/api/apriori"
+::1 - [Tue, 23 Aug 2022 11:18:58 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:58 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/23 - 11:18:58 | 204 |            0s |             ::1 | OPTIONS  "/api/apriori/NTZeogatkm"
+::1 - [Tue, 23 Aug 2022 11:18:58 +07] "DELETE /api/apriori/NTZeogatkm HTTP/1.1 200 9.0125ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:58 | 200 |      9.0125ms |             ::1 | DELETE   "/api/apriori/NTZeogatkm"
+::1 - [Tue, 23 Aug 2022 11:18:58 +07] "GET /api/auth/token HTTP/1.1 200 273.1µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:58 | 200 |       273.1µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:58 +07] "GET /api/apriori HTTP/1.1 200 2.0408ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:58 | 200 |      2.0408ms |             ::1 | GET      "/api/apriori"
+::1 - [Tue, 23 Aug 2022 11:18:59 +07] "GET /api/auth/token HTTP/1.1 200 782.4µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:59 | 200 |       782.4µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:59 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:59 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:59 +07] "GET /api/auth/token HTTP/1.1 200 208.7µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:59 | 200 |       208.7µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:59 +07] "GET /api/auth/token HTTP/1.1 200 90.5µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:59 | 200 |        90.5µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/23 - 11:18:59 | 204 |            0s |             ::1 | OPTIONS  "/api/profile"
+::1 - [Tue, 23 Aug 2022 11:18:59 +07] "GET /api/profile HTTP/1.1 200 2.9058ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:59 | 200 |      2.9058ms |             ::1 | GET      "/api/profile"
+::1 - [Tue, 23 Aug 2022 11:18:59 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+::1 - [Tue, 23 Aug 2022 11:18:59 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:59 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/23 - 11:18:59 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:59 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:59 | 200 |       557.1µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:59 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+::1 - [Tue, 23 Aug 2022 11:18:59 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:59 | 200 |       533.4µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/23 - 11:18:59 | 200 |       533.4µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:18:59 +07] "GET /api/profile HTTP/1.1 200 3.4711ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:18:59 | 200 |      3.6249ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/23 - 11:19:11 | 204 |            0s |             ::1 | OPTIONS  "/api/apriori/generate"
+[GIN] 2022/08/23 - 11:19:11 | 204 |       286.4µs |             ::1 | OPTIONS  "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:11 +07] "GET /api/auth/token HTTP/1.1 200 398.7µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:11 | 200 |       398.7µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:11 +07] "POST /api/apriori/generate HTTP/1.1 200 55.1538ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:11 | 200 |     55.1538ms |             ::1 | POST     "/api/apriori/generate"
+[GIN] 2022/08/23 - 11:19:16 | 204 |            0s |             ::1 | OPTIONS  "/api/apriori"
+[GIN] 2022/08/23 - 11:19:16 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:16 +07] "GET /api/auth/token HTTP/1.1 200 1.5063ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:16 | 200 |      1.5063ms |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:16 +07] "POST /api/apriori HTTP/1.1 200 24.0105ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:16 | 200 |     24.0105ms |             ::1 | POST     "/api/apriori"
+::1 - [Tue, 23 Aug 2022 11:19:17 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:17 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:17 +07] "GET /api/auth/token HTTP/1.1 200 60.9µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:17 | 200 |        60.9µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:17 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:17 | 200 |       513.6µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:17 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:17 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/23 - 11:19:17 | 204 |            0s |             ::1 | OPTIONS  "/api/profile"
+::1 - [Tue, 23 Aug 2022 11:19:17 +07] "GET /api/profile HTTP/1.1 200 2.8605ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:17 | 200 |      2.9359ms |             ::1 | GET      "/api/profile"
+::1 - [Tue, 23 Aug 2022 11:19:17 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:17 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:17 +07] "GET /api/auth/token HTTP/1.1 200 729.3µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:17 | 200 |       729.3µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:17 +07] "GET /api/auth/token HTTP/1.1 200 150.2µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:17 | 200 |       150.2µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:17 +07] "GET /api/auth/token HTTP/1.1 200 201.1µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:17 | 200 |       201.1µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:17 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:17 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:17 +07] "GET /api/auth/token HTTP/1.1 200 89.8µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:17 | 200 |        89.8µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:17 +07] "GET /api/apriori HTTP/1.1 200 2.2058ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:17 | 200 |      2.2058ms |             ::1 | GET      "/api/apriori"
+::1 - [Tue, 23 Aug 2022 11:19:17 +07] "GET /api/profile HTTP/1.1 200 3.3192ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:17 | 200 |      3.3192ms |             ::1 | GET      "/api/profile"
+::1 - [Tue, 23 Aug 2022 11:19:18 +07] "GET /api/auth/token HTTP/1.1 200 460.9µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:18 | 200 |       460.9µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/23 - 11:19:18 | 204 |            0s |             ::1 | OPTIONS  "/api/apriori/AeXvPdLIPd"
+::1 - [Tue, 23 Aug 2022 11:19:18 +07] "PATCH /api/apriori/AeXvPdLIPd HTTP/1.1 200 6.8822ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:18 | 200 |      6.8822ms |             ::1 | PATCH    "/api/apriori/AeXvPdLIPd"
+::1 - [Tue, 23 Aug 2022 11:19:19 +07] "GET /api/auth/token HTTP/1.1 200 995.3µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:19 | 200 |       995.3µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:19 +07] "GET /api/apriori HTTP/1.1 200 1.6825ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:19 | 200 |      1.6825ms |             ::1 | GET      "/api/apriori"
+::1 - [Tue, 23 Aug 2022 11:19:20 +07] "GET /api/auth/token HTTP/1.1 200 155.8µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:20 | 200 |       155.8µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:20 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:20 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:20 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:20 | 200 |       506.7µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:20 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:20 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:20 +07] "GET /api/profile HTTP/1.1 200 3.2194ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:20 | 200 |      3.4605ms |             ::1 | GET      "/api/profile"
+::1 - [Tue, 23 Aug 2022 11:19:20 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:20 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:20 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:20 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:20 +07] "GET /api/auth/token HTTP/1.1 200 678.6µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:20 | 200 |       678.6µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:20 +07] "GET /api/auth/token HTTP/1.1 200 856µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:20 | 200 |         856µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:20 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:20 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:20 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:20 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:20 +07] "GET /api/profile HTTP/1.1 200 3.5733ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:20 | 200 |      3.6588ms |             ::1 | GET      "/api/profile"
+::1 - [Tue, 23 Aug 2022 11:19:20 +07] "GET /api/apriori/AeXvPdLIPd HTTP/1.1 200 4.0019ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:20 | 200 |      4.1045ms |             ::1 | GET      "/api/apriori/AeXvPdLIPd"
+::1 - [Tue, 23 Aug 2022 11:19:22 +07] "GET /api/profile HTTP/1.1 200 3.7103ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:22 | 200 |      3.8886ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/23 - 11:19:22 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/23 - 11:19:22 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/23 - 11:19:22 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/23 - 11:19:22 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:22 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:22 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:22 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:22 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:22 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:22 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:22 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:22 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:22 +07] "GET /api/auth/token HTTP/1.1 200 526.5µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:22 | 200 |       526.5µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:22 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:22 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:22 +07] "GET /api/profile HTTP/1.1 200 3.1856ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:22 | 200 |      3.1856ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/23 - 11:19:22 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/23 - 11:19:22 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/23 - 11:19:22 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/23 - 11:19:22 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/23 - 11:19:22 | 204 |            0s |             ::1 | OPTIONS  "/api/apriori/actives"
+::1 - [Tue, 23 Aug 2022 11:19:22 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:22 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:22 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:22 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:22 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:22 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:22 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:22 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:22 +07] "GET /api/apriori/actives HTTP/1.1 200 2.6614ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:22 | 200 |      2.6614ms |             ::1 | GET      "/api/apriori/actives"
+::1 - [Tue, 23 Aug 2022 11:19:23 +07] "GET /api/auth/token HTTP/1.1 200 532.4µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:23 | 200 |       532.4µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:23 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:23 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:23 +07] "GET /api/auth/token HTTP/1.1 200 473.9µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:23 | 200 |       473.9µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:23 +07] "GET /api/auth/token HTTP/1.1 200 210.4µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:23 | 200 |       210.4µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/23 - 11:19:23 | 204 |            0s |             ::1 | OPTIONS  "/api/profile"
+::1 - [Tue, 23 Aug 2022 11:19:23 +07] "GET /api/profile HTTP/1.1 200 2.6578ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:23 | 200 |      2.6578ms |             ::1 | GET      "/api/profile"
+::1 - [Tue, 23 Aug 2022 11:19:23 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:23 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:23 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:23 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:23 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:23 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:23 +07] "GET /api/auth/token HTTP/1.1 200 529.9µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:23 | 200 |       529.9µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:23 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:23 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:23 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:23 | 200 |       530.3µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:23 +07] "GET /api/profile HTTP/1.1 200 3.5716ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:23 | 200 |      3.5716ms |             ::1 | GET      "/api/profile"
+::1 - [Tue, 23 Aug 2022 11:19:23 +07] "GET /api/apriori/AeXvPdLIPd HTTP/1.1 200 3.5551ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:23 | 200 |      3.5551ms |             ::1 | GET      "/api/apriori/AeXvPdLIPd"
+::1 - [Tue, 23 Aug 2022 11:19:25 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:25 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:25 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:25 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:25 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:25 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:25 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:25 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:25 +07] "GET /api/profile HTTP/1.1 200 2.6601ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:25 | 200 |      2.6601ms |             ::1 | GET      "/api/profile"
+::1 - [Tue, 23 Aug 2022 11:19:25 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:25 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:25 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:25 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:25 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:25 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:25 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:25 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:25 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:25 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:25 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:25 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:25 +07] "GET /api/profile HTTP/1.1 200 3.7127ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:25 | 200 |      3.7127ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/23 - 11:19:25 | 204 |            0s |             ::1 | OPTIONS  "/api/apriori/AeXvPdLIPd/detail/13"
+::1 - [Tue, 23 Aug 2022 11:19:25 +07] "GET /api/apriori/AeXvPdLIPd/detail/13 HTTP/1.1 200 7.9385ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:25 | 200 |      7.9385ms |             ::1 | GET      "/api/apriori/AeXvPdLIPd/detail/13"
+::1 - [Tue, 23 Aug 2022 11:19:27 +07] "GET /api/profile HTTP/1.1 200 3.4748ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:27 | 200 |      3.4748ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/23 - 11:19:27 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/23 - 11:19:27 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/23 - 11:19:27 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/23 - 11:19:27 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:27 +07] "GET /api/auth/token HTTP/1.1 200 197.6µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:27 | 200 |       197.6µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:27 +07] "GET /api/auth/token HTTP/1.1 200 366.3µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:27 | 200 |       366.3µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:27 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:27 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:27 +07] "GET /api/auth/token HTTP/1.1 200 423.4µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:27 | 200 |       423.4µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:27 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:27 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:27 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:27 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:27 +07] "GET /api/profile HTTP/1.1 200 3.7339ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:27 | 200 |      3.7339ms |             ::1 | GET      "/api/profile"
+::1 - [Tue, 23 Aug 2022 11:19:27 +07] "GET /api/apriori/AeXvPdLIPd/detail/13 HTTP/1.1 200 6.4034ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:27 | 200 |      6.4034ms |             ::1 | GET      "/api/apriori/AeXvPdLIPd/detail/13"
+[GIN] 2022/08/23 - 11:19:27 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/23 - 11:19:27 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/23 - 11:19:27 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/23 - 11:19:27 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:27 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:27 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:27 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:27 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:27 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:27 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:27 +07] "GET /api/auth/token HTTP/1.1 200 531.7µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:27 | 200 |       531.7µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:32 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:32 | 200 |      1.5047ms |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/23 - 11:19:32 | 204 |            0s |             ::1 | OPTIONS  "/api/apriori/AeXvPdLIPd/update/13"
+::1 - [Tue, 23 Aug 2022 11:19:32 +07] "PATCH /api/apriori/AeXvPdLIPd/update/13 HTTP/1.1 200 5.9039ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:32 | 200 |      5.9039ms |             ::1 | PATCH    "/api/apriori/AeXvPdLIPd/update/13"
+[GIN] 2022/08/23 - 11:19:33 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/23 - 11:19:33 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/23 - 11:19:33 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/23 - 11:19:33 | 204 |            0s |             ::1 | OPTIONS  "/api/profile"
+[GIN] 2022/08/23 - 11:19:33 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:33 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:33 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:33 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:33 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:33 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:33 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:33 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:33 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:33 +07] "GET /api/profile HTTP/1.1 200 3.2032ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:33 | 200 |      3.2032ms |             ::1 | GET      "/api/profile"
+::1 - [Tue, 23 Aug 2022 11:19:33 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:33 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:33 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:33 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:33 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:33 | 200 |       532.9µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:33 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:33 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:33 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:33 | 200 |       532.1µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:33 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:33 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:33 +07] "GET /api/profile HTTP/1.1 200 3.1932ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:33 | 200 |      3.1932ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/23 - 11:19:33 | 204 |            0s |             ::1 | OPTIONS  "/api/apriori/AeXvPdLIPd/detail/13"
+::1 - [Tue, 23 Aug 2022 11:19:33 +07] "GET /api/apriori/AeXvPdLIPd/detail/13 HTTP/1.1 200 6.1284ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:33 | 200 |      6.1964ms |             ::1 | GET      "/api/apriori/AeXvPdLIPd/detail/13"
+[GIN] 2022/08/23 - 11:19:39 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/23 - 11:19:39 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/23 - 11:19:39 | 204 |            0s |             ::1 | OPTIONS  "/api/profile"
+::1 - [Tue, 23 Aug 2022 11:19:39 +07] "GET /api/auth/token HTTP/1.1 200 1.0111ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:39 | 200 |      1.0111ms |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:39 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:39 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:39 +07] "GET /api/auth/token HTTP/1.1 200 97.9µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:39 | 200 |        97.9µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:39 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:39 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:39 +07] "GET /api/profile HTTP/1.1 200 4.0505ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:39 | 200 |      4.0505ms |             ::1 | GET      "/api/profile"
+::1 - [Tue, 23 Aug 2022 11:19:39 +07] "GET /api/auth/token HTTP/1.1 200 220.1µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+::1 - [Tue, 23 Aug 2022 11:19:39 +07] "GET /api/auth/token HTTP/1.1 200 220.1µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:39 | 200 |       220.1µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/23 - 11:19:39 | 200 |       220.1µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:39 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:39 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:39 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:39 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:39 +07] "GET /api/auth/token HTTP/1.1 200 0s" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:39 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:39 +07] "GET /api/auth/token HTTP/1.1 200 92.8µs" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:39 | 200 |        92.8µs |             ::1 | GET      "/api/auth/token"
+::1 - [Tue, 23 Aug 2022 11:19:39 +07] "GET /api/profile HTTP/1.1 200 3.3445ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:39 | 200 |      3.7704ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/23 - 11:19:39 | 204 |            0s |             ::1 | OPTIONS  "/api/apriori/actives"
+::1 - [Tue, 23 Aug 2022 11:19:39 +07] "GET /api/apriori/actives HTTP/1.1 200 2.1184ms" Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:103.0) Gecko/20100101 Firefox/103.0 
+[GIN] 2022/08/23 - 11:19:39 | 200 |      2.1184ms |             ::1 | GET      "/api/apriori/actives"
