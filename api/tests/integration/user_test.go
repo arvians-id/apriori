@@ -351,7 +351,7 @@ var _ = Describe("User API", func() {
 				It("should return error required", func() {
 					// Update User
 					requestBody := strings.NewReader(`{"email": "widdy@gmail.com","address":"nganjok","phone":"082299","password": "Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(int(row.IdUser)), requestBody)
+					request := httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(row.IdUser), requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 					request.AddCookie(cookie)
@@ -374,7 +374,7 @@ var _ = Describe("User API", func() {
 				It("should return error exceeds the limit character", func() {
 					// Update User
 					requestBody := strings.NewReader(`{"name":"asdasdsdsasdsfsdsassssssssssd", "email": "widdy@gmail.com","address":"nganjok","phone":"082299","password": "Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(int(row.IdUser)), requestBody)
+					request := httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(row.IdUser), requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 					request.AddCookie(cookie)
@@ -399,7 +399,7 @@ var _ = Describe("User API", func() {
 				It("should return error required", func() {
 					// Update User
 					requestBody := strings.NewReader(`{"name": "Widdy","address":"nganjok","phone":"082299","password": "Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(int(row.IdUser)), requestBody)
+					request := httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(row.IdUser), requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 					request.AddCookie(cookie)
@@ -422,7 +422,7 @@ var _ = Describe("User API", func() {
 				It("should return error the email must be valid email", func() {
 					// Update User
 					requestBody := strings.NewReader(`{"name": "Widdy","email": "Widdys","address":"nganjok","phone":"082299","password": "Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(int(row.IdUser)), requestBody)
+					request := httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(row.IdUser), requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 					request.AddCookie(cookie)
@@ -445,7 +445,7 @@ var _ = Describe("User API", func() {
 				It("should return error exceeds the limit character", func() {
 					// Update User
 					requestBody := strings.NewReader(`{"name":"wids","email": "sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssddddddddddddddddddddddddddddddddddddddd@gmail.com","address":"nganjok","phone":"082299","password": "Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(int(row.IdUser)), requestBody)
+					request := httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(row.IdUser), requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 					request.AddCookie(cookie)
@@ -470,7 +470,7 @@ var _ = Describe("User API", func() {
 				It("should return error less character of length", func() {
 					// Update User
 					requestBody := strings.NewReader(`{"name": "Widdy","email": "widdy@gmail.com","address":"nganjok","phone":"082299","password": "as"}`)
-					request := httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(int(row.IdUser)), requestBody)
+					request := httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(row.IdUser), requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 					request.AddCookie(cookie)
@@ -497,7 +497,7 @@ var _ = Describe("User API", func() {
 				It("should return a successful update user response", func() {
 					// Update User
 					requestBody := strings.NewReader(`{"name": "SiGanteng","email": "ganteng@gmail.com","address":"nganjok","phone":"082299"}`)
-					request := httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(int(row.IdUser)), requestBody)
+					request := httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(row.IdUser), requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 					request.AddCookie(cookie)
@@ -523,7 +523,7 @@ var _ = Describe("User API", func() {
 				It("should return a successful update user response", func() {
 					// Update User
 					requestBody := strings.NewReader(`{"name": "SiGanteng","email": "ganteng@gmail.com","address":"nganjok","phone":"082299","password":"Widdy123"}`)
-					request := httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(int(row.IdUser)), requestBody)
+					request := httptest.NewRequest(http.MethodPatch, "/api/users/"+strconv.Itoa(row.IdUser), requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 					request.AddCookie(cookie)
@@ -574,7 +574,7 @@ var _ = Describe("User API", func() {
 		When("user is found", func() {
 			It("should return a successful delete user response", func() {
 				// Update User
-				request := httptest.NewRequest(http.MethodDelete, "/api/users/"+strconv.Itoa(int(row.IdUser)), nil)
+				request := httptest.NewRequest(http.MethodDelete, "/api/users/"+strconv.Itoa(row.IdUser), nil)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
@@ -600,7 +600,7 @@ var _ = Describe("User API", func() {
 		When("the user is not present", func() {
 			It("should return a successful but the data is null", func() {
 				// Delete User
-				request := httptest.NewRequest(http.MethodDelete, "/api/users/"+strconv.Itoa(int(row.IdUser)), nil)
+				request := httptest.NewRequest(http.MethodDelete, "/api/users/"+strconv.Itoa(row.IdUser), nil)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
@@ -712,7 +712,7 @@ var _ = Describe("User API", func() {
 		When("user is found", func() {
 			It("should return a successful find user by id", func() {
 				// Find By Id User
-				request := httptest.NewRequest(http.MethodGet, "/api/users/"+strconv.Itoa(int(row.IdUser)), nil)
+				request := httptest.NewRequest(http.MethodGet, "/api/users/"+strconv.Itoa(row.IdUser), nil)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
