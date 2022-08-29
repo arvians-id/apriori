@@ -5,66 +5,254 @@
  - using code:	gin.SetMode(gin.ReleaseMode)
 
 [GIN-debug] GET    /                         --> apriori/route.NewInitializedServer.func1 (4 handlers)
-[GIN-debug] GET    /api/payments             --> apriori/api/controller.(*PaymentController).FindAll-fm (5 handlers)
-[GIN-debug] GET    /api/payments/:order_id   --> apriori/api/controller.(*PaymentController).FindByOrderId-fm (5 handlers)
-[GIN-debug] PATCH  /api/payments/:order_id   --> apriori/api/controller.(*PaymentController).UpdateReceiptNumber-fm (5 handlers)
-[GIN-debug] POST   /api/payments/pay         --> apriori/api/controller.(*PaymentController).Pay-fm (4 handlers)
-[GIN-debug] POST   /api/payments/notification --> apriori/api/controller.(*PaymentController).Notification-fm (4 handlers)
-[GIN-debug] DELETE /api/payments/:order_id   --> apriori/api/controller.(*PaymentController).Delete-fm (4 handlers)
-[GIN-debug] GET    /api/auth/token           --> apriori/api/controller.(*AuthController).Token-fm (6 handlers)
-[GIN-debug] POST   /api/auth/login           --> apriori/api/controller.(*AuthController).Login-fm (5 handlers)
-[GIN-debug] POST   /api/auth/refresh         --> apriori/api/controller.(*AuthController).Refresh-fm (5 handlers)
-[GIN-debug] POST   /api/auth/forgot-password --> apriori/api/controller.(*AuthController).ForgotPassword-fm (5 handlers)
-[GIN-debug] POST   /api/auth/verify          --> apriori/api/controller.(*AuthController).VerifyResetPassword-fm (5 handlers)
-[GIN-debug] POST   /api/auth/register        --> apriori/api/controller.(*AuthController).Register-fm (5 handlers)
-[GIN-debug] DELETE /api/auth/logout          --> apriori/api/controller.(*AuthController).Logout-fm (5 handlers)
-[GIN-debug] GET    /api/users                --> apriori/api/controller.(*UserController).FindAll-fm (6 handlers)
-[GIN-debug] GET    /api/users/:id            --> apriori/api/controller.(*UserController).FindById-fm (6 handlers)
-[GIN-debug] POST   /api/users                --> apriori/api/controller.(*UserController).Create-fm (6 handlers)
-[GIN-debug] PATCH  /api/users/:id            --> apriori/api/controller.(*UserController).Update-fm (6 handlers)
-[GIN-debug] DELETE /api/users/:id            --> apriori/api/controller.(*UserController).Delete-fm (6 handlers)
-[GIN-debug] GET    /api/profile              --> apriori/api/controller.(*UserController).Profile-fm (6 handlers)
-[GIN-debug] PATCH  /api/profile/update       --> apriori/api/controller.(*UserController).UpdateProfile-fm (6 handlers)
-[GIN-debug] GET    /api/products-admin       --> apriori/api/controller.(*ProductController).FindAllByAdmin-fm (6 handlers)
-[GIN-debug] POST   /api/products             --> apriori/api/controller.(*ProductController).Create-fm (6 handlers)
-[GIN-debug] PATCH  /api/products/:code       --> apriori/api/controller.(*ProductController).Update-fm (6 handlers)
-[GIN-debug] DELETE /api/products/:code       --> apriori/api/controller.(*ProductController).Delete-fm (6 handlers)
-[GIN-debug] GET    /api/products             --> apriori/api/controller.(*ProductController).FindAllByUser-fm (5 handlers)
-[GIN-debug] GET    /api/products/:code/category --> apriori/api/controller.(*ProductController).FindAllSimilarCategory-fm (5 handlers)
-[GIN-debug] GET    /api/products/:code/recommendation --> apriori/api/controller.(*ProductController).FindAllRecommendation-fm (5 handlers)
-[GIN-debug] GET    /api/products/:code       --> apriori/api/controller.(*ProductController).FindByCode-fm (5 handlers)
-[GIN-debug] GET    /api/transactions         --> apriori/api/controller.(*TransactionController).FindAll-fm (6 handlers)
-[GIN-debug] GET    /api/transactions/:number_transaction --> apriori/api/controller.(*TransactionController).FindByNoTransaction-fm (6 handlers)
-[GIN-debug] POST   /api/transactions         --> apriori/api/controller.(*TransactionController).Create-fm (6 handlers)
-[GIN-debug] POST   /api/transactions/csv     --> apriori/api/controller.(*TransactionController).CreateByCsv-fm (6 handlers)
-[GIN-debug] PATCH  /api/transactions/:number_transaction --> apriori/api/controller.(*TransactionController).Update-fm (6 handlers)
-[GIN-debug] DELETE /api/transactions/:number_transaction --> apriori/api/controller.(*TransactionController).Delete-fm (6 handlers)
-[GIN-debug] DELETE /api/transactions/truncate --> apriori/api/controller.(*TransactionController).Truncate-fm (6 handlers)
-[GIN-debug] PATCH  /api/apriori/:code        --> apriori/api/controller.(*AprioriController).UpdateStatus-fm (6 handlers)
-[GIN-debug] POST   /api/apriori              --> apriori/api/controller.(*AprioriController).Create-fm (6 handlers)
-[GIN-debug] DELETE /api/apriori/:code        --> apriori/api/controller.(*AprioriController).Delete-fm (6 handlers)
-[GIN-debug] PATCH  /api/apriori/:code/update/:id --> apriori/api/controller.(*AprioriController).Update-fm (6 handlers)
-[GIN-debug] POST   /api/apriori/generate     --> apriori/api/controller.(*AprioriController).Generate-fm (6 handlers)
-[GIN-debug] GET    /api/apriori              --> apriori/api/controller.(*AprioriController).FindAll-fm (5 handlers)
-[GIN-debug] GET    /api/apriori/:code        --> apriori/api/controller.(*AprioriController).FindAllByCode-fm (5 handlers)
-[GIN-debug] GET    /api/apriori/:code/detail/:id --> apriori/api/controller.(*AprioriController).FindByCodeAndId-fm (5 handlers)
-[GIN-debug] GET    /api/apriori/actives      --> apriori/api/controller.(*AprioriController).FindAllByActive-fm (5 handlers)
-[GIN-debug] GET    /api/user-order           --> apriori/api/controller.(*UserOrderController).FindAll-fm (6 handlers)
-[GIN-debug] GET    /api/user-order/user      --> apriori/api/controller.(*UserOrderController).FindAllByUserId-fm (6 handlers)
-[GIN-debug] GET    /api/user-order/:order_id --> apriori/api/controller.(*UserOrderController).FindAllById-fm (6 handlers)
-[GIN-debug] GET    /api/user-order/:order_id/single --> apriori/api/controller.(*UserOrderController).FindById-fm (6 handlers)
-[GIN-debug] GET    /api/categories/:id       --> apriori/api/controller.(*CategoryController).FindById-fm (6 handlers)
-[GIN-debug] POST   /api/categories           --> apriori/api/controller.(*CategoryController).Create-fm (6 handlers)
-[GIN-debug] PATCH  /api/categories/:id       --> apriori/api/controller.(*CategoryController).Update-fm (6 handlers)
-[GIN-debug] DELETE /api/categories/:id       --> apriori/api/controller.(*CategoryController).Delete-fm (6 handlers)
-[GIN-debug] GET    /api/categories           --> apriori/api/controller.(*CategoryController).FindAll-fm (5 handlers)
-[GIN-debug] POST   /api/comments             --> apriori/api/controller.(*CommentController).Create-fm (6 handlers)
-[GIN-debug] GET    /api/comments/:id         --> apriori/api/controller.(*CommentController).FindById-fm (5 handlers)
-[GIN-debug] GET    /api/comments/rating/:product_code --> apriori/api/controller.(*CommentController).FindAllRatingByProductCode-fm (5 handlers)
-[GIN-debug] GET    /api/comments/product/:product_code --> apriori/api/controller.(*CommentController).FindAllByProductCode-fm (5 handlers)
-[GIN-debug] GET    /api/comments/user-order/:user_order_id --> apriori/api/controller.(*CommentController).FindByUserOrderId-fm (5 handlers)
-[GIN-debug] GET    /api/raja-ongkir/:place   --> apriori/api/controller.(*RajaOngkirController).FindAll-fm (5 handlers)
-[GIN-debug] POST   /api/raja-ongkir/cost     --> apriori/api/controller.(*RajaOngkirController).GetCost-fm (5 handlers)
+[GIN-debug] GET    /api/payments             --> apriori/app/controller.(*PaymentController).FindAll-fm (5 handlers)
+[GIN-debug] GET    /api/payments/:order_id   --> apriori/app/controller.(*PaymentController).FindByOrderId-fm (5 handlers)
+[GIN-debug] PATCH  /api/payments/:order_id   --> apriori/app/controller.(*PaymentController).UpdateReceiptNumber-fm (5 handlers)
+[GIN-debug] POST   /api/payments/pay         --> apriori/app/controller.(*PaymentController).Pay-fm (4 handlers)
+[GIN-debug] POST   /api/payments/notification --> apriori/app/controller.(*PaymentController).Notification-fm (4 handlers)
+[GIN-debug] DELETE /api/payments/:order_id   --> apriori/app/controller.(*PaymentController).Delete-fm (4 handlers)
+[GIN-debug] GET    /api/auth/token           --> apriori/app/controller.(*AuthController).Token-fm (6 handlers)
+[GIN-debug] POST   /api/auth/login           --> apriori/app/controller.(*AuthController).Login-fm (5 handlers)
+[GIN-debug] POST   /api/auth/refresh         --> apriori/app/controller.(*AuthController).Refresh-fm (5 handlers)
+[GIN-debug] POST   /api/auth/forgot-password --> apriori/app/controller.(*AuthController).ForgotPassword-fm (5 handlers)
+[GIN-debug] POST   /api/auth/verify          --> apriori/app/controller.(*AuthController).VerifyResetPassword-fm (5 handlers)
+[GIN-debug] POST   /api/auth/register        --> apriori/app/controller.(*AuthController).Register-fm (5 handlers)
+[GIN-debug] DELETE /api/auth/logout          --> apriori/app/controller.(*AuthController).Logout-fm (5 handlers)
+[GIN-debug] GET    /api/users                --> apriori/app/controller.(*UserController).FindAll-fm (6 handlers)
+[GIN-debug] GET    /api/users/:id            --> apriori/app/controller.(*UserController).FindById-fm (6 handlers)
+[GIN-debug] POST   /api/users                --> apriori/app/controller.(*UserController).Create-fm (6 handlers)
+[GIN-debug] PATCH  /api/users/:id            --> apriori/app/controller.(*UserController).Update-fm (6 handlers)
+[GIN-debug] DELETE /api/users/:id            --> apriori/app/controller.(*UserController).Delete-fm (6 handlers)
+[GIN-debug] GET    /api/profile              --> apriori/app/controller.(*UserController).Profile-fm (6 handlers)
+[GIN-debug] PATCH  /api/profile/update       --> apriori/app/controller.(*UserController).UpdateProfile-fm (6 handlers)
+[GIN-debug] GET    /api/products-admin       --> apriori/app/controller.(*ProductController).FindAllByAdmin-fm (6 handlers)
+[GIN-debug] POST   /api/products             --> apriori/app/controller.(*ProductController).Create-fm (6 handlers)
+[GIN-debug] PATCH  /api/products/:code       --> apriori/app/controller.(*ProductController).Update-fm (6 handlers)
+[GIN-debug] DELETE /api/products/:code       --> apriori/app/controller.(*ProductController).Delete-fm (6 handlers)
+[GIN-debug] GET    /api/products             --> apriori/app/controller.(*ProductController).FindAllByUser-fm (5 handlers)
+[GIN-debug] GET    /api/products/:code/category --> apriori/app/controller.(*ProductController).FindAllSimilarCategory-fm (5 handlers)
+[GIN-debug] GET    /api/products/:code/recommendation --> apriori/app/controller.(*ProductController).FindAllRecommendation-fm (5 handlers)
+[GIN-debug] GET    /api/products/:code       --> apriori/app/controller.(*ProductController).FindByCode-fm (5 handlers)
+[GIN-debug] GET    /api/transactions         --> apriori/app/controller.(*TransactionController).FindAll-fm (6 handlers)
+[GIN-debug] GET    /api/transactions/:number_transaction --> apriori/app/controller.(*TransactionController).FindByNoTransaction-fm (6 handlers)
+[GIN-debug] POST   /api/transactions         --> apriori/app/controller.(*TransactionController).Create-fm (6 handlers)
+[GIN-debug] POST   /api/transactions/csv     --> apriori/app/controller.(*TransactionController).CreateByCsv-fm (6 handlers)
+[GIN-debug] PATCH  /api/transactions/:number_transaction --> apriori/app/controller.(*TransactionController).Update-fm (6 handlers)
+[GIN-debug] DELETE /api/transactions/:number_transaction --> apriori/app/controller.(*TransactionController).Delete-fm (6 handlers)
+[GIN-debug] DELETE /api/transactions/truncate --> apriori/app/controller.(*TransactionController).Truncate-fm (6 handlers)
+[GIN-debug] PATCH  /api/apriori/:code        --> apriori/app/controller.(*AprioriController).UpdateStatus-fm (6 handlers)
+[GIN-debug] POST   /api/apriori              --> apriori/app/controller.(*AprioriController).Create-fm (6 handlers)
+[GIN-debug] DELETE /api/apriori/:code        --> apriori/app/controller.(*AprioriController).Delete-fm (6 handlers)
+[GIN-debug] PATCH  /api/apriori/:code/update/:id --> apriori/app/controller.(*AprioriController).Update-fm (6 handlers)
+[GIN-debug] POST   /api/apriori/generate     --> apriori/app/controller.(*AprioriController).Generate-fm (6 handlers)
+[GIN-debug] GET    /api/apriori              --> apriori/app/controller.(*AprioriController).FindAll-fm (5 handlers)
+[GIN-debug] GET    /api/apriori/:code        --> apriori/app/controller.(*AprioriController).FindAllByCode-fm (5 handlers)
+[GIN-debug] GET    /api/apriori/:code/detail/:id --> apriori/app/controller.(*AprioriController).FindByCodeAndId-fm (5 handlers)
+[GIN-debug] GET    /api/apriori/actives      --> apriori/app/controller.(*AprioriController).FindAllByActive-fm (5 handlers)
+[GIN-debug] GET    /api/user-order           --> apriori/app/controller.(*UserOrderController).FindAll-fm (6 handlers)
+[GIN-debug] GET    /api/user-order/user      --> apriori/app/controller.(*UserOrderController).FindAllByUserId-fm (6 handlers)
+[GIN-debug] GET    /api/user-order/:order_id --> apriori/app/controller.(*UserOrderController).FindAllById-fm (6 handlers)
+[GIN-debug] GET    /api/user-order/:order_id/single --> apriori/app/controller.(*UserOrderController).FindById-fm (6 handlers)
+[GIN-debug] GET    /api/categories/:id       --> apriori/app/controller.(*CategoryController).FindById-fm (6 handlers)
+[GIN-debug] POST   /api/categories           --> apriori/app/controller.(*CategoryController).Create-fm (6 handlers)
+[GIN-debug] PATCH  /api/categories/:id       --> apriori/app/controller.(*CategoryController).Update-fm (6 handlers)
+[GIN-debug] DELETE /api/categories/:id       --> apriori/app/controller.(*CategoryController).Delete-fm (6 handlers)
+[GIN-debug] GET    /api/categories           --> apriori/app/controller.(*CategoryController).FindAll-fm (5 handlers)
+[GIN-debug] POST   /api/comments             --> apriori/app/controller.(*CommentController).Create-fm (6 handlers)
+[GIN-debug] GET    /api/comments/:id         --> apriori/app/controller.(*CommentController).FindById-fm (5 handlers)
+[GIN-debug] GET    /api/comments/rating/:product_code --> apriori/app/controller.(*CommentController).FindAllRatingByProductCode-fm (5 handlers)
+[GIN-debug] GET    /api/comments/product/:product_code --> apriori/app/controller.(*CommentController).FindAllByProductCode-fm (5 handlers)
+[GIN-debug] GET    /api/comments/user-order/:user_order_id --> apriori/app/controller.(*CommentController).FindByUserOrderId-fm (5 handlers)
+[GIN-debug] GET    /api/raja-ongkir/:place   --> apriori/app/controller.(*RajaOngkirController).FindAll-fm (5 handlers)
+[GIN-debug] POST   /api/raja-ongkir/cost     --> apriori/app/controller.(*RajaOngkirController).GetCost-fm (5 handlers)
 [GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
 Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
 [GIN-debug] Listening and serving HTTP on :8080
+[GIN] 2022/08/29 - 10:57:27 | 204 |            0s |             ::1 | OPTIONS  "/api/products"
+[GIN] 2022/08/29 - 10:57:27 | 204 |            0s |             ::1 | OPTIONS  "/api/apriori/actives"
+[GIN] 2022/08/29 - 10:57:27 | 204 |            0s |             ::1 | OPTIONS  "/api/categories"
+[GIN] 2022/08/29 - 10:57:27 | 200 |       8.818ms |             ::1 | GET      "/api/products"
+[GIN] 2022/08/29 - 10:57:27 | 200 |      12.692ms |             ::1 | GET      "/api/categories"
+[GIN] 2022/08/29 - 10:57:27 | 200 |     28.6814ms |             ::1 | GET      "/api/apriori/actives"
+[GIN] 2022/08/29 - 10:57:31 | 200 |      3.0587ms |             ::1 | GET      "/api/apriori/actives"
+[GIN] 2022/08/29 - 10:57:31 | 200 |      4.5044ms |             ::1 | GET      "/api/categories"
+[GIN] 2022/08/29 - 10:57:31 | 200 |      6.4702ms |             ::1 | GET      "/api/products"
+[GIN] 2022/08/29 - 10:57:31 | 200 |      2.2883ms |             ::1 | GET      "/api/categories"
+[GIN] 2022/08/29 - 10:57:31 | 204 |            0s |             ::1 | OPTIONS  "/api/products/dEXGC/recommendation"
+[GIN] 2022/08/29 - 10:57:31 | 204 |            0s |             ::1 | OPTIONS  "/api/products/dEXGC"
+[GIN] 2022/08/29 - 10:57:31 | 204 |            0s |             ::1 | OPTIONS  "/api/products/dEXGC/category"
+[GIN] 2022/08/29 - 10:57:31 | 204 |            0s |             ::1 | OPTIONS  "/api/comments/product/dEXGC"
+[GIN] 2022/08/29 - 10:57:31 | 204 |            0s |             ::1 | OPTIONS  "/api/comments/rating/dEXGC"
+[GIN] 2022/08/29 - 10:57:31 | 200 |      6.0455ms |             ::1 | GET      "/api/products/dEXGC/recommendation"
+[GIN] 2022/08/29 - 10:57:31 | 200 |     10.3058ms |             ::1 | GET      "/api/products/dEXGC/category"
+[GIN] 2022/08/29 - 10:57:31 | 200 |     34.5466ms |             ::1 | GET      "/api/products/dEXGC"
+[GIN] 2022/08/29 - 10:57:31 | 200 |     36.4417ms |             ::1 | GET      "/api/comments/rating/dEXGC"
+[GIN] 2022/08/29 - 10:57:31 | 200 |     42.8548ms |             ::1 | GET      "/api/comments/product/dEXGC"
+[GIN] 2022/08/29 - 10:57:37 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/login"
+[GIN] 2022/08/29 - 10:57:37 | 200 |     56.6322ms |             ::1 | POST     "/api/auth/login"
+[GIN] 2022/08/29 - 10:57:38 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:38 | 204 |            0s |             ::1 | OPTIONS  "/api/profile"
+[GIN] 2022/08/29 - 10:57:38 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:38 | 200 |      4.8517ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/29 - 10:57:38 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:38 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:38 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:38 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:38 | 200 |      5.1964ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/29 - 10:57:38 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:38 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:38 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:38 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:38 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:38 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:38 | 200 |      5.3036ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/29 - 10:57:38 | 204 |            0s |             ::1 | OPTIONS  "/api/apriori/actives"
+[GIN] 2022/08/29 - 10:57:38 | 200 |      3.4853ms |             ::1 | GET      "/api/apriori/actives"
+[GIN] 2022/08/29 - 10:57:38 | 200 |         896µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:38 | 200 |       594.9µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:38 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:38 | 200 |       922.1µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:38 | 200 |      2.9984ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/29 - 10:57:39 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:39 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:39 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:39 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:39 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:39 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:39 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:39 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:39 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:39 | 200 |      4.3418ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/29 - 10:57:39 | 200 |      4.3453ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/29 - 10:57:39 | 200 |      3.2108ms |             ::1 | GET      "/api/apriori/actives"
+[GIN] 2022/08/29 - 10:57:39 | 200 |      4.1262ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/29 - 10:57:39 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:39 | 200 |      1.5178ms |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:39 | 200 |       176.2µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:39 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:39 | 200 |       3.573ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/29 - 10:57:39 | 200 |      1.1394ms |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:39 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:39 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:39 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:39 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:39 | 200 |      4.0617ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/29 - 10:57:40 | 200 |       519.7µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:40 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:40 | 200 |       506.6µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:40 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:40 | 200 |      4.2975ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/29 - 10:57:40 | 200 |       3.833ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/29 - 10:57:40 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:40 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:40 | 200 |      5.8254ms |             ::1 | GET      "/api/apriori/actives"
+[GIN] 2022/08/29 - 10:57:40 | 204 |            0s |             ::1 | OPTIONS  "/api/products"
+[GIN] 2022/08/29 - 10:57:40 | 204 |            0s |             ::1 | OPTIONS  "/api/categories"
+[GIN] 2022/08/29 - 10:57:40 | 200 |      4.0084ms |             ::1 | GET      "/api/categories"
+[GIN] 2022/08/29 - 10:57:40 | 200 |      5.6746ms |             ::1 | GET      "/api/products"
+[GIN] 2022/08/29 - 10:57:40 | 200 |       818.7µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:40 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:40 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:40 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:40 | 200 |      3.8311ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/29 - 10:57:40 | 200 |         760µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:40 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:40 | 200 |       131.6µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:40 | 200 |      1.0013ms |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:40 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:40 | 200 |       505.5µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:40 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:40 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:40 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:40 | 200 |      3.5632ms |             ::1 | GET      "/api/categories"
+[GIN] 2022/08/29 - 10:57:40 | 200 |      4.8038ms |             ::1 | GET      "/api/apriori/actives"
+[GIN] 2022/08/29 - 10:57:40 | 200 |      3.4467ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/29 - 10:57:40 | 200 |      5.8421ms |             ::1 | GET      "/api/products"
+[GIN] 2022/08/29 - 10:57:40 | 200 |      3.7599ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/29 - 10:57:41 | 200 |       623.6µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:41 | 200 |         709µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:41 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:41 | 200 |       293.9µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:41 | 200 |      3.4348ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/29 - 10:57:41 | 200 |       505.2µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:41 | 200 |       505.2µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:41 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:41 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:41 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:41 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:41 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:41 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:41 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:41 | 200 |      4.3407ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/29 - 10:57:41 | 200 |      3.4869ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/29 - 10:57:41 | 200 |      3.4869ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/29 - 10:57:41 | 200 |      3.5989ms |             ::1 | GET      "/api/apriori/actives"
+[GIN] 2022/08/29 - 10:57:42 | 200 |       581.6µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:42 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:42 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:42 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:42 | 200 |      3.2022ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/29 - 10:57:42 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:42 | 200 |      1.0265ms |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:42 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:42 | 200 |       508.2µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:42 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:42 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:42 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:42 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:42 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:42 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:42 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 10:57:42 | 200 |      3.7983ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/29 - 10:57:42 | 200 |      3.7983ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/29 - 10:57:42 | 200 |      3.7905ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/29 - 10:57:42 | 200 |      2.7251ms |             ::1 | GET      "/api/apriori/actives"
+[GIN] 2022/08/29 - 10:57:42 | 200 |      3.8611ms |             ::1 | GET      "/api/categories"
+[GIN] 2022/08/29 - 10:57:42 | 200 |      5.4633ms |             ::1 | GET      "/api/products"
+[GIN] 2022/08/29 - 11:00:36 | 204 |       504.9µs |             ::1 | OPTIONS  "/api/profile"
+[GIN] 2022/08/29 - 11:00:36 | 204 |       504.9µs |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/29 - 11:00:36 | 204 |       504.9µs |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/29 - 11:00:36 | 204 |            0s |             ::1 | OPTIONS  "/api/auth/token"
+[GIN] 2022/08/29 - 11:00:36 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 11:00:36 | 200 |       506.2µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 11:00:36 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 11:00:36 | 200 |       335.6µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 11:00:36 | 200 |      3.7431ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/29 - 11:00:36 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 11:00:36 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 11:00:36 | 200 |       711.1µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 11:00:36 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 11:00:36 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 11:00:36 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 11:00:36 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 11:00:36 | 200 |       164.4µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 11:00:36 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 11:00:36 | 200 |       957.2µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 11:00:36 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 11:00:36 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 11:00:36 | 200 |       382.3µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 11:00:36 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 11:00:36 | 200 |      4.1581ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/29 - 11:00:36 | 200 |       507.5µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 11:00:36 | 200 |            0s |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 11:00:36 | 200 |       3.967ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/29 - 11:00:36 | 200 |      3.6969ms |             ::1 | GET      "/api/profile"
+[GIN] 2022/08/29 - 11:00:36 | 200 |       900.2µs |             ::1 | GET      "/api/auth/token"
+[GIN] 2022/08/29 - 11:00:36 | 204 |            0s |             ::1 | OPTIONS  "/api/categories"
+[GIN] 2022/08/29 - 11:00:36 | 204 |            0s |             ::1 | OPTIONS  "/api/products/WNNpV"
+[GIN] 2022/08/29 - 11:00:36 | 204 |            0s |             ::1 | OPTIONS  "/api/products/WNNpV/recommendation"
+[GIN] 2022/08/29 - 11:00:36 | 204 |            0s |             ::1 | OPTIONS  "/api/products/WNNpV/category"
+[GIN] 2022/08/29 - 11:00:36 | 204 |            0s |             ::1 | OPTIONS  "/api/products"
+[GIN] 2022/08/29 - 11:00:36 | 204 |            0s |             ::1 | OPTIONS  "/api/comments/product/WNNpV"
+[GIN] 2022/08/29 - 11:00:36 | 204 |            0s |             ::1 | OPTIONS  "/api/apriori/actives"
+[GIN] 2022/08/29 - 11:00:36 | 204 |            0s |             ::1 | OPTIONS  "/api/categories"
+[GIN] 2022/08/29 - 11:00:36 | 204 |            0s |             ::1 | OPTIONS  "/api/comments/rating/WNNpV"
+[GIN] 2022/08/29 - 11:00:36 | 200 |      4.1163ms |             ::1 | GET      "/api/categories"
+[GIN] 2022/08/29 - 11:00:36 | 200 |       4.668ms |             ::1 | GET      "/api/products/WNNpV/recommendation"
+[GIN] 2022/08/29 - 11:00:36 | 200 |      6.4703ms |             ::1 | GET      "/api/products/WNNpV/category"
+[GIN] 2022/08/29 - 11:00:36 | 200 |      5.8387ms |             ::1 | GET      "/api/products"
+[GIN] 2022/08/29 - 11:00:36 | 200 |      3.0324ms |             ::1 | GET      "/api/apriori/actives"
+[GIN] 2022/08/29 - 11:00:36 | 200 |       9.721ms |             ::1 | GET      "/api/comments/product/WNNpV"
+[GIN] 2022/08/29 - 11:00:36 | 200 |      7.0981ms |             ::1 | GET      "/api/categories"
+[GIN] 2022/08/29 - 11:00:36 | 200 |       12.26ms |             ::1 | GET      "/api/products/WNNpV"
+[GIN] 2022/08/29 - 11:00:36 | 200 |      5.6571ms |             ::1 | GET      "/api/comments/rating/WNNpV"

@@ -57,7 +57,7 @@ var _ = Describe("Product API", func() {
 
 		// Login
 		requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
-		request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
+		request := httptest.NewRequest(http.MethodPost, "/app/auth/login", requestBody)
 		request.Header.Add("Content-Type", "application/json")
 		request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
@@ -106,7 +106,7 @@ var _ = Describe("Product API", func() {
 						"price":       7000,
 					}
 					bodyOne, _ := json.Marshal(requestBody)
-					request := httptest.NewRequest(http.MethodPost, "/api/products", bytes.NewBuffer(bodyOne))
+					request := httptest.NewRequest(http.MethodPost, "/app/products", bytes.NewBuffer(bodyOne))
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 					request.AddCookie(cookie)
@@ -130,7 +130,7 @@ var _ = Describe("Product API", func() {
 			It("should return error not found", func() {
 				// Update Product
 				requestBody := strings.NewReader(`{"code": "SK1","name": "Bantal Biasa","description": "Test","category": "Bantal, Kasur","mass":1000}`)
-				request := httptest.NewRequest(http.MethodPatch, "/api/products/SK1", requestBody)
+				request := httptest.NewRequest(http.MethodPatch, "/app/products/SK1", requestBody)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
@@ -167,7 +167,7 @@ var _ = Describe("Product API", func() {
 
 					// Update Product
 					requestBody := strings.NewReader(`{"code": "SK1","name": "Guling Doti","description": "Test Bang","category": "Bantal, Kasur","mass":1000}`)
-					request := httptest.NewRequest(http.MethodPatch, "/api/products/"+row.Code, requestBody)
+					request := httptest.NewRequest(http.MethodPatch, "/app/products/"+row.Code, requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 					request.AddCookie(cookie)
@@ -195,7 +195,7 @@ var _ = Describe("Product API", func() {
 		When("product is not found", func() {
 			It("should return error not found", func() {
 				// Delete Product
-				request := httptest.NewRequest(http.MethodDelete, "/api/products/SK9", nil)
+				request := httptest.NewRequest(http.MethodDelete, "/app/products/SK9", nil)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
@@ -230,7 +230,7 @@ var _ = Describe("Product API", func() {
 				_ = tx.Commit()
 
 				// Delete Product
-				request := httptest.NewRequest(http.MethodDelete, "/api/products/"+row.Code, nil)
+				request := httptest.NewRequest(http.MethodDelete, "/app/products/"+row.Code, nil)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
@@ -256,7 +256,7 @@ var _ = Describe("Product API", func() {
 		When("the product is not present", func() {
 			It("should return a successful but the data is null", func() {
 				// Find All Product
-				request := httptest.NewRequest(http.MethodGet, "/api/products", nil)
+				request := httptest.NewRequest(http.MethodGet, "/app/products", nil)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
@@ -302,7 +302,7 @@ var _ = Describe("Product API", func() {
 				_ = tx.Commit()
 
 				// Find All Products
-				request := httptest.NewRequest(http.MethodGet, "/api/products", nil)
+				request := httptest.NewRequest(http.MethodGet, "/app/products", nil)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
@@ -339,7 +339,7 @@ var _ = Describe("Product API", func() {
 		When("product is not found", func() {
 			It("should return error not found", func() {
 				// Find By Code Product
-				request := httptest.NewRequest(http.MethodGet, "/api/products/SK5", nil)
+				request := httptest.NewRequest(http.MethodGet, "/app/products/SK5", nil)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
@@ -375,7 +375,7 @@ var _ = Describe("Product API", func() {
 				_ = tx.Commit()
 
 				// Find By Code Product
-				request := httptest.NewRequest(http.MethodGet, "/api/products/"+row.Code, nil)
+				request := httptest.NewRequest(http.MethodGet, "/app/products/"+row.Code, nil)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)

@@ -1,8 +1,8 @@
 package route
 
 import (
-	"apriori/api/controller"
-	"apriori/api/middleware"
+	"apriori/app/controller"
+	"apriori/app/middleware"
 	"apriori/config"
 	repository "apriori/repository/postgres"
 	"apriori/service"

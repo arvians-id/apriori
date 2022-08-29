@@ -1,7 +1,7 @@
 package controller
 
 import (
-	"apriori/api/response"
+	"apriori/app/response"
 	"apriori/helper"
 	"encoding/json"
 	"fmt"

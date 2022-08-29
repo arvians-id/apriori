@@ -52,7 +52,7 @@ var _ = Describe("Auth API", func() {
 			When("the email field is incorrect", func() {
 				It("should return error required", func() {
 					requestBody := strings.NewReader(`{"password":"Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
+					request := httptest.NewRequest(http.MethodPost, "/app/auth/login", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
@@ -71,7 +71,7 @@ var _ = Describe("Auth API", func() {
 				})
 				It("should return error the email must be valid email", func() {
 					requestBody := strings.NewReader(`{"email":"Widdys","password":"Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
+					request := httptest.NewRequest(http.MethodPost, "/app/auth/login", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
@@ -92,7 +92,7 @@ var _ = Describe("Auth API", func() {
 			When("the email is not found", func() {
 				It("should return error not found", func() {
 					requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
+					request := httptest.NewRequest(http.MethodPost, "/app/auth/login", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
@@ -112,7 +112,7 @@ var _ = Describe("Auth API", func() {
 			When("the password field is incorrect", func() {
 				It("should return error required", func() {
 					requestBody := strings.NewReader(`{"email": "widdy@gmail.com"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
+					request := httptest.NewRequest(http.MethodPost, "/app/auth/login", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
@@ -147,7 +147,7 @@ var _ = Describe("Auth API", func() {
 
 					// Login
 					requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Raha123"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
+					request := httptest.NewRequest(http.MethodPost, "/app/auth/login", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
@@ -184,7 +184,7 @@ var _ = Describe("Auth API", func() {
 
 				// Login
 				requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
-				request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
+				request := httptest.NewRequest(http.MethodPost, "/app/auth/login", requestBody)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
@@ -209,7 +209,7 @@ var _ = Describe("Auth API", func() {
 		When("the refresh token is incorrect", func() {
 			It("should return error invalid token", func() {
 				requestBody := strings.NewReader(`{"refresh_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZF91c2VyIjoxLCJleHAiOjE2NTM5MjI1MTJ9.6xJ4ZQdem4ZoWPBuZctJTMKNOkqE93Ea0ncKovpqN44"}`)
-				request := httptest.NewRequest(http.MethodPost, "/api/auth/refresh", requestBody)
+				request := httptest.NewRequest(http.MethodPost, "/app/auth/refresh", requestBody)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
@@ -243,7 +243,7 @@ var _ = Describe("Auth API", func() {
 
 				// Login
 				requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
-				request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
+				request := httptest.NewRequest(http.MethodPost, "/app/auth/login", requestBody)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
@@ -260,7 +260,7 @@ var _ = Describe("Auth API", func() {
 				signature := responseBody["data"].(map[string]interface{})["refresh_token"].(string)
 				sign := fmt.Sprintf(`{"refresh_token": "%s"}`, signature)
 				requestBody = strings.NewReader(sign)
-				request = httptest.NewRequest(http.MethodPost, "/api/auth/refresh", requestBody)
+				request = httptest.NewRequest(http.MethodPost, "/app/auth/refresh", requestBody)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
@@ -298,7 +298,7 @@ var _ = Describe("Auth API", func() {
 
 				// Login
 				requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
-				request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
+				request := httptest.NewRequest(http.MethodPost, "/app/auth/login", requestBody)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
@@ -311,7 +311,7 @@ var _ = Describe("Auth API", func() {
 				Expect(cookies[0].Value).ShouldNot(BeNil())
 
 				// Logout
-				request = httptest.NewRequest(http.MethodDelete, "/api/auth/logout", nil)
+				request = httptest.NewRequest(http.MethodDelete, "/app/auth/logout", nil)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
@@ -338,7 +338,7 @@ var _ = Describe("Auth API", func() {
 		When("the email field is incorrect", func() {
 			It("should return error required", func() {
 				requestBody := strings.NewReader(`{}`)
-				request := httptest.NewRequest(http.MethodPost, "/api/auth/forgot-password", requestBody)
+				request := httptest.NewRequest(http.MethodPost, "/app/auth/forgot-password", requestBody)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
@@ -358,7 +358,7 @@ var _ = Describe("Auth API", func() {
 
 			It("should return error the email must be valid email", func() {
 				requestBody := strings.NewReader(`{"email": "Widdys"}`)
-				request := httptest.NewRequest(http.MethodPost, "/api/auth/forgot-password", requestBody)
+				request := httptest.NewRequest(http.MethodPost, "/app/auth/forgot-password", requestBody)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
@@ -394,7 +394,7 @@ var _ = Describe("Auth API", func() {
 
 				// Send forgot password
 				requestBody := strings.NewReader(`{"email": "widdy@gmail.com"}`)
-				request := httptest.NewRequest(http.MethodPost, "/api/auth/forgot-password", requestBody)
+				request := httptest.NewRequest(http.MethodPost, "/app/auth/forgot-password", requestBody)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
@@ -419,7 +419,7 @@ var _ = Describe("Auth API", func() {
 			When("the email field is incorrect", func() {
 				It("should return error required", func() {
 					requestBody := strings.NewReader(`{"password": "Widdy123"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/auth/verify", requestBody)
+					request := httptest.NewRequest(http.MethodPost, "/app/auth/verify", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
@@ -439,7 +439,7 @@ var _ = Describe("Auth API", func() {
 
 				It("should return error the email must be valid email", func() {
 					requestBody := strings.NewReader(`{"email": "widdyarfiansyah","password": "Widdy123"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/auth/verify", requestBody)
+					request := httptest.NewRequest(http.MethodPost, "/app/auth/verify", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
@@ -461,7 +461,7 @@ var _ = Describe("Auth API", func() {
 			When("the password field is incorrect", func() {
 				It("should return error required", func() {
 					requestBody := strings.NewReader(`{"email": "widdyarfiansyah@ummi.ac.id"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/auth/verify", requestBody)
+					request := httptest.NewRequest(http.MethodPost, "/app/auth/verify", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
@@ -481,7 +481,7 @@ var _ = Describe("Auth API", func() {
 
 				It("should return error less character of length", func() {
 					requestBody := strings.NewReader(`{"email": "widdyarfiansyah@ummi.ac.id","password": "Wi"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/auth/verify", requestBody)
+					request := httptest.NewRequest(http.MethodPost, "/app/auth/verify", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
@@ -504,7 +504,7 @@ var _ = Describe("Auth API", func() {
 				It("should return error invalid credentials", func() {
 					// Create user first
 					requestBody := strings.NewReader(`{"name": "Widdy","email": "widdy@gmail.com","password": "Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/auth/verify", requestBody)
+					request := httptest.NewRequest(http.MethodPost, "/app/auth/verify", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
@@ -513,7 +513,7 @@ var _ = Describe("Auth API", func() {
 
 					// Send forgot password
 					requestBody = strings.NewReader(`{"email": "widdy@gmail.com"}`)
-					request = httptest.NewRequest(http.MethodPost, "/api/auth/forgot-password", requestBody)
+					request = httptest.NewRequest(http.MethodPost, "/app/auth/forgot-password", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
@@ -522,7 +522,7 @@ var _ = Describe("Auth API", func() {
 
 					// Verify password
 					requestBody = strings.NewReader(`{"email": "widdy@gmail.com","password": "Widdy123"}`)
-					request = httptest.NewRequest(http.MethodPost, "/api/auth/verify?signature=asdsa23sda", requestBody)
+					request = httptest.NewRequest(http.MethodPost, "/app/auth/verify?signature=asdsa23sda", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
@@ -558,7 +558,7 @@ var _ = Describe("Auth API", func() {
 
 				// Send forgot password
 				requestBody := strings.NewReader(`{"email": "widdy@gmail.com"}`)
-				request := httptest.NewRequest(http.MethodPost, "/api/auth/forgot-password", requestBody)
+				request := httptest.NewRequest(http.MethodPost, "/app/auth/forgot-password", requestBody)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
@@ -573,7 +573,7 @@ var _ = Describe("Auth API", func() {
 				// Verify password
 				signature := responseBody["data"].(map[string]interface{})["signature"].(string)
 				requestBody = strings.NewReader(`{"email": "widdy@gmail.com","password": "Widdy123"}`)
-				request = httptest.NewRequest(http.MethodPost, "/api/auth/verify?signature="+signature, requestBody)
+				request = httptest.NewRequest(http.MethodPost, "/app/auth/verify?signature="+signature, requestBody)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
@@ -596,7 +596,7 @@ var _ = Describe("Auth API", func() {
 			When("the name field is incorrect", func() {
 				It("should return error required", func() {
 					requestBody := strings.NewReader(`{"email": "widdy@gmail.com","address":"nganjok","phone":"082299","password": "Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/auth/register", requestBody)
+					request := httptest.NewRequest(http.MethodPost, "/app/auth/register", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
@@ -616,7 +616,7 @@ var _ = Describe("Auth API", func() {
 
 				It("should return error exceeds the limit character", func() {
 					requestBody := strings.NewReader(`{"name":"asdasdsdsasdsfsdsassssssssssd","email": "widdy@gmail.com","address":"nganjok","phone":"082299","password": "Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/auth/register", requestBody)
+					request := httptest.NewRequest(http.MethodPost, "/app/auth/register", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
@@ -638,7 +638,7 @@ var _ = Describe("Auth API", func() {
 			When("the email field is incorrect", func() {
 				It("should return error required", func() {
 					requestBody := strings.NewReader(`{"name": "Widdy","address":"nganjok","phone":"082299","password": "Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/auth/register", requestBody)
+					request := httptest.NewRequest(http.MethodPost, "/app/auth/register", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
@@ -658,7 +658,7 @@ var _ = Describe("Auth API", func() {
 
 				It("should return error the email must be valid email", func() {
 					requestBody := strings.NewReader(`{"name":"Widdy","email":"Widdys","address":"nganjok","phone":"082299","password":"Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/auth/register", requestBody)
+					request := httptest.NewRequest(http.MethodPost, "/app/auth/register", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
@@ -679,7 +679,7 @@ var _ = Describe("Auth API", func() {
 				It("should return error duplicate email", func() {
 					// First register
 					requestBody := strings.NewReader(`{"name": "Widdy","email": "widdy@gmail.com","password": "Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/auth/register", requestBody)
+					request := httptest.NewRequest(http.MethodPost, "/app/auth/register", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
@@ -688,7 +688,7 @@ var _ = Describe("Auth API", func() {
 
 					// Second register with the same email
 					requestBody = strings.NewReader(`{"name": "Widdy","email": "widdy@gmail.com","password": "Rahasia123"}`)
-					request = httptest.NewRequest(http.MethodPost, "/api/auth/register", requestBody)
+					request = httptest.NewRequest(http.MethodPost, "/app/auth/register", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
@@ -706,7 +706,7 @@ var _ = Describe("Auth API", func() {
 
 				It("should return error exceeds the limit character", func() {
 					requestBody := strings.NewReader(`{"name":"wids","email": "sssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssssddddddddddddddddddddddddddddddddddddddd@gmail.com","address":"nganjok","phone":"082299","password": "Rahasia123"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/auth/register", requestBody)
+					request := httptest.NewRequest(http.MethodPost, "/app/auth/register", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
@@ -728,7 +728,7 @@ var _ = Describe("Auth API", func() {
 			When("the password field is incorrect", func() {
 				It("should return error required", func() {
 					requestBody := strings.NewReader(`{"name":"Widdy","email":"widdy@gmail.com","address":"nganjok","phone":"082299"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/auth/register", requestBody)
+					request := httptest.NewRequest(http.MethodPost, "/app/auth/register", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
@@ -748,7 +748,7 @@ var _ = Describe("Auth API", func() {
 
 				It("should return error less character of length", func() {
 					requestBody := strings.NewReader(`{"name":"Widdy","email":"widdy@gmail.com","address":"nganjok","phone":"082299","password":"as"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/auth/register", requestBody)
+					request := httptest.NewRequest(http.MethodPost, "/app/auth/register", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
@@ -771,7 +771,7 @@ var _ = Describe("Auth API", func() {
 		When("the fields are correct", func() {
 			It("should return a successful register response", func() {
 				requestBody := strings.NewReader(`{"name": "Widdy","email": "widdy@gmail.com","address":"nganjok","phone":"082299","password": "Rahasia123"}`)
-				request := httptest.NewRequest(http.MethodPost, "/api/auth/register", requestBody)
+				request := httptest.NewRequest(http.MethodPost, "/app/auth/register", requestBody)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 

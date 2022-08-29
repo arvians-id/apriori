@@ -55,7 +55,7 @@ var _ = Describe("Transaction API", func() {
 
 		// Login
 		requestBody := strings.NewReader(`{"email": "widdy@gmail.com","password":"Rahasia123"}`)
-		request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
+		request := httptest.NewRequest(http.MethodPost, "/app/auth/login", requestBody)
 		request.Header.Add("Content-Type", "application/json")
 		request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 
@@ -96,7 +96,7 @@ var _ = Describe("Transaction API", func() {
 				It("should return error required", func() {
 					// Create Transaction
 					requestBody := strings.NewReader(`{"customer_name": "Wids"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/transactions", requestBody)
+					request := httptest.NewRequest(http.MethodPost, "/app/transactions", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 					request.AddCookie(cookie)
@@ -121,7 +121,7 @@ var _ = Describe("Transaction API", func() {
 				It("should return error required", func() {
 					// Create Transaction
 					requestBody := strings.NewReader(`{"product_name": "Kasur cinta, Bantal memori"}`)
-					request := httptest.NewRequest(http.MethodPost, "/api/transactions", requestBody)
+					request := httptest.NewRequest(http.MethodPost, "/app/transactions", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 					request.AddCookie(cookie)
@@ -147,7 +147,7 @@ var _ = Describe("Transaction API", func() {
 			It("should return successful create transaction response", func() {
 				// Create Transaction
 				requestBody := strings.NewReader(`{"product_name": "Kasur cinta, Bantal memori","customer_name": "Wids"}`)
-				request := httptest.NewRequest(http.MethodPost, "/api/transactions", requestBody)
+				request := httptest.NewRequest(http.MethodPost, "/app/transactions", requestBody)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
@@ -183,7 +183,7 @@ var _ = Describe("Transaction API", func() {
 	//			writer.Close()
 	//
 	//			// Create Transaction
-	//			request := httptest.NewRequest(http.MethodPost, "/api/transactions/csv", body)
+	//			request := httptest.NewRequest(http.MethodPost, "/app/transactions/csv", body)
 	//			request.Header.Add("Content-Type", writer.FormDataContentType())
 	//			request.AddCookie(cookie)
 	//			request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
@@ -223,7 +223,7 @@ var _ = Describe("Transaction API", func() {
 
 					// Update Transaction
 					requestBody := strings.NewReader(`{"customer_name": "Wids"}`)
-					request := httptest.NewRequest(http.MethodPatch, "/api/transactions/"+row.NoTransaction, requestBody)
+					request := httptest.NewRequest(http.MethodPatch, "/app/transactions/"+row.NoTransaction, requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 					request.AddCookie(cookie)
@@ -260,7 +260,7 @@ var _ = Describe("Transaction API", func() {
 
 					// Update Transaction
 					requestBody := strings.NewReader(`{"product_name": "Kasur cinta, Bantal memori"}`)
-					request := httptest.NewRequest(http.MethodPatch, "/api/transactions/"+row.NoTransaction, requestBody)
+					request := httptest.NewRequest(http.MethodPatch, "/app/transactions/"+row.NoTransaction, requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 					request.AddCookie(cookie)
@@ -298,7 +298,7 @@ var _ = Describe("Transaction API", func() {
 
 				// Update Transaction
 				requestBody := strings.NewReader(`{"product_name": "Guling cinta, Guling memori","customer_name": "Goengs"}`)
-				request := httptest.NewRequest(http.MethodPatch, "/api/transactions/"+row.NoTransaction, requestBody)
+				request := httptest.NewRequest(http.MethodPatch, "/app/transactions/"+row.NoTransaction, requestBody)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
@@ -325,7 +325,7 @@ var _ = Describe("Transaction API", func() {
 		When("transaction is not found", func() {
 			It("should return error not found", func() {
 				// Delete Transaction
-				request := httptest.NewRequest(http.MethodDelete, "/api/transactions/32412", nil)
+				request := httptest.NewRequest(http.MethodDelete, "/app/transactions/32412", nil)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
@@ -360,7 +360,7 @@ var _ = Describe("Transaction API", func() {
 				_ = tx.Commit()
 
 				// Delete Transaction
-				request := httptest.NewRequest(http.MethodDelete, "/api/transactions/"+row.NoTransaction, nil)
+				request := httptest.NewRequest(http.MethodDelete, "/app/transactions/"+row.NoTransaction, nil)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
@@ -386,7 +386,7 @@ var _ = Describe("Transaction API", func() {
 		When("the transaction is not present", func() {
 			It("should return a successful but the data is null", func() {
 				// Find All Transaction
-				request := httptest.NewRequest(http.MethodGet, "/api/transactions", nil)
+				request := httptest.NewRequest(http.MethodGet, "/app/transactions", nil)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
@@ -426,7 +426,7 @@ var _ = Describe("Transaction API", func() {
 				_ = tx.Commit()
 
 				// Find All Transaction
-				request := httptest.NewRequest(http.MethodGet, "/api/transactions", nil)
+				request := httptest.NewRequest(http.MethodGet, "/app/transactions", nil)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
@@ -463,7 +463,7 @@ var _ = Describe("Transaction API", func() {
 		When("transaction is not found", func() {
 			It("should return error not found", func() {
 				// Find By No Transaction
-				request := httptest.NewRequest(http.MethodGet, "/api/transactions/52324", nil)
+				request := httptest.NewRequest(http.MethodGet, "/app/transactions/52324", nil)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
@@ -497,7 +497,7 @@ var _ = Describe("Transaction API", func() {
 				_ = tx.Commit()
 
 				// Find By No Transaction
-				request := httptest.NewRequest(http.MethodGet, "/api/transactions/"+row.NoTransaction, nil)
+				request := httptest.NewRequest(http.MethodGet, "/app/transactions/"+row.NoTransaction, nil)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
@@ -523,7 +523,7 @@ var _ = Describe("Transaction API", func() {
 	Describe("Access Transaction Endpoint", func() {
 		When("the user is not logged in", func() {
 			It("should return error unauthorized response", func() {
-				request := httptest.NewRequest(http.MethodGet, "/api/transactions", nil)
+				request := httptest.NewRequest(http.MethodGet, "/app/transactions", nil)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 

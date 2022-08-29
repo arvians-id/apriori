@@ -1,8 +1,8 @@
 package controller
 
 import (
-	"apriori/api/middleware"
-	"apriori/api/response"
+	"apriori/app/middleware"
+	"apriori/app/response"
 	"apriori/helper"
 	"apriori/model"
 	"apriori/service"
