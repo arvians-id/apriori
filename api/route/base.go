@@ -64,7 +64,7 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	rajaOngkirController := controller.NewRajaOngkirController()
 
 	// CORS Middleware
-	router.Use(middleware.SetupCorsMiddleware(), middleware.SetupLoggerMiddleware())
+	router.Use(middleware.SetupCorsMiddleware())
 
 	// Main Route
 	router.GET("/", func(c *gin.Context) {
