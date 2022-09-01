@@ -36,6 +36,7 @@ type PasswordResetRepository interface {
 	Create(ctx context.Context, tx *sql.Tx, passwordReset *entity.PasswordReset) (*entity.PasswordReset, error)
 	Update(ctx context.Context, tx *sql.Tx, passwordReset *entity.PasswordReset) (*entity.PasswordReset, error)
 	Delete(ctx context.Context, tx *sql.Tx, email string) error
+	Truncate(ctx context.Context, tx *sql.Tx) error
 }
 
 type PaymentRepository interface {

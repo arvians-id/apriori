@@ -69,3 +69,13 @@ func (repository *PasswordResetRepositoryImpl) Delete(ctx context.Context, tx *s
 
 	return nil
 }
+
+func (repository *PasswordResetRepositoryImpl) Truncate(ctx context.Context, tx *sql.Tx) error {
+	query := `DELETE FROM password_resets`
+	_, err := tx.ExecContext(ctx, query)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

@@ -19,7 +19,7 @@ at the same time giving discounts on large datasets using an Apriori Algorithm.
 ## Preview
 
 - [Preview Website](http://apriori-frontend.herokuapp.com)
-- [Preview API](http://18.139.84.176:8080)
+- [Preview API](http://18.139.84.176:8080) (Under Maintenance)
 
 ## Authors
 

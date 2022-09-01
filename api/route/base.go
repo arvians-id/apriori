@@ -13,6 +13,15 @@ import (
 	"os"
 )
 
+func NewInitializedDatabase(configuration config.Config) (*sql.DB, error) {
+	db, err := config.NewPostgreSQL(configuration)
+	if err != nil {
+		return nil, err
+	}
+
+	return db, nil
+}
+
 func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	// Write log to file
 	f, _ := os.Create("gin.log")
@@ -20,7 +29,9 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 
 	// Setup Configuration
 	router := gin.Default()
-	db, err := config.NewPostgreSQL(configuration)
+
+	// Setup Database
+	db, err := NewInitializedDatabase(configuration)
 	if err != nil {
 		log.Fatal(err)
 	}
