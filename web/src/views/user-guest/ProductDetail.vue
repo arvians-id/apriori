@@ -17,7 +17,7 @@
               <div v-if="isLoading">
                 <div class="loading-skeleton row d-flex justify-content-center">
                   <div class="col-12 col-lg-3 mb-2">
-                    <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/no-image.png" class="img-fluid mb-2">
+                    <img src="https://my-apriori-bucket.s3.ap-southeast-1.amazonaws.com/assets/no-image.png" class="img-fluid mb-2">
                     <div class="border p-3 rounded text-center" style="color: #525f7f">
                       <p class="mb-0">Atur jumlah yang pembelian</p>
                       <div class="mt-2">
@@ -74,7 +74,7 @@
                               <p>Description</p>
                               <hr class="m-0 mb-3">
                               <div class="media">
-                                <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/ryzy.jpg" width="59" class="mr-3" alt="...">
+                                <img src="https://my-apriori-bucket.s3.ap-southeast-1.amazonaws.com/assets/ryzy.jpg" width="59" class="mr-3" alt="...">
                                 <div class="media-body">
                                   <p class="mt-0 mb-0 w-50 mb-1">Title</p>
                                   <p>Description</p>
@@ -92,7 +92,7 @@
                         <div class="card-body">
                           <h3 class="card-title text-uppercase">Penilaian Produk</h3>
                           <div class="media" v-for="item in 5" :key="item">
-                            <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/ryzy.jpg" width="59" class="mr-3" alt="...">
+                            <img src="https://my-apriori-bucket.s3.ap-southeast-1.amazonaws.com/assets/ryzy.jpg" width="59" class="mr-3" alt="...">
                             <div class="media-body">
                               <p class="mt-0 mb-0 w-50 mb-1">Title</p>
                               <p class="py-5">Description</p>
@@ -221,7 +221,7 @@
                               <p>{{ product.description == "" ? "Tidak ada deskripsi" : product.description }}</p>
                               <hr class="m-0 mb-3">
                               <div class="media">
-                                <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/ryzy.jpg" width="53" class="mr-3" alt="...">
+                                <img src="https://my-apriori-bucket.s3.ap-southeast-1.amazonaws.com/assets/ryzy.jpg" width="53" class="mr-3" alt="...">
                                 <div class="media-body">
                                   <h3 class="mt-0 mb-0">Toko Ryzy Olshop</h3>
                                   <p>Produk Original Berkualitas dan Terpercaya..</p>
@@ -247,7 +247,7 @@
                         <h3 class="card-title text-uppercase">Penilaian Produk</h3>
                         <ul class="list-unstyled" v-if="comments.length > 0">
                           <li class="media my-4" style="border-bottom: 1px solid #e9ecef" v-for="item in comments" :key="item.id_comment">
-                            <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/user.png" width="53" class="mr-3" alt="...">
+                            <img src="https://my-apriori-bucket.s3.ap-southeast-1.amazonaws.com/assets/user.png" width="53" class="mr-3" alt="...">
                             <div class="media-body">
                               <h4 class="mt-0 mb-0">{{ item.user_name }}</h4>
                               <small>{{ item.created_at }}</small>

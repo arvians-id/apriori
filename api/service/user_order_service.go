@@ -43,7 +43,7 @@ func (service *UserOrderServiceImpl) FindAllByPayloadId(ctx context.Context, pay
 
 	var userOrderResponses []*model.GetUserOrderResponse
 	for _, userOrder := range userOrders {
-		userOrderResponses = append(userOrderResponses, helper.ToUserOrderResponse(userOrder))
+		userOrderResponses = append(userOrderResponses, userOrder.ToUserOrderResponse())
 	}
 
 	return userOrderResponses, nil
@@ -68,7 +68,7 @@ func (service *UserOrderServiceImpl) FindAllByUserId(ctx context.Context, userId
 
 	var userOrderResponses []*model.GetUserOrderRelationByUserIdResponse
 	for _, userOrder := range userOrders {
-		userOrderResponses = append(userOrderResponses, helper.ToUserOrderRelationByUserIdResponse(userOrder))
+		userOrderResponses = append(userOrderResponses, userOrder.ToUserOrderRelationByUserIdResponse())
 	}
 
 	return userOrderResponses, nil
@@ -86,5 +86,5 @@ func (service *UserOrderServiceImpl) FindById(ctx context.Context, id int) (*mod
 		return &model.GetUserOrderResponse{}, err
 	}
 
-	return helper.ToUserOrderResponse(userOrderResponse), nil
+	return userOrderResponse.ToUserOrderResponse(), nil
 }

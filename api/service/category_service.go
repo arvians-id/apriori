@@ -36,7 +36,7 @@ func (service *CategoryServiceImpl) FindAll(ctx context.Context) ([]*model.GetCa
 
 	var categoryResponses []*model.GetCategoryResponse
 	for _, category := range categories {
-		categoryResponses = append(categoryResponses, helper.ToCategoryResponse(category))
+		categoryResponses = append(categoryResponses, category.ToCategoryResponse())
 	}
 
 	return categoryResponses, nil
@@ -54,7 +54,7 @@ func (service *CategoryServiceImpl) FindById(ctx context.Context, id int) (*mode
 		return &model.GetCategoryResponse{}, err
 	}
 
-	return helper.ToCategoryResponse(categoryResponse), nil
+	return categoryResponse.ToCategoryResponse(), nil
 }
 
 func (service *CategoryServiceImpl) Create(ctx context.Context, request *model.CreateCategoryRequest) (*model.GetCategoryResponse, error) {
@@ -80,7 +80,7 @@ func (service *CategoryServiceImpl) Create(ctx context.Context, request *model.C
 		return &model.GetCategoryResponse{}, err
 	}
 
-	return helper.ToCategoryResponse(categoryResponse), nil
+	return categoryResponse.ToCategoryResponse(), nil
 
 }
 
@@ -108,7 +108,7 @@ func (service *CategoryServiceImpl) Update(ctx context.Context, request *model.U
 		return &model.GetCategoryResponse{}, err
 	}
 
-	return helper.ToCategoryResponse(categoryResponse), nil
+	return categoryResponse.ToCategoryResponse(), nil
 }
 
 func (service *CategoryServiceImpl) Delete(ctx context.Context, id int) error {

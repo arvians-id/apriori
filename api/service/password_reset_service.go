@@ -65,7 +65,7 @@ func (service *PasswordResetServiceImpl) CreateOrUpdateByEmail(ctx context.Conte
 			return &model.GetPasswordResetResponse{}, err
 		}
 
-		return helper.ToPasswordResetResponse(passwordResetResponse), nil
+		return passwordResetResponse.ToPasswordResetResponse(), nil
 	}
 
 	// Update data if exists
@@ -74,7 +74,7 @@ func (service *PasswordResetServiceImpl) CreateOrUpdateByEmail(ctx context.Conte
 		return &model.GetPasswordResetResponse{}, err
 	}
 
-	return helper.ToPasswordResetResponse(passwordResetResponse), nil
+	return passwordResetResponse.ToPasswordResetResponse(), nil
 }
 
 func (service *PasswordResetServiceImpl) Verify(ctx context.Context, request *model.UpdateResetPasswordUserRequest) error {

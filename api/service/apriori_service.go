@@ -52,7 +52,7 @@ func (service *AprioriServiceImpl) FindAll(ctx context.Context) ([]*model.GetApr
 
 	var aprioriResponses []*model.GetAprioriResponse
 	for _, apriori := range apriories {
-		aprioriResponses = append(aprioriResponses, helper.ToAprioriResponse(apriori))
+		aprioriResponses = append(aprioriResponses, apriori.ToAprioriResponse())
 	}
 
 	return aprioriResponses, nil
@@ -72,7 +72,7 @@ func (service *AprioriServiceImpl) FindAllByActive(ctx context.Context) ([]*mode
 
 	var aprioriResponses []*model.GetAprioriResponse
 	for _, apriori := range apriories {
-		aprioriResponses = append(aprioriResponses, helper.ToAprioriResponse(apriori))
+		aprioriResponses = append(aprioriResponses, apriori.ToAprioriResponse())
 	}
 
 	return aprioriResponses, nil
@@ -92,7 +92,7 @@ func (service *AprioriServiceImpl) FindAllByCode(ctx context.Context, code strin
 
 	var aprioriResponses []*model.GetAprioriResponse
 	for _, apriori := range apriories {
-		aprioriResponses = append(aprioriResponses, helper.ToAprioriResponse(apriori))
+		aprioriResponses = append(aprioriResponses, apriori.ToAprioriResponse())
 	}
 
 	return aprioriResponses, nil
@@ -198,7 +198,7 @@ func (service *AprioriServiceImpl) Update(ctx context.Context, request *model.Up
 		return &model.GetAprioriResponse{}, err
 	}
 
-	return helper.ToAprioriResponse(aprioriResponse), nil
+	return aprioriResponse.ToAprioriResponse(), nil
 }
 
 func (service *AprioriServiceImpl) UpdateStatus(ctx context.Context, code string) error {

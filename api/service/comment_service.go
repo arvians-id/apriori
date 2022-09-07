@@ -48,7 +48,7 @@ func (service *CommentServiceImpl) FindAllRatingByProductCode(ctx context.Contex
 
 	var ratingResponses []*model.GetRatingResponse
 	for _, comment := range ratings {
-		ratingResponses = append(ratingResponses, helper.ToRatingResponse(comment))
+		ratingResponses = append(ratingResponses, comment.ToRatingResponse())
 	}
 
 	return ratingResponses, nil
@@ -75,7 +75,7 @@ func (service *CommentServiceImpl) FindAllByProductCode(ctx context.Context, pro
 
 	var commentResponses []*model.GetCommentResponse
 	for _, comment := range comments {
-		commentResponses = append(commentResponses, helper.ToCommentResponse(comment))
+		commentResponses = append(commentResponses, comment.ToCommentResponse())
 	}
 
 	return commentResponses, nil
@@ -93,7 +93,7 @@ func (service *CommentServiceImpl) FindById(ctx context.Context, id int) (*model
 		return &model.GetCommentResponse{}, err
 	}
 
-	return helper.ToCommentResponse(commentResponse), nil
+	return commentResponse.ToCommentResponse(), nil
 }
 
 func (service *CommentServiceImpl) FindByUserOrderId(ctx context.Context, userOrderId int) (*model.GetCommentResponse, error) {
@@ -108,7 +108,7 @@ func (service *CommentServiceImpl) FindByUserOrderId(ctx context.Context, userOr
 		return &model.GetCommentResponse{}, err
 	}
 
-	return helper.ToCommentResponse(commentResponse), nil
+	return commentResponse.ToCommentResponse(), nil
 }
 
 func (service *CommentServiceImpl) Create(ctx context.Context, request *model.CreateCommentRequest) (*model.GetCommentResponse, error) {
@@ -143,5 +143,5 @@ func (service *CommentServiceImpl) Create(ctx context.Context, request *model.Cr
 		return &model.GetCommentResponse{}, err
 	}
 
-	return helper.ToCommentResponse(commentResponse), nil
+	return commentResponse.ToCommentResponse(), nil
 }

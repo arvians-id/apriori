@@ -84,6 +84,44 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 		})
 	})
 
+	// Websocket
+	//var (
+	//	wsUpgrader = websocket.Upgrader{
+	//		ReadBufferSize:  1024,
+	//		WriteBufferSize: 1024,
+	//	}
+	//)
+	//type Message struct {
+	//	Msg string `json:"message"`
+	//}
+	//router.GET("/ws", func(c *gin.Context) {
+	//	wsUpgrader.CheckOrigin = func(r *http.Request) bool {
+	//		return true
+	//	}
+	//
+	//	wsConn, err := wsUpgrader.Upgrade(c.Writer, c.Request, nil)
+	//	if err != nil {
+	//		log.Fatal(err)
+	//	}
+	//
+	//	defer func(wsConn *websocket.Conn) {
+	//		err := wsConn.Close()
+	//		if err != nil {
+	//			return
+	//		}
+	//	}(wsConn)
+	//
+	//	for {
+	//		var message Message
+	//		err := wsConn.ReadJSON(&message)
+	//		if err != nil {
+	//			log.Fatal(err)
+	//		}
+	//
+	//		fmt.Println("Message:", message.Msg)
+	//	}
+	//})
+
 	paymentController.Route(router)
 
 	// X API KEY Middleware

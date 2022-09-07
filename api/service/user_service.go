@@ -42,7 +42,7 @@ func (service *UserServiceImpl) FindAll(ctx context.Context) ([]*model.GetUserRe
 
 	var userResponses []*model.GetUserResponse
 	for _, user := range users {
-		userResponses = append(userResponses, helper.ToUserResponse(user))
+		userResponses = append(userResponses, user.ToUserResponse())
 	}
 
 	return userResponses, nil
@@ -64,7 +64,7 @@ func (service *UserServiceImpl) FindById(ctx context.Context, id int) (*model.Ge
 		return nil, err
 	}
 
-	return helper.ToUserResponse(userResponse), nil
+	return userResponse.ToUserResponse(), nil
 }
 
 func (service *UserServiceImpl) FindByEmail(ctx context.Context, request *model.GetUserCredentialRequest) (*model.GetUserResponse, error) {
@@ -88,7 +88,7 @@ func (service *UserServiceImpl) FindByEmail(ctx context.Context, request *model.
 		return nil, errors.New("wrong password")
 	}
 
-	return helper.ToUserResponse(userResponse), nil
+	return userResponse.ToUserResponse(), nil
 }
 
 func (service *UserServiceImpl) Create(ctx context.Context, request *model.CreateUserRequest) (*model.GetUserResponse, error) {
@@ -127,7 +127,7 @@ func (service *UserServiceImpl) Create(ctx context.Context, request *model.Creat
 		return nil, err
 	}
 
-	return helper.ToUserResponse(userResponse), nil
+	return userResponse.ToUserResponse(), nil
 }
 
 func (service *UserServiceImpl) Update(ctx context.Context, request *model.UpdateUserRequest) (*model.GetUserResponse, error) {
@@ -173,7 +173,7 @@ func (service *UserServiceImpl) Update(ctx context.Context, request *model.Updat
 		return nil, err
 	}
 
-	return helper.ToUserResponse(userResponse), nil
+	return userResponse.ToUserResponse(), nil
 }
 
 func (service *UserServiceImpl) Delete(ctx context.Context, id int) error {

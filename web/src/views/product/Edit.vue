@@ -105,7 +105,7 @@ export default {
         image: null
       },
       categories: [],
-      previewImage: "https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/no-image.png",
+      previewImage: "https://my-apriori-bucket.s3.ap-southeast-1.amazonaws.com/assets/no-image.png",
       isLoading: true
     };
   },

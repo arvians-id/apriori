@@ -1,6 +1,9 @@
 package entity
 
-import "time"
+import (
+	"apriori/model"
+	"time"
+)
 
 type Product struct {
 	IdProduct   int
@@ -14,4 +17,20 @@ type Product struct {
 	Image       string
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
+}
+
+func (product *Product) ToProductResponse() *model.GetProductResponse {
+	return &model.GetProductResponse{
+		IdProduct:   product.IdProduct,
+		Code:        product.Code,
+		Name:        product.Name,
+		Description: product.Description,
+		Price:       product.Price,
+		Category:    product.Category,
+		IsEmpty:     product.IsEmpty,
+		Mass:        product.Mass,
+		Image:       product.Image,
+		CreatedAt:   product.CreatedAt.String(),
+		UpdatedAt:   product.UpdatedAt.String(),
+	}
 }

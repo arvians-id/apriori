@@ -17,7 +17,7 @@
               <div v-if="isLoading">
                 <div class="loading-skeleton row d-flex justify-content-center">
                   <div class="col-12 col-lg-4 mb-2">
-                    <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/no-image.png" class="img-fluid mb-2">
+                    <img src="https://my-apriori-bucket.s3.ap-southeast-1.amazonaws.com/assets/no-image.png" class="img-fluid mb-2">
                     <div class="border p-3 rounded text-center" style="color: #525f7f">
                       <p class="mb-0">Atur jumlah yang pembelian</p>
                       <div class="mt-2">
@@ -50,7 +50,7 @@
                               <p>Description</p>
                               <hr class="m-0 mb-3">
                               <div class="media">
-                                <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/ryzy.jpg" width="59" class="mr-3" alt="...">
+                                <img src="https://my-apriori-bucket.s3.ap-southeast-1.amazonaws.com/assets/ryzy.jpg" width="59" class="mr-3" alt="...">
                                 <div class="media-body">
                                   <p class="mt-0 mb-0 w-50 mb-1">Title</p>
                                   <p>Description</p>
@@ -111,7 +111,7 @@
                             <p>{{ apriori.apriori_description == undefined ? "Tidak ada deskripsi" : apriori.apriori_description }}</p>
                             <hr class="m-0 mb-3">
                             <div class="media">
-                              <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/ryzy.jpg" width="53" class="mr-3" alt="...">
+                              <img src="https://my-apriori-bucket.s3.ap-southeast-1.amazonaws.com/assets/ryzy.jpg" width="53" class="mr-3" alt="...">
                               <div class="media-body">
                                 <h3 class="mt-0 mb-0">Toko Ryzy Olshop</h3>
                                 <p>Produk Original Berkualitas dan Terpercaya..</p>

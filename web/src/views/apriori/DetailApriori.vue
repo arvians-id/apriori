@@ -20,7 +20,7 @@
               <div v-if="isLoading">
                 <div class="loading-skeleton row d-flex justify-content-center">
                   <div class="col-12 col-lg-4 mb-2">
-                    <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/no-image.png" class="img-fluid mb-2">
+                    <img src="https://my-apriori-bucket.s3.ap-southeast-1.amazonaws.com/assets/no-image.png" class="img-fluid mb-2">
                     <p class="pt-4 mb-0">this is button</p>
                   </div>
                   <div class="col-12 col-lg-6">

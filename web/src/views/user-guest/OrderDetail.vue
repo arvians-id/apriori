@@ -113,7 +113,7 @@
                   <div v-if="payment.transaction_status === `settlement`">
                     <p class="mt-3 h3">Hubungi Kami untuk informasi selanjutnya</p>
                     <a :href="send(user, payment)">
-                      <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/wa.png" width="200">
+                      <img src="https://my-apriori-bucket.s3.ap-southeast-1.amazonaws.com/assets/wa.png" width="200">
                     </a>
                   </div>
                 </div>

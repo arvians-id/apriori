@@ -69,7 +69,7 @@ func (service *PaymentServiceImpl) FindAll(ctx context.Context) ([]*model.GetPay
 
 	var paymentResponses []*model.GetPaymentRelationResponse
 	for _, payment := range payments {
-		paymentResponses = append(paymentResponses, helper.ToPaymentRelationResponse(payment))
+		paymentResponses = append(paymentResponses, payment.ToPaymentRelationResponse())
 	}
 
 	return paymentResponses, nil
@@ -89,7 +89,7 @@ func (service *PaymentServiceImpl) FindAllByUserId(ctx context.Context, userId i
 
 	var paymentResponses []*model.GetPaymentResponse
 	for _, payment := range payments {
-		paymentResponses = append(paymentResponses, helper.ToPaymentResponse(payment))
+		paymentResponses = append(paymentResponses, payment.ToPaymentResponse())
 	}
 
 	return paymentResponses, nil
@@ -107,7 +107,7 @@ func (service *PaymentServiceImpl) FindByOrderId(ctx context.Context, orderId st
 		return &model.GetPaymentResponse{}, err
 	}
 
-	return helper.ToPaymentResponse(paymentResponse), nil
+	return paymentResponse.ToPaymentResponse(), nil
 }
 
 func (service *PaymentServiceImpl) CreateOrUpdate(ctx context.Context, request map[string]interface{}) error {

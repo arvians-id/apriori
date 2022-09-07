@@ -117,7 +117,7 @@
         <div class="container">
           <div class="row row-grid align-items-center">
             <div class="col-md-6 order-md-2">
-              <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/guling.png" class="img-fluid">
+              <img src="https://my-apriori-bucket.s3.ap-southeast-1.amazonaws.com/assets/guling.png" class="img-fluid">
             </div>
             <div class="col-md-6 order-md-1">
               <div class="pr-md-5">
@@ -172,7 +172,7 @@
         <div class="container">
           <div class="row row-grid align-items-center">
             <div class="col-md-6">
-              <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/bantal.png" class="img-fluid">
+              <img src="https://my-apriori-bucket.s3.ap-southeast-1.amazonaws.com/assets/bantal.png" class="img-fluid">
             </div>
             <div class="col-md-6">
               <div class="pr-md-5">
@@ -230,17 +230,17 @@
             <div class="row justify-content-center">
               <div class="w-10 mx-2 mb-2">
                 <a href="https://www.lazada.co.id/shop/ryzy-olshop/" target="_blank">
-                  <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/lazada.png" width="75" class="img-fluid">
+                  <img src="https://my-apriori-bucket.s3.ap-southeast-1.amazonaws.com/assets/lazada.png" width="75" class="img-fluid">
                 </a>
               </div>
               <div class="w-10 mx-2 mb-2">
                 <a href="https://shopee.co.id/ryzy.olshop" target="_blank">
-                  <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/shopee.png" width="60" class="img-fluid">
+                  <img src="https://my-apriori-bucket.s3.ap-southeast-1.amazonaws.com/assets/shopee.png" width="60" class="img-fluid">
                 </a>
               </div>
               <div class="w-10 mx-2 mb-2">
                 <a href=" https://www.creative-tim.com/product/argon-dashboard" target="_blank">
-                  <img src="https://my-apriori.s3.ap-southeast-1.amazonaws.com/assets/tokopedia.png" width="60" class="img-fluid">
+                  <img src="https://my-apriori-bucket.s3.ap-southeast-1.amazonaws.com/assets/tokopedia.png" width="60" class="img-fluid">
                 </a>
               </div>
             </div>

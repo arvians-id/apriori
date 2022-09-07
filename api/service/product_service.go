@@ -46,7 +46,7 @@ func (service *ProductServiceImpl) FindAllByAdmin(ctx context.Context) ([]*model
 
 	var productResponses []*model.GetProductResponse
 	for _, product := range products {
-		productResponses = append(productResponses, helper.ToProductResponse(product))
+		productResponses = append(productResponses, product.ToProductResponse())
 	}
 
 	return productResponses, nil
@@ -66,7 +66,7 @@ func (service *ProductServiceImpl) FindAll(ctx context.Context, search string, c
 
 	var productResponses []*model.GetProductResponse
 	for _, product := range products {
-		productResponses = append(productResponses, helper.ToProductResponse(product))
+		productResponses = append(productResponses, product.ToProductResponse())
 	}
 
 	return productResponses, nil
@@ -94,7 +94,7 @@ func (service *ProductServiceImpl) FindAllBySimilarCategory(ctx context.Context,
 	var productResponses []*model.GetProductResponse
 	for _, productCategory := range productCategories {
 		if productCategory.Code != code {
-			productResponses = append(productResponses, helper.ToProductResponse(productCategory))
+			productResponses = append(productResponses, productCategory.ToProductResponse())
 		}
 	}
 
@@ -162,7 +162,7 @@ func (service *ProductServiceImpl) FindByCode(ctx context.Context, code string) 
 		return &model.GetProductResponse{}, err
 	}
 
-	return helper.ToProductResponse(productResponse), nil
+	return productResponse.ToProductResponse(), nil
 }
 
 func (service *ProductServiceImpl) Create(ctx context.Context, request *model.CreateProductRequest) (*model.GetProductResponse, error) {
@@ -198,7 +198,7 @@ func (service *ProductServiceImpl) Create(ctx context.Context, request *model.Cr
 		return &model.GetProductResponse{}, err
 	}
 
-	return helper.ToProductResponse(productResponse), nil
+	return productResponse.ToProductResponse(), nil
 }
 
 func (service *ProductServiceImpl) Update(ctx context.Context, request *model.UpdateProductRequest) (*model.GetProductResponse, error) {
@@ -234,7 +234,7 @@ func (service *ProductServiceImpl) Update(ctx context.Context, request *model.Up
 		return &model.GetProductResponse{}, err
 	}
 
-	return helper.ToProductResponse(productResponse), nil
+	return productResponse.ToProductResponse(), nil
 }
 
 func (service *ProductServiceImpl) Delete(ctx context.Context, code string) error {

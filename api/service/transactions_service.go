@@ -42,7 +42,7 @@ func (service *TransactionServiceImpl) FindAll(ctx context.Context) ([]*model.Ge
 
 	var transactionResponses []*model.GetTransactionResponse
 	for _, transaction := range transactions {
-		transactionResponses = append(transactionResponses, helper.ToTransactionResponse(transaction))
+		transactionResponses = append(transactionResponses, transaction.ToTransactionResponse())
 	}
 
 	return transactionResponses, nil
@@ -60,7 +60,7 @@ func (service *TransactionServiceImpl) FindByNoTransaction(ctx context.Context, 
 		return &model.GetTransactionResponse{}, err
 	}
 
-	return helper.ToTransactionResponse(transactionResponse), nil
+	return transactionResponse.ToTransactionResponse(), nil
 }
 
 func (service *TransactionServiceImpl) Create(ctx context.Context, request *model.CreateTransactionRequest) (*model.GetTransactionResponse, error) {
@@ -88,7 +88,7 @@ func (service *TransactionServiceImpl) Create(ctx context.Context, request *mode
 		return &model.GetTransactionResponse{}, err
 	}
 
-	return helper.ToTransactionResponse(transactionResponse), nil
+	return transactionResponse.ToTransactionResponse(), nil
 }
 
 func (service *TransactionServiceImpl) CreateByCsv(ctx context.Context, data [][]string) error {
@@ -149,7 +149,7 @@ func (service *TransactionServiceImpl) Update(ctx context.Context, request *mode
 		return &model.GetTransactionResponse{}, err
 	}
 
-	return helper.ToTransactionResponse(transactionResponse), nil
+	return transactionResponse.ToTransactionResponse(), nil
 }
 
 func (service *TransactionServiceImpl) Delete(ctx context.Context, noTransaction string) error {
