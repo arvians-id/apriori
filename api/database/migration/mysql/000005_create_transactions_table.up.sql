@@ -6,4 +6,4 @@ CREATE TABLE IF NOT EXISTS `transactions` (
     `created_at` TIMESTAMP,
     `updated_at` TIMESTAMP,
     PRIMARY KEY (`id_transaction`)
-)
+) ENGINE = InnoDB;

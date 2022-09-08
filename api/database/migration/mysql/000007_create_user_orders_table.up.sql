@@ -9,4 +9,4 @@ CREATE TABLE IF NOT EXISTS `user_orders` (
     `total_price_item` INTEGER,
     PRIMARY KEY (`id_order`),
     FOREIGN KEY (`payload_id`) REFERENCES payloads(`id_payload`) ON DELETE CASCADE ON UPDATE CASCADE
-)
+) ENGINE = InnoDB;

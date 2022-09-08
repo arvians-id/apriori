@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS products (
     description TEXT,
     price INTEGER NOT NULL,
     category VARCHAR(100) NOT NULL,
-    is_empty INTEGER NOT NULL DEFAULT 0,
+    is_empty BOOLEAN NOT NULL DEFAULT FALSE,
     mass INTEGER NOT NULL,
     image TEXT,
     created_at TIMESTAMP,

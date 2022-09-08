@@ -22,4 +22,4 @@ CREATE TABLE IF NOT EXISTS `payloads` (
     `courier_service` VARCHAR(100),
     PRIMARY KEY (`id_payload`),
     FOREIGN KEY (`user_id`) REFERENCES users(`id_user`) ON DELETE RESTRICT ON UPDATE CASCADE
-)
+) ENGINE = InnoDB;

@@ -9,4 +9,4 @@ CREATE TABLE IF NOT EXISTS `users` (
     `created_at` TIMESTAMP,
     `updated_at` TIMESTAMP,
     PRIMARY KEY (`id_user`)
-)ENGINE = InnoDB;
+) ENGINE = InnoDB;

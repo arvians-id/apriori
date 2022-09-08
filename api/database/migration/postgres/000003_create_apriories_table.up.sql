@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS apriories (
     support DECIMAL(6,2) NOT NULL,
     confidence DECIMAL(6,2) NOT NULL,
     range_date VARCHAR(50) NOT NULL,
-    is_active INTEGER NOT NULL,
+    is_active BOOLEAN NOT NULL DEFAULT FALSE,
     description TEXT,
     image TEXT,
     created_at TIMESTAMP,
