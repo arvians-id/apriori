@@ -1,4 +1,4 @@
-package postgres
+package mysql
 
 import (
 	"apriori/entity"
@@ -63,6 +63,16 @@ func (repository *PasswordResetRepositoryImpl) Update(ctx context.Context, tx *s
 func (repository *PasswordResetRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, email string) error {
 	query := "DELETE FROM password_resets WHERE email = ?"
 	_, err := tx.ExecContext(ctx, query, email)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (repository *PasswordResetRepositoryImpl) Truncate(ctx context.Context, tx *sql.Tx) error {
+	query := `DELETE FROM password_resets`
+	_, err := tx.ExecContext(ctx, query)
 	if err != nil {
 		return err
 	}
