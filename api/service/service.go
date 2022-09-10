@@ -126,5 +126,4 @@ type NotificationService interface {
 	MarkAll(ctx context.Context, userId int) error
 	Mark(ctx context.Context, id int) error
 	WithSendMail() error
-	WithSendMailToUserAndAdmin() error
 }

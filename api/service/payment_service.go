@@ -243,9 +243,9 @@ func (service *PaymentServiceImpl) CreateOrUpdate(ctx context.Context, request m
 			var notificationRequest model.CreateNotificationRequest
 			notificationRequest.UserId = helper.StrToInt(paymentRequest.UserId.String)
 			notificationRequest.Title = "Transaction Successfully"
-			notificationRequest.Description = "There is a successful user payment"
+			notificationRequest.Description = "You have successfully made a payment. Thank you for shopping at Ryzy Shop"
 			notificationRequest.URL = "product"
-			_ = service.NotificationService.Create(ctx, &notificationRequest).WithSendMailToUserAndAdmin()
+			_ = service.NotificationService.Create(ctx, &notificationRequest).WithSendMail()
 		}
 	}
 

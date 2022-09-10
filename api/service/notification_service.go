@@ -162,27 +162,3 @@ func (service *NotificationServiceImpl) WithSendMail() error {
 
 	return nil
 }
-
-func (service *NotificationServiceImpl) WithSendMailToUserAndAdmin() error {
-	err := service.EmailService.SendEmailWithText(
-		service.Notification.Email,
-		service.Notification.Notification.Title,
-		service.Notification.Notification.Description.String,
-	)
-	if err != nil || service.Error != nil {
-		errors := fmt.Errorf("error: %s %s", err.Error(), service.Error.Error())
-		return errors
-	}
-
-	err = service.EmailService.SendEmailWithText(
-		"admin@gmail.com",
-		"There is a successful payment",
-		service.Notification.Name+" successfully paid for the product",
-	)
-	if err != nil || service.Error != nil {
-		errors := fmt.Errorf("error: %s %s", err.Error(), service.Error.Error())
-		return errors
-	}
-
-	return nil
-}
