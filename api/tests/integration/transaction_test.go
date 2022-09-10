@@ -24,6 +24,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+/*
+	Missing :
+		- /transactions/truncate [DELETE]
+*/
 var _ = Describe("Transaction API", func() {
 
 	var server *gin.Engine
@@ -205,7 +209,7 @@ var _ = Describe("Transaction API", func() {
 	//	})
 	//})
 
-	Describe("Update Transaction /transactions/:no_transaction", func() {
+	Describe("Update Transaction /transactions/:number_transaction", func() {
 		When("the fields are incorrect", func() {
 			When("the product name field is incorrect", func() {
 				It("should return error required", func() {
@@ -321,7 +325,7 @@ var _ = Describe("Transaction API", func() {
 		})
 	})
 
-	Describe("Delete Transaction /transactions/:no_transaction", func() {
+	Describe("Delete Transaction /transactions/:number_transaction", func() {
 		When("transaction is not found", func() {
 			It("should return error not found", func() {
 				// Delete Transaction
@@ -459,7 +463,7 @@ var _ = Describe("Transaction API", func() {
 		})
 	})
 
-	Describe("Find By No Transaction /transactions/:no_transaction", func() {
+	Describe("Find By No Transaction /transactions/:number_transaction", func() {
 		When("transaction is not found", func() {
 			It("should return error not found", func() {
 				// Find By No Transaction

@@ -158,7 +158,7 @@ func (repository *ProductRepositoryImpl) FindById(ctx context.Context, tx *sql.T
 		&product.UpdatedAt,
 	)
 	if err != nil {
-		return &entity.Product{}, err
+		return nil, err
 	}
 
 	return &product, nil
@@ -183,7 +183,7 @@ func (repository *ProductRepositoryImpl) FindByName(ctx context.Context, tx *sql
 		&product.UpdatedAt,
 	)
 	if err != nil {
-		return &entity.Product{}, err
+		return nil, err
 	}
 
 	return &product, nil
@@ -208,7 +208,7 @@ func (repository *ProductRepositoryImpl) FindByCode(ctx context.Context, tx *sql
 		&product.UpdatedAt,
 	)
 	if err != nil {
-		return &entity.Product{}, err
+		return nil, err
 	}
 
 	return &product, nil
@@ -232,12 +232,12 @@ func (repository *ProductRepositoryImpl) Create(ctx context.Context, tx *sql.Tx,
 		product.UpdatedAt,
 	)
 	if err != nil {
-		return &entity.Product{}, err
+		return nil, err
 	}
 
 	id, err := row.LastInsertId()
 	if err != nil {
-		return &entity.Product{}, err
+		return nil, err
 	}
 
 	product.IdProduct = int(id)
@@ -270,7 +270,7 @@ func (repository *ProductRepositoryImpl) Update(ctx context.Context, tx *sql.Tx,
 		product.Code,
 	)
 	if err != nil {
-		return &entity.Product{}, err
+		return nil, err
 	}
 
 	return product, nil

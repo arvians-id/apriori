@@ -64,12 +64,12 @@
                   <td>{{ (i++) + 1 }}</td>
                   <td>{{ item.code }}</td>
                   <td>{{ item.range_date }}</td>
-                  <td>{{ item.is_active == 0 ? "Non Active" : "Active" }}</td>
+                  <td>{{ item.is_active === false ? "Non Active" : "Active" }}</td>
                   <td>{{ item.created_at }}</td>
                   <td class="text-center">
                     <router-link :to="{ name: 'apriori.detail', params: { code: item.code } }" class="btn btn-secondary btn-sm">Detail</router-link>
                     <form @submit.prevent="activate(item.code)" method="POST" class="d-inline mr-1">
-                      <button class="btn btn-primary btn-sm">{{ item.is_active == 0 ? "Activate" : "Deactivate" }}</button>
+                      <button class="btn btn-primary btn-sm">{{ item.is_active === false ? "Activate" : "Deactivate" }}</button>
                     </form>
                     <form @submit.prevent="submit(item.code)" method="POST" class="d-inline">
                       <button class="btn btn-danger btn-sm">Delete</button>

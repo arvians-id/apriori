@@ -70,7 +70,7 @@ func (repository *UserRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, 
 		&user.UpdatedAt,
 	)
 	if err != nil {
-		return &entity.User{}, err
+		return nil, err
 	}
 
 	return &user, nil
@@ -93,7 +93,7 @@ func (repository *UserRepositoryImpl) FindByEmail(ctx context.Context, tx *sql.T
 		&user.UpdatedAt,
 	)
 	if err != nil {
-		return &entity.User{}, err
+		return nil, err
 	}
 
 	return &user, nil

@@ -77,13 +77,13 @@ func (service *UserOrderServiceImpl) FindAllByUserId(ctx context.Context, userId
 func (service *UserOrderServiceImpl) FindById(ctx context.Context, id int) (*model.GetUserOrderResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return &model.GetUserOrderResponse{}, err
+		return nil, err
 	}
 	defer helper.CommitOrRollback(tx)
 
 	userOrderResponse, err := service.UserOrderRepository.FindById(ctx, tx, id)
 	if err != nil {
-		return &model.GetUserOrderResponse{}, err
+		return nil, err
 	}
 
 	return userOrderResponse.ToUserOrderResponse(), nil

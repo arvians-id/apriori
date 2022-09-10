@@ -66,7 +66,7 @@
                   <td>{{ item.code }}</td>
                   <td>{{ item.name }}</td>
                   <td>Rp. {{ item.price }}</td>
-                  <td>{{ item.is_empty == 0 ? "Active" : "Nonactive" }}</td>
+                  <td>{{ item.is_empty === false ? "Active" : "Nonactive" }}</td>
                   <td>{{ item.description.length > 50 ? item.description.slice(0, 50) + "..." : item.description }}</td>
                   <td class="text-center">
                     <router-link :to="{ name: 'product.detail', params: { code: item.code } }" class="btn btn-secondary btn-sm">Detail</router-link>

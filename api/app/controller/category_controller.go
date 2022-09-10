@@ -120,7 +120,6 @@ func (controller *CategoryController) Update(c *gin.Context) {
 	}
 
 	request.IdCategory = helper.StrToInt(c.Param("id"))
-
 	category, err := controller.CategoryService.Update(c.Request.Context(), &request)
 	if err != nil {
 		if err.Error() == response.ErrorNotFound {

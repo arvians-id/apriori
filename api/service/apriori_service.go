@@ -101,13 +101,13 @@ func (service *AprioriServiceImpl) FindAllByCode(ctx context.Context, code strin
 func (service *AprioriServiceImpl) FindByCodeAndId(ctx context.Context, code string, id int) (*model.GetProductRecommendationResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return &model.GetProductRecommendationResponse{}, err
+		return nil, err
 	}
 	defer helper.CommitOrRollback(tx)
 
 	apriori, err := service.AprioriRepository.FindByCodeAndId(ctx, tx, code, id)
 	if err != nil {
-		return &model.GetProductRecommendationResponse{}, err
+		return nil, err
 	}
 
 	var totalPrice, mass int
@@ -153,7 +153,7 @@ func (service *AprioriServiceImpl) Create(ctx context.Context, requests []*model
 			Support:    request.Support,
 			Confidence: request.Confidence,
 			RangeDate:  request.RangeDate,
-			IsActive:   0,
+			IsActive:   false,
 			Image:      fmt.Sprintf("https://%s.s3.%s.amazonaws.com/assets/%s", os.Getenv("AWS_BUCKET"), os.Getenv("AWS_REGION"), "no-image.png"),
 			CreatedAt:  timeNow,
 		})
@@ -170,13 +170,13 @@ func (service *AprioriServiceImpl) Create(ctx context.Context, requests []*model
 func (service *AprioriServiceImpl) Update(ctx context.Context, request *model.UpdateAprioriRequest) (*model.GetAprioriResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return &model.GetAprioriResponse{}, err
+		return nil, err
 	}
 	defer helper.CommitOrRollback(tx)
 
 	apriori, err := service.AprioriRepository.FindByCodeAndId(ctx, tx, request.Code, request.IdApriori)
 	if err != nil {
-		return &model.GetAprioriResponse{}, err
+		return nil, err
 	}
 
 	image := apriori.Image
@@ -184,18 +184,15 @@ func (service *AprioriServiceImpl) Update(ctx context.Context, request *model.Up
 		image = request.Image
 	}
 
-	aprioriRequest := entity.Apriori{
-		IdApriori: apriori.IdApriori,
-		Code:      apriori.Code,
-		Description: sql.NullString{
-			String: request.Description,
-			Valid:  true,
-		},
-		Image: image,
+	apriori.Image = image
+	apriori.Description = sql.NullString{
+		String: request.Description,
+		Valid:  true,
 	}
-	aprioriResponse, err := service.AprioriRepository.Update(ctx, tx, &aprioriRequest)
+
+	aprioriResponse, err := service.AprioriRepository.Update(ctx, tx, apriori)
 	if err != nil {
-		return &model.GetAprioriResponse{}, err
+		return nil, err
 	}
 
 	return aprioriResponse.ToAprioriResponse(), nil
@@ -219,7 +216,7 @@ func (service *AprioriServiceImpl) UpdateStatus(ctx context.Context, code string
 	}
 
 	status := 1
-	if apriories[0].IsActive == 1 {
+	if apriories[0].IsActive {
 		status = 0
 	}
 

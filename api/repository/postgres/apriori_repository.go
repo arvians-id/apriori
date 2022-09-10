@@ -154,7 +154,7 @@ func (repository *AprioriRepositoryImpl) FindByCodeAndId(ctx context.Context, tx
 		&apriori.CreatedAt,
 	)
 	if err != nil {
-		return &entity.Apriori{}, err
+		return nil, err
 	}
 
 	return &apriori, nil
@@ -189,7 +189,7 @@ func (repository *AprioriRepositoryImpl) Update(ctx context.Context, tx *sql.Tx,
 	query := `UPDATE apriories SET description = $1, image = $2 WHERE code = $3 AND id_apriori = $4`
 	_, err := tx.ExecContext(ctx, query, apriori.Description, apriori.Image, apriori.Code, apriori.IdApriori)
 	if err != nil {
-		return &entity.Apriori{}, err
+		return nil, err
 	}
 
 	return apriori, nil

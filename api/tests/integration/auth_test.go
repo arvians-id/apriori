@@ -26,8 +26,11 @@ import (
 	"net/http/httptest"
 )
 
+/*
+	Missing :
+		- /api/token [GET]
+*/
 var _ = Describe("Auth API", func() {
-
 	var server *gin.Engine
 	var database *sql.DB
 	configuration := config.New("../../.env.test")

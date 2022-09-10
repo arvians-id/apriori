@@ -24,7 +24,7 @@ type GetAprioriResponse struct {
 	Support     float64 `json:"support,omitempty"`
 	Confidence  float64 `json:"confidence,omitempty"`
 	RangeDate   string  `json:"range_date"`
-	IsActive    int     `json:"is_active"`
+	IsActive    bool    `json:"is_active"`
 	Description string  `json:"description,omitempty"`
 	Mass        int     `json:"mass,omitempty"`
 	Image       string  `json:"image"`

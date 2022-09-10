@@ -84,13 +84,13 @@ func (service *CommentServiceImpl) FindAllByProductCode(ctx context.Context, pro
 func (service *CommentServiceImpl) FindById(ctx context.Context, id int) (*model.GetCommentResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return &model.GetCommentResponse{}, err
+		return nil, err
 	}
 	defer helper.CommitOrRollback(tx)
 
 	commentResponse, err := service.CommentRepository.FindById(ctx, tx, id)
 	if err != nil {
-		return &model.GetCommentResponse{}, err
+		return nil, err
 	}
 
 	return commentResponse.ToCommentResponse(), nil
@@ -99,13 +99,13 @@ func (service *CommentServiceImpl) FindById(ctx context.Context, id int) (*model
 func (service *CommentServiceImpl) FindByUserOrderId(ctx context.Context, userOrderId int) (*model.GetCommentResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return &model.GetCommentResponse{}, err
+		return nil, err
 	}
 	defer helper.CommitOrRollback(tx)
 
 	commentResponse, err := service.CommentRepository.FindByUserOrderId(ctx, tx, userOrderId)
 	if err != nil {
-		return &model.GetCommentResponse{}, err
+		return nil, err
 	}
 
 	return commentResponse.ToCommentResponse(), nil
@@ -114,13 +114,13 @@ func (service *CommentServiceImpl) FindByUserOrderId(ctx context.Context, userOr
 func (service *CommentServiceImpl) Create(ctx context.Context, request *model.CreateCommentRequest) (*model.GetCommentResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return &model.GetCommentResponse{}, err
+		return nil, err
 	}
 	defer helper.CommitOrRollback(tx)
 
 	timeNow, err := time.Parse(helper.TimeFormat, time.Now().Format(helper.TimeFormat))
 	if err != nil {
-		return &model.GetCommentResponse{}, err
+		return nil, err
 	}
 
 	commentRequest := entity.Comment{
@@ -140,7 +140,7 @@ func (service *CommentServiceImpl) Create(ctx context.Context, request *model.Cr
 
 	commentResponse, err := service.CommentRepository.Create(ctx, tx, &commentRequest)
 	if err != nil {
-		return &model.GetCommentResponse{}, err
+		return nil, err
 	}
 
 	return commentResponse.ToCommentResponse(), nil

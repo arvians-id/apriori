@@ -101,13 +101,13 @@ func (service *PaymentServiceImpl) FindAllByUserId(ctx context.Context, userId i
 func (service *PaymentServiceImpl) FindByOrderId(ctx context.Context, orderId string) (*model.GetPaymentResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return &model.GetPaymentResponse{}, err
+		return nil, err
 	}
 	defer helper.CommitOrRollback(tx)
 
 	paymentResponse, err := service.PaymentRepository.FindByOrderId(ctx, tx, orderId)
 	if err != nil {
-		return &model.GetPaymentResponse{}, err
+		return nil, err
 	}
 
 	return paymentResponse.ToPaymentResponse(), nil

@@ -16,6 +16,11 @@ func IntToStr(number int) string {
 	return str
 }
 
+func StrToBool(str string) bool {
+	boolean, _ := strconv.ParseBool(str)
+	return boolean
+}
+
 func UpperWords(str string) string {
 	str = strings.TrimSpace(str)
 	replace := func(word string) string {

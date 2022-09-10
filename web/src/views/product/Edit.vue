@@ -46,8 +46,8 @@
                     <label class="form-control-label">Status</label>
                     <select class="form-control" v-model="product.is_empty" required>
                       <option value="" disabled selected>Select</option>
-                      <option value="0" v-bind:selected="product.is_empty == 0">Activate</option>
-                      <option value="1" v-bind:selected="product.is_empty == 1">Nonactivate</option>
+                      <option value="false" :selected="product.is_empty === false">Activate</option>
+                      <option value="true" :selected="product.is_empty === true">Nonactivate</option>
                     </select>
                   </div>
                   <div class="form-group">
@@ -100,7 +100,7 @@ export default {
         price: 0,
         category: [],
         mass: 0,
-        is_empty: 0,
+        is_empty: false,
         description: "",
         image: null
       },

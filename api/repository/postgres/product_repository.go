@@ -57,7 +57,7 @@ func (repository *ProductRepositoryImpl) FindAllByAdmin(ctx context.Context, tx 
 
 func (repository *ProductRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx, search string, category string) ([]*entity.Product, error) {
 	query := `SELECT * FROM products 
-			  WHERE LOWER(name) LIKE $1 AND LOWER(category) LIKE $2 AND is_empty = 0 
+			  WHERE LOWER(name) LIKE $1 AND LOWER(category) LIKE $2 AND is_empty = false 
 			  ORDER BY id_product DESC`
 	rows, err := tx.QueryContext(ctx, query, "%"+search+"%", "%"+category+"%")
 	if err != nil {
@@ -99,7 +99,7 @@ func (repository *ProductRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx
 
 func (repository *ProductRepositoryImpl) FindAllBySimilarCategory(ctx context.Context, tx *sql.Tx, category string) ([]*entity.Product, error) {
 	query := `SELECT * FROM products 
-			  WHERE category SIMILAR TO $1 AND is_empty = 0 
+			  WHERE category SIMILAR TO $1 AND is_empty = false 
 			  ORDER BY random() DESC LIMIT 4`
 	rows, err := tx.QueryContext(ctx, query, "%("+category+")%")
 	if err != nil {
@@ -158,7 +158,7 @@ func (repository *ProductRepositoryImpl) FindById(ctx context.Context, tx *sql.T
 		&product.UpdatedAt,
 	)
 	if err != nil {
-		return &entity.Product{}, err
+		return nil, err
 	}
 
 	return &product, nil
@@ -183,7 +183,7 @@ func (repository *ProductRepositoryImpl) FindByName(ctx context.Context, tx *sql
 		&product.UpdatedAt,
 	)
 	if err != nil {
-		return &entity.Product{}, err
+		return nil, err
 	}
 
 	return &product, nil
@@ -208,7 +208,7 @@ func (repository *ProductRepositoryImpl) FindByCode(ctx context.Context, tx *sql
 		&product.UpdatedAt,
 	)
 	if err != nil {
-		return &entity.Product{}, err
+		return nil, err
 	}
 
 	return &product, nil
@@ -234,7 +234,7 @@ func (repository *ProductRepositoryImpl) Create(ctx context.Context, tx *sql.Tx,
 	)
 	err := row.Scan(&id)
 	if err != nil {
-		return &entity.Product{}, err
+		return nil, err
 	}
 
 	product.IdProduct = id
@@ -267,7 +267,7 @@ func (repository *ProductRepositoryImpl) Update(ctx context.Context, tx *sql.Tx,
 		product.Code,
 	)
 	if err != nil {
-		return &entity.Product{}, err
+		return nil, err
 	}
 
 	return product, nil

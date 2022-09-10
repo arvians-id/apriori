@@ -96,7 +96,7 @@ func (service *UserServiceImpl) Create(ctx context.Context, request *model.Creat
 	if service.DB != nil {
 		transaction, err := service.DB.Begin()
 		if err != nil {
-			return &model.GetUserResponse{}, err
+			return nil, err
 		}
 		tx = transaction
 	}

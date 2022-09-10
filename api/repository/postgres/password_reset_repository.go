@@ -20,7 +20,7 @@ func (repository *PasswordResetRepositoryImpl) FindByEmailAndToken(ctx context.C
 
 	err := row.Scan(&passwordReset.Email, &passwordReset.Token, &passwordReset.Expired)
 	if err != nil {
-		return &entity.PasswordReset{}, err
+		return nil, err
 	}
 
 	return passwordReset, nil
@@ -34,7 +34,7 @@ func (repository *PasswordResetRepositoryImpl) FindByEmail(ctx context.Context, 
 	var passwordReset entity.PasswordReset
 	err := row.Scan(&passwordReset.Email, &passwordReset.Token, &passwordReset.Expired)
 	if err != nil {
-		return &entity.PasswordReset{}, err
+		return nil, err
 	}
 
 	return &passwordReset, nil
@@ -44,7 +44,7 @@ func (repository *PasswordResetRepositoryImpl) Create(ctx context.Context, tx *s
 	query := "INSERT INTO password_resets (email,token,expired) VALUES($1,$2,$3)"
 	_, err := tx.ExecContext(ctx, query, passwordReset.Email, passwordReset.Token, passwordReset.Expired)
 	if err != nil {
-		return &entity.PasswordReset{}, err
+		return nil, err
 	}
 
 	return passwordReset, nil
@@ -54,7 +54,7 @@ func (repository *PasswordResetRepositoryImpl) Update(ctx context.Context, tx *s
 	query := "UPDATE password_resets SET token = $1, expired = $2 WHERE email = $3"
 	_, err := tx.ExecContext(ctx, query, passwordReset.Token, passwordReset.Expired, passwordReset.Email)
 	if err != nil {
-		return &entity.PasswordReset{}, err
+		return nil, err
 	}
 
 	return passwordReset, nil

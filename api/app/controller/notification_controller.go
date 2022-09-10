@@ -74,8 +74,8 @@ func (controller *NotificationController) MarkAll(c *gin.Context) {
 }
 
 func (controller *NotificationController) Mark(c *gin.Context) {
-	id := helper.StrToInt(c.Param("id"))
-	err := controller.NotificationService.Mark(c.Request.Context(), id)
+	idParam := helper.StrToInt(c.Param("id"))
+	err := controller.NotificationService.Mark(c.Request.Context(), idParam)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return

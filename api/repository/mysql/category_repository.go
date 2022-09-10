@@ -50,7 +50,7 @@ func (repository *CategoryRepositoryImpl) FindById(ctx context.Context, tx *sql.
 	var category entity.Category
 	err := row.Scan(&category.IdCategory, &category.Name, &category.CreatedAt, &category.UpdatedAt)
 	if err != nil {
-		return &entity.Category{}, err
+		return nil, err
 	}
 
 	return &category, nil
@@ -60,12 +60,12 @@ func (repository *CategoryRepositoryImpl) Create(ctx context.Context, tx *sql.Tx
 	query := "INSERT INTO categories (name,created_at,updated_at) VALUES(?,?,?)"
 	row, err := tx.ExecContext(ctx, query, category.Name, category.CreatedAt, category.UpdatedAt)
 	if err != nil {
-		return &entity.Category{}, err
+		return nil, err
 	}
 
 	id, err := row.LastInsertId()
 	if err != nil {
-		return &entity.Category{}, err
+		return nil, err
 	}
 
 	category.IdCategory = int(id)

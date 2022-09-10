@@ -17,7 +17,7 @@ type UpdateProductRequest struct {
 	Description string `json:"description" binding:"omitempty,max=100"`
 	Price       int    `json:"price" binding:"min=0"`
 	Category    string `json:"category" binding:"required,max=100"`
-	IsEmpty     int    `json:"is_empty"`
+	IsEmpty     bool   `json:"is_empty"`
 	Mass        int    `json:"mass"`
 	Image       string `json:"image"`
 }
@@ -29,7 +29,7 @@ type GetProductResponse struct {
 	Description string `json:"description"`
 	Price       int    `json:"price"`
 	Category    string `json:"category"`
-	IsEmpty     int    `json:"is_empty"`
+	IsEmpty     bool   `json:"is_empty"`
 	Mass        int    `json:"mass"`
 	Image       string `json:"image"`
 	CreatedAt   string `json:"created_at"`

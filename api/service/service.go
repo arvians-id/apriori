@@ -28,8 +28,6 @@ type CacheService interface {
 	Get(ctx context.Context, key string) (string, error)
 	Set(ctx context.Context, key string, value interface{}) error
 	Del(ctx context.Context, key ...string) error
-	Subscribe(ctx context.Context) (string, error)
-	Publish(ctx context.Context) error
 	FlushDB(ctx context.Context) error
 }
 

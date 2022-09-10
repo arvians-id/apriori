@@ -102,38 +102,3 @@ func (cache *CacheServiceImpl) FlushDB(ctx context.Context) error {
 
 	return nil
 }
-
-func (cache *CacheServiceImpl) Subscribe(ctx context.Context) (string, error) {
-	rdb, err := cache.GetClient()
-	if err != nil {
-		return "", err
-	}
-
-	subscriber := rdb.Subscribe(ctx, "test")
-	defer subscriber.Close()
-	var str string
-	for {
-		msg, err := subscriber.ReceiveMessage(ctx)
-		if err != nil {
-			break
-		}
-
-		str = msg.Payload
-	}
-
-	return str, nil
-}
-
-func (cache *CacheServiceImpl) Publish(ctx context.Context) error {
-	rdb, err := cache.GetClient()
-	if err != nil {
-		return err
-	}
-
-	err = rdb.Publish(ctx, "test", "Redis test").Err()
-	if err != nil {
-		return err
-	}
-
-	return nil
-}

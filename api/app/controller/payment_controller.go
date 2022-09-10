@@ -104,8 +104,8 @@ func (controller *PaymentController) UpdateReceiptNumber(c *gin.Context) {
 	// Notification
 	var notificationRequest model.CreateNotificationRequest
 	notificationRequest.UserId = helper.StrToInt(payment.UserId)
-	notificationRequest.Title = "The product has been paid"
-	notificationRequest.Description = "successfully paid"
+	notificationRequest.Title = "Receipt number arrived"
+	notificationRequest.Description = "Your receipt number has been entered by the admin"
 	notificationRequest.URL = "product"
 	err = controller.NotificationService.Create(c.Request.Context(), &notificationRequest).WithSendMail()
 	if err != nil {

@@ -102,7 +102,7 @@ func (repository *TransactionRepositoryImpl) FindByNoTransaction(ctx context.Con
 		&transaction.UpdatedAt,
 	)
 	if err != nil {
-		return &entity.Transaction{}, err
+		return nil, err
 	}
 
 	return &transaction, nil
@@ -143,7 +143,7 @@ func (repository *TransactionRepositoryImpl) Create(ctx context.Context, tx *sql
 	)
 	err := row.Scan(&id)
 	if err != nil {
-		return &entity.Transaction{}, err
+		return nil, err
 	}
 
 	transaction.IdTransaction = id
@@ -162,7 +162,7 @@ func (repository *TransactionRepositoryImpl) Update(ctx context.Context, tx *sql
 		transaction.NoTransaction,
 	)
 	if err != nil {
-		return &entity.Transaction{}, err
+		return nil, err
 	}
 
 	return transaction, nil

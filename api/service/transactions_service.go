@@ -51,13 +51,13 @@ func (service *TransactionServiceImpl) FindAll(ctx context.Context) ([]*model.Ge
 func (service *TransactionServiceImpl) FindByNoTransaction(ctx context.Context, noTransaction string) (*model.GetTransactionResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return &model.GetTransactionResponse{}, err
+		return nil, err
 	}
 	defer helper.CommitOrRollback(tx)
 
 	transactionResponse, err := service.TransactionRepository.FindByNoTransaction(ctx, tx, noTransaction)
 	if err != nil {
-		return &model.GetTransactionResponse{}, err
+		return nil, err
 	}
 
 	return transactionResponse.ToTransactionResponse(), nil
@@ -66,13 +66,13 @@ func (service *TransactionServiceImpl) FindByNoTransaction(ctx context.Context, 
 func (service *TransactionServiceImpl) Create(ctx context.Context, request *model.CreateTransactionRequest) (*model.GetTransactionResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return &model.GetTransactionResponse{}, err
+		return nil, err
 	}
 	defer helper.CommitOrRollback(tx)
 
 	timeNow, err := time.Parse(helper.TimeFormat, time.Now().Format(helper.TimeFormat))
 	if err != nil {
-		return &model.GetTransactionResponse{}, err
+		return nil, err
 	}
 
 	transactionRequest := entity.Transaction{
@@ -85,7 +85,7 @@ func (service *TransactionServiceImpl) Create(ctx context.Context, request *mode
 
 	transactionResponse, err := service.TransactionRepository.Create(ctx, tx, &transactionRequest)
 	if err != nil {
-		return &model.GetTransactionResponse{}, err
+		return nil, err
 	}
 
 	return transactionResponse.ToTransactionResponse(), nil
@@ -121,19 +121,19 @@ func (service *TransactionServiceImpl) CreateByCsv(ctx context.Context, data [][
 func (service *TransactionServiceImpl) Update(ctx context.Context, request *model.UpdateTransactionRequest) (*model.GetTransactionResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return &model.GetTransactionResponse{}, err
+		return nil, err
 	}
 	defer helper.CommitOrRollback(tx)
 
 	// Find Transaction by number transaction
 	transaction, err := service.TransactionRepository.FindByNoTransaction(ctx, tx, request.NoTransaction)
 	if err != nil {
-		return &model.GetTransactionResponse{}, err
+		return nil, err
 	}
 
 	timeNow, err := time.Parse(helper.TimeFormat, time.Now().Format(helper.TimeFormat))
 	if err != nil {
-		return &model.GetTransactionResponse{}, err
+		return nil, err
 	}
 
 	transactionRequest := entity.Transaction{
@@ -146,7 +146,7 @@ func (service *TransactionServiceImpl) Update(ctx context.Context, request *mode
 
 	transactionResponse, err := service.TransactionRepository.Update(ctx, tx, &transactionRequest)
 	if err != nil {
-		return &model.GetTransactionResponse{}, err
+		return nil, err
 	}
 
 	return transactionResponse.ToTransactionResponse(), nil

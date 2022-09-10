@@ -183,7 +183,7 @@ func (controller *ProductController) Update(c *gin.Context) {
 	request.Description = c.PostForm("description")
 	request.Price = helper.StrToInt(c.PostForm("price"))
 	request.Category = c.PostForm("category")
-	request.IsEmpty = helper.StrToInt(c.PostForm("is_empty"))
+	request.IsEmpty = helper.StrToBool(c.PostForm("is_empty"))
 	request.Mass = helper.StrToInt(c.PostForm("mass"))
 	params := c.Param("code")
 

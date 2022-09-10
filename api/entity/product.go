@@ -12,7 +12,7 @@ type Product struct {
 	Description string
 	Price       int
 	Category    string
-	IsEmpty     int
+	IsEmpty     bool
 	Mass        int
 	Image       string
 	CreatedAt   time.Time

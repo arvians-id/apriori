@@ -25,6 +25,12 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+/*
+	Missing :
+		- /products-admin [GET]
+		- /products/:code/category [GET]
+		- /products/:code/recommendation [GET]
+*/
 var _ = Describe("Product API", func() {
 
 	var server *gin.Engine

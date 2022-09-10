@@ -150,7 +150,7 @@ func (repository *PaymentRepositoryImpl) FindByOrderId(ctx context.Context, tx *
 		&payment.CourierService,
 	)
 	if err != nil {
-		return &entity.Payment{}, err
+		return nil, err
 	}
 
 	return &payment, nil
@@ -186,7 +186,7 @@ func (repository *PaymentRepositoryImpl) Create(ctx context.Context, tx *sql.Tx,
 	)
 	err := row.Scan(&id)
 	if err != nil {
-		return &entity.Payment{}, err
+		return nil, err
 	}
 
 	payment.IdPayload = id

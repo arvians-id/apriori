@@ -121,7 +121,7 @@ func (repository *UserOrderRepositoryImpl) FindById(ctx context.Context, tx *sql
 		&userOrder.TotalPriceItem,
 	)
 	if err != nil {
-		return &entity.UserOrder{}, err
+		return nil, err
 	}
 
 	return &userOrder, nil

@@ -117,7 +117,7 @@ func (repository *CommentRepositoryImpl) FindById(ctx context.Context, tx *sql.T
 		&comment.UserName,
 	)
 	if err != nil {
-		return &entity.Comment{}, err
+		return nil, err
 	}
 
 	return &comment, nil
@@ -145,7 +145,7 @@ func (repository *CommentRepositoryImpl) FindByUserOrderId(ctx context.Context, 
 		&comment.UserName,
 	)
 	if err != nil {
-		return &entity.Comment{}, err
+		return nil, err
 	}
 
 	return &comment, nil
@@ -166,12 +166,12 @@ func (repository *CommentRepositoryImpl) Create(ctx context.Context, tx *sql.Tx,
 		comment.CreatedAt,
 	)
 	if err != nil {
-		return &entity.Comment{}, err
+		return nil, err
 	}
 
 	id, err := row.LastInsertId()
 	if err != nil {
-		return &entity.Comment{}, err
+		return nil, err
 	}
 
 	comment.IdComment = int(id)

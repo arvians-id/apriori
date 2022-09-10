@@ -102,7 +102,7 @@ func (repository *TransactionRepositoryImpl) FindByNoTransaction(ctx context.Con
 		&transaction.UpdatedAt,
 	)
 	if err != nil {
-		return &entity.Transaction{}, err
+		return nil, err
 	}
 
 	return &transaction, nil

@@ -25,6 +25,10 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+/*
+	Missing :
+		- /profile/update [PATCH]
+*/
 var _ = Describe("User API", func() {
 
 	var server *gin.Engine

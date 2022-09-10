@@ -36,7 +36,7 @@ func NewPasswordResetService(
 func (service *PasswordResetServiceImpl) CreateOrUpdateByEmail(ctx context.Context, email string) (*model.GetPasswordResetResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return &model.GetPasswordResetResponse{}, err
+		return nil, err
 	}
 	defer helper.CommitOrRollback(tx)
 
@@ -53,7 +53,7 @@ func (service *PasswordResetServiceImpl) CreateOrUpdateByEmail(ctx context.Conte
 	// Check if email is exists in table users
 	user, err := service.UserRepository.FindByEmail(ctx, tx, email)
 	if err != nil {
-		return &model.GetPasswordResetResponse{}, err
+		return nil, err
 	}
 
 	// Check If email is exists in table password_resets
@@ -62,7 +62,7 @@ func (service *PasswordResetServiceImpl) CreateOrUpdateByEmail(ctx context.Conte
 		// Create new data if not exists
 		passwordResetResponse, err := service.PasswordResetRepository.Create(ctx, tx, &passwordResetRequest)
 		if err != nil {
-			return &model.GetPasswordResetResponse{}, err
+			return nil, err
 		}
 
 		return passwordResetResponse.ToPasswordResetResponse(), nil
@@ -71,7 +71,7 @@ func (service *PasswordResetServiceImpl) CreateOrUpdateByEmail(ctx context.Conte
 	// Update data if exists
 	passwordResetResponse, err := service.PasswordResetRepository.Update(ctx, tx, &passwordResetRequest)
 	if err != nil {
-		return &model.GetPasswordResetResponse{}, err
+		return nil, err
 	}
 
 	return passwordResetResponse.ToPasswordResetResponse(), nil

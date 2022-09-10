@@ -153,13 +153,13 @@ func (service *ProductServiceImpl) FindAllRecommendation(ctx context.Context, co
 func (service *ProductServiceImpl) FindByCode(ctx context.Context, code string) (*model.GetProductResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return &model.GetProductResponse{}, err
+		return nil, err
 	}
 	defer helper.CommitOrRollback(tx)
 
 	productResponse, err := service.ProductRepository.FindByCode(ctx, tx, code)
 	if err != nil {
-		return &model.GetProductResponse{}, err
+		return nil, err
 	}
 
 	return productResponse.ToProductResponse(), nil
@@ -168,13 +168,13 @@ func (service *ProductServiceImpl) FindByCode(ctx context.Context, code string) 
 func (service *ProductServiceImpl) Create(ctx context.Context, request *model.CreateProductRequest) (*model.GetProductResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return &model.GetProductResponse{}, err
+		return nil, err
 	}
 	defer helper.CommitOrRollback(tx)
 
 	timeNow, err := time.Parse(helper.TimeFormat, time.Now().Format(helper.TimeFormat))
 	if err != nil {
-		return &model.GetProductResponse{}, err
+		return nil, err
 	}
 	if request.Image == "" {
 		request.Image = "no-image.png"
@@ -187,7 +187,7 @@ func (service *ProductServiceImpl) Create(ctx context.Context, request *model.Cr
 		Price:       request.Price,
 		Image:       request.Image,
 		Category:    helper.UpperWords(request.Category),
-		IsEmpty:     0,
+		IsEmpty:     false,
 		Mass:        request.Mass,
 		CreatedAt:   timeNow,
 		UpdatedAt:   timeNow,
@@ -195,7 +195,7 @@ func (service *ProductServiceImpl) Create(ctx context.Context, request *model.Cr
 
 	productResponse, err := service.ProductRepository.Create(ctx, tx, &productRequest)
 	if err != nil {
-		return &model.GetProductResponse{}, err
+		return nil, err
 	}
 
 	return productResponse.ToProductResponse(), nil
@@ -204,18 +204,18 @@ func (service *ProductServiceImpl) Create(ctx context.Context, request *model.Cr
 func (service *ProductServiceImpl) Update(ctx context.Context, request *model.UpdateProductRequest) (*model.GetProductResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return &model.GetProductResponse{}, err
+		return nil, err
 	}
 	defer helper.CommitOrRollback(tx)
 
 	product, err := service.ProductRepository.FindByCode(ctx, tx, request.Code)
 	if err != nil {
-		return &model.GetProductResponse{}, err
+		return nil, err
 	}
 
 	timeNow, err := time.Parse(helper.TimeFormat, time.Now().Format(helper.TimeFormat))
 	if err != nil {
-		return &model.GetProductResponse{}, err
+		return nil, err
 	}
 
 	product.Name = helper.UpperWords(request.Name)
@@ -231,7 +231,7 @@ func (service *ProductServiceImpl) Update(ctx context.Context, request *model.Up
 
 	productResponse, err := service.ProductRepository.Update(ctx, tx, product)
 	if err != nil {
-		return &model.GetProductResponse{}, err
+		return nil, err
 	}
 
 	return productResponse.ToProductResponse(), nil

@@ -20,7 +20,7 @@ func (repository *PasswordResetRepositoryImpl) FindByEmailAndToken(ctx context.C
 
 	err := row.Scan(&passwordReset.Email, &passwordReset.Token, &passwordReset.Expired)
 	if err != nil {
-		return &entity.PasswordReset{}, err
+		return nil, err
 	}
 
 	return passwordReset, nil
@@ -34,7 +34,7 @@ func (repository *PasswordResetRepositoryImpl) FindByEmail(ctx context.Context, 
 	var passwordReset entity.PasswordReset
 	err := row.Scan(&passwordReset.Email, &passwordReset.Token, &passwordReset.Expired)
 	if err != nil {
-		return &entity.PasswordReset{}, err
+		return nil, err
 	}
 
 	return &passwordReset, nil

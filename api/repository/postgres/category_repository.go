@@ -50,7 +50,7 @@ func (repository *CategoryRepositoryImpl) FindById(ctx context.Context, tx *sql.
 	var category entity.Category
 	err := row.Scan(&category.IdCategory, &category.Name, &category.CreatedAt, &category.UpdatedAt)
 	if err != nil {
-		return &entity.Category{}, err
+		return nil, err
 	}
 
 	return &category, nil
@@ -62,7 +62,7 @@ func (repository *CategoryRepositoryImpl) Create(ctx context.Context, tx *sql.Tx
 	row := tx.QueryRowContext(ctx, query, category.Name, category.CreatedAt, category.UpdatedAt)
 	err := row.Scan(&id)
 	if err != nil {
-		return &entity.Category{}, err
+		return nil, err
 	}
 
 	category.IdCategory = id
@@ -74,7 +74,7 @@ func (repository *CategoryRepositoryImpl) Update(ctx context.Context, tx *sql.Tx
 	query := "UPDATE categories SET name = $1, updated_at = $2 WHERE id_category = $3"
 	_, err := tx.ExecContext(ctx, query, category.Name, category.UpdatedAt, category.IdCategory)
 	if err != nil {
-		return &entity.Category{}, err
+		return nil, err
 	}
 
 	return category, nil
