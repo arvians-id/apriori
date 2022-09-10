@@ -92,3 +92,11 @@ type CommentRepository interface {
 	FindByUserOrderId(ctx context.Context, tx *sql.Tx, userOrderId int) (*entity.Comment, error)
 	Create(ctx context.Context, tx *sql.Tx, comment *entity.Comment) (*entity.Comment, error)
 }
+
+type NotificationRepository interface {
+	FindAll(ctx context.Context, tx *sql.Tx) ([]*entity.NotificationRelation, error)
+	FindAllByUserId(ctx context.Context, tx *sql.Tx, userId int) ([]*entity.Notification, error)
+	Create(ctx context.Context, tx *sql.Tx, notification *entity.Notification) (*entity.Notification, error)
+	Mark(ctx context.Context, tx *sql.Tx, id int) error
+	MarkAll(ctx context.Context, tx *sql.Tx, userId int) error
+}

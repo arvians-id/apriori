@@ -61,6 +61,13 @@
             <!-- Navigation -->
             <ul class="navbar-nav mb-md-3">
               <li class="nav-item">
+                <router-link :class="getActiveNavLink('member.notification')" :to="{ name: 'member.notification' }">
+                  <i class="ni ni-bell-55"></i>
+                  <span class="nav-link-text">Notification</span>
+                  <span class="badge badge badge-success ml-2" v-if="totalNotification > 0">{{ totalNotification }}</span>
+                </router-link>
+              </li>
+              <li class="nav-item">
                 <router-link :class="getActiveNavLink('member.profile')" :to="route">
                   <i class="ni ni-single-02"></i>
                   <span class="nav-link-text">My Account</span>
@@ -94,6 +101,12 @@ import axios from "axios";
 import getRoles from "@/service/get-roles";
 
 export default {
+  props: {
+    totalNotification: {
+      type: Number,
+      default: 0
+    },
+  },
   mounted() {
     this.checkLogin()
     this.checkRole()

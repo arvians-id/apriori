@@ -1,10 +1,10 @@
 <template>
   <!-- Sidenav -->
-  <Sidebar />
+  <Sidebar :totalNotification="totalNotification" />
   <!-- Main content -->
   <div class="main-content" id="panel">
     <!-- Topnav -->
-    <Topbar :totalCart="totalCart" :carts="carts" />
+    <Topbar :totalCart="totalCart" :carts="carts" :totalNotification="totalNotification" :notifications="notifications" />
     <!-- Header -->
     <Header />
     <!-- Page content -->
@@ -213,12 +213,15 @@ export default {
       cities: [],
       costs: [],
       totalCost: 0,
+      totalNotification: 0,
+      notifications: [],
     }
   },
   mounted() {
     this.fetchData()
     if(authHeader()["Authorization"] !== undefined) {
       this.loadScript()
+      this.fetchNotification()
     }
     this.getProvinces()
     document.getElementsByTagName("body")[0].classList.remove("bg-default");
@@ -290,6 +293,14 @@ export default {
           return total + item.quantity
         }, 0)
       }
+    },
+    async fetchNotification() {
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/notifications/user`, { headers: authHeader() }).then(response => {
+        if(response.data.data != null) {
+          this.totalNotification = response.data.data.filter(e => e.is_read === false).length
+          this.notifications = response.data.data
+        }
+      })
     },
     loadScript(){
       let midtransJs = "https://api.sandbox.midtrans.com/v2/assets/js/midtrans.min.js"

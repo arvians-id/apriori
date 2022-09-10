@@ -1,10 +1,10 @@
 <template>
   <!-- Sidenav -->
-  <Sidebar />
+  <Sidebar :totalNotification="totalNotification" />
   <!-- Main content -->
   <div class="main-content" id="panel">
     <!-- Topnav -->
-    <Topbar :totalCart="totalCart" :carts="carts" />
+    <Topbar :totalCart="totalCart" :carts="carts" :totalNotification="totalNotification" :notifications="notifications" />
     <!-- Header -->
     <Header />
     <!-- Page content -->
@@ -478,7 +478,9 @@ export default {
       filter: {
         tags: [],
         rating: ''
-      }
+      },
+      totalNotification: 0,
+      notifications: []
     };
   },
   methods: {
@@ -489,6 +491,9 @@ export default {
       this.fetchSimilarCategory()
       this.fetchComments()
       this.fetchRatings()
+      if(authHeader()["Authorization"] !== undefined) {
+        this.fetchNotification()
+      }
       document.getElementsByTagName("body")[0].classList.remove("bg-default");
     },
     async filterComment(){
@@ -610,6 +615,14 @@ export default {
       });
 
       this.isLoading2 = false
+    },
+    async fetchNotification() {
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/notifications/user`, { headers: authHeader() }).then(response => {
+        if(response.data.data != null) {
+          this.totalNotification = response.data.data.filter(e => e.is_read === false).length
+          this.notifications = response.data.data
+        }
+      })
     },
     UpperWord(str) {
       return str.toLowerCase().replace(/\b[a-z]/g, function (letter) {

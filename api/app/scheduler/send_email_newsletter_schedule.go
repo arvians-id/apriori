@@ -10,7 +10,7 @@ type SendEmailNewsletterSchedule struct {
 
 func (scheduler *SendEmailNewsletterSchedule) Run() {
 	serviceEmail := service.NewEmailService()
-	err := serviceEmail.SendEmailWithText("widdy@gmail.com", "Hallo bang ini cron")
+	err := serviceEmail.SendEmailWithText("widdy@gmail.com", "Test Scheduler", "Hallo bang ini cron")
 	if err != nil {
 		log.Fatalln(err)
 	}

@@ -46,17 +46,19 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	userOrderRepository := repository.NewUserOrderRepository()
 	categoryRepository := repository.NewCategoryRepository()
 	commentRepository := repository.NewCommentRepository()
+	notificationRepository := repository.NewNotificationRepository()
 
 	// Setup Service
 	storageService := service.NewStorageService(configuration)
 	userService := service.NewUserService(&userRepository, db)
 	jwtService := service.NewJwtService()
 	emailService := service.NewEmailService()
+	notificationService := service.NewNotificationService(&notificationRepository, &userRepository, &emailService, db)
 	passwordResetService := service.NewPasswordResetService(&passwordRepository, &userRepository, db)
-	productService := service.NewProductService(&productRepository, storageService, &aprioriRepository, db)
+	productService := service.NewProductService(&productRepository, &storageService, &aprioriRepository, db)
 	transactionService := service.NewTransactionService(&transactionRepository, &productRepository, db)
 	aprioriService := service.NewAprioriService(&transactionRepository, storageService, &productRepository, &aprioriRepository, db)
-	paymentService := service.NewPaymentService(configuration, &paymentRepository, &userOrderRepository, &transactionRepository, db)
+	paymentService := service.NewPaymentService(configuration, &paymentRepository, &userOrderRepository, &transactionRepository, &notificationService, db)
 	userOrderService := service.NewUserOrderService(&paymentRepository, &userOrderRepository, &userRepository, db)
 	cacheService := service.NewCacheService(configuration)
 	categoryService := service.NewCategoryService(&categoryRepository, db)
@@ -64,15 +66,16 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 
 	// Setup Controller
 	userController := controller.NewUserController(&userService)
-	authController := controller.NewAuthController(&userService, jwtService, emailService, &passwordResetService)
+	authController := controller.NewAuthController(&userService, &jwtService, &emailService, &passwordResetService)
 	productController := controller.NewProductController(&productService, &storageService, &cacheService)
 	transactionController := controller.NewTransactionController(&transactionService, &storageService, &cacheService)
 	aprioriController := controller.NewAprioriController(aprioriService, &storageService, &cacheService)
-	paymentController := controller.NewPaymentController(&paymentService, &userOrderService, emailService, &cacheService)
+	paymentController := controller.NewPaymentController(&paymentService, &userOrderService, &emailService, &cacheService, &notificationService)
 	userOrderController := controller.NewUserOrderController(&paymentService, &userOrderService, &cacheService)
 	categoryController := controller.NewCategoryController(&categoryService, &cacheService)
 	commentController := controller.NewCommentController(&commentService)
 	rajaOngkirController := controller.NewRajaOngkirController()
+	notificationController := controller.NewNotificationController(&notificationService)
 
 	// CORS Middleware
 	router.Use(middleware.SetupCorsMiddleware())
@@ -83,44 +86,6 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 			"message": "Welcome to Apriori Algorithm API. Created By https://github.com/arvians-id",
 		})
 	})
-
-	// Websocket
-	//var (
-	//	wsUpgrader = websocket.Upgrader{
-	//		ReadBufferSize:  1024,
-	//		WriteBufferSize: 1024,
-	//	}
-	//)
-	//type Message struct {
-	//	Msg string `json:"message"`
-	//}
-	//router.GET("/ws", func(c *gin.Context) {
-	//	wsUpgrader.CheckOrigin = func(r *http.Request) bool {
-	//		return true
-	//	}
-	//
-	//	wsConn, err := wsUpgrader.Upgrade(c.Writer, c.Request, nil)
-	//	if err != nil {
-	//		log.Fatal(err)
-	//	}
-	//
-	//	defer func(wsConn *websocket.Conn) {
-	//		err := wsConn.Close()
-	//		if err != nil {
-	//			return
-	//		}
-	//	}(wsConn)
-	//
-	//	for {
-	//		var message Message
-	//		err := wsConn.ReadJSON(&message)
-	//		if err != nil {
-	//			log.Fatal(err)
-	//		}
-	//
-	//		fmt.Println("Message:", message.Msg)
-	//	}
-	//})
 
 	paymentController.Route(router)
 
@@ -137,6 +102,7 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	categoryController.Route(router)
 	commentController.Route(router)
 	rajaOngkirController.Route(router)
+	notificationController.Route(router)
 
 	return router, db
 }

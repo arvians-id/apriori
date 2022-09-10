@@ -1,10 +1,10 @@
 <template>
   <!-- Sidenav -->
-  <Sidebar />
+  <Sidebar :totalNotification="totalNotification" />
   <!-- Main content -->
   <div class="main-content" id="panel">
     <!-- Topnav -->
-    <Topbar :totalCart="totalCart" :carts="carts" />
+    <Topbar :totalCart="totalCart" :carts="carts" :totalNotification="totalNotification" :notifications="notifications" />
     <!-- Header -->
     <Header />
     <!-- Page content -->
@@ -114,6 +114,8 @@ export default {
       limitData: 5,
       totalData: 0,
       isLoading: true,
+      totalNotification: 0,
+      notifications: []
     }
   },
   mounted() {
@@ -121,6 +123,9 @@ export default {
       this.$router.push({ name: 'auth.login' })
     }
     this.fetchData()
+    if(authHeader()["Authorization"] !== undefined) {
+      this.fetchNotification()
+    }
     document.getElementsByTagName("body")[0].classList.remove("bg-default");
   },
   methods: {
@@ -148,6 +153,14 @@ export default {
       axios.get(`${process.env.VUE_APP_SERVICE_URL}/user-order`,{ headers: authHeader() }).then((response) => {
         this.orders = response.data.data.slice(0, this.limitData += 5);
       });
+    },
+    async fetchNotification() {
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/notifications/user`, { headers: authHeader() }).then(response => {
+        if(response.data.data != null) {
+          this.totalNotification = response.data.data.filter(e => e.is_read === false).length
+          this.notifications = response.data.data
+        }
+      })
     },
     getColor(classNames, status) {
       let className = classNames

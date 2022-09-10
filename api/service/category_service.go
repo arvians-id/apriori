@@ -11,13 +11,13 @@ import (
 )
 
 type CategoryServiceImpl struct {
-	categoryRepository repository.CategoryRepository
+	CategoryRepository repository.CategoryRepository
 	DB                 *sql.DB
 }
 
 func NewCategoryService(categoryRepository *repository.CategoryRepository, db *sql.DB) CategoryService {
 	return &CategoryServiceImpl{
-		categoryRepository: *categoryRepository,
+		CategoryRepository: *categoryRepository,
 		DB:                 db,
 	}
 }
@@ -29,7 +29,7 @@ func (service *CategoryServiceImpl) FindAll(ctx context.Context) ([]*model.GetCa
 	}
 	defer helper.CommitOrRollback(tx)
 
-	categories, err := service.categoryRepository.FindAll(ctx, tx)
+	categories, err := service.CategoryRepository.FindAll(ctx, tx)
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +49,7 @@ func (service *CategoryServiceImpl) FindById(ctx context.Context, id int) (*mode
 	}
 	defer helper.CommitOrRollback(tx)
 
-	categoryResponse, err := service.categoryRepository.FindById(ctx, tx, id)
+	categoryResponse, err := service.CategoryRepository.FindById(ctx, tx, id)
 	if err != nil {
 		return &model.GetCategoryResponse{}, err
 	}
@@ -75,7 +75,7 @@ func (service *CategoryServiceImpl) Create(ctx context.Context, request *model.C
 		UpdatedAt: timeNow,
 	}
 
-	categoryResponse, err := service.categoryRepository.Create(ctx, tx, &categoryRequest)
+	categoryResponse, err := service.CategoryRepository.Create(ctx, tx, &categoryRequest)
 	if err != nil {
 		return &model.GetCategoryResponse{}, err
 	}
@@ -91,7 +91,7 @@ func (service *CategoryServiceImpl) Update(ctx context.Context, request *model.U
 	}
 	defer helper.CommitOrRollback(tx)
 
-	category, err := service.categoryRepository.FindById(ctx, tx, request.IdCategory)
+	category, err := service.CategoryRepository.FindById(ctx, tx, request.IdCategory)
 	if err != nil {
 		return &model.GetCategoryResponse{}, err
 	}
@@ -103,7 +103,7 @@ func (service *CategoryServiceImpl) Update(ctx context.Context, request *model.U
 	category.Name = helper.UpperWords(request.Name)
 	category.UpdatedAt = timeNow
 
-	categoryResponse, err := service.categoryRepository.Update(ctx, tx, category)
+	categoryResponse, err := service.CategoryRepository.Update(ctx, tx, category)
 	if err != nil {
 		return &model.GetCategoryResponse{}, err
 	}
@@ -118,12 +118,12 @@ func (service *CategoryServiceImpl) Delete(ctx context.Context, id int) error {
 	}
 	defer helper.CommitOrRollback(tx)
 
-	category, err := service.categoryRepository.FindById(ctx, tx, id)
+	category, err := service.CategoryRepository.FindById(ctx, tx, id)
 	if err != nil {
 		return err
 	}
 
-	err = service.categoryRepository.Delete(ctx, tx, category.IdCategory)
+	err = service.CategoryRepository.Delete(ctx, tx, category.IdCategory)
 	if err != nil {
 		return err
 	}

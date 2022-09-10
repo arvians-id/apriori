@@ -1,10 +1,10 @@
 <template>
   <!-- Sidenav -->
-  <Sidebar />
+  <Sidebar :totalNotification="totalNotification" />
   <!-- Main content -->
   <div class="main-content" id="panel">
     <!-- Topnav -->
-    <Topbar :totalCart="totalCart" :carts="carts" />
+    <Topbar :totalCart="totalCart" :carts="carts" :totalNotification="totalNotification" :notifications="notifications" />
     <!-- Header -->
     <Header />
     <!-- Page content -->
@@ -380,7 +380,9 @@ export default {
       isLoading: true,
       isLoading2: true,
       isLoading3: true,
-      search: ""
+      search: "",
+      totalNotification: 0,
+      notifications: []
     };
   },
   methods: {
@@ -388,6 +390,9 @@ export default {
       this.fetchData()
       this.fetchDataRecommendation()
       this.fetchCategory()
+      if(authHeader()["Authorization"] !== undefined) {
+        this.fetchNotification()
+      }
       document.getElementsByTagName("body")[0].classList.remove("bg-default");
     },
     submitSearch(){
@@ -473,6 +478,14 @@ export default {
       });
 
       this.isLoading2 = false
+    },
+    async fetchNotification() {
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/notifications/user`, { headers: authHeader() }).then(response => {
+        if(response.data.data != null) {
+          this.totalNotification = response.data.data.filter(e => e.is_read === false).length
+          this.notifications = response.data.data
+        }
+      })
     },
     loadMore(){
       this.products = this.allProducts.slice(0, this.limitData += 8);

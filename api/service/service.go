@@ -50,7 +50,7 @@ type CommentService interface {
 }
 
 type EmailService interface {
-	SendEmailWithText(toEmail string, message string) error
+	SendEmailWithText(toEmail string, subject string, message string) error
 }
 
 type JwtService interface {
@@ -70,7 +70,7 @@ type PaymentService interface {
 	FindAllByUserId(ctx context.Context, userId int) ([]*model.GetPaymentResponse, error)
 	FindByOrderId(ctx context.Context, orderId string) (*model.GetPaymentResponse, error)
 	CreateOrUpdate(ctx context.Context, request map[string]interface{}) error
-	UpdateReceiptNumber(ctx context.Context, request *model.AddReceiptNumberRequest) error
+	UpdateReceiptNumber(ctx context.Context, request *model.AddReceiptNumberRequest) (*model.GetPaymentResponse, error)
 	Delete(ctx context.Context, orderId string) error
 	GetToken(ctx context.Context, amount int64, userId int, customerName string, items []string, rajaShipping *model.GetRajaOngkirResponse) (map[string]interface{}, error)
 }
@@ -117,4 +117,14 @@ type UserService interface {
 	Create(ctx context.Context, request *model.CreateUserRequest) (*model.GetUserResponse, error)
 	Update(ctx context.Context, request *model.UpdateUserRequest) (*model.GetUserResponse, error)
 	Delete(ctx context.Context, id int) error
+}
+
+type NotificationService interface {
+	FindAll(ctx context.Context) ([]*model.GetNotificationRelationResponse, error)
+	FindAllByUserId(ctx context.Context, userId int) ([]*model.GetNotificationResponse, error)
+	Create(ctx context.Context, request *model.CreateNotificationRequest) *NotificationServiceImpl
+	MarkAll(ctx context.Context, userId int) error
+	Mark(ctx context.Context, id int) error
+	WithSendMail() error
+	WithSendMailToUserAndAdmin() error
 }

@@ -13,23 +13,26 @@ import (
 )
 
 type PaymentController struct {
-	PaymentService   service.PaymentService
-	UserOrderService service.UserOrderService
-	EmailService     service.EmailService
-	CacheService     service.CacheService
+	PaymentService      service.PaymentService
+	UserOrderService    service.UserOrderService
+	EmailService        service.EmailService
+	CacheService        service.CacheService
+	NotificationService service.NotificationService
 }
 
 func NewPaymentController(
 	paymentService *service.PaymentService,
 	userOrderService *service.UserOrderService,
-	emailService service.EmailService,
+	emailService *service.EmailService,
 	cacheService *service.CacheService,
+	notificationService *service.NotificationService,
 ) *PaymentController {
 	return &PaymentController{
-		PaymentService:   *paymentService,
-		UserOrderService: *userOrderService,
-		EmailService:     emailService,
-		CacheService:     *cacheService,
+		PaymentService:      *paymentService,
+		UserOrderService:    *userOrderService,
+		EmailService:        *emailService,
+		CacheService:        *cacheService,
+		NotificationService: *notificationService,
 	}
 }
 
@@ -87,13 +90,25 @@ func (controller *PaymentController) UpdateReceiptNumber(c *gin.Context) {
 	}
 
 	request.OrderId = c.Param("order_id")
-	err = controller.PaymentService.UpdateReceiptNumber(c.Request.Context(), &request)
+	payment, err := controller.PaymentService.UpdateReceiptNumber(c.Request.Context(), &request)
 	if err != nil {
 		if err.Error() == response.ErrorNotFound {
 			response.ReturnErrorNotFound(c, err, nil)
 			return
 		}
 
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	// Notification
+	var notificationRequest model.CreateNotificationRequest
+	notificationRequest.UserId = helper.StrToInt(payment.UserId)
+	notificationRequest.Title = "The product has been paid"
+	notificationRequest.Description = "successfully paid"
+	notificationRequest.URL = "product"
+	err = controller.NotificationService.Create(c.Request.Context(), &notificationRequest).WithSendMail()
+	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}

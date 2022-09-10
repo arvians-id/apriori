@@ -8,6 +8,7 @@ import OrderDetail from "@/views/user-guest/OrderDetail";
 import Profile from "@/views/user-guest/Profile";
 import HistoryOrder from "@/views/user-guest/HistoryOrder";
 import HistoryOrderRate from "@/views/user-guest/HistoryOrderRate";
+import Notification from "@/views/user-guest/Notification";
 
 const userGuestRouter = [
     { path: "/", name: "guest.index", component: LandingPage },
@@ -20,6 +21,7 @@ const userGuestRouter = [
     { path: "/my-profile", name: "member.profile", component: Profile },
     { path: "/my-history-order", name: "member.history", component: HistoryOrder },
     { path: "/my-history-order/:id_order/rate", name: "member.history.rate", component: HistoryOrderRate },
+    { path: "/notification", name: "member.notification", component: Notification },
 ]
 
 export default userGuestRouter;

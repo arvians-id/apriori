@@ -1,10 +1,10 @@
 <template>
   <!-- Sidenav -->
-  <Sidebar />
+  <Sidebar :totalNotification="totalNotification" />
   <!-- Main content -->
   <div class="main-content" id="panel">
     <!-- Topnav -->
-    <Topbar :totalCart="totalCart" :carts="carts" />
+    <Topbar :totalCart="totalCart" :carts="carts" :totalNotification="totalNotification" :notifications="notifications" />
     <!-- Header -->
     <Header />
     <!-- Page content -->
@@ -93,11 +93,16 @@ export default {
         address: "",
         phone: "",
         password: "",
-      }
+      },
+      totalNotification: 0,
+      notifications: []
     }
   },
   mounted() {
     this.fetchData()
+    if(authHeader()["Authorization"] !== undefined) {
+      this.fetchNotification()
+    }
   },
   methods: {
     submit() {
@@ -136,7 +141,15 @@ export default {
           }).catch(error => {
         console.log(error.response.data.status)
       })
-    }
+    },
+    async fetchNotification() {
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/notifications/user`, { headers: authHeader() }).then(response => {
+        if(response.data.data != null) {
+          this.totalNotification = response.data.data.filter(e => e.is_read === false).length
+          this.notifications = response.data.data
+        }
+      })
+    },
   }
 }
 </script>

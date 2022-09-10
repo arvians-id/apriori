@@ -65,3 +65,7 @@
 [GIN-debug] GET    /api/comments/user-order/:user_order_id --> apriori/app/controller.(*CommentController).FindByUserOrderId-fm (5 handlers)
 [GIN-debug] GET    /api/raja-ongkir/:place   --> apriori/app/controller.(*RajaOngkirController).FindAll-fm (5 handlers)
 [GIN-debug] POST   /api/raja-ongkir/cost     --> apriori/app/controller.(*RajaOngkirController).GetCost-fm (5 handlers)
+[GIN-debug] GET    /api/notifications        --> apriori/app/controller.(*NotificationController).FindAll-fm (6 handlers)
+[GIN-debug] GET    /api/notifications/user   --> apriori/app/controller.(*NotificationController).FindAllByUserId-fm (6 handlers)
+[GIN-debug] PATCH  /api/notifications/mark   --> apriori/app/controller.(*NotificationController).MarkAll-fm (6 handlers)
+[GIN-debug] PATCH  /api/notifications/mark/:id --> apriori/app/controller.(*NotificationController).Mark-fm (6 handlers)

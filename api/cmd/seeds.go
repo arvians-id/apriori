@@ -78,7 +78,7 @@ func productSeeder(totalSeeds int) error {
 	productRepository := repository.NewProductRepository()
 	aprioriRepository := repository.NewAprioriRepository()
 	storageService := service.NewStorageService(configuration)
-	productService := service.NewProductService(&productRepository, storageService, &aprioriRepository, db)
+	productService := service.NewProductService(&productRepository, &storageService, &aprioriRepository, db)
 
 	seeder.RegisterSeeder(productService, totalSeeds)
 

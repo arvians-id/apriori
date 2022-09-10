@@ -14,7 +14,7 @@ import (
 type CommentServiceImpl struct {
 	CommentRepository repository.CommentRepository
 	ProductRepository repository.ProductRepository
-	db                *sql.DB
+	DB                *sql.DB
 }
 
 func NewCommentService(
@@ -25,12 +25,12 @@ func NewCommentService(
 	return &CommentServiceImpl{
 		CommentRepository: *commentRepository,
 		ProductRepository: *productRepository,
-		db:                db,
+		DB:                db,
 	}
 }
 
 func (service *CommentServiceImpl) FindAllRatingByProductCode(ctx context.Context, productCode string) ([]*model.GetRatingResponse, error) {
-	tx, err := service.db.Begin()
+	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func (service *CommentServiceImpl) FindAllRatingByProductCode(ctx context.Contex
 }
 
 func (service *CommentServiceImpl) FindAllByProductCode(ctx context.Context, productCode string, rating string, tags string) ([]*model.GetCommentResponse, error) {
-	tx, err := service.db.Begin()
+	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
 	}
@@ -82,7 +82,7 @@ func (service *CommentServiceImpl) FindAllByProductCode(ctx context.Context, pro
 }
 
 func (service *CommentServiceImpl) FindById(ctx context.Context, id int) (*model.GetCommentResponse, error) {
-	tx, err := service.db.Begin()
+	tx, err := service.DB.Begin()
 	if err != nil {
 		return &model.GetCommentResponse{}, err
 	}
@@ -97,7 +97,7 @@ func (service *CommentServiceImpl) FindById(ctx context.Context, id int) (*model
 }
 
 func (service *CommentServiceImpl) FindByUserOrderId(ctx context.Context, userOrderId int) (*model.GetCommentResponse, error) {
-	tx, err := service.db.Begin()
+	tx, err := service.DB.Begin()
 	if err != nil {
 		return &model.GetCommentResponse{}, err
 	}
@@ -112,7 +112,7 @@ func (service *CommentServiceImpl) FindByUserOrderId(ctx context.Context, userOr
 }
 
 func (service *CommentServiceImpl) Create(ctx context.Context, request *model.CreateCommentRequest) (*model.GetCommentResponse, error) {
-	tx, err := service.db.Begin()
+	tx, err := service.DB.Begin()
 	if err != nil {
 		return &model.GetCommentResponse{}, err
 	}

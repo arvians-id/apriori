@@ -23,6 +23,7 @@ type PaymentServiceImpl struct {
 	PaymentRepository     repository.PaymentRepository
 	UserOrderRepository   repository.UserOrderRepository
 	TransactionRepository repository.TransactionRepository
+	NotificationService   NotificationService
 	DB                    *sql.DB
 }
 
@@ -31,6 +32,7 @@ func NewPaymentService(
 	paymentRepository *repository.PaymentRepository,
 	userOrderRepository *repository.UserOrderRepository,
 	transactionRepository *repository.TransactionRepository,
+	notificationService *NotificationService,
 	db *sql.DB,
 ) PaymentService {
 	midClient := midtrans.NewClient()
@@ -45,6 +47,7 @@ func NewPaymentService(
 		PaymentRepository:     *paymentRepository,
 		UserOrderRepository:   *userOrderRepository,
 		TransactionRepository: *transactionRepository,
+		NotificationService:   *notificationService,
 		DB:                    db,
 	}
 }
@@ -236,37 +239,42 @@ func (service *PaymentServiceImpl) CreateOrUpdate(ctx context.Context, request m
 			if err != nil {
 				return err
 			}
+
+			var notificationRequest model.CreateNotificationRequest
+			notificationRequest.UserId = helper.StrToInt(paymentRequest.UserId.String)
+			notificationRequest.Title = "Transaction Successfully"
+			notificationRequest.Description = "There is a successful user payment"
+			notificationRequest.URL = "product"
+			_ = service.NotificationService.Create(ctx, &notificationRequest).WithSendMailToUserAndAdmin()
 		}
 	}
 
 	return nil
 }
 
-func (service *PaymentServiceImpl) UpdateReceiptNumber(ctx context.Context, request *model.AddReceiptNumberRequest) error {
+func (service *PaymentServiceImpl) UpdateReceiptNumber(ctx context.Context, request *model.AddReceiptNumberRequest) (*model.GetPaymentResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
-		return err
+		return nil, err
 	}
 	defer helper.CommitOrRollback(tx)
 
 	payment, err := service.PaymentRepository.FindByOrderId(ctx, tx, request.OrderId)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	paymentRequest := entity.Payment{
-		OrderId: payment.OrderId,
-		ReceiptNumber: sql.NullString{
-			String: request.ReceiptNumber,
-			Valid:  true,
-		},
+	payment.ReceiptNumber = sql.NullString{
+		String: request.ReceiptNumber,
+		Valid:  true,
 	}
-	err = service.PaymentRepository.UpdateReceiptNumber(ctx, tx, &paymentRequest)
+
+	err = service.PaymentRepository.UpdateReceiptNumber(ctx, tx, payment)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	return payment.ToPaymentResponse(), nil
 }
 
 func (service *PaymentServiceImpl) Delete(ctx context.Context, orderId string) error {

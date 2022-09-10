@@ -14,8 +14,63 @@
               </div>
             </div>
           </li>
+          <li class="nav-item dropdown" v-if="isLoggedIn">
+            <a class="nav-link" href="javascript:void(0);" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+              {{ totalNotification }} <i class="ni ni-bell-55"></i>
+            </a>
+            <div class="dropdown-menu dropdown-menu-xl dropdown-menu-right py-0 overflow-hidden">
+              <!-- Dropdown header -->
+              <div class="px-3 py-3">
+                <h6 class="text-sm text-muted m-0">Kamu memiliki <strong class="text-primary">{{ totalNotification }}</strong> pemberitahuan baru.</h6>
+              </div>
+              <!-- List group -->
+              <div class="list-group list-group-flush overflow-auto" v-if="notifications.length > 0">
+                <template v-for="(item,i) in notifications.slice(0, 5)" :key="i">
+                  <div class="list-group-item list-group-item-action" v-if="!item.is_read"  style="background-color: #f6f9fc">
+                    <div class="row align-items-center">
+                      <div class="col ml-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                          <div>
+                            <h4 class="mb-0 text-sm">{{ item.title }}</h4>
+                          </div>
+                          <div class="text-right text-muted">
+                            <small>{{ item.created_at.split(" ")[0] }} {{ item.created_at.split(" ")[1] }}</small>
+                          </div>
+                        </div>
+                        <p class="text-sm mb-0">{{ item.description.length > 50 ? item.description.slice(0, 50) + "..." : item.description }}</p>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="list-group-item list-group-item-action" v-else>
+                    <div class="row align-items-center">
+                      <div class="col ml-2">
+                        <div class="d-flex justify-content-between align-items-center">
+                          <div>
+                            <h4 class="mb-0 text-sm">{{ item.title }}</h4>
+                          </div>
+                          <div class="text-right text-muted">
+                            <small>{{ item.created_at.split(" ")[0] }} {{ item.created_at.split(" ")[1] }}</small>
+                          </div>
+                        </div>
+                        <p class="text-sm mb-0">{{ item.description.length > 50 ? item.description.slice(0, 50) + "..." : item.description }}</p>
+                      </div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+              <div class="list-group list-group-flush" v-else>
+                <div class="list-group-item">
+                  <div class="text-center">
+                    <h4 class="mb-0 text-sm text-muted">Tidak ada pemberitahuan.</h4>
+                  </div>
+                </div>
+              </div>
+              <!-- View all -->
+              <router-link :to="{ name: 'member.notification' }" class="dropdown-item text-center text-primary font-weight-bold py-3">View all</router-link>
+            </div>
+          </li>
           <li class="nav-item dropdown">
-            <a class="nav-link" href="#" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            <a class="nav-link" href="javascript:void(0);" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
               {{ totalCart }} <i class="ni ni-cart"></i>
             </a>
             <div class="dropdown-menu dropdown-menu-xl dropdown-menu-right py-0 overflow-hidden">
@@ -134,6 +189,14 @@ export default {
       default: 0
     },
     carts: {
+      type: Array,
+      default: () => []
+    },
+    totalNotification: {
+      type: Number,
+      default: 0
+    },
+    notifications: {
       type: Array,
       default: () => []
     },

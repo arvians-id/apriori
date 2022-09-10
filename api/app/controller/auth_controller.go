@@ -24,14 +24,14 @@ type AuthController struct {
 
 func NewAuthController(
 	userService *service.UserService,
-	jwtService service.JwtService,
-	emailService service.EmailService,
+	jwtService *service.JwtService,
+	emailService *service.EmailService,
 	passwordResetService *service.PasswordResetService,
 ) *AuthController {
 	return &AuthController{
 		UserService:          *userService,
-		JwtService:           jwtService,
-		EmailService:         emailService,
+		JwtService:           *jwtService,
+		EmailService:         *emailService,
 		PasswordResetService: *passwordResetService,
 	}
 }
@@ -168,7 +168,7 @@ func (controller *AuthController) ForgotPassword(c *gin.Context) {
 
 	// Send email to user
 	message := fmt.Sprintf("%s/auth/reset-password?signature=%v", os.Getenv("APP_URL_FE"), result.Token)
-	err = controller.EmailService.SendEmailWithText(result.Email, message)
+	err = controller.EmailService.SendEmailWithText(result.Email, "Forgot Password", message)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return

@@ -1,10 +1,10 @@
 <template>
   <!-- Sidenav -->
-  <Sidebar />
+  <Sidebar :totalNotification="totalNotification" />
   <!-- Main content -->
   <div class="main-content" id="panel">
     <!-- Topnav -->
-    <Topbar :totalCart="totalCart" :carts="carts" />
+    <Topbar :totalCart="totalCart" :carts="carts" :totalNotification="totalNotification" :notifications="notifications" />
     <!-- Header -->
     <Header />
     <!-- Page content -->
@@ -154,6 +154,9 @@ export default {
   },
   mounted() {
     this.fetchData()
+    if(authHeader()["Authorization"] !== undefined) {
+      this.fetchNotification()
+    }
     document.getElementsByTagName("body")[0].classList.remove("bg-default");
   },
   data: function () {
@@ -191,6 +194,8 @@ export default {
         receipt_number: "",
       },
       isLoading: true,
+      totalNotification:0,
+      notifications: []
     };
   },
   methods: {
@@ -251,6 +256,14 @@ export default {
       })
 
       this.isLoading = false;
+    },
+    async fetchNotification() {
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/notifications/user`, { headers: authHeader() }).then(response => {
+        if(response.data.data != null) {
+          this.totalNotification = response.data.data.filter(e => e.is_read === false).length
+          this.notifications = response.data.data
+        }
+      })
     },
     numberWithCommas(x) {
       return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
