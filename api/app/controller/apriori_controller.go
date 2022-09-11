@@ -160,7 +160,7 @@ func (controller *AprioriController) Create(c *gin.Context) {
 	var generateRequests []*model.GetGenerateAprioriResponse
 	err := c.ShouldBindJSON(&generateRequests)
 	if err != nil {
-		response.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
@@ -204,7 +204,7 @@ func (controller *AprioriController) Generate(c *gin.Context) {
 	var request model.GenerateAprioriRequest
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
-		response.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 

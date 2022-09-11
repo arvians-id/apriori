@@ -70,6 +70,11 @@ func (controller *AuthController) Login(c *gin.Context) {
 			return
 		}
 
+		if err.Error() == response.WrongPassword {
+			response.ReturnErrorBadRequest(c, err, nil)
+			return
+		}
+
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
@@ -193,6 +198,11 @@ func (controller *AuthController) VerifyResetPassword(c *gin.Context) {
 	if err != nil {
 		if err.Error() == response.ErrorNotFound {
 			response.ReturnErrorNotFound(c, err, nil)
+			return
+		}
+
+		if err.Error() == response.VerificationExpired {
+			response.ReturnErrorBadRequest(c, err, nil)
 			return
 		}
 

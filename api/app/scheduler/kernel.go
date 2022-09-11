@@ -29,7 +29,7 @@ func Execute() {
 	var clearTablePasswordResets ClearTablePasswordResetsSchedule
 	var example ExampleSchedule
 
-	schedule.Add(everyOneHour, &sendEmailNewsletter)
+	schedule.Add(daily, &sendEmailNewsletter)
 	schedule.Add(daily, &clearTablePasswordResets)
 	schedule.Add(dailyCustom, &example)
 
