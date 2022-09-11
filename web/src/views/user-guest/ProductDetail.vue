@@ -523,7 +523,9 @@ export default {
           this.comments = []
         }
       }).catch(error => {
-        console.log(error)
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
+        }
       })
     },
     async fetchRatings(){
@@ -540,7 +542,9 @@ export default {
           this.satisfactionRating = 0
         }
       }).catch(error => {
-        console.log(error)
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
+        }
       })
     },
     async fetchComments(){
@@ -555,7 +559,9 @@ export default {
           this.comments = []
         }
       }).catch(error => {
-        console.log(error)
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
+        }
       })
 
       this.filter = {
@@ -567,9 +573,10 @@ export default {
       await axios.get(`${process.env.VUE_APP_SERVICE_URL}/categories`, { headers: authHeader() })
         .then(response => {
           this.categories = response.data.data
-        })
-        .catch(error => {
-          console.log(error)
+        }).catch(error => {
+            if (error.response.status === 400 || error.response.status === 404) {
+              console.log(error.response.data.status)
+            }
         })
     },
     async fetchSimilarCategory(){
@@ -578,9 +585,10 @@ export default {
             if(response.data.data != null) {
               this.productSimilarCategory = response.data.data.slice(0, 3)
             }
-          })
-          .catch(error => {
-            console.log(error)
+          }).catch(error => {
+            if (error.response.status === 400 || error.response.status === 404) {
+              console.log(error.response.data.status)
+            }
           })
     },
     async fetchData() {
@@ -590,6 +598,10 @@ export default {
 
       await axios.get(`${process.env.VUE_APP_SERVICE_URL}/products/${this.$route.params.code}`, { headers: authHeader() }).then((response) => {
         this.product = response.data.data;
+      }).catch(error => {
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
+        }
       });
 
       if(this.carts.length > 0){
@@ -610,8 +622,10 @@ export default {
         } else {
           this.recommendation = []
         }
-      }).catch((error) => {
-        console.log(error);
+      }).catch(error => {
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
+        }
       });
 
       this.isLoading2 = false
@@ -622,7 +636,11 @@ export default {
           this.totalNotification = response.data.data.filter(e => e.is_read === false).length
           this.notifications = response.data.data
         }
-      })
+      }).catch(error => {
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
+        }
+      });
     },
     UpperWord(str) {
       return str.toLowerCase().replace(/\b[a-z]/g, function (letter) {

@@ -1,6 +1,7 @@
 package postgres
 
 import (
+	"apriori/app/response"
 	"apriori/entity"
 	"apriori/repository"
 	"context"
@@ -48,7 +49,7 @@ func (repository *AprioriRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx
 }
 
 func (repository *AprioriRepositoryImpl) FindAllByActive(ctx context.Context, tx *sql.Tx) ([]*entity.Apriori, error) {
-	query := `SELECT * FROM apriories WHERE is_active = 1 ORDER BY discount DESC`
+	query := `SELECT * FROM apriories WHERE is_active = true ORDER BY discount DESC`
 	rows, err := tx.QueryContext(ctx, query)
 	if err != nil {
 		return nil, err
@@ -85,7 +86,7 @@ func (repository *AprioriRepositoryImpl) FindAllByActive(ctx context.Context, tx
 	}
 
 	if apriories == nil {
-		return nil, errors.New("data not found")
+		return nil, errors.New(response.ErrorNotFound)
 	}
 
 	return apriories, nil
@@ -129,7 +130,7 @@ func (repository *AprioriRepositoryImpl) FindAllByCode(ctx context.Context, tx *
 	}
 
 	if apriories == nil {
-		return nil, errors.New("data not found")
+		return nil, errors.New(response.ErrorNotFound)
 	}
 
 	return apriories, nil
@@ -195,7 +196,7 @@ func (repository *AprioriRepositoryImpl) Update(ctx context.Context, tx *sql.Tx,
 	return apriori, nil
 }
 
-func (repository *AprioriRepositoryImpl) UpdateAllStatus(ctx context.Context, tx *sql.Tx, status int) error {
+func (repository *AprioriRepositoryImpl) UpdateAllStatus(ctx context.Context, tx *sql.Tx, status bool) error {
 	query := `UPDATE apriories SET is_active = $1`
 	_, err := tx.ExecContext(ctx, query, status)
 	if err != nil {
@@ -205,7 +206,7 @@ func (repository *AprioriRepositoryImpl) UpdateAllStatus(ctx context.Context, tx
 	return nil
 }
 
-func (repository *AprioriRepositoryImpl) UpdateStatusByCode(ctx context.Context, tx *sql.Tx, code string, status int) error {
+func (repository *AprioriRepositoryImpl) UpdateStatusByCode(ctx context.Context, tx *sql.Tx, code string, status bool) error {
 	query := `UPDATE apriories SET is_active = $1 WHERE code = $2`
 	_, err := tx.ExecContext(ctx, query, status, code)
 	if err != nil {

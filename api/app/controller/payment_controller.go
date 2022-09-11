@@ -117,25 +117,21 @@ func (controller *PaymentController) UpdateReceiptNumber(c *gin.Context) {
 }
 
 func (controller *PaymentController) Pay(c *gin.Context) {
-	grossAmount := int64(helper.StrToInt(c.PostForm("gross_amount")))
-	items := c.PostFormArray("items")
-	userId := helper.StrToInt(c.PostForm("user_id"))
-	customerName := c.PostForm("customer_name")
-
-	var rajaShipping model.GetRajaOngkirResponse
-	rajaShipping.Address = c.PostForm("address")
-	rajaShipping.Courier = c.PostForm("courier")
-	rajaShipping.CourierService = c.PostForm("courier_service")
-	rajaShipping.ShippingCost = int64(helper.StrToInt(c.PostForm("shipping_cost")))
-
-	data, err := controller.PaymentService.GetToken(c.Request.Context(), grossAmount, userId, customerName, items, &rajaShipping)
+	var request model.GetPaymentTokenRequest
+	err := c.ShouldBind(&request)
 	if err != nil {
 		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
+	data, err := controller.PaymentService.GetToken(c.Request.Context(), &request)
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
 	// delete previous cache
-	key := fmt.Sprintf("user-order-payment-%v", userId)
+	key := fmt.Sprintf("user-order-payment-%v", request.UserId)
 	_ = controller.CacheService.Del(c.Request.Context(), key)
 
 	response.ReturnSuccessOK(c, "OK", data)
@@ -153,7 +149,6 @@ func (controller *PaymentController) Notification(c *gin.Context) {
 	resArray := make(map[string]interface{})
 	err = json.Unmarshal(encode, &resArray)
 
-	//Save to database
 	err = controller.PaymentService.CreateOrUpdate(c.Request.Context(), resArray)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
@@ -171,7 +166,6 @@ func (controller *PaymentController) Notification(c *gin.Context) {
 
 func (controller *PaymentController) Delete(c *gin.Context) {
 	orderIdParam := c.Param("order_id")
-
 	err := controller.PaymentService.Delete(c.Request.Context(), orderIdParam)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)

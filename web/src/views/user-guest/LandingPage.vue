@@ -299,6 +299,10 @@ export default {
 
       axios.get(`${process.env.VUE_APP_SERVICE_URL}/apriori/actives`,{ headers: authHeader() }).then((response) => {
         this.apriories = response.data.data.slice(0,3);
+      }).catch(error => {
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
+        }
       });
 
       if(this.carts.length > 0){
@@ -312,6 +316,10 @@ export default {
         if(response.data.data != null) {
           this.totalNotification = response.data.data.filter(e => e.is_read === false).length
           this.notifications = response.data.data
+        }
+      }).catch(error => {
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
         }
       })
     },

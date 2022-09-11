@@ -27,13 +27,13 @@
                     <div class="col-6">
                       <div class="form-group">
                         <label class="form-control-label">Nama Depan</label> <small class="text-danger">*</small>
-                        <input type="text" class="form-control" name="first_name" v-model="checkout.first_name" required>
+                        <input type="text" class="form-control" name="first_name" v-model="checkout.first_name" required readonly>
                       </div>
                     </div>
                     <div class="col-6">
                       <div class="form-group">
-                        <label class="form-control-label">Nama Belakang</label> <small class="text-danger">*</small>
-                        <input type="text" class="form-control" name="last_name" v-model="checkout.last_name" required>
+                        <label class="form-control-label">Nama Belakang</label>
+                        <input type="text" class="form-control" name="last_name" v-model="checkout.last_name" readonly>
                       </div>
                     </div>
                   </div>
@@ -217,11 +217,19 @@ export default {
       notifications: [],
     }
   },
-  mounted() {
+  async mounted() {
     this.fetchData()
     if(authHeader()["Authorization"] !== undefined) {
       this.loadScript()
-      this.fetchNotification()
+      await this.fetchNotification()
+      let getRole = await getRoles();
+      let names = getRole.name.split(" ")
+      if (names.length < 2) {
+        this.checkout.first_name = names[0]
+      } else {
+        this.checkout.first_name = names[0]
+        this.checkout.last_name = names[1]
+      }
     }
     this.getProvinces()
     document.getElementsByTagName("body")[0].classList.remove("bg-default");
@@ -232,7 +240,7 @@ export default {
           .then(response => {
             this.provinces = response.data.data.rajaongkir.results
           }).catch(error => {
-            console.log(error);
+            console.log(error)
           });
     },
     getCity(){
@@ -240,7 +248,7 @@ export default {
           .then(response => {
             this.cities = response.data.data.rajaongkir.results
           }).catch(error => {
-            console.log(error);
+        console.log(error)
           });
     },
     getCost(){
@@ -265,7 +273,7 @@ export default {
           .then(response => {
             this.costs = response.data.data.rajaongkir
           }).catch(error => {
-            console.log(error);
+            console.log(error)
           });
     },
     getTotalPrice(){
@@ -300,6 +308,10 @@ export default {
           this.totalNotification = response.data.data.filter(e => e.is_read === false).length
           this.notifications = response.data.data
         }
+      }).catch(error => {
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
+        }
       })
     },
     loadScript(){
@@ -329,9 +341,10 @@ export default {
         getRoles().then(response => {
           let formData = new FormData()
 
+          let names = this.checkout.last_name === "" ? this.checkout.first_name : this.checkout.first_name + " " + this.checkout.last_name
           formData.append("gross_amount", this.totalPrice)
           formData.append("user_id", response.id_user)
-          formData.append("customer_name", this.checkout.first_name + " " + this.checkout.last_name)
+          formData.append("customer_name", names)
           formData.append("items", JSON.stringify(this.carts))
           formData.append("address", this.checkout.address)
           formData.append("courier", this.checkout.courier)
@@ -351,7 +364,9 @@ export default {
               }
             })
           }).catch(error => {
-            console.log(error)
+            if (error.response.status === 400 || error.response.status === 404) {
+              console.log(error.response.data.status)
+            }
           })
         })
       }

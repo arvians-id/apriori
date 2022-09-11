@@ -173,7 +173,9 @@ export default {
           .then(response => {
             this.order = response.data.data;
           }).catch(error => {
-            console.log(error.response.data.status)
+            if (error.response.status === 400 || error.response.status === 404) {
+              console.log(error.response.data.status)
+            }
           })
 
       localStorage.getItem("my-carts")
@@ -200,7 +202,9 @@ export default {
               this.isExists = true;
             }
           }).catch(error => {
-            console.log(error)
+            if (error.response.status === 400 || error.response.status === 404) {
+              console.log(error.response.data.status)
+            }
           })
 
       this.isLoading = false
@@ -210,6 +214,10 @@ export default {
         if(response.data.data != null) {
           this.totalNotification = response.data.data.filter(e => e.is_read === false).length
           this.notifications = response.data.data
+        }
+      }).catch(error => {
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
         }
       })
     },
@@ -230,7 +238,9 @@ export default {
               })
             }
           }).catch(error => {
-            console.log(error.response.data.status)
+            if (error.response.status === 400 || error.response.status === 404) {
+              alert(error.response.data.status)
+            }
           })
     }
   }

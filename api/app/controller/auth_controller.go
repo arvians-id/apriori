@@ -102,9 +102,7 @@ func (controller *AuthController) Login(c *gin.Context) {
 }
 
 func (controller *AuthController) Refresh(c *gin.Context) {
-	var request struct {
-		RefreshToken string `json:"refresh_token"`
-	}
+	var request model.GetRefreshTokenRequest
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
 		response.ReturnErrorBadRequest(c, err, nil)
@@ -151,7 +149,6 @@ func (controller *AuthController) Register(c *gin.Context) {
 }
 
 func (controller *AuthController) ForgotPassword(c *gin.Context) {
-	// Check email if exists
 	var request model.CreatePasswordResetRequest
 	err := c.ShouldBindJSON(&request)
 	if err != nil {
@@ -159,7 +156,6 @@ func (controller *AuthController) ForgotPassword(c *gin.Context) {
 		return
 	}
 
-	// Insert or update data token into database
 	result, err := controller.PasswordResetService.CreateOrUpdateByEmail(c.Request.Context(), request.Email)
 	if err != nil {
 		if err.Error() == response.ErrorNotFound {
@@ -171,7 +167,6 @@ func (controller *AuthController) ForgotPassword(c *gin.Context) {
 		return
 	}
 
-	// Send email to user
 	message := fmt.Sprintf("%s/auth/reset-password?signature=%v", os.Getenv("APP_URL_FE"), result.Token)
 	err = controller.EmailService.SendEmailWithText(result.Email, "Forgot Password", message)
 	if err != nil {
@@ -185,7 +180,6 @@ func (controller *AuthController) ForgotPassword(c *gin.Context) {
 }
 
 func (controller *AuthController) VerifyResetPassword(c *gin.Context) {
-	// Check email if exists
 	var request model.UpdateResetPasswordUserRequest
 	err := c.ShouldBindJSON(&request)
 	if err != nil {

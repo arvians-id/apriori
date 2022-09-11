@@ -115,8 +115,10 @@ export default {
               })
             }
           }).catch(error => {
-            console.log(error.response.data.status)
-          })
+            if (error.response.status === 400 || error.response.status === 404) {
+              alert(error.response.data.status)
+            }
+          });
     },
     async fetchData() {
       localStorage.getItem("my-carts")
@@ -139,8 +141,10 @@ export default {
               password: response.data.data.password,
             }
           }).catch(error => {
-        console.log(error.response.data.status)
-      })
+            if (error.response.status === 400 || error.response.status === 404) {
+              console.log(error.response.data.status)
+            }
+          });
     },
     async fetchNotification() {
       await axios.get(`${process.env.VUE_APP_SERVICE_URL}/notifications/user`, { headers: authHeader() }).then(response => {
@@ -148,7 +152,11 @@ export default {
           this.totalNotification = response.data.data.filter(e => e.is_read === false).length
           this.notifications = response.data.data
         }
-      })
+      }).catch(error => {
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
+        }
+      });
     },
   }
 }

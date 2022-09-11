@@ -69,8 +69,12 @@ export default {
       setTimeout(function(){
         $('#datatable').DataTable();
       }, 0);
+    }).catch(error => {
+      if (error.response.status === 400 || error.response.status === 404) {
+        console.log(error.response.data.status)
+      }
     });
-    this.fetchData()
+    await this.fetchData()
 
     this.isLoading = false;
   },
@@ -100,8 +104,10 @@ export default {
               })
             }
           }).catch(error => {
-        console.log(error.response.data.status)
-      })
+            if (error.response.status === 400 || error.response.status === 404) {
+              alert(error.response.data.status)
+            }
+          })
     },
     async fetchData() {
       await axios.get(`${process.env.VUE_APP_SERVICE_URL}/transactions/${this.$route.params.no_transaction}`, { headers: authHeader() }).then(response => {
@@ -110,6 +116,10 @@ export default {
           product_name: productName.split(", "),
           customer_name: response.data.data.customer_name,
         };
+      }).catch(error => {
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
+        }
       });
     }
   }

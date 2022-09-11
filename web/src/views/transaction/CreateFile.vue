@@ -82,7 +82,9 @@ export default {
                 })
               }
             }).catch(error => {
-          console.log(error.response.data.status)
+              if (error.response.status === 400 || error.response.status === 404) {
+                alert(error.response.data.status)
+              }
         })
       },
       submitFile(e){

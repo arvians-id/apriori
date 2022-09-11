@@ -3,7 +3,6 @@ package controller
 import (
 	"apriori/app/middleware"
 	"apriori/app/response"
-	"apriori/helper"
 	"apriori/model"
 	"apriori/service"
 	"bytes"
@@ -148,12 +147,11 @@ func (controller *ProductController) FindByCode(c *gin.Context) {
 
 func (controller *ProductController) Create(c *gin.Context) {
 	var request model.CreateProductRequest
-	request.Code = c.PostForm("code")
-	request.Name = c.PostForm("name")
-	request.Description = c.PostForm("description")
-	request.Price = helper.StrToInt(c.PostForm("price"))
-	request.Category = c.PostForm("category")
-	request.Mass = helper.StrToInt(c.PostForm("mass"))
+	err := c.ShouldBind(&request)
+	if err != nil {
+		response.ReturnErrorBadRequest(c, err, nil)
+		return
+	}
 
 	file, header, err := c.Request.FormFile("image")
 	filePath := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/assets/%s", os.Getenv("AWS_BUCKET"), os.Getenv("AWS_REGION"), "no-image.png")
@@ -178,14 +176,11 @@ func (controller *ProductController) Create(c *gin.Context) {
 
 func (controller *ProductController) Update(c *gin.Context) {
 	var request model.UpdateProductRequest
-	request.Code = c.Param("code")
-	request.Name = c.PostForm("name")
-	request.Description = c.PostForm("description")
-	request.Price = helper.StrToInt(c.PostForm("price"))
-	request.Category = c.PostForm("category")
-	request.IsEmpty = helper.StrToBool(c.PostForm("is_empty"))
-	request.Mass = helper.StrToInt(c.PostForm("mass"))
-	params := c.Param("code")
+	err := c.ShouldBind(&request)
+	if err != nil {
+		response.ReturnErrorBadRequest(c, err, nil)
+		return
+	}
 
 	file, header, err := c.Request.FormFile("image")
 	if err == nil {
@@ -198,7 +193,7 @@ func (controller *ProductController) Update(c *gin.Context) {
 		request.Image = pathName
 	}
 
-	request.Code = params
+	request.Code = c.Param("code")
 	product, err := controller.ProductService.Update(c.Request.Context(), &request)
 	if err != nil {
 		if err.Error() == response.ErrorNotFound {
@@ -218,7 +213,6 @@ func (controller *ProductController) Update(c *gin.Context) {
 
 func (controller *ProductController) Delete(c *gin.Context) {
 	codeParam := c.Param("code")
-
 	err := controller.ProductService.Delete(c.Request.Context(), codeParam)
 	if err != nil {
 		if err.Error() == response.ErrorNotFound {

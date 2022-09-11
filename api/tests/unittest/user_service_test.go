@@ -1,6 +1,7 @@
 package unittest
 
 import (
+	"apriori/app/response"
 	"apriori/entity"
 	"apriori/model"
 	repository "apriori/repository/mock"
@@ -54,7 +55,7 @@ func TestFindByAll(t *testing.T) {
 		users, err := userService.FindAll(ctx)
 		assert.NotNil(t, err)
 		assert.Nil(t, users)
-		assert.Equal(t, err, errors.New("data not found"))
+		assert.Equal(t, err, errors.New(response.ErrorNotFound))
 		test.Unset()
 	})
 
@@ -79,7 +80,7 @@ func TestFindById(t *testing.T) {
 		user, err := userService.FindById(ctx, 1)
 		assert.NotNil(t, err)
 		assert.Nil(t, user)
-		assert.Equal(t, err, errors.New("data not found"))
+		assert.Equal(t, err, errors.New(response.ErrorNotFound))
 		test.Unset()
 	})
 
@@ -106,7 +107,7 @@ func TestFindByEmail(t *testing.T) {
 		})
 		assert.NotNil(t, err)
 		assert.Nil(t, user)
-		assert.Equal(t, err, errors.New("data not found"))
+		assert.Equal(t, err, errors.New(response.ErrorNotFound))
 		test.Unset()
 	})
 
@@ -161,7 +162,7 @@ func TestUpdate(t *testing.T) {
 		})
 		assert.NotNil(t, err)
 		assert.Nil(t, user)
-		assert.Equal(t, err, errors.New("data not found"))
+		assert.Equal(t, err, errors.New(response.ErrorNotFound))
 		test.Unset()
 		test2.Unset()
 	})
@@ -204,7 +205,7 @@ func TestDelete(t *testing.T) {
 		ctx := context.Background()
 		err := userService.Delete(ctx, 1)
 		assert.NotNil(t, err)
-		assert.Equal(t, err, errors.New("data not found"))
+		assert.Equal(t, err, errors.New(response.ErrorNotFound))
 		test.Unset()
 		test2.Unset()
 	})

@@ -296,52 +296,52 @@ func (service *PaymentServiceImpl) Delete(ctx context.Context, orderId string) e
 
 	return nil
 }
-func (service *PaymentServiceImpl) GetToken(ctx context.Context, amount int64, userId int, customerName string, items []string, rajaShipping *model.GetRajaOngkirResponse) (map[string]interface{}, error) {
+func (service *PaymentServiceImpl) GetToken(ctx context.Context, request *model.GetPaymentTokenRequest) (map[string]interface{}, error) {
 	service.GetClient()
 
-	var test []map[string]interface{}
-	for _, values := range items {
-		err := json.Unmarshal([]byte(values), &test)
+	var items []map[string]interface{}
+	for _, item := range request.Items {
+		err := json.Unmarshal([]byte(item), &items)
 		if err != nil {
 			return nil, err
 		}
 	}
 
-	var request []midtrans.ItemDetail
-	for _, value := range test {
-		code := CheckCode(value)
-		request = append(request, midtrans.ItemDetail{
+	var itemDetails []midtrans.ItemDetail
+	for _, item := range items {
+		code := CheckCode(item)
+		itemDetails = append(itemDetails, midtrans.ItemDetail{
 			ID:    code,
-			Name:  value["name"].(string),
-			Price: int64(value["price"].(float64)),
-			Qty:   int32(value["quantity"].(float64)),
+			Name:  item["name"].(string),
+			Price: int64(item["price"].(float64)),
+			Qty:   int32(item["quantity"].(float64)),
 		})
 	}
 
-	request = append(request, midtrans.ItemDetail{
-		ID:    request[len(request)-1].ID,
+	itemDetails = append(itemDetails, midtrans.ItemDetail{
+		ID:    itemDetails[len(itemDetails)-1].ID,
 		Name:  "Pajak",
 		Price: 5000,
 		Qty:   1,
 	})
 
-	request = append(request, midtrans.ItemDetail{
-		ID:    request[len(request)-1].ID,
+	itemDetails = append(itemDetails, midtrans.ItemDetail{
+		ID:    itemDetails[len(itemDetails)-1].ID,
 		Name:  "Ongkos Kirim",
-		Price: rajaShipping.ShippingCost,
+		Price: request.ShippingCost,
 		Qty:   1,
 	})
 
 	orderID := helper.RandomString(20)
+	userId := helper.IntToStr(request.UserId)
 	var snapRequest midtrans.SnapReq
 	snapRequest.TransactionDetails.OrderID = orderID
-	snapRequest.TransactionDetails.GrossAmt = amount
-	snapRequest.Items = &request
+	snapRequest.TransactionDetails.GrossAmt = request.GrossAmount
+	snapRequest.Items = &itemDetails
 	snapRequest.CustomerDetail = &midtrans.CustDetail{
-		FName: "Widdy Arfiansyah",
-		Email: "widdyarfiansyah@ummi.ac.id",
+		FName: request.CustomerName,
 	}
-	snapRequest.CustomField1 = helper.IntToStr(userId)
+	snapRequest.CustomField1 = userId
 
 	// Save to database
 	tx, err := service.DB.Begin()
@@ -352,7 +352,7 @@ func (service *PaymentServiceImpl) GetToken(ctx context.Context, amount int64, u
 
 	paymentRequest := entity.Payment{
 		UserId: sql.NullString{
-			String: helper.IntToStr(userId),
+			String: userId,
 			Valid:  true,
 		},
 		OrderId: sql.NullString{
@@ -368,15 +368,15 @@ func (service *PaymentServiceImpl) GetToken(ctx context.Context, amount int64, u
 			Valid:  true,
 		},
 		Address: sql.NullString{
-			String: rajaShipping.Address,
+			String: request.Address,
 			Valid:  true,
 		},
 		Courier: sql.NullString{
-			String: rajaShipping.Courier,
+			String: request.Courier,
 			Valid:  true,
 		},
 		CourierService: sql.NullString{
-			String: rajaShipping.CourierService,
+			String: request.CourierService,
 			Valid:  true,
 		},
 	}
@@ -387,7 +387,7 @@ func (service *PaymentServiceImpl) GetToken(ctx context.Context, amount int64, u
 
 	// Send id payload
 	snapRequest.CustomField2 = helper.IntToStr(payment.IdPayload)
-	snapRequest.CustomField3 = customerName
+	snapRequest.CustomField3 = request.CustomerName
 
 	token, err := service.SnapGateway.GetToken(&snapRequest)
 	if err != nil {
@@ -398,18 +398,18 @@ func (service *PaymentServiceImpl) GetToken(ctx context.Context, amount int64, u
 	tokenResponse["clientKey"] = service.ClientKey
 	tokenResponse["token"] = token.Token
 
-	for _, value := range test {
-		code := CheckCode(value)
-		itemRequest := entity.UserOrder{
+	for _, item := range items {
+		code := CheckCode(item)
+		userOrder := entity.UserOrder{
 			PayloadId:      payment.IdPayload,
 			Code:           code,
-			Name:           value["name"].(string),
-			Price:          int64(value["price"].(float64)),
-			Image:          value["image"].(string),
-			Quantity:       int(value["quantity"].(float64)),
-			TotalPriceItem: int64(value["totalPricePerItem"].(float64)),
+			Name:           item["name"].(string),
+			Price:          int64(item["price"].(float64)),
+			Image:          item["image"].(string),
+			Quantity:       int(item["quantity"].(float64)),
+			TotalPriceItem: int64(item["totalPricePerItem"].(float64)),
 		}
-		err := service.UserOrderRepository.Create(ctx, tx, &itemRequest)
+		err := service.UserOrderRepository.Create(ctx, tx, &userOrder)
 		if err != nil {
 			return nil, err
 		}

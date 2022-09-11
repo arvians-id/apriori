@@ -182,7 +182,13 @@ export default {
           : (this.carts = []);
 
       await axios.get(`${process.env.VUE_APP_SERVICE_URL}/apriori/${this.$route.params.code}/detail/${this.$route.params.id}`, { headers: authHeader() }).then((response) => {
-        this.apriori = response.data.data;
+        if(response.data.data != null) {
+          this.apriori = response.data.data;
+        }
+      }).catch(error => {
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
+        }
       });
 
       if(this.carts.length > 0){
@@ -202,7 +208,11 @@ export default {
           this.totalNotification = response.data.data.filter(e => e.is_read === false).length
           this.notifications = response.data.data
         }
-      })
+      }).catch(error => {
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
+        }
+      });
     },
     UpperWord(str) {
       return str.toLowerCase().replace(/\b[a-z]/g, function (letter) {

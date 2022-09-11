@@ -70,7 +70,7 @@ type PaymentService interface {
 	CreateOrUpdate(ctx context.Context, request map[string]interface{}) error
 	UpdateReceiptNumber(ctx context.Context, request *model.AddReceiptNumberRequest) (*model.GetPaymentResponse, error)
 	Delete(ctx context.Context, orderId string) error
-	GetToken(ctx context.Context, amount int64, userId int, customerName string, items []string, rajaShipping *model.GetRajaOngkirResponse) (map[string]interface{}, error)
+	GetToken(ctx context.Context, request *model.GetPaymentTokenRequest) (map[string]interface{}, error)
 }
 
 type ProductService interface {

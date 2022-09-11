@@ -74,12 +74,18 @@ export default {
               })
             }
           }).catch(error => {
-            console.log(error.response.data.status)
-          })
+            if (error.response.status === 400 || error.response.status === 404) {
+              alert(error.response.data.status)
+            }
+          });
     },
     fetchData() {
       axios.get(`${process.env.VUE_APP_SERVICE_URL}/payments/${this.$route.params.order_id}`, { headers: authHeader() }).then((response) => {
         this.payment.receipt_number = response.data.data.receipt_number;
+      }).catch(error => {
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
+        }
       });
     }
   }

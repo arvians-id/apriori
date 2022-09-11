@@ -91,10 +91,8 @@ func (controller *UserController) FindAll(c *gin.Context) {
 }
 
 func (controller *UserController) FindById(c *gin.Context) {
-	idParam := c.Param("id")
-	id := helper.StrToInt(idParam)
-
-	user, err := controller.UserService.FindById(c.Request.Context(), id)
+	idParam := helper.StrToInt(c.Param("id"))
+	user, err := controller.UserService.FindById(c.Request.Context(), idParam)
 	if err != nil {
 		if err.Error() == response.ErrorNotFound {
 			response.ReturnErrorNotFound(c, err, nil)
@@ -133,8 +131,7 @@ func (controller *UserController) Update(c *gin.Context) {
 		return
 	}
 
-	idParam := helper.StrToInt(c.Param("id"))
-	request.IdUser = idParam
+	request.IdUser = helper.StrToInt(c.Param("id"))
 	user, err := controller.UserService.Update(c.Request.Context(), &request)
 	if err != nil {
 		if err.Error() == response.ErrorNotFound {
@@ -150,10 +147,8 @@ func (controller *UserController) Update(c *gin.Context) {
 }
 
 func (controller *UserController) Delete(c *gin.Context) {
-	idParam := c.Param("id")
-	id := helper.StrToInt(idParam)
-
-	err := controller.UserService.Delete(c.Request.Context(), id)
+	idParam := helper.StrToInt(c.Param("id"))
+	err := controller.UserService.Delete(c.Request.Context(), idParam)
 	if err != nil {
 		if err.Error() == response.ErrorNotFound {
 			response.ReturnErrorNotFound(c, err, nil)

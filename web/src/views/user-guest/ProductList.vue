@@ -416,7 +416,11 @@ export default {
           this.allProducts = [];
           this.products = [];
         }
-      });
+      }).catch(error => {
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
+        }
+      });;
     },
     async fetchCategory() {
       await axios.get(`${process.env.VUE_APP_SERVICE_URL}/categories`,{ headers: authHeader() }).then((response) => {
@@ -425,9 +429,11 @@ export default {
         } else {
           this.categories = [];
         }
-      }).catch((error) => {
-        console.log(error)
-      })
+      }).catch(error => {
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
+        }
+      });
 
       this.isLoading3 = false;
     },
@@ -458,6 +464,10 @@ export default {
           this.allProducts = [];
           this.products = [];
         }
+      }).catch(error => {
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
+        }
       });
 
       if(this.carts.length > 0){
@@ -475,6 +485,10 @@ export default {
         }
       }).catch((error) => {
         console.log(error)
+      }).catch(error => {
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
+        }
       });
 
       this.isLoading2 = false
@@ -485,7 +499,11 @@ export default {
           this.totalNotification = response.data.data.filter(e => e.is_read === false).length
           this.notifications = response.data.data
         }
-      })
+      }).catch(error => {
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
+        }
+      });
     },
     loadMore(){
       this.products = this.allProducts.slice(0, this.limitData += 8);

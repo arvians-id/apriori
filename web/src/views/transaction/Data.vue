@@ -129,6 +129,10 @@ export default {
         setTimeout(function(){
           $('#datatable').DataTable();
         }, 0);
+      }).catch(error => {
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
+        }
       });
 
       this.isLoading = false;
@@ -142,8 +146,10 @@ export default {
                 this.fetchData()
               }
             }).catch(error => {
-          console.log(error.response.data.status)
-        })
+              if (error.response.status === 400 || error.response.status === 404) {
+                alert(error.response.data.status)
+              }
+            })
       }
     },
     truncate() {
@@ -154,8 +160,10 @@ export default {
               this.fetchData()
             }
           }).catch(error => {
-        console.log(error.response.data.status)
-      })
+            if (error.response.status === 400 || error.response.status === 404) {
+              alert(error.response.data.status)
+            }
+          })
     }
   }
 }

@@ -146,7 +146,13 @@ export default {
   methods: {
     async fetchData() {
       await axios.get(`${process.env.VUE_APP_SERVICE_URL}/apriori/${this.$route.params.code}`, { headers: authHeader() }).then((response) => {
-        this.apriories = response.data.data;
+        if (response.data.data !== undefined) {
+          this.apriories = response.data.data;
+        }
+      }).catch(error => {
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
+        }
       });
 
       this.isLoading = false;

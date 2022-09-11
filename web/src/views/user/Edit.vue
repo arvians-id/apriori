@@ -104,8 +104,10 @@ export default {
               })
             }
           }).catch(error => {
-        console.log(error.response.data.status)
-      })
+            if (error.response.status === 400 || error.response.status === 404) {
+              alert(error.response.data.status)
+            }
+          })
     },
     async fetchData() {
       await axios.get(`${process.env.VUE_APP_SERVICE_URL}/users/${this.$route.params.id}`, { headers: authHeader() }).then(response => {
@@ -116,6 +118,10 @@ export default {
           address: response.data.data.address,
           phone: response.data.data.phone,
         };
+      }).catch(error => {
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
+        }
       });
 
       this.isLoading = false;

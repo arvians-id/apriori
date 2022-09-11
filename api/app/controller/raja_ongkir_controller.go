@@ -2,7 +2,7 @@ package controller
 
 import (
 	"apriori/app/response"
-	"apriori/helper"
+	"apriori/model"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -55,8 +55,14 @@ func (controller *RajaOngkirController) FindAll(c *gin.Context) {
 }
 
 func (controller *RajaOngkirController) GetCost(c *gin.Context) {
-	weight := helper.StrToInt(c.PostForm("weight"))
-	payload := fmt.Sprintf("origin=%v&destination=%v&weight=%v&courier=%v", c.PostForm("origin"), c.PostForm("destination"), weight, c.PostForm("courier"))
+	var request model.GetDeliveryRequest
+	err := c.ShouldBind(&request)
+	if err != nil {
+		response.ReturnErrorBadRequest(c, err, nil)
+		return
+	}
+
+	payload := fmt.Sprintf("origin=%v&destination=%v&weight=%v&courier=%v", request.Origin, request.Destination, request.Weight, request.Courier)
 	data := strings.NewReader(payload)
 	req, _ := http.NewRequest("POST", "https://api.rajaongkir.com/starter/cost", data)
 	req.Header.Add("key", os.Getenv("RAJA_ONGKIR_SECRET_KEY"))
@@ -67,7 +73,7 @@ func (controller *RajaOngkirController) GetCost(c *gin.Context) {
 	body, _ := ioutil.ReadAll(res.Body)
 
 	var rajaOngkirModel interface{}
-	err := json.Unmarshal(body, &rajaOngkirModel)
+	err = json.Unmarshal(body, &rajaOngkirModel)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return

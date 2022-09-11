@@ -139,7 +139,9 @@ export default {
               })
             }
           }).catch(error => {
-            console.log(error.response.data.status)
+            if (error.response.status === 400 || error.response.status === 404) {
+              alert(error.response.data.status)
+            }
           })
     },
     async fetchCategories(){
@@ -148,7 +150,9 @@ export default {
             this.categories = response.data.data;
           })
           .catch(error => {
-            console.log(error);
+            if (error.response.status === 400 || error.response.status === 404) {
+              console.log(error.response.data.status)
+            }
           });
     },
     async fetchData() {
@@ -162,6 +166,10 @@ export default {
           description: response.data.data.description,
         }
         this.previewImage = response.data.data.image
+      }).catch(error => {
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
+        }
       });
 
       this.isLoading = false

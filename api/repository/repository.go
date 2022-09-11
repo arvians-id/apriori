@@ -26,8 +26,8 @@ type AprioriRepository interface {
 	Create(ctx context.Context, tx *sql.Tx, apriories []*entity.Apriori) error
 	Update(ctx context.Context, tx *sql.Tx, apriori *entity.Apriori) (*entity.Apriori, error)
 	Delete(ctx context.Context, tx *sql.Tx, code string) error
-	UpdateAllStatus(ctx context.Context, tx *sql.Tx, status int) error
-	UpdateStatusByCode(ctx context.Context, tx *sql.Tx, code string, status int) error
+	UpdateAllStatus(ctx context.Context, tx *sql.Tx, status bool) error
+	UpdateStatusByCode(ctx context.Context, tx *sql.Tx, code string, status bool) error
 }
 
 type PasswordResetRepository interface {

@@ -15,7 +15,7 @@ var (
 func ReturnErrorNotFound(c *gin.Context, err error, data interface{}) {
 	c.JSON(http.StatusNotFound, model.WebResponse{
 		Code:   http.StatusNotFound,
-		Status: err.Error(),
+		Status: "data not found",
 		Data:   data,
 	})
 }

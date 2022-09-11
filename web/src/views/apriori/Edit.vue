@@ -101,7 +101,9 @@ export default {
               })
             }
           }).catch(error => {
-        console.log(error.response.data.status)
+            if (error.response.status === 400 || error.response.status === 404) {
+              alert(error.response.data.status)
+            }
       })
     },
     async fetchData() {
@@ -110,6 +112,10 @@ export default {
           description: response.data.data.apriori_description,
         }
         this.previewImage = response.data.data.apriori_image
+      }).catch(error => {
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
+        }
       });
 
       this.isLoading = false

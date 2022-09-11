@@ -160,6 +160,10 @@ export default {
           this.totalData = response.data.data.length;
           this.notifications = response.data.data.slice(0, this.limitData);
         }
+      }).catch(error => {
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
+        }
       })
 
       this.isLoading = false
@@ -167,6 +171,10 @@ export default {
     loadMore(){
       axios.get(`${process.env.VUE_APP_SERVICE_URL}/notifications`,{ headers: authHeader() }).then((response) => {
         this.notifications = response.data.data.slice(0, this.limitData += 5);
+      }).catch(error => {
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
+        }
       });
     },
     mark(id){
@@ -176,7 +184,9 @@ export default {
           this.fetchNotification()
         }
       }).catch(error => {
-        console.log(error.response.data.status)
+        if (error.response.status === 400 || error.response.status === 404) {
+          alert(error.response.data.status)
+        }
       })
     },
     markAll(){
@@ -186,7 +196,9 @@ export default {
           this.fetchNotification()
         }
       }).catch(error => {
-        console.log(error.response.data.status)
+        if (error.response.status === 400 || error.response.status === 404) {
+          alert(error.response.data.status)
+        }
       })
     },
     getColor(classNames, status) {

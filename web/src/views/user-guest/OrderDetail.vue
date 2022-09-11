@@ -217,6 +217,10 @@ export default {
             this.totalPrice += item.total_price_item;
           })
         }
+      }).catch(error => {
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
+        }
       })
 
       await axios.get(`${process.env.VUE_APP_SERVICE_URL}/profile`, { headers: authHeader() }).then(response => {
@@ -226,7 +230,9 @@ export default {
           phone: response.data.data.phone
         }
       }).catch(error => {
-        console.log(error)
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
+        }
       })
 
       await axios.get(`${process.env.VUE_APP_SERVICE_URL}/payments/${this.$route.params.order_id}`, { headers: authHeader() }).then(response => {
@@ -253,6 +259,10 @@ export default {
             courier_service: response.data.data.courier_service,
             receipt_number: response.data.data.receipt_number,
         }
+      }).catch(error => {
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
+        }
       })
 
       this.isLoading = false;
@@ -262,6 +272,10 @@ export default {
         if(response.data.data != null) {
           this.totalNotification = response.data.data.filter(e => e.is_read === false).length
           this.notifications = response.data.data
+        }
+      }).catch(error => {
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
         }
       })
     },

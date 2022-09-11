@@ -33,3 +33,7 @@ type GetUserResponse struct {
 	CreatedAt string `json:"created_at"`
 	UpdatedAt string `json:"updated_at"`
 }
+
+type GetRefreshTokenRequest struct {
+	RefreshToken string `json:"refresh_token"`
+}

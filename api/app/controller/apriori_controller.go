@@ -66,6 +66,11 @@ func (controller *AprioriController) FindAll(c *gin.Context) {
 func (controller *AprioriController) FindAllByActive(c *gin.Context) {
 	apriories, err := controller.AprioriService.FindAllByActive(c.Request.Context())
 	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
+			return
+		}
+
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
@@ -208,7 +213,15 @@ func (controller *AprioriController) Generate(c *gin.Context) {
 		return
 	}
 
-	key := fmt.Sprintf("%v%v%v%v%s%s", request.MinimumDiscount, request.MaximumDiscount, request.MinimumSupport, request.MinimumConfidence, request.StartDate, request.EndDate)
+	key := fmt.Sprintf(
+		"%v%v%v%v%s%s",
+		request.MinimumDiscount,
+		request.MaximumDiscount,
+		request.MinimumSupport,
+		request.MinimumConfidence,
+		request.StartDate,
+		request.EndDate,
+	)
 	aprioriCache, err := controller.CacheService.Get(c, key)
 	if err == redis.Nil {
 		apriori, err := controller.AprioriService.Generate(c.Request.Context(), &request)

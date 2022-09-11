@@ -115,6 +115,10 @@ export default {
           this.totalData = response.data.data.length;
           this.orders = response.data.data.slice(0, this.limitData);
         }
+      }).catch(error => {
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
+        }
       })
 
       localStorage.getItem("my-carts")
@@ -135,11 +139,19 @@ export default {
           this.totalNotification = response.data.data.filter(e => e.is_read === false).length
           this.notifications = response.data.data
         }
+      }).catch(error => {
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
+        }
       })
     },
     loadMore(){
       axios.get(`${process.env.VUE_APP_SERVICE_URL}/user-order/user`,{ headers: authHeader() }).then((response) => {
         this.orders = response.data.data.slice(0, this.limitData += 5);
+      }).catch(error => {
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
+        }
       });
     },
     numberWithCommas(x) {

@@ -148,6 +148,10 @@ export default {
     async fetchData() {
       await axios.get(`${process.env.VUE_APP_SERVICE_URL}/products/${this.$route.params.code}`, { headers: authHeader() }).then((response) => {
         this.product = response.data.data;
+      }).catch(error => {
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
+        }
       });
 
       this.isLoading = false
@@ -163,8 +167,10 @@ export default {
                 })
               }
             }).catch(error => {
-          console.log(error.response.data.status)
-        })
+              if (error.response.status === 400 || error.response.status === 404) {
+                alert(error.response.data.status)
+              }
+            })
       }
     }
   }

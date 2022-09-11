@@ -210,14 +210,14 @@ func (service *AprioriServiceImpl) UpdateStatus(ctx context.Context, code string
 		return err
 	}
 
-	err = service.AprioriRepository.UpdateAllStatus(ctx, tx, 0)
+	err = service.AprioriRepository.UpdateAllStatus(ctx, tx, false)
 	if err != nil {
 		return err
 	}
 
-	status := 1
+	status := true
 	if apriories[0].IsActive {
-		status = 0
+		status = false
 	}
 
 	err = service.AprioriRepository.UpdateStatusByCode(ctx, tx, apriories[0].Code, status)
