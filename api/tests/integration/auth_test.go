@@ -26,10 +26,6 @@ import (
 	"net/http/httptest"
 )
 
-/*
-	Missing :
-		- /api/token [GET]
-*/
 var _ = Describe("Auth API", func() {
 	var server *gin.Engine
 	var database *sql.DB
@@ -163,7 +159,7 @@ var _ = Describe("Auth API", func() {
 					var responseBody map[string]interface{}
 					_ = json.Unmarshal(body, &responseBody)
 
-					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusInternalServerError))
+					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusBadRequest))
 					Expect(responseBody["status"]).To(Equal("wrong password"))
 					Expect(responseBody["data"]).To(BeNil())
 				})
@@ -795,4 +791,81 @@ var _ = Describe("Auth API", func() {
 		})
 	})
 
+	Describe("Check Token /auth/token", func() {
+		When("the token is empty or invalid", func() {
+			It("Should return error unauthorized", func() {
+				request := httptest.NewRequest(http.MethodGet, "/api/auth/token", nil)
+				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
+
+				writer := httptest.NewRecorder()
+				server.ServeHTTP(writer, request)
+				response := writer.Result()
+
+				body, _ := io.ReadAll(response.Body)
+				var responseBodyToken map[string]interface{}
+				_ = json.Unmarshal(body, &responseBodyToken)
+
+				Expect(int(responseBodyToken["code"].(float64))).To(Equal(http.StatusUnauthorized))
+				Expect(responseBodyToken["status"]).To(Equal("invalid token"))
+				Expect(responseBodyToken["data"]).To(BeNil())
+			})
+		})
+
+		When("the token is exists", func() {
+			It("Should return successful get token", func() {
+				// Create user
+				tx, _ := database.Begin()
+				userRepository := repository.NewUserRepository()
+				password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
+				_, _ = userRepository.Create(context.Background(), tx, &entity.User{
+					Name:      "Widdy",
+					Email:     "widdy@gmail.com",
+					Password:  string(password),
+					CreatedAt: time.Now(),
+					UpdatedAt: time.Now(),
+				})
+				_ = tx.Commit()
+
+				requestBody := strings.NewReader(`{"email": "widdy@gmail.com", "password": "Rahasia123"}`)
+				request := httptest.NewRequest(http.MethodPost, "/api/auth/login", requestBody)
+				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
+
+				writer := httptest.NewRecorder()
+				server.ServeHTTP(writer, request)
+				response := writer.Result()
+
+				body, _ := io.ReadAll(response.Body)
+				var responseBody map[string]interface{}
+				_ = json.Unmarshal(body, &responseBody)
+
+				var cookie *http.Cookie
+				for _, c := range writer.Result().Cookies() {
+					if c.Name == "token" {
+						cookie = c
+					}
+				}
+				bearerToken := fmt.Sprintf("Bearer %v", responseBody["data"].(map[string]interface{})["access_token"].(string))
+
+				request = httptest.NewRequest(http.MethodGet, "/api/auth/token", nil)
+				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
+				request.Header.Set("Authorization", bearerToken)
+				request.AddCookie(cookie)
+
+				writer = httptest.NewRecorder()
+				server.ServeHTTP(writer, request)
+				response = writer.Result()
+
+				body, _ = io.ReadAll(response.Body)
+				var responseBodyToken map[string]interface{}
+				_ = json.Unmarshal(body, &responseBodyToken)
+
+				Expect(int(responseBodyToken["code"].(float64))).To(Equal(http.StatusOK))
+				Expect(responseBodyToken["status"]).To(Equal("OK"))
+				Expect(responseBodyToken["data"]).To(BeNil())
+			})
+		})
+	})
 })

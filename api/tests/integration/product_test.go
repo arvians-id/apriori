@@ -14,6 +14,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"time"
 
@@ -25,12 +26,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-/*
-	Missing :
-		- /products-admin [GET]
-		- /products/:code/category [GET]
-		- /products/:code/recommendation [GET]
-*/
 var _ = Describe("Product API", func() {
 
 	var server *gin.Engine
@@ -41,7 +36,6 @@ var _ = Describe("Product API", func() {
 
 	BeforeEach(func() {
 		// Setup Configuration
-
 		router, db := setup.ModuleSetup(configuration)
 
 		database = db
@@ -282,6 +276,7 @@ var _ = Describe("Product API", func() {
 				Expect(responseBody["data"]).To(BeNil())
 			})
 		})
+
 		When("the product is present", func() {
 			It("should return a successful and show all products", func() {
 				// Create Product
@@ -337,6 +332,205 @@ var _ = Describe("Product API", func() {
 
 				Expect(product2.Code).To(Equal(productResponse2["code"]))
 				Expect(product2.Name).To(Equal(productResponse2["name"]))
+			})
+		})
+	})
+
+	Describe("Find All Product On Admin /products-admin", func() {
+		When("the product is not present", func() {
+			It("should return a successful but the data is null", func() {
+				// Find All Product
+				request := httptest.NewRequest(http.MethodGet, "/api/products-admin", nil)
+				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
+				request.AddCookie(cookie)
+				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
+
+				writer := httptest.NewRecorder()
+				server.ServeHTTP(writer, request)
+
+				response := writer.Result()
+
+				body, _ := io.ReadAll(response.Body)
+				var responseBody map[string]interface{}
+				_ = json.Unmarshal(body, &responseBody)
+
+				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
+				Expect(responseBody["status"]).To(Equal("OK"))
+				Expect(responseBody["data"]).To(BeNil())
+			})
+		})
+
+		When("the product is present", func() {
+			It("should return a successful and show all products with different status empty", func() {
+				// Create Product
+				tx, _ := database.Begin()
+				productRepository := repository.NewProductRepository()
+				product1, _ := productRepository.Create(context.Background(), tx, &entity.Product{
+					Code:        "SK6",
+					Name:        "Guling",
+					Description: "Test",
+					Category:    "Bantal, Kasur",
+					Mass:        1000,
+					CreatedAt:   time.Now(),
+					UpdatedAt:   time.Now(),
+				})
+				_, _ = productRepository.Create(context.Background(), tx, &entity.Product{
+					Code:        "SK1",
+					Name:        "Bantal",
+					Description: "Test Bang",
+					Category:    "Bantal, Kasur",
+					Mass:        1000,
+					CreatedAt:   time.Now(),
+					UpdatedAt:   time.Now(),
+				})
+				_ = tx.Commit()
+
+				// Update Product
+				requestBody := strings.NewReader(`{"name": "Guling Doti Bang","description": "Test Bang","category": "Bantal, Kasur","mass":1000}`)
+				request := httptest.NewRequest(http.MethodPatch, "/api/products/"+product1.Code, requestBody)
+				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
+				request.AddCookie(cookie)
+				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
+
+				writer := httptest.NewRecorder()
+				server.ServeHTTP(writer, request)
+
+				// Find All Products
+				request = httptest.NewRequest(http.MethodGet, "/api/products-admin", nil)
+				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
+				request.AddCookie(cookie)
+				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
+
+				writer = httptest.NewRecorder()
+				server.ServeHTTP(writer, request)
+
+				response := writer.Result()
+
+				body, _ := io.ReadAll(response.Body)
+				var responseBody map[string]interface{}
+				_ = json.Unmarshal(body, &responseBody)
+
+				products := responseBody["data"].([]interface{})
+
+				// Desc
+				productResponse1 := products[1].(map[string]interface{})
+				productResponse2 := products[0].(map[string]interface{})
+
+				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
+				Expect(responseBody["status"]).To(Equal("OK"))
+
+				Expect(productResponse1["code"]).To(Equal("SK6"))
+				Expect(productResponse1["name"]).To(Equal("Guling Doti Bang"))
+
+				Expect(productResponse2["code"]).To(Equal("SK1"))
+				Expect(productResponse2["name"]).To(Equal("Bantal"))
+			})
+		})
+	})
+
+	Describe("Find All Product By Similar Category /products/:code/category", func() {
+		When("the product similar is not present", func() {
+			It("should return a successful but the data is null", func() {
+				// Create Product
+				tx, _ := database.Begin()
+				productRepository := repository.NewProductRepository()
+				product1, _ := productRepository.Create(context.Background(), tx, &entity.Product{
+					Code:        "SK6",
+					Name:        "Guling",
+					Description: "Test",
+					Category:    "Bantal, Kasur",
+					Mass:        1000,
+					CreatedAt:   time.Now(),
+					UpdatedAt:   time.Now(),
+				})
+				_, _ = productRepository.Create(context.Background(), tx, &entity.Product{
+					Code:        "SK1",
+					Name:        "Bantal",
+					Description: "Test Bang",
+					Category:    "Elektronik, Guling",
+					Mass:        1000,
+					CreatedAt:   time.Now(),
+					UpdatedAt:   time.Now(),
+				})
+				_ = tx.Commit()
+
+				// Find All Products
+				request := httptest.NewRequest(http.MethodGet, "/api/products/"+product1.Code+"/category", nil)
+				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
+				request.AddCookie(cookie)
+				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
+
+				writer := httptest.NewRecorder()
+				server.ServeHTTP(writer, request)
+
+				response := writer.Result()
+
+				body, _ := io.ReadAll(response.Body)
+				var responseBody map[string]interface{}
+				_ = json.Unmarshal(body, &responseBody)
+
+				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
+				Expect(responseBody["status"]).To(Equal("OK"))
+				Expect(responseBody["data"]).To(BeNil())
+			})
+		})
+
+		When("the product is present", func() {
+			It("should return a successful and show all products by similar category", func() {
+				// Create Product
+				tx, _ := database.Begin()
+				productRepository := repository.NewProductRepository()
+				product1, _ := productRepository.Create(context.Background(), tx, &entity.Product{
+					Code:        "SK6",
+					Name:        "Guling",
+					Description: "Test",
+					Category:    "Bantal, Kasur",
+					Mass:        1000,
+					CreatedAt:   time.Now(),
+					UpdatedAt:   time.Now(),
+				})
+				_, _ = productRepository.Create(context.Background(), tx, &entity.Product{
+					Code:        "SK1",
+					Name:        "Bantal",
+					Description: "Test Bang",
+					Category:    "Bantal, Kasur",
+					Mass:        1000,
+					CreatedAt:   time.Now(),
+					UpdatedAt:   time.Now(),
+				})
+				_ = tx.Commit()
+
+				// Find All Products
+				request := httptest.NewRequest(http.MethodGet, "/api/products/"+product1.Code+"/category", nil)
+				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
+				request.AddCookie(cookie)
+				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
+
+				writer := httptest.NewRecorder()
+				server.ServeHTTP(writer, request)
+
+				response := writer.Result()
+
+				body, _ := io.ReadAll(response.Body)
+				var responseBody map[string]interface{}
+				_ = json.Unmarshal(body, &responseBody)
+
+				products := responseBody["data"].([]interface{})
+
+				// Desc
+				productResponse1 := products[0].(map[string]interface{})
+
+				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
+				Expect(responseBody["status"]).To(Equal("OK"))
+				Expect(productResponse1["code"]).To(Equal("SK1"))
+				Expect(productResponse1["name"]).To(Equal("Bantal"))
+				Expect(productResponse1["description"]).To(Equal("Test Bang"))
+				Expect(productResponse1["category"]).To(Equal("Bantal, Kasur"))
 			})
 		})
 	})
@@ -401,6 +595,117 @@ var _ = Describe("Product API", func() {
 				Expect(responseBody["data"].(map[string]interface{})["code"]).To(Equal("SK6"))
 				Expect(responseBody["data"].(map[string]interface{})["name"]).To(Equal("Widdy"))
 				Expect(responseBody["data"].(map[string]interface{})["description"]).To(Equal("Test"))
+			})
+		})
+	})
+
+	Describe("Find All Recommendation Product By Code /products/:code/recommendation", func() {
+		When("product recommendation is not found", func() {
+			It("should return error not found", func() {
+				// Create Product
+				tx, _ := database.Begin()
+				productRepository := repository.NewProductRepository()
+				product, _ := productRepository.Create(context.Background(), tx, &entity.Product{
+					Code:        "SK1",
+					Name:        "Bantal Biasa",
+					Description: "Test Bang",
+					Category:    "Bantal, Kasur",
+					Mass:        1000,
+					CreatedAt:   time.Now(),
+					UpdatedAt:   time.Now(),
+				})
+
+				// Create Apriori
+				aprioriRepository := repository.NewAprioriRepository()
+				var aprioriRequests []*entity.Apriori
+				aprioriRequests = append(aprioriRequests, &entity.Apriori{
+					Code:       "uRwCmCplpF",
+					Item:       "guling biasa",
+					Discount:   25.00,
+					Support:    50.00,
+					Confidence: 71.43,
+					RangeDate:  "2021-05-21 - 2022-05-21",
+					IsActive:   true,
+					Image:      fmt.Sprintf("https://%s.s3.%s.amazonaws.com/assets/%s", os.Getenv("AWS_BUCKET"), os.Getenv("AWS_REGION"), "no-image.png"),
+					CreatedAt:  time.Now(),
+				})
+				_ = aprioriRepository.Create(context.Background(), tx, aprioriRequests)
+				_ = tx.Commit()
+
+				// Find All Recommendation
+				request := httptest.NewRequest(http.MethodGet, "/api/products/"+product.Code+"/recommendation", nil)
+				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
+				request.AddCookie(cookie)
+				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
+
+				writer := httptest.NewRecorder()
+				server.ServeHTTP(writer, request)
+				response := writer.Result()
+
+				body, _ := io.ReadAll(response.Body)
+				var responseBody map[string]interface{}
+				_ = json.Unmarshal(body, &responseBody)
+
+				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
+				Expect(responseBody["status"]).To(Equal("OK"))
+				Expect(responseBody["data"]).To(BeNil())
+			})
+		})
+		When("product recommendation is found", func() {
+			It("should return a successful find recommendation product by code", func() {
+				// Create Product
+				tx, _ := database.Begin()
+				productRepository := repository.NewProductRepository()
+				product, _ := productRepository.Create(context.Background(), tx, &entity.Product{
+					Code:        "SK1",
+					Name:        "Bantal Biasa",
+					Description: "Test Bang",
+					Category:    "Bantal, Kasur",
+					Mass:        1000,
+					CreatedAt:   time.Now(),
+					UpdatedAt:   time.Now(),
+				})
+
+				// Create Apriori
+				aprioriRepository := repository.NewAprioriRepository()
+				var aprioriRequests []*entity.Apriori
+				aprioriRequests = append(aprioriRequests, &entity.Apriori{
+					Code:       "uRwCmCplpF",
+					Item:       "bantal biasa",
+					Discount:   25.00,
+					Support:    50.00,
+					Confidence: 71.43,
+					RangeDate:  "2021-05-21 - 2022-05-21",
+					IsActive:   true,
+					Image:      fmt.Sprintf("https://%s.s3.%s.amazonaws.com/assets/%s", os.Getenv("AWS_BUCKET"), os.Getenv("AWS_REGION"), "no-image.png"),
+					CreatedAt:  time.Now(),
+				})
+				_ = aprioriRepository.Create(context.Background(), tx, aprioriRequests)
+				_ = tx.Commit()
+
+				// Find All Recommendation
+				request := httptest.NewRequest(http.MethodGet, "/api/products/"+product.Code+"/recommendation", nil)
+				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
+				request.AddCookie(cookie)
+				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
+
+				writer := httptest.NewRecorder()
+				server.ServeHTTP(writer, request)
+				response := writer.Result()
+
+				body, _ := io.ReadAll(response.Body)
+				var responseBody map[string]interface{}
+				_ = json.Unmarshal(body, &responseBody)
+
+				products := responseBody["data"].([]interface{})
+				productResponse1 := products[0].(map[string]interface{})
+
+				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
+				Expect(responseBody["status"]).To(Equal("OK"))
+				Expect(productResponse1["apriori_code"]).To(Equal("uRwCmCplpF"))
+				Expect(productResponse1["apriori_item"]).To(Equal("bantal biasa"))
 			})
 		})
 	})

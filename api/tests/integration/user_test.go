@@ -25,10 +25,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-/*
-	Missing :
-		- /profile/update [PATCH]
-*/
 var _ = Describe("User API", func() {
 
 	var server *gin.Engine
@@ -70,7 +66,6 @@ var _ = Describe("User API", func() {
 		server.ServeHTTP(writer, request)
 
 		response := writer.Result()
-		log.Println("Error nih bang: ", response.Body, response.StatusCode, response.Status)
 
 		body, _ := io.ReadAll(response.Body)
 		var responseBody map[string]interface{}
@@ -668,7 +663,6 @@ var _ = Describe("User API", func() {
 				server.ServeHTTP(writer, request)
 
 				response := writer.Result()
-				log.Println(response.Body)
 
 				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
@@ -764,6 +758,85 @@ var _ = Describe("User API", func() {
 				Expect(responseBody["status"]).To(Equal("OK"))
 				Expect(responseBody["data"].(map[string]interface{})["name"]).To(Equal("Widdy"))
 				Expect(responseBody["data"].(map[string]interface{})["email"]).To(Equal("widdy@gmail.com"))
+			})
+		})
+	})
+
+	Describe("Update profile user /profile/update", func() {
+		When("the fields are incorrect", func() {
+			It("should return error required", func() {
+				// Update User
+				requestBody := strings.NewReader(`{"password": "Rahasia123"}`)
+				request := httptest.NewRequest(http.MethodPatch, "/api/profile/update", requestBody)
+				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
+				request.AddCookie(cookie)
+				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
+
+				writer := httptest.NewRecorder()
+				server.ServeHTTP(writer, request)
+
+				response := writer.Result()
+
+				body, _ := io.ReadAll(response.Body)
+				var responseBody map[string]interface{}
+				_ = json.Unmarshal(body, &responseBody)
+
+				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusBadRequest))
+				Expect(responseBody["data"]).To(BeNil())
+			})
+
+			It("should return error the email must be valid email", func() {
+				// Update User
+				requestBody := strings.NewReader(`{"name": "Widdy","email": "Widdys","address":"nganjok","phone":"082299","password": "Rahasia123"}`)
+				request := httptest.NewRequest(http.MethodPatch, "/api/profile/update", requestBody)
+				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
+				request.AddCookie(cookie)
+				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
+
+				writer := httptest.NewRecorder()
+				server.ServeHTTP(writer, request)
+
+				response := writer.Result()
+
+				body, _ := io.ReadAll(response.Body)
+				var responseBody map[string]interface{}
+				_ = json.Unmarshal(body, &responseBody)
+
+				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusBadRequest))
+				Expect(responseBody["status"]).To(Equal("Key: 'UpdateUserRequest.Email' Error:Field validation for 'Email' failed on the 'email' tag"))
+				Expect(responseBody["data"]).To(BeNil())
+			})
+		})
+
+		When("the fields are correct", func() {
+			It("should return successful update user profile response", func() {
+				// Find By Id User
+				requestBody := strings.NewReader(`{"name": "Arfiansyah","email": "arfiansyah@gmail.com","address": "lorem ipsum","phone": "082299921720","password": "Widdy123"}`)
+				request := httptest.NewRequest(http.MethodPatch, "/api/profile/update", requestBody)
+				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
+				request.AddCookie(cookie)
+				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
+
+				writer := httptest.NewRecorder()
+				server.ServeHTTP(writer, request)
+
+				response := writer.Result()
+
+				body, _ := io.ReadAll(response.Body)
+				var responseBody map[string]interface{}
+				_ = json.Unmarshal(body, &responseBody)
+
+				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
+				Expect(responseBody["status"]).To(Equal("updated"))
+				Expect(responseBody["data"].(map[string]interface{})["name"]).ToNot(Equal("Widdy"))
+				Expect(responseBody["data"].(map[string]interface{})["email"]).ToNot(Equal("widdy@gmail.com"))
+				Expect(responseBody["data"].(map[string]interface{})["name"]).To(Equal("Arfiansyah"))
+				Expect(responseBody["data"].(map[string]interface{})["email"]).To(Equal("arfiansyah@gmail.com"))
+				Expect(responseBody["data"].(map[string]interface{})["address"]).To(Equal("lorem ipsum"))
+				Expect(responseBody["data"].(map[string]interface{})["phone"]).To(Equal("082299921720"))
 			})
 		})
 	})

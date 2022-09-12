@@ -24,10 +24,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-/*
-	Missing :
-		- /transactions/truncate [DELETE]
-*/
 var _ = Describe("Transaction API", func() {
 
 	var server *gin.Engine
@@ -201,7 +197,6 @@ var _ = Describe("Transaction API", func() {
 	//			var responseBody map[string]interface{}
 	//			_ = json.Unmarshal(resp, &responseBody)
 	//
-	//			log.Println(responseBody["status"])
 	//			Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 	//			Expect(responseBody["status"]).To(Equal("created"))
 	//			Expect(responseBody["data"]).To(BeNil())
@@ -520,6 +515,43 @@ var _ = Describe("Transaction API", func() {
 				Expect(responseBody["status"]).To(Equal("OK"))
 				Expect(responseBody["data"].(map[string]interface{})["product_name"]).To(Equal("Kasur cinta, Bantal memori"))
 				Expect(responseBody["data"].(map[string]interface{})["customer_name"]).To(Equal("Wids"))
+			})
+		})
+	})
+
+	Describe("Truncate Transaction /transactions/truncate", func() {
+		When("transaction is found", func() {
+			It("should return successful delete all transactions", func() {
+				// Create Transaction
+				tx, _ := database.Begin()
+				transactionRepository := repository.NewTransactionRepository()
+				_, _ = transactionRepository.Create(context.Background(), tx, &entity.Transaction{
+					ProductName:   "Kasur cinta, Bantal memori",
+					CustomerName:  "Wids",
+					NoTransaction: "202320",
+					CreatedAt:     time.Now(),
+					UpdatedAt:     time.Now(),
+				})
+				_ = tx.Commit()
+
+				// Delete Transaction
+				request := httptest.NewRequest(http.MethodDelete, "/api/transactions/truncate", nil)
+				request.Header.Add("Content-Type", "application/json")
+				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
+				request.AddCookie(cookie)
+				request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
+
+				writer := httptest.NewRecorder()
+				server.ServeHTTP(writer, request)
+
+				response := writer.Result()
+
+				body, _ := io.ReadAll(response.Body)
+				var responseBody map[string]interface{}
+				_ = json.Unmarshal(body, &responseBody)
+
+				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
+				Expect(responseBody["data"]).To(BeNil())
 			})
 		})
 	})
