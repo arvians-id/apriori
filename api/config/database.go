@@ -88,8 +88,8 @@ func databasePooling(configuration Config, db *sql.DB) (*sql.DB, error) {
 
 	db.SetMaxIdleConns(setMaxIdleConns)                                    // minimal connection
 	db.SetMaxOpenConns(setMaxOpenConns)                                    // maximal connection
-	db.SetConnMaxLifetime(time.Duration(setConnMaxIdleTime) * time.Minute) // unused connections will be deleted
-	db.SetConnMaxIdleTime(time.Duration(setConnMaxLifetime) * time.Minute) // connection that can be used
+	db.SetConnMaxLifetime(time.Duration(setConnMaxIdleTime) * time.Second) // unused connections will be deleted
+	db.SetConnMaxIdleTime(time.Duration(setConnMaxLifetime) * time.Second) // connection that can be used
 
 	return db, nil
 }
