@@ -7,5 +7,5 @@ CREATE TABLE IF NOT EXISTS comments (
     rating INTEGER NOT NULL,
     created_at TIMESTAMP,
     PRIMARY KEY (id_comment),
-    FOREIGN KEY (user_order_id) REFERENCES user_orders(id_order) ON DELETE RESTRICT ON UPDATE CASCADE
+    FOREIGN KEY (user_order_id) REFERENCES user_orders(id_order) ON DELETE CASCADE ON UPDATE CASCADE
 )

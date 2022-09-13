@@ -127,9 +127,10 @@ func (repository *UserOrderRepositoryImpl) FindById(ctx context.Context, tx *sql
 	return &userOrder, nil
 }
 
-func (repository *UserOrderRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, userOrder *entity.UserOrder) error {
-	query := `INSERT INTO user_orders(payload_id,code,name,price,image,quantity,total_price_item) VALUES($1,$2,$3,$4,$5,$6,$7)`
-	_, err := tx.ExecContext(
+func (repository *UserOrderRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, userOrder *entity.UserOrder) (*entity.UserOrder, error) {
+	id := 0
+	query := `INSERT INTO user_orders(payload_id,code,name,price,image,quantity,total_price_item) VALUES($1,$2,$3,$4,$5,$6,$7) RETURNING id_order`
+	row := tx.QueryRowContext(
 		ctx,
 		query,
 		userOrder.PayloadId,
@@ -140,9 +141,12 @@ func (repository *UserOrderRepositoryImpl) Create(ctx context.Context, tx *sql.T
 		userOrder.Quantity,
 		userOrder.TotalPriceItem,
 	)
+	err := row.Scan(&id)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	return nil
+	userOrder.IdOrder = id
+
+	return userOrder, nil
 }

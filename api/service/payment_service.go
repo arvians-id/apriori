@@ -409,7 +409,7 @@ func (service *PaymentServiceImpl) GetToken(ctx context.Context, request *model.
 			Quantity:       int(item["quantity"].(float64)),
 			TotalPriceItem: int64(item["totalPricePerItem"].(float64)),
 		}
-		err := service.UserOrderRepository.Create(ctx, tx, &userOrder)
+		_, err := service.UserOrderRepository.Create(ctx, tx, &userOrder)
 		if err != nil {
 			return nil, err
 		}
