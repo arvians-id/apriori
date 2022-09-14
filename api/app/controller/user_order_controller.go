@@ -38,7 +38,7 @@ func (controller *UserOrderController) Route(router *gin.Engine) *gin.Engine {
 		authorized.GET("/user-order", controller.FindAll)
 		authorized.GET("/user-order/user", controller.FindAllByUserId)
 		authorized.GET("/user-order/:order_id", controller.FindAllById)
-		authorized.GET("/user-order/:order_id/single", controller.FindById)
+		authorized.GET("/user-order/single/:id", controller.FindById)
 	}
 
 	return router
@@ -167,8 +167,8 @@ func (controller *UserOrderController) FindAllById(c *gin.Context) {
 }
 
 func (controller *UserOrderController) FindById(c *gin.Context) {
-	orderIdParam := helper.StrToInt(c.Param("order_id"))
-	userOrder, err := controller.UserOrderService.FindById(c.Request.Context(), orderIdParam)
+	IdParam := helper.StrToInt(c.Param("id"))
+	userOrder, err := controller.UserOrderService.FindById(c.Request.Context(), IdParam)
 	if err != nil {
 		if err.Error() == response.ErrorNotFound {
 			response.ReturnErrorNotFound(c, err, nil)

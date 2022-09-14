@@ -169,7 +169,7 @@ export default {
   },
   methods: {
     async fetchData(){
-      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/user-order/${this.$route.params.id_order}/single`, { headers: authHeader() })
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/user-order/single/${this.$route.params.id_order}`, { headers: authHeader() })
           .then(response => {
             this.order = response.data.data;
           }).catch(error => {

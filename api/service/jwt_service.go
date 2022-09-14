@@ -1,7 +1,6 @@
 package service
 
 import (
-	"apriori/helper"
 	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt"
@@ -107,7 +106,7 @@ func (service *JwtServiceImpl) RefreshToken(refreshToken string) (*TokenDetails,
 	}
 
 	// Get id user
-	id := helper.StrToInt(claims["id_user"].(string))
+	id := int(claims["id_user"].(float64))
 
 	// Delete the previous Refresh Token
 	// --

@@ -52,7 +52,7 @@
 [GIN-debug] GET    /api/user-order           --> apriori/app/controller.(*UserOrderController).FindAll-fm (6 handlers)
 [GIN-debug] GET    /api/user-order/user      --> apriori/app/controller.(*UserOrderController).FindAllByUserId-fm (6 handlers)
 [GIN-debug] GET    /api/user-order/:order_id --> apriori/app/controller.(*UserOrderController).FindAllById-fm (6 handlers)
-[GIN-debug] GET    /api/user-order/:order_id/single --> apriori/app/controller.(*UserOrderController).FindById-fm (6 handlers)
+[GIN-debug] GET    /api/user-order/single/:id --> apriori/app/controller.(*UserOrderController).FindById-fm (6 handlers)
 [GIN-debug] GET    /api/categories/:id       --> apriori/app/controller.(*CategoryController).FindById-fm (6 handlers)
 [GIN-debug] POST   /api/categories           --> apriori/app/controller.(*CategoryController).Create-fm (6 handlers)
 [GIN-debug] PATCH  /api/categories/:id       --> apriori/app/controller.(*CategoryController).Update-fm (6 handlers)
