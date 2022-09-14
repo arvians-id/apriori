@@ -6,12 +6,10 @@ import (
 	repository "apriori/repository/postgres"
 	"apriori/service"
 	"apriori/tests/setup"
-	"bytes"
 	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -27,7 +25,6 @@ import (
 )
 
 var _ = Describe("Product API", func() {
-
 	var server *gin.Engine
 	var database *sql.DB
 	var tokenJWT string
@@ -64,11 +61,8 @@ var _ = Describe("Product API", func() {
 		writer := httptest.NewRecorder()
 		server.ServeHTTP(writer, request)
 
-		response := writer.Result()
-
-		body, _ := io.ReadAll(response.Body)
 		var responseBody map[string]interface{}
-		_ = json.Unmarshal(body, &responseBody)
+		_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 		tokenJWT = responseBody["data"].(map[string]interface{})["access_token"].(string)
 		for _, c := range writer.Result().Cookies() {
@@ -97,29 +91,25 @@ var _ = Describe("Product API", func() {
 			When("the fields are filled", func() {
 				It("should return successful create product response", func() {
 					// Create Product
-					requestBody := map[string]interface{}{
-						"code":        "SK6",
-						"name":        "Bantal Biasa",
-						"description": "Test",
-						"category":    "Bantal, Kasur",
-						"mass":        1000,
-						"price":       7000,
-					}
-					bodyOne, _ := json.Marshal(requestBody)
-					request := httptest.NewRequest(http.MethodPost, "/api/products", bytes.NewBuffer(bodyOne))
+					requestBody := strings.NewReader(`{"code": "SK6","name": "Bantal Biasa","description": "Test","category": "Bantal, Kasur","mass": 1000,"price": 7000}`)
+					request := httptest.NewRequest(http.MethodPost, "/api/products", requestBody)
 					request.Header.Add("Content-Type", "application/json")
 					request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 					request.AddCookie(cookie)
 					request.Header.Set("Authorization", fmt.Sprintf("Bearer %v", tokenJWT))
 
-					var responseBody map[string]interface{}
-					_ = json.NewDecoder(request.Body).Decode(&responseBody)
-					request.Body.Close()
+					writer := httptest.NewRecorder()
+					server.ServeHTTP(writer, request)
 
-					Expect(responseBody["code"]).To(Equal("SK6"))
-					Expect(responseBody["name"]).To(Equal("Bantal Biasa"))
-					Expect(responseBody["description"]).To(Equal("Test"))
-					Expect(int(responseBody["price"].(float64))).To(Equal(7000))
+					var responseBody map[string]interface{}
+					_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
+
+					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
+					Expect(responseBody["status"]).To(Equal("created"))
+					Expect(responseBody["data"].(map[string]interface{})["code"]).To(Equal("SK6"))
+					Expect(responseBody["data"].(map[string]interface{})["name"]).To(Equal("Bantal Biasa"))
+					Expect(responseBody["data"].(map[string]interface{})["description"]).To(Equal("Test"))
+					Expect(int(responseBody["data"].(map[string]interface{})["price"].(float64))).To(Equal(7000))
 				})
 			})
 		})
@@ -139,11 +129,8 @@ var _ = Describe("Product API", func() {
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusNotFound))
 				Expect(responseBody["data"]).To(BeNil())
@@ -152,7 +139,7 @@ var _ = Describe("Product API", func() {
 
 		When("the fields are correct", func() {
 			When("the fields are filled", func() {
-				It("should return successful create product response", func() {
+				It("should return successful update product response", func() {
 					// Create Product
 					tx, _ := database.Begin()
 					productRepository := repository.NewProductRepository()
@@ -176,11 +163,8 @@ var _ = Describe("Product API", func() {
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
-					response := writer.Result()
-
-					body, _ := io.ReadAll(response.Body)
 					var responseBody map[string]interface{}
-					_ = json.Unmarshal(body, &responseBody)
+					_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 					Expect(responseBody["status"]).To(Equal("updated"))
@@ -204,11 +188,8 @@ var _ = Describe("Product API", func() {
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusNotFound))
 				Expect(responseBody["data"]).To(BeNil())
@@ -239,11 +220,8 @@ var _ = Describe("Product API", func() {
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("deleted"))
@@ -265,11 +243,8 @@ var _ = Describe("Product API", func() {
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("OK"))
@@ -312,26 +287,18 @@ var _ = Describe("Product API", func() {
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
-
-				products := responseBody["data"].([]interface{})
-
-				// Desc
-				productResponse1 := products[1].(map[string]interface{})
-				productResponse2 := products[0].(map[string]interface{})
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("OK"))
 
-				Expect(product1.Code).To(Equal(productResponse1["code"]))
-				Expect(product1.Name).To(Equal(productResponse1["name"]))
+				products := responseBody["data"].([]interface{})
+				Expect(product1.Code).To(Equal(products[1].(map[string]interface{})["code"]))
+				Expect(product1.Name).To(Equal(products[1].(map[string]interface{})["name"]))
 
-				Expect(product2.Code).To(Equal(productResponse2["code"]))
-				Expect(product2.Name).To(Equal(productResponse2["name"]))
+				Expect(product2.Code).To(Equal(products[0].(map[string]interface{})["code"]))
+				Expect(product2.Name).To(Equal(products[0].(map[string]interface{})["name"]))
 			})
 		})
 	})
@@ -349,11 +316,8 @@ var _ = Describe("Product API", func() {
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("OK"))
@@ -407,26 +371,18 @@ var _ = Describe("Product API", func() {
 				writer = httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
-
-				products := responseBody["data"].([]interface{})
-
-				// Desc
-				productResponse1 := products[1].(map[string]interface{})
-				productResponse2 := products[0].(map[string]interface{})
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("OK"))
 
-				Expect(productResponse1["code"]).To(Equal("SK6"))
-				Expect(productResponse1["name"]).To(Equal("Guling Doti Bang"))
+				products := responseBody["data"].([]interface{})
+				Expect(products[1].(map[string]interface{})["code"]).To(Equal("SK6"))
+				Expect(products[1].(map[string]interface{})["name"]).To(Equal("Guling Doti Bang"))
 
-				Expect(productResponse2["code"]).To(Equal("SK1"))
-				Expect(productResponse2["name"]).To(Equal("Bantal"))
+				Expect(products[0].(map[string]interface{})["code"]).To(Equal("SK1"))
+				Expect(products[0].(map[string]interface{})["name"]).To(Equal("Bantal"))
 			})
 		})
 	})
@@ -467,11 +423,8 @@ var _ = Describe("Product API", func() {
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("OK"))
@@ -514,23 +467,16 @@ var _ = Describe("Product API", func() {
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				products := responseBody["data"].([]interface{})
-
-				// Desc
-				productResponse1 := products[0].(map[string]interface{})
-
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("OK"))
-				Expect(productResponse1["code"]).To(Equal("SK1"))
-				Expect(productResponse1["name"]).To(Equal("Bantal"))
-				Expect(productResponse1["description"]).To(Equal("Test Bang"))
-				Expect(productResponse1["category"]).To(Equal("Bantal, Kasur"))
+				Expect(products[0].(map[string]interface{})["code"]).To(Equal("SK1"))
+				Expect(products[0].(map[string]interface{})["name"]).To(Equal("Bantal"))
+				Expect(products[0].(map[string]interface{})["description"]).To(Equal("Test Bang"))
+				Expect(products[0].(map[string]interface{})["category"]).To(Equal("Bantal, Kasur"))
 			})
 		})
 	})
@@ -548,16 +494,14 @@ var _ = Describe("Product API", func() {
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusNotFound))
 				Expect(responseBody["data"]).To(BeNil())
 			})
 		})
+
 		When("product is found", func() {
 			It("should return a successful find product by code", func() {
 				// Create Product
@@ -584,11 +528,8 @@ var _ = Describe("Product API", func() {
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("OK"))
@@ -641,17 +582,15 @@ var _ = Describe("Product API", func() {
 
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("OK"))
 				Expect(responseBody["data"]).To(BeNil())
 			})
 		})
+
 		When("product recommendation is found", func() {
 			It("should return a successful find recommendation product by code", func() {
 				// Create Product
@@ -693,19 +632,15 @@ var _ = Describe("Product API", func() {
 
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
-
-				products := responseBody["data"].([]interface{})
-				productResponse1 := products[0].(map[string]interface{})
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("OK"))
-				Expect(productResponse1["apriori_code"]).To(Equal("uRwCmCplpF"))
-				Expect(productResponse1["apriori_item"]).To(Equal("bantal biasa"))
+
+				products := responseBody["data"].([]interface{})
+				Expect(products[0].(map[string]interface{})["apriori_code"]).To(Equal("uRwCmCplpF"))
+				Expect(products[0].(map[string]interface{})["apriori_item"]).To(Equal("bantal biasa"))
 			})
 		})
 	})

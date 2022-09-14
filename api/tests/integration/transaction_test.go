@@ -10,7 +10,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"strings"
@@ -24,8 +23,11 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+/*
+	Error :
+		- Create Transactions By CSV File /transactions/csv
+*/
 var _ = Describe("Transaction API", func() {
-
 	var server *gin.Engine
 	var database *sql.DB
 	var tokenJWT string
@@ -62,11 +64,8 @@ var _ = Describe("Transaction API", func() {
 		writer := httptest.NewRecorder()
 		server.ServeHTTP(writer, request)
 
-		response := writer.Result()
-
-		body, _ := io.ReadAll(response.Body)
 		var responseBody map[string]interface{}
-		_ = json.Unmarshal(body, &responseBody)
+		_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 		tokenJWT = responseBody["data"].(map[string]interface{})["access_token"].(string)
 		for _, c := range writer.Result().Cookies() {
@@ -105,11 +104,8 @@ var _ = Describe("Transaction API", func() {
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
-					response := writer.Result()
-
-					body, _ := io.ReadAll(response.Body)
 					var responseBody map[string]interface{}
-					_ = json.Unmarshal(body, &responseBody)
+					_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusBadRequest))
 					Expect(responseBody["status"]).To(Equal("Key: 'CreateTransactionRequest.ProductName' Error:Field validation for 'ProductName' failed on the 'required' tag"))
@@ -130,11 +126,8 @@ var _ = Describe("Transaction API", func() {
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
-					response := writer.Result()
-
-					body, _ := io.ReadAll(response.Body)
 					var responseBody map[string]interface{}
-					_ = json.Unmarshal(body, &responseBody)
+					_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusBadRequest))
 					Expect(responseBody["status"]).To(Equal("Key: 'CreateTransactionRequest.CustomerName' Error:Field validation for 'CustomerName' failed on the 'required' tag"))
@@ -156,11 +149,8 @@ var _ = Describe("Transaction API", func() {
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("created"))
@@ -191,11 +181,8 @@ var _ = Describe("Transaction API", func() {
 	//			rec := httptest.NewRecorder()
 	//			server.ServeHTTP(rec, request)
 	//
-	//			response := rec.Result()
-	//
-	//			resp, _ := io.ReadAll(response.Body)
 	//			var responseBody map[string]interface{}
-	//			_ = json.Unmarshal(resp, &responseBody)
+	//			_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 	//
 	//			Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 	//			Expect(responseBody["status"]).To(Equal("created"))
@@ -231,11 +218,8 @@ var _ = Describe("Transaction API", func() {
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
-					response := writer.Result()
-
-					body, _ := io.ReadAll(response.Body)
 					var responseBody map[string]interface{}
-					_ = json.Unmarshal(body, &responseBody)
+					_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusBadRequest))
 					Expect(responseBody["status"]).To(Equal("Key: 'UpdateTransactionRequest.ProductName' Error:Field validation for 'ProductName' failed on the 'required' tag"))
@@ -268,11 +252,8 @@ var _ = Describe("Transaction API", func() {
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
-					response := writer.Result()
-
-					body, _ := io.ReadAll(response.Body)
 					var responseBody map[string]interface{}
-					_ = json.Unmarshal(body, &responseBody)
+					_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusBadRequest))
 					Expect(responseBody["status"]).To(Equal("Key: 'UpdateTransactionRequest.CustomerName' Error:Field validation for 'CustomerName' failed on the 'required' tag"))
@@ -306,11 +287,8 @@ var _ = Describe("Transaction API", func() {
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("updated"))
@@ -333,11 +311,8 @@ var _ = Describe("Transaction API", func() {
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusNotFound))
 				Expect(responseBody["data"]).To(BeNil())
@@ -368,11 +343,8 @@ var _ = Describe("Transaction API", func() {
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("deleted"))
@@ -394,17 +366,15 @@ var _ = Describe("Transaction API", func() {
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("OK"))
 				Expect(responseBody["data"]).To(BeNil())
 			})
 		})
+
 		When("the transactions is present", func() {
 			It("should return a successful and show all transactions", func() {
 				// Create Transaction
@@ -434,26 +404,18 @@ var _ = Describe("Transaction API", func() {
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
-
-				transactions := responseBody["data"].([]interface{})
-
-				// Desc
-				transactionResponse1 := transactions[1].(map[string]interface{})
-				transactionResponse2 := transactions[0].(map[string]interface{})
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("OK"))
 
-				Expect(transaction1.ProductName).To(Equal(transactionResponse1["product_name"]))
-				Expect(transaction1.CustomerName).To(Equal(transactionResponse1["customer_name"]))
+				transactions := responseBody["data"].([]interface{})
+				Expect(transaction1.ProductName).To(Equal(transactions[1].(map[string]interface{})["product_name"]))
+				Expect(transaction1.CustomerName).To(Equal(transactions[1].(map[string]interface{})["customer_name"]))
 
-				Expect(transaction2.ProductName).To(Equal(transactionResponse2["product_name"]))
-				Expect(transaction2.CustomerName).To(Equal(transactionResponse2["customer_name"]))
+				Expect(transaction2.ProductName).To(Equal(transactions[0].(map[string]interface{})["product_name"]))
+				Expect(transaction2.CustomerName).To(Equal(transactions[0].(map[string]interface{})["customer_name"]))
 			})
 		})
 	})
@@ -471,16 +433,14 @@ var _ = Describe("Transaction API", func() {
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusNotFound))
 				Expect(responseBody["data"]).To(BeNil())
 			})
 		})
+
 		When("transaction is found", func() {
 			It("should return a successful find transaction by no transaction", func() {
 				// Create Transaction
@@ -505,11 +465,8 @@ var _ = Describe("Transaction API", func() {
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("OK"))
@@ -544,11 +501,8 @@ var _ = Describe("Transaction API", func() {
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["data"]).To(BeNil())
@@ -566,11 +520,8 @@ var _ = Describe("Transaction API", func() {
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusUnauthorized))
 				Expect(responseBody["status"]).To(Equal("invalid token"))

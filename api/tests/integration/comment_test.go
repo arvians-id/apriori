@@ -15,7 +15,6 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"golang.org/x/crypto/bcrypt"
-	"io"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -25,7 +24,6 @@ import (
 )
 
 var _ = Describe("Comment API", func() {
-
 	var server *gin.Engine
 	var database *sql.DB
 	var tokenJWT string
@@ -64,11 +62,8 @@ var _ = Describe("Comment API", func() {
 		writer := httptest.NewRecorder()
 		server.ServeHTTP(writer, request)
 
-		response := writer.Result()
-
-		body, _ := io.ReadAll(response.Body)
 		var responseBody map[string]interface{}
-		_ = json.Unmarshal(body, &responseBody)
+		_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 		tokenJWT = responseBody["data"].(map[string]interface{})["access_token"].(string)
 		for _, c := range writer.Result().Cookies() {
@@ -219,10 +214,10 @@ var _ = Describe("Comment API", func() {
 		})
 	})
 
-	Describe("Find By User Order Id /comments/user-order/:user_order_id", func() {
+	Describe("Find Comment By User Order Id /comments/user-order/:user_order_id", func() {
 		When("comment is not found", func() {
 			It("should return error not found", func() {
-				// Find By User Order Id
+				// Find Comment By User Order Id
 				request := httptest.NewRequest(http.MethodGet, "/api/comments/user-order/1", nil)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
@@ -259,7 +254,7 @@ var _ = Describe("Comment API", func() {
 				})
 				_ = tx.Commit()
 
-				// Find By User Order Id
+				// Find Comment By User Order Id
 				request := httptest.NewRequest(http.MethodGet, "/api/comments/user-order/"+helper.IntToStr(comment.UserOrderId), nil)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
@@ -347,16 +342,13 @@ var _ = Describe("Comment API", func() {
 				Expect(responseBody["status"]).To(Equal("OK"))
 
 				commentResponse := responseBody["data"].([]interface{})
-				comment1Response := commentResponse[0].(map[string]interface{})
-				comment2Response := commentResponse[1].(map[string]interface{})
+				Expect(int(commentResponse[0].(map[string]interface{})["rating"].(float64))).To(Equal(4))
+				Expect(int(commentResponse[0].(map[string]interface{})["result_comment"].(float64))).To(Equal(1))
+				Expect(int(commentResponse[0].(map[string]interface{})["result_rating"].(float64))).To(Equal(8))
 
-				Expect(int(comment1Response["rating"].(float64))).To(Equal(4))
-				Expect(int(comment1Response["result_comment"].(float64))).To(Equal(1))
-				Expect(int(comment1Response["result_rating"].(float64))).To(Equal(8))
-
-				Expect(int(comment2Response["rating"].(float64))).To(Equal(3))
-				Expect(int(comment2Response["result_comment"].(float64))).To(Equal(0))
-				Expect(int(comment2Response["result_rating"].(float64))).To(Equal(3))
+				Expect(int(commentResponse[1].(map[string]interface{})["rating"].(float64))).To(Equal(3))
+				Expect(int(commentResponse[1].(map[string]interface{})["result_comment"].(float64))).To(Equal(0))
+				Expect(int(commentResponse[1].(map[string]interface{})["result_rating"].(float64))).To(Equal(3))
 			})
 		})
 	})
@@ -426,18 +418,15 @@ var _ = Describe("Comment API", func() {
 				Expect(responseBody["status"]).To(Equal("OK"))
 
 				commentResponse := responseBody["data"].([]interface{})
-				comment1Response := commentResponse[0].(map[string]interface{})
-				comment2Response := commentResponse[1].(map[string]interface{})
+				Expect(commentResponse[0].(map[string]interface{})["product_code"]).To(Equal(comment1.ProductCode))
+				Expect(commentResponse[0].(map[string]interface{})["description"]).To(Equal(comment1.Description.String))
+				Expect(commentResponse[0].(map[string]interface{})["tag"]).To(Equal(comment1.Tag.String))
+				Expect(int(commentResponse[0].(map[string]interface{})["rating"].(float64))).To(Equal(comment1.Rating))
 
-				Expect(comment1Response["product_code"]).To(Equal(comment1.ProductCode))
-				Expect(comment1Response["description"]).To(Equal(comment1.Description.String))
-				Expect(comment1Response["tag"]).To(Equal(comment1.Tag.String))
-				Expect(int(comment1Response["rating"].(float64))).To(Equal(comment1.Rating))
-
-				Expect(comment2Response["product_code"]).To(Equal(comment2.ProductCode))
-				Expect(comment2Response["description"]).To(BeNil())
-				Expect(comment2Response["tag"]).To(Equal(comment2.Tag.String))
-				Expect(int(comment2Response["rating"].(float64))).To(Equal(comment2.Rating))
+				Expect(commentResponse[1].(map[string]interface{})["product_code"]).To(Equal(comment2.ProductCode))
+				Expect(commentResponse[1].(map[string]interface{})["description"]).To(BeNil())
+				Expect(commentResponse[1].(map[string]interface{})["tag"]).To(Equal(comment2.Tag.String))
+				Expect(int(commentResponse[1].(map[string]interface{})["rating"].(float64))).To(Equal(comment2.Rating))
 			})
 		})
 	})

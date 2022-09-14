@@ -15,7 +15,6 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"golang.org/x/crypto/bcrypt"
-	"io"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -63,11 +62,8 @@ var _ = Describe("Notification API", func() {
 		writer := httptest.NewRecorder()
 		server.ServeHTTP(writer, request)
 
-		response := writer.Result()
-
-		body, _ := io.ReadAll(response.Body)
 		var responseBody map[string]interface{}
-		_ = json.Unmarshal(body, &responseBody)
+		_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 		tokenJWT = responseBody["data"].(map[string]interface{})["access_token"].(string)
 		for _, c := range writer.Result().Cookies() {
@@ -238,7 +234,7 @@ var _ = Describe("Notification API", func() {
 
 	Describe("Mark One Notification Id /notifications/mark/:id", func() {
 		When("the notification is exists", func() {
-			It("should return successful find all notifications response", func() {
+			It("should return successful find all notifications response with different is read status", func() {
 				// Mark One Notification By Id
 				request := httptest.NewRequest(http.MethodPatch, "/api/notifications/mark/"+helper.IntToStr(notification1.IdNotification), nil)
 				request.Header.Add("Content-Type", "application/json")

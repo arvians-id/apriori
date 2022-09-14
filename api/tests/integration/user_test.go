@@ -9,7 +9,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"net/http/httptest"
 	"strconv"
@@ -26,7 +25,6 @@ import (
 )
 
 var _ = Describe("User API", func() {
-
 	var server *gin.Engine
 	var database *sql.DB
 	var tokenJWT string
@@ -36,7 +34,6 @@ var _ = Describe("User API", func() {
 
 	BeforeEach(func() {
 		// Setup Configuration
-
 		router, db := setup.ModuleSetup(configuration)
 
 		database = db
@@ -65,11 +62,8 @@ var _ = Describe("User API", func() {
 		writer := httptest.NewRecorder()
 		server.ServeHTTP(writer, request)
 
-		response := writer.Result()
-
-		body, _ := io.ReadAll(response.Body)
 		var responseBody map[string]interface{}
-		_ = json.Unmarshal(body, &responseBody)
+		_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 		tokenJWT = responseBody["data"].(map[string]interface{})["access_token"].(string)
 		for _, c := range writer.Result().Cookies() {
@@ -107,11 +101,8 @@ var _ = Describe("User API", func() {
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
-					response := writer.Result()
-
-					body, _ := io.ReadAll(response.Body)
 					var responseBody map[string]interface{}
-					_ = json.Unmarshal(body, &responseBody)
+					_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusBadRequest))
 					Expect(responseBody["status"]).To(Equal("Key: 'CreateUserRequest.Name' Error:Field validation for 'Name' failed on the 'required' tag"))
@@ -130,11 +121,8 @@ var _ = Describe("User API", func() {
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
-					response := writer.Result()
-
-					body, _ := io.ReadAll(response.Body)
 					var responseBody map[string]interface{}
-					_ = json.Unmarshal(body, &responseBody)
+					_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusBadRequest))
 					Expect(responseBody["status"]).To(Equal("Key: 'CreateUserRequest.Name' Error:Field validation for 'Name' failed on the 'max' tag"))
@@ -155,11 +143,8 @@ var _ = Describe("User API", func() {
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
-					response := writer.Result()
-
-					body, _ := io.ReadAll(response.Body)
 					var responseBody map[string]interface{}
-					_ = json.Unmarshal(body, &responseBody)
+					_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusBadRequest))
 					Expect(responseBody["status"]).To(Equal("Key: 'CreateUserRequest.Email' Error:Field validation for 'Email' failed on the 'required' tag"))
@@ -178,11 +163,8 @@ var _ = Describe("User API", func() {
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
-					response := writer.Result()
-
-					body, _ := io.ReadAll(response.Body)
 					var responseBody map[string]interface{}
-					_ = json.Unmarshal(body, &responseBody)
+					_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusBadRequest))
 					Expect(responseBody["status"]).To(Equal("Key: 'CreateUserRequest.Email' Error:Field validation for 'Email' failed on the 'email' tag"))
@@ -211,11 +193,9 @@ var _ = Describe("User API", func() {
 
 					writer = httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
-					response := writer.Result()
 
-					body, _ := io.ReadAll(response.Body)
 					var responseBody map[string]interface{}
-					_ = json.Unmarshal(body, &responseBody)
+					_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusBadRequest))
 					Expect(responseBody["data"]).To(BeNil())
@@ -233,11 +213,8 @@ var _ = Describe("User API", func() {
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
-					response := writer.Result()
-
-					body, _ := io.ReadAll(response.Body)
 					var responseBody map[string]interface{}
-					_ = json.Unmarshal(body, &responseBody)
+					_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusBadRequest))
 					Expect(responseBody["status"]).To(Equal("Key: 'CreateUserRequest.Email' Error:Field validation for 'Email' failed on the 'max' tag"))
@@ -258,11 +235,8 @@ var _ = Describe("User API", func() {
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
-					response := writer.Result()
-
-					body, _ := io.ReadAll(response.Body)
 					var responseBody map[string]interface{}
-					_ = json.Unmarshal(body, &responseBody)
+					_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusBadRequest))
 					Expect(responseBody["status"]).To(Equal("Key: 'CreateUserRequest.Password' Error:Field validation for 'Password' failed on the 'required' tag"))
@@ -281,11 +255,8 @@ var _ = Describe("User API", func() {
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
-					response := writer.Result()
-
-					body, _ := io.ReadAll(response.Body)
 					var responseBody map[string]interface{}
-					_ = json.Unmarshal(body, &responseBody)
+					_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusBadRequest))
 					Expect(responseBody["status"]).To(Equal("Key: 'CreateUserRequest.Password' Error:Field validation for 'Password' failed on the 'min' tag"))
@@ -307,11 +278,8 @@ var _ = Describe("User API", func() {
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("created"))
@@ -335,11 +303,8 @@ var _ = Describe("User API", func() {
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusNotFound))
 				Expect(responseBody["data"]).To(BeNil())
@@ -360,11 +325,8 @@ var _ = Describe("User API", func() {
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
-					response := writer.Result()
-
-					body, _ := io.ReadAll(response.Body)
 					var responseBody map[string]interface{}
-					_ = json.Unmarshal(body, &responseBody)
+					_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusBadRequest))
 					Expect(responseBody["status"]).To(Equal("Key: 'UpdateUserRequest.Name' Error:Field validation for 'Name' failed on the 'required' tag"))
@@ -383,11 +345,8 @@ var _ = Describe("User API", func() {
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
-					response := writer.Result()
-
-					body, _ := io.ReadAll(response.Body)
 					var responseBody map[string]interface{}
-					_ = json.Unmarshal(body, &responseBody)
+					_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusBadRequest))
 					Expect(responseBody["status"]).To(Equal("Key: 'UpdateUserRequest.Name' Error:Field validation for 'Name' failed on the 'max' tag"))
@@ -408,11 +367,8 @@ var _ = Describe("User API", func() {
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
-					response := writer.Result()
-
-					body, _ := io.ReadAll(response.Body)
 					var responseBody map[string]interface{}
-					_ = json.Unmarshal(body, &responseBody)
+					_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusBadRequest))
 					Expect(responseBody["status"]).To(Equal("Key: 'UpdateUserRequest.Email' Error:Field validation for 'Email' failed on the 'required' tag"))
@@ -431,11 +387,8 @@ var _ = Describe("User API", func() {
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
-					response := writer.Result()
-
-					body, _ := io.ReadAll(response.Body)
 					var responseBody map[string]interface{}
-					_ = json.Unmarshal(body, &responseBody)
+					_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusBadRequest))
 					Expect(responseBody["status"]).To(Equal("Key: 'UpdateUserRequest.Email' Error:Field validation for 'Email' failed on the 'email' tag"))
@@ -454,11 +407,8 @@ var _ = Describe("User API", func() {
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
-					response := writer.Result()
-
-					body, _ := io.ReadAll(response.Body)
 					var responseBody map[string]interface{}
-					_ = json.Unmarshal(body, &responseBody)
+					_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusBadRequest))
 					Expect(responseBody["status"]).To(Equal("Key: 'UpdateUserRequest.Email' Error:Field validation for 'Email' failed on the 'max' tag"))
@@ -479,11 +429,8 @@ var _ = Describe("User API", func() {
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
-					response := writer.Result()
-
-					body, _ := io.ReadAll(response.Body)
 					var responseBody map[string]interface{}
-					_ = json.Unmarshal(body, &responseBody)
+					_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusBadRequest))
 					Expect(responseBody["status"]).To(Equal("Key: 'UpdateUserRequest.Password' Error:Field validation for 'Password' failed on the 'min' tag"))
@@ -506,11 +453,8 @@ var _ = Describe("User API", func() {
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
-					response := writer.Result()
-
-					body, _ := io.ReadAll(response.Body)
 					var responseBody map[string]interface{}
-					_ = json.Unmarshal(body, &responseBody)
+					_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 					Expect(responseBody["status"]).To(Equal("updated"))
@@ -532,11 +476,8 @@ var _ = Describe("User API", func() {
 					writer := httptest.NewRecorder()
 					server.ServeHTTP(writer, request)
 
-					response := writer.Result()
-
-					body, _ := io.ReadAll(response.Body)
 					var responseBody map[string]interface{}
-					_ = json.Unmarshal(body, &responseBody)
+					_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 					Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 					Expect(responseBody["status"]).To(Equal("updated"))
@@ -560,11 +501,8 @@ var _ = Describe("User API", func() {
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusNotFound))
 				Expect(responseBody["data"]).To(BeNil())
@@ -583,11 +521,8 @@ var _ = Describe("User API", func() {
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("deleted"))
@@ -619,17 +554,15 @@ var _ = Describe("User API", func() {
 				writer = httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("OK"))
 				Expect(responseBody["data"]).To(BeNil())
 			})
 		})
+
 		When("the user is present", func() {
 			It("should return a successful and show all users", func() {
 				// Create user
@@ -662,26 +595,18 @@ var _ = Describe("User API", func() {
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
-
-				users := responseBody["data"].([]interface{})
-
-				// Desc
-				usersResponse1 := users[1].(map[string]interface{})
-				usersResponse2 := users[0].(map[string]interface{})
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("OK"))
 
-				Expect(user1.IdUser).To(Equal(int(usersResponse1["id_user"].(float64))))
-				Expect(user1.Name).To(Equal(usersResponse1["name"]))
+				users := responseBody["data"].([]interface{})
+				Expect(user1.IdUser).To(Equal(int(users[1].(map[string]interface{})["id_user"].(float64))))
+				Expect(user1.Name).To(Equal(users[1].(map[string]interface{})["name"]))
 
-				Expect(user2.IdUser).To(Equal(int(usersResponse2["id_user"].(float64))))
-				Expect(user2.Name).To(Equal(usersResponse2["name"]))
+				Expect(user2.IdUser).To(Equal(int(users[0].(map[string]interface{})["id_user"].(float64))))
+				Expect(user2.Name).To(Equal(users[0].(map[string]interface{})["name"]))
 			})
 		})
 	})
@@ -699,16 +624,14 @@ var _ = Describe("User API", func() {
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusNotFound))
 				Expect(responseBody["data"]).To(BeNil())
 			})
 		})
+
 		When("user is found", func() {
 			It("should return a successful find user by id", func() {
 				// Find By Id User
@@ -721,11 +644,8 @@ var _ = Describe("User API", func() {
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("OK"))
@@ -748,11 +668,8 @@ var _ = Describe("User API", func() {
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("OK"))
@@ -776,11 +693,8 @@ var _ = Describe("User API", func() {
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusBadRequest))
 				Expect(responseBody["data"]).To(BeNil())
@@ -798,11 +712,8 @@ var _ = Describe("User API", func() {
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusBadRequest))
 				Expect(responseBody["status"]).To(Equal("Key: 'UpdateUserRequest.Email' Error:Field validation for 'Email' failed on the 'email' tag"))
@@ -823,11 +734,8 @@ var _ = Describe("User API", func() {
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("updated"))
@@ -851,11 +759,8 @@ var _ = Describe("User API", func() {
 				writer := httptest.NewRecorder()
 				server.ServeHTTP(writer, request)
 
-				response := writer.Result()
-
-				body, _ := io.ReadAll(response.Body)
 				var responseBody map[string]interface{}
-				_ = json.Unmarshal(body, &responseBody)
+				_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusUnauthorized))
 				Expect(responseBody["status"]).To(Equal("invalid token"))

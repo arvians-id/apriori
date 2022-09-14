@@ -15,7 +15,6 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"golang.org/x/crypto/bcrypt"
-	"io"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -24,7 +23,6 @@ import (
 )
 
 var _ = Describe("Category API", func() {
-
 	var server *gin.Engine
 	var database *sql.DB
 	var tokenJWT string
@@ -62,11 +60,8 @@ var _ = Describe("Category API", func() {
 		writer := httptest.NewRecorder()
 		server.ServeHTTP(writer, request)
 
-		response := writer.Result()
-
-		body, _ := io.ReadAll(response.Body)
 		var responseBody map[string]interface{}
-		_ = json.Unmarshal(body, &responseBody)
+		_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 		tokenJWT = responseBody["data"].(map[string]interface{})["access_token"].(string)
 		for _, c := range writer.Result().Cookies() {
@@ -93,7 +88,7 @@ var _ = Describe("Category API", func() {
 	Describe("Create Category /categories", func() {
 		When("the fields are filled", func() {
 			It("should return successful create category response", func() {
-				// Create Comment
+				// Create Category
 				requestBody := strings.NewReader(`{"name": "Produk Kasur"}`)
 				request := httptest.NewRequest(http.MethodPost, "/api/categories", requestBody)
 				request.Header.Add("Content-Type", "application/json")
@@ -162,9 +157,7 @@ var _ = Describe("Category API", func() {
 				Expect(responseBody["status"]).To(Equal("OK"))
 
 				categoryResponse := responseBody["data"].([]interface{})
-				category := categoryResponse[0].(map[string]interface{})
-
-				Expect(category["name"]).To(Equal("Produk Kasur"))
+				Expect(categoryResponse[0].(map[string]interface{})["name"]).To(Equal("Produk Kasur"))
 			})
 		})
 	})

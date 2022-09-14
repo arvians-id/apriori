@@ -52,7 +52,7 @@
 [GIN-debug] GET    /api/user-order           --> apriori/app/controller.(*UserOrderController).FindAll-fm (6 handlers)
 [GIN-debug] GET    /api/user-order/user      --> apriori/app/controller.(*UserOrderController).FindAllByUserId-fm (6 handlers)
 [GIN-debug] GET    /api/user-order/:order_id --> apriori/app/controller.(*UserOrderController).FindAllById-fm (6 handlers)
-[GIN-debug] GET    /api/user-order/:order_id/single --> apriori/app/controller.(*UserOrderController).FindById-fm (6 handlers)
+[GIN-debug] GET    /api/user-order/single/:id --> apriori/app/controller.(*UserOrderController).FindById-fm (6 handlers)
 [GIN-debug] GET    /api/categories/:id       --> apriori/app/controller.(*CategoryController).FindById-fm (6 handlers)
 [GIN-debug] POST   /api/categories           --> apriori/app/controller.(*CategoryController).Create-fm (6 handlers)
 [GIN-debug] PATCH  /api/categories/:id       --> apriori/app/controller.(*CategoryController).Update-fm (6 handlers)
@@ -72,4 +72,5 @@
 [GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
 Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
 [GIN-debug] Listening and serving HTTP on :8080
-[GIN] 2022/09/13 - 12:39:17 | 404 |      6.6679ms |             ::1 | GET      "/api/comments/product/Lfanp"
+[GIN] 2022/09/14 - 14:09:02 | 200 |    383.4392ms |             ::1 | POST     "/api/transactions/csv"
+[GIN] 2022/09/14 - 14:09:42 | 200 |      9.9921ms |             ::1 | POST     "/api/apriori/generate"

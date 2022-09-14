@@ -15,7 +15,6 @@ import (
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
 	"golang.org/x/crypto/bcrypt"
-	"io"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -69,11 +68,8 @@ var _ = Describe("User Order API", func() {
 		writer := httptest.NewRecorder()
 		server.ServeHTTP(writer, request)
 
-		response := writer.Result()
-
-		body, _ := io.ReadAll(response.Body)
 		var responseBody map[string]interface{}
-		_ = json.Unmarshal(body, &responseBody)
+		_ = json.NewDecoder(writer.Result().Body).Decode(&responseBody)
 
 		tokenJWT = responseBody["data"].(map[string]interface{})["access_token"].(string)
 		for _, c := range writer.Result().Cookies() {
@@ -294,7 +290,7 @@ var _ = Describe("User Order API", func() {
 	Describe("Find User Order By Id /user-order/single/:id", func() {
 		When("the user order is not found", func() {
 			It("should return error not found response", func() {
-				// Find All User Order
+				// Find All User Order By Id
 				request := httptest.NewRequest(http.MethodGet, "/api/user-order/single/12121", nil)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
@@ -315,7 +311,7 @@ var _ = Describe("User Order API", func() {
 
 		When("the user order is exists", func() {
 			It("should return successful find user order by id response", func() {
-				// Find All User Order
+				// Find All User Order By Id
 				request := httptest.NewRequest(http.MethodGet, "/api/user-order/single/"+helper.IntToStr(order1.IdOrder), nil)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
