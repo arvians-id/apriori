@@ -68,6 +68,7 @@ export default {
               this.$router.push({
                 name: 'auth.forgot-password'
               })
+              this.user.email = ""
             }
           }).catch(error => {
             if (error.response.status === 400 || error.response.status === 404) {

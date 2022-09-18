@@ -28,7 +28,6 @@ var _ = Describe("Notification API", func() {
 	var tokenJWT string
 	var cookie *http.Cookie
 	var notification1 *entity.Notification
-	var notification2 *entity.Notification
 	configuration := config.New("../../.env.test")
 
 	BeforeEach(func() {
@@ -74,39 +73,30 @@ var _ = Describe("Notification API", func() {
 
 		tx, _ = database.Begin()
 		notificationRepository := repository.NewNotificationRepository()
+		description := "This is first notification"
+		url := "https://google.com"
 		notificationOne, _ := notificationRepository.Create(context.Background(), tx, &entity.Notification{
-			UserId: user.IdUser,
-			Title:  "First notification",
-			Description: sql.NullString{
-				String: "This is first notification",
-				Valid:  true,
-			},
-			URL: sql.NullString{
-				String: "https://google.com",
-				Valid:  true,
-			},
-			IsRead:    false,
-			CreatedAt: time.Now(),
+			UserId:      user.IdUser,
+			Title:       "First notification",
+			Description: &description,
+			URL:         &url,
+			IsRead:      false,
+			CreatedAt:   time.Now(),
 		})
 
-		notificationTwo, _ := notificationRepository.Create(context.Background(), tx, &entity.Notification{
-			UserId: user.IdUser,
-			Title:  "Second notification",
-			Description: sql.NullString{
-				String: "This is second notification",
-				Valid:  true,
-			},
-			URL: sql.NullString{
-				String: "https://facebook.com",
-				Valid:  true,
-			},
-			IsRead:    false,
-			CreatedAt: time.Now(),
+		description = "This is second notification"
+		url = "https://facebook.com"
+		_, _ = notificationRepository.Create(context.Background(), tx, &entity.Notification{
+			UserId:      user.IdUser,
+			Title:       "Second notification",
+			Description: &description,
+			URL:         &url,
+			IsRead:      false,
+			CreatedAt:   time.Now(),
 		})
 		_ = tx.Commit()
 
 		notification1 = notificationOne
-		notification2 = notificationTwo
 	})
 
 	AfterEach(func() {
@@ -143,15 +133,15 @@ var _ = Describe("Notification API", func() {
 				Expect(responseBody["status"]).To(Equal("OK"))
 
 				userOrderResponse := responseBody["data"].([]interface{})
-				Expect(userOrderResponse[1].(map[string]interface{})["title"]).To(Equal(notification1.Title))
-				Expect(userOrderResponse[1].(map[string]interface{})["description"]).To(Equal(notification1.Description.String))
-				Expect(userOrderResponse[1].(map[string]interface{})["url"]).To(Equal(notification1.URL.String))
-				Expect(userOrderResponse[1].(map[string]interface{})["is_read"].(bool)).To(Equal(notification1.IsRead))
+				Expect(userOrderResponse[1].(map[string]interface{})["title"]).To(Equal("First notification"))
+				Expect(userOrderResponse[1].(map[string]interface{})["description"]).To(Equal("This is first notification"))
+				Expect(userOrderResponse[1].(map[string]interface{})["url"]).To(Equal("https://google.com"))
+				Expect(userOrderResponse[1].(map[string]interface{})["is_read"].(bool)).To(BeFalse())
 
-				Expect(userOrderResponse[0].(map[string]interface{})["title"]).To(Equal(notification2.Title))
-				Expect(userOrderResponse[0].(map[string]interface{})["description"]).To(Equal(notification2.Description.String))
-				Expect(userOrderResponse[0].(map[string]interface{})["url"]).To(Equal(notification2.URL.String))
-				Expect(userOrderResponse[0].(map[string]interface{})["is_read"].(bool)).To(Equal(notification2.IsRead))
+				Expect(userOrderResponse[0].(map[string]interface{})["title"]).To(Equal("Second notification"))
+				Expect(userOrderResponse[0].(map[string]interface{})["description"]).To(Equal("This is second notification"))
+				Expect(userOrderResponse[0].(map[string]interface{})["url"]).To(Equal("https://facebook.com"))
+				Expect(userOrderResponse[0].(map[string]interface{})["is_read"].(bool)).To(BeFalse())
 			})
 		})
 	})
@@ -176,14 +166,14 @@ var _ = Describe("Notification API", func() {
 				Expect(responseBody["status"]).To(Equal("OK"))
 
 				userOrderResponse := responseBody["data"].([]interface{})
-				Expect(userOrderResponse[1].(map[string]interface{})["title"]).To(Equal(notification1.Title))
-				Expect(userOrderResponse[1].(map[string]interface{})["description"]).To(Equal(notification1.Description.String))
-				Expect(userOrderResponse[1].(map[string]interface{})["url"]).To(Equal(notification1.URL.String))
+				Expect(userOrderResponse[1].(map[string]interface{})["title"]).To(Equal("First notification"))
+				Expect(userOrderResponse[1].(map[string]interface{})["description"]).To(Equal("This is first notification"))
+				Expect(userOrderResponse[1].(map[string]interface{})["url"]).To(Equal("https://google.com"))
 				Expect(userOrderResponse[1].(map[string]interface{})["is_read"].(bool)).To(BeFalse())
 
-				Expect(userOrderResponse[0].(map[string]interface{})["title"]).To(Equal(notification2.Title))
-				Expect(userOrderResponse[0].(map[string]interface{})["description"]).To(Equal(notification2.Description.String))
-				Expect(userOrderResponse[0].(map[string]interface{})["url"]).To(Equal(notification2.URL.String))
+				Expect(userOrderResponse[0].(map[string]interface{})["title"]).To(Equal("Second notification"))
+				Expect(userOrderResponse[0].(map[string]interface{})["description"]).To(Equal("This is second notification"))
+				Expect(userOrderResponse[0].(map[string]interface{})["url"]).To(Equal("https://facebook.com"))
 				Expect(userOrderResponse[0].(map[string]interface{})["is_read"].(bool)).To(BeFalse())
 			})
 		})
@@ -219,14 +209,14 @@ var _ = Describe("Notification API", func() {
 				Expect(responseBody["status"]).To(Equal("OK"))
 
 				userOrderResponse := responseBody["data"].([]interface{})
-				Expect(userOrderResponse[1].(map[string]interface{})["title"]).To(Equal(notification1.Title))
-				Expect(userOrderResponse[1].(map[string]interface{})["description"]).To(Equal(notification1.Description.String))
-				Expect(userOrderResponse[1].(map[string]interface{})["url"]).To(Equal(notification1.URL.String))
+				Expect(userOrderResponse[1].(map[string]interface{})["title"]).To(Equal("First notification"))
+				Expect(userOrderResponse[1].(map[string]interface{})["description"]).To(Equal("This is first notification"))
+				Expect(userOrderResponse[1].(map[string]interface{})["url"]).To(Equal("https://google.com"))
 				Expect(userOrderResponse[1].(map[string]interface{})["is_read"].(bool)).To(BeTrue())
 
-				Expect(userOrderResponse[0].(map[string]interface{})["title"]).To(Equal(notification2.Title))
-				Expect(userOrderResponse[0].(map[string]interface{})["description"]).To(Equal(notification2.Description.String))
-				Expect(userOrderResponse[0].(map[string]interface{})["url"]).To(Equal(notification2.URL.String))
+				Expect(userOrderResponse[0].(map[string]interface{})["title"]).To(Equal("Second notification"))
+				Expect(userOrderResponse[0].(map[string]interface{})["description"]).To(Equal("This is second notification"))
+				Expect(userOrderResponse[0].(map[string]interface{})["url"]).To(Equal("https://facebook.com"))
 				Expect(userOrderResponse[0].(map[string]interface{})["is_read"].(bool)).To(BeTrue())
 			})
 		})
@@ -262,14 +252,14 @@ var _ = Describe("Notification API", func() {
 				Expect(responseBody["status"]).To(Equal("OK"))
 
 				userOrderResponse := responseBody["data"].([]interface{})
-				Expect(userOrderResponse[1].(map[string]interface{})["title"]).To(Equal(notification1.Title))
-				Expect(userOrderResponse[1].(map[string]interface{})["description"]).To(Equal(notification1.Description.String))
-				Expect(userOrderResponse[1].(map[string]interface{})["url"]).To(Equal(notification1.URL.String))
+				Expect(userOrderResponse[1].(map[string]interface{})["title"]).To(Equal("First notification"))
+				Expect(userOrderResponse[1].(map[string]interface{})["description"]).To(Equal("This is first notification"))
+				Expect(userOrderResponse[1].(map[string]interface{})["url"]).To(Equal("https://google.com"))
 				Expect(userOrderResponse[1].(map[string]interface{})["is_read"].(bool)).To(BeTrue())
 
-				Expect(userOrderResponse[0].(map[string]interface{})["title"]).To(Equal(notification2.Title))
-				Expect(userOrderResponse[0].(map[string]interface{})["description"]).To(Equal(notification2.Description.String))
-				Expect(userOrderResponse[0].(map[string]interface{})["url"]).To(Equal(notification2.URL.String))
+				Expect(userOrderResponse[0].(map[string]interface{})["title"]).To(Equal("Second notification"))
+				Expect(userOrderResponse[0].(map[string]interface{})["description"]).To(Equal("This is second notification"))
+				Expect(userOrderResponse[0].(map[string]interface{})["url"]).To(Equal("https://facebook.com"))
 				Expect(userOrderResponse[0].(map[string]interface{})["is_read"].(bool)).To(BeFalse())
 			})
 		})

@@ -33,13 +33,13 @@
                 <!-- List group -->
                 <ul class="list-group list-group-flush" data-toggle="checklist" v-if="orders.length > 0">
                   <li class="checklist-entry list-group-item flex-column align-items-start py-4 px-4" v-for="(item,i) in orders" :key="i">
-                    <div :class="getColor(`checklist-item checklist-item-`, item.transaction_status)">
+                    <div class="checklist-item checklist-item-success">
                       <div class="checklist-info">
                         <h5 class="checklist-title mb-0">{{ item.name }}</h5>
                         <small>Rp. {{ numberWithCommas(item.price) }} - {{ item.quantity }}x</small>
                         <small class="d-block">Total Pesanan: Rp. {{ numberWithCommas(item.total_price_item) }}</small>
                       </div>
-                      <router-link :class="getColor(`btn btn-sm btn-`,item.transaction_status)" :to="{ name: 'member.history.rate', params: { id_order: item.id_order } }">
+                      <router-link class="btn btn-sm btn-success" :to="{ name: 'member.history.rate', params: { id_order: item.id_order } }">
                         Beri penilaian
                       </router-link>
                     </div>
@@ -156,18 +156,6 @@ export default {
     },
     numberWithCommas(x) {
       return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-    },
-    getColor(classNames, status) {
-      let className = classNames
-      if (status === "settlement") {
-        className += "success"
-      } else if (status === "pending") {
-        className += "info"
-      } else {
-        className += "danger"
-      }
-
-      return className
     }
   }
 }

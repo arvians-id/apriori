@@ -23,17 +23,6 @@ type GetUserCredentialRequest struct {
 	Password string `json:"password" binding:"required"`
 }
 
-type GetUserResponse struct {
-	IdUser    int    `json:"id_user"`
-	Role      int    `json:"role"`
-	Name      string `json:"name"`
-	Email     string `json:"email"`
-	Address   string `json:"address"`
-	Phone     string `json:"phone"`
-	CreatedAt string `json:"created_at"`
-	UpdatedAt string `json:"updated_at"`
-}
-
 type GetRefreshTokenRequest struct {
 	RefreshToken string `json:"refresh_token"`
 }

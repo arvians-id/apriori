@@ -3,9 +3,9 @@ package controller
 import (
 	"apriori/app/middleware"
 	"apriori/app/response"
+	"apriori/entity"
 	"apriori/model"
 	"apriori/service"
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -135,8 +135,8 @@ func (controller *ProductController) FindByCode(c *gin.Context) {
 		return
 	}
 
-	var productCacheResponse model.GetProductResponse
-	err = json.Unmarshal(bytes.NewBufferString(productCache).Bytes(), &productCacheResponse)
+	var productCacheResponse entity.Product
+	err = json.Unmarshal(productCache, &productCacheResponse)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return

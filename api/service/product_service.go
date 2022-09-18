@@ -32,7 +32,7 @@ func NewProductService(
 	}
 }
 
-func (service *ProductServiceImpl) FindAllByAdmin(ctx context.Context) ([]*model.GetProductResponse, error) {
+func (service *ProductServiceImpl) FindAllByAdmin(ctx context.Context) ([]*entity.Product, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -44,15 +44,10 @@ func (service *ProductServiceImpl) FindAllByAdmin(ctx context.Context) ([]*model
 		return nil, err
 	}
 
-	var productResponses []*model.GetProductResponse
-	for _, product := range products {
-		productResponses = append(productResponses, product.ToProductResponse())
-	}
-
-	return productResponses, nil
+	return products, nil
 }
 
-func (service *ProductServiceImpl) FindAll(ctx context.Context, search string, category string) ([]*model.GetProductResponse, error) {
+func (service *ProductServiceImpl) FindAll(ctx context.Context, search string, category string) ([]*entity.Product, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -64,15 +59,10 @@ func (service *ProductServiceImpl) FindAll(ctx context.Context, search string, c
 		return nil, err
 	}
 
-	var productResponses []*model.GetProductResponse
-	for _, product := range products {
-		productResponses = append(productResponses, product.ToProductResponse())
-	}
-
-	return productResponses, nil
+	return products, nil
 }
 
-func (service *ProductServiceImpl) FindAllBySimilarCategory(ctx context.Context, code string) ([]*model.GetProductResponse, error) {
+func (service *ProductServiceImpl) FindAllBySimilarCategory(ctx context.Context, code string) ([]*entity.Product, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -91,17 +81,17 @@ func (service *ProductServiceImpl) FindAllBySimilarCategory(ctx context.Context,
 		return nil, err
 	}
 
-	var productResponses []*model.GetProductResponse
+	var productResponses []*entity.Product
 	for _, productCategory := range productCategories {
 		if productCategory.Code != code {
-			productResponses = append(productResponses, productCategory.ToProductResponse())
+			productResponses = append(productResponses, productCategory)
 		}
 	}
 
 	return productResponses, nil
 }
 
-func (service *ProductServiceImpl) FindAllRecommendation(ctx context.Context, code string) ([]*model.GetProductRecommendationResponse, error) {
+func (service *ProductServiceImpl) FindAllRecommendation(ctx context.Context, code string) ([]*entity.ProductRecommendation, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -118,7 +108,7 @@ func (service *ProductServiceImpl) FindAllRecommendation(ctx context.Context, co
 		return nil, err
 	}
 
-	var productResponses []*model.GetProductRecommendationResponse
+	var productResponses []*entity.ProductRecommendation
 	for _, apriori := range apriories {
 		productNames := strings.Split(apriori.Item, ",")
 		var exists bool
@@ -135,7 +125,7 @@ func (service *ProductServiceImpl) FindAllRecommendation(ctx context.Context, co
 				totalPrice += productByName.Price
 			}
 
-			productResponses = append(productResponses, &model.GetProductRecommendationResponse{
+			productResponses = append(productResponses, &entity.ProductRecommendation{
 				AprioriId:          apriori.IdApriori,
 				AprioriCode:        apriori.Code,
 				AprioriItem:        apriori.Item,
@@ -150,7 +140,7 @@ func (service *ProductServiceImpl) FindAllRecommendation(ctx context.Context, co
 	return productResponses, nil
 }
 
-func (service *ProductServiceImpl) FindByCode(ctx context.Context, code string) (*model.GetProductResponse, error) {
+func (service *ProductServiceImpl) FindByCode(ctx context.Context, code string) (*entity.Product, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -162,10 +152,10 @@ func (service *ProductServiceImpl) FindByCode(ctx context.Context, code string) 
 		return nil, err
 	}
 
-	return productResponse.ToProductResponse(), nil
+	return productResponse, nil
 }
 
-func (service *ProductServiceImpl) Create(ctx context.Context, request *model.CreateProductRequest) (*model.GetProductResponse, error) {
+func (service *ProductServiceImpl) Create(ctx context.Context, request *model.CreateProductRequest) (*entity.Product, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -183,9 +173,9 @@ func (service *ProductServiceImpl) Create(ctx context.Context, request *model.Cr
 	productRequest := entity.Product{
 		Code:        request.Code,
 		Name:        helper.UpperWords(request.Name),
-		Description: request.Description,
+		Description: &request.Description,
 		Price:       request.Price,
-		Image:       request.Image,
+		Image:       &request.Image,
 		Category:    helper.UpperWords(request.Category),
 		IsEmpty:     false,
 		Mass:        request.Mass,
@@ -198,10 +188,10 @@ func (service *ProductServiceImpl) Create(ctx context.Context, request *model.Cr
 		return nil, err
 	}
 
-	return productResponse.ToProductResponse(), nil
+	return productResponse, nil
 }
 
-func (service *ProductServiceImpl) Update(ctx context.Context, request *model.UpdateProductRequest) (*model.GetProductResponse, error) {
+func (service *ProductServiceImpl) Update(ctx context.Context, request *model.UpdateProductRequest) (*entity.Product, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -219,14 +209,14 @@ func (service *ProductServiceImpl) Update(ctx context.Context, request *model.Up
 	}
 
 	product.Name = helper.UpperWords(request.Name)
-	product.Description = request.Description
+	product.Description = &request.Description
 	product.Price = request.Price
 	product.Category = helper.UpperWords(request.Category)
 	product.IsEmpty = request.IsEmpty
 	product.Mass = request.Mass
 	product.UpdatedAt = timeNow
 	if request.Image != "" {
-		product.Image = request.Image
+		product.Image = &request.Image
 	}
 
 	productResponse, err := service.ProductRepository.Update(ctx, tx, product)
@@ -234,7 +224,7 @@ func (service *ProductServiceImpl) Update(ctx context.Context, request *model.Up
 		return nil, err
 	}
 
-	return productResponse.ToProductResponse(), nil
+	return productResponse, nil
 }
 
 func (service *ProductServiceImpl) Delete(ctx context.Context, code string) error {

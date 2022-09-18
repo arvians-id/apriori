@@ -18,12 +18,3 @@ type UpdateTransactionRequest struct {
 type GetProductNameTransactionResponse struct {
 	ProductName []string `json:"product_name"`
 }
-
-type GetTransactionResponse struct {
-	IdTransaction int    `json:"id_transaction"`
-	ProductName   string `json:"product_name"`
-	CustomerName  string `json:"customer_name"`
-	NoTransaction string `json:"no_transaction"`
-	CreatedAt     string `json:"created_at"`
-	UpdatedAt     string `json:"updated_at"`
-}

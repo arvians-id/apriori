@@ -1,37 +1,32 @@
 package entity
 
 import (
-	"apriori/model"
-	"database/sql"
 	"time"
 )
 
 type Apriori struct {
-	IdApriori   int
-	Code        string
-	Item        string
-	Discount    float64
-	Support     float64
-	Confidence  float64
-	RangeDate   string
-	IsActive    bool
-	Description sql.NullString
-	Image       string
-	CreatedAt   time.Time
+	IdApriori   int        `json:"id_apriori"`
+	Code        string     `json:"code"`
+	Item        string     `json:"item"`
+	Discount    float64    `json:"discount"`
+	Support     float64    `json:"support"`
+	Confidence  float64    `json:"confidence"`
+	RangeDate   string     `json:"range_date"`
+	IsActive    bool       `json:"is_active"`
+	Description *string    `json:"description"`
+	Mass        int        `json:"mass"`
+	Image       *string    `json:"image"`
+	CreatedAt   time.Time  `json:"created_at"`
+	UserOrder   *UserOrder `json:"user_order"`
 }
 
-func (apriori *Apriori) ToAprioriResponse() *model.GetAprioriResponse {
-	return &model.GetAprioriResponse{
-		IdApriori:   apriori.IdApriori,
-		Code:        apriori.Code,
-		Item:        apriori.Item,
-		Discount:    apriori.Discount,
-		Support:     apriori.Support,
-		Confidence:  apriori.Confidence,
-		RangeDate:   apriori.RangeDate,
-		IsActive:    apriori.IsActive,
-		Description: apriori.Description.String,
-		Image:       apriori.Image,
-		CreatedAt:   apriori.CreatedAt.String(),
-	}
+type GenerateApriori struct {
+	ItemSet     []string `json:"item_set"`
+	Support     float64  `json:"support"`
+	Iterate     int32    `json:"iterate"`
+	Transaction int32    `json:"transaction"`
+	Confidence  float64  `json:"confidence"`
+	Discount    float64  `json:"discount"`
+	Description string   `json:"description"`
+	RangeDate   string   `json:"range_date"`
 }

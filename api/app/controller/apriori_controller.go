@@ -3,10 +3,10 @@ package controller
 import (
 	"apriori/app/middleware"
 	"apriori/app/response"
+	"apriori/entity"
 	"apriori/helper"
 	"apriori/model"
 	"apriori/service"
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
@@ -162,7 +162,7 @@ func (controller *AprioriController) UpdateStatus(c *gin.Context) {
 }
 
 func (controller *AprioriController) Create(c *gin.Context) {
-	var generateRequests []*model.GetGenerateAprioriResponse
+	var generateRequests []*entity.GenerateApriori
 	err := c.ShouldBindJSON(&generateRequests)
 	if err != nil {
 		response.ReturnErrorBadRequest(c, err, nil)
@@ -243,8 +243,8 @@ func (controller *AprioriController) Generate(c *gin.Context) {
 		return
 	}
 
-	var aprioriCacheResponses []model.GetGenerateAprioriResponse
-	err = json.Unmarshal(bytes.NewBufferString(aprioriCache).Bytes(), &aprioriCacheResponses)
+	var aprioriCacheResponses []entity.GenerateApriori
+	err = json.Unmarshal(aprioriCache, &aprioriCacheResponses)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return

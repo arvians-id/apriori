@@ -33,7 +33,7 @@ func NewPasswordResetService(
 	}
 }
 
-func (service *PasswordResetServiceImpl) CreateOrUpdateByEmail(ctx context.Context, email string) (*model.GetPasswordResetResponse, error) {
+func (service *PasswordResetServiceImpl) CreateOrUpdateByEmail(ctx context.Context, email string) (*entity.PasswordReset, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -60,21 +60,21 @@ func (service *PasswordResetServiceImpl) CreateOrUpdateByEmail(ctx context.Conte
 	_, err = service.PasswordResetRepository.FindByEmail(ctx, tx, user.Email)
 	if err != nil {
 		// Create new data if not exists
-		passwordResetResponse, err := service.PasswordResetRepository.Create(ctx, tx, &passwordResetRequest)
+		passwordReset, err := service.PasswordResetRepository.Create(ctx, tx, &passwordResetRequest)
 		if err != nil {
 			return nil, err
 		}
 
-		return passwordResetResponse.ToPasswordResetResponse(), nil
+		return passwordReset, nil
 	}
 
 	// Update data if exists
-	passwordResetResponse, err := service.PasswordResetRepository.Update(ctx, tx, &passwordResetRequest)
+	passwordReset, err := service.PasswordResetRepository.Update(ctx, tx, &passwordResetRequest)
 	if err != nil {
 		return nil, err
 	}
 
-	return passwordResetResponse.ToPasswordResetResponse(), nil
+	return passwordReset, nil
 }
 
 func (service *PasswordResetServiceImpl) Verify(ctx context.Context, request *model.UpdateResetPasswordUserRequest) error {

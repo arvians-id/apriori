@@ -24,7 +24,7 @@ func NewUserService(userRepository *repository.UserRepository, db *sql.DB) UserS
 	}
 }
 
-func (service *UserServiceImpl) FindAll(ctx context.Context) ([]*model.GetUserResponse, error) {
+func (service *UserServiceImpl) FindAll(ctx context.Context) ([]*entity.User, error) {
 	var tx *sql.Tx
 	if service.DB != nil {
 		transaction, err := service.DB.Begin()
@@ -40,15 +40,10 @@ func (service *UserServiceImpl) FindAll(ctx context.Context) ([]*model.GetUserRe
 		return nil, err
 	}
 
-	var userResponses []*model.GetUserResponse
-	for _, user := range users {
-		userResponses = append(userResponses, user.ToUserResponse())
-	}
-
-	return userResponses, nil
+	return users, nil
 }
 
-func (service *UserServiceImpl) FindById(ctx context.Context, id int) (*model.GetUserResponse, error) {
+func (service *UserServiceImpl) FindById(ctx context.Context, id int) (*entity.User, error) {
 	var tx *sql.Tx
 	if service.DB != nil {
 		transaction, err := service.DB.Begin()
@@ -59,15 +54,15 @@ func (service *UserServiceImpl) FindById(ctx context.Context, id int) (*model.Ge
 	}
 	defer helper.CommitOrRollback(tx)
 
-	userResponse, err := service.UserRepository.FindById(ctx, tx, id)
+	user, err := service.UserRepository.FindById(ctx, tx, id)
 	if err != nil {
 		return nil, err
 	}
 
-	return userResponse.ToUserResponse(), nil
+	return user, nil
 }
 
-func (service *UserServiceImpl) FindByEmail(ctx context.Context, request *model.GetUserCredentialRequest) (*model.GetUserResponse, error) {
+func (service *UserServiceImpl) FindByEmail(ctx context.Context, request *model.GetUserCredentialRequest) (*entity.User, error) {
 	var tx *sql.Tx
 	if service.DB != nil {
 		transaction, err := service.DB.Begin()
@@ -78,20 +73,20 @@ func (service *UserServiceImpl) FindByEmail(ctx context.Context, request *model.
 	}
 	defer helper.CommitOrRollback(tx)
 
-	userResponse, err := service.UserRepository.FindByEmail(ctx, tx, request.Email)
+	user, err := service.UserRepository.FindByEmail(ctx, tx, request.Email)
 	if err != nil {
 		return nil, err
 	}
 
-	err = bcrypt.CompareHashAndPassword([]byte(userResponse.Password), []byte(request.Password))
+	err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(request.Password))
 	if err != nil {
 		return nil, errors.New("wrong password")
 	}
 
-	return userResponse.ToUserResponse(), nil
+	return user, nil
 }
 
-func (service *UserServiceImpl) Create(ctx context.Context, request *model.CreateUserRequest) (*model.GetUserResponse, error) {
+func (service *UserServiceImpl) Create(ctx context.Context, request *model.CreateUserRequest) (*entity.User, error) {
 	var tx *sql.Tx
 	if service.DB != nil {
 		transaction, err := service.DB.Begin()
@@ -122,15 +117,15 @@ func (service *UserServiceImpl) Create(ctx context.Context, request *model.Creat
 		CreatedAt: timeNow,
 		UpdatedAt: timeNow,
 	}
-	userResponse, err := service.UserRepository.Create(ctx, tx, &userRequest)
+	user, err := service.UserRepository.Create(ctx, tx, &userRequest)
 	if err != nil {
 		return nil, err
 	}
 
-	return userResponse.ToUserResponse(), nil
+	return user, nil
 }
 
-func (service *UserServiceImpl) Update(ctx context.Context, request *model.UpdateUserRequest) (*model.GetUserResponse, error) {
+func (service *UserServiceImpl) Update(ctx context.Context, request *model.UpdateUserRequest) (*entity.User, error) {
 	var tx *sql.Tx
 	if service.DB != nil {
 		transaction, err := service.DB.Begin()
@@ -168,12 +163,12 @@ func (service *UserServiceImpl) Update(ctx context.Context, request *model.Updat
 	user.Password = newPassword
 	user.UpdatedAt = timeNow
 
-	userResponse, err := service.UserRepository.Update(ctx, tx, user)
+	_, err = service.UserRepository.Update(ctx, tx, user)
 	if err != nil {
 		return nil, err
 	}
 
-	return userResponse.ToUserResponse(), nil
+	return user, nil
 }
 
 func (service *UserServiceImpl) Delete(ctx context.Context, id int) error {

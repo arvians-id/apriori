@@ -28,7 +28,7 @@ func NewTransactionService(
 	}
 }
 
-func (service *TransactionServiceImpl) FindAll(ctx context.Context) ([]*model.GetTransactionResponse, error) {
+func (service *TransactionServiceImpl) FindAll(ctx context.Context) ([]*entity.Transaction, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -40,30 +40,25 @@ func (service *TransactionServiceImpl) FindAll(ctx context.Context) ([]*model.Ge
 		return nil, err
 	}
 
-	var transactionResponses []*model.GetTransactionResponse
-	for _, transaction := range transactions {
-		transactionResponses = append(transactionResponses, transaction.ToTransactionResponse())
-	}
-
-	return transactionResponses, nil
+	return transactions, nil
 }
 
-func (service *TransactionServiceImpl) FindByNoTransaction(ctx context.Context, noTransaction string) (*model.GetTransactionResponse, error) {
+func (service *TransactionServiceImpl) FindByNoTransaction(ctx context.Context, noTransaction string) (*entity.Transaction, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
 	}
 	defer helper.CommitOrRollback(tx)
 
-	transactionResponse, err := service.TransactionRepository.FindByNoTransaction(ctx, tx, noTransaction)
+	transaction, err := service.TransactionRepository.FindByNoTransaction(ctx, tx, noTransaction)
 	if err != nil {
 		return nil, err
 	}
 
-	return transactionResponse.ToTransactionResponse(), nil
+	return transaction, nil
 }
 
-func (service *TransactionServiceImpl) Create(ctx context.Context, request *model.CreateTransactionRequest) (*model.GetTransactionResponse, error) {
+func (service *TransactionServiceImpl) Create(ctx context.Context, request *model.CreateTransactionRequest) (*entity.Transaction, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -83,12 +78,12 @@ func (service *TransactionServiceImpl) Create(ctx context.Context, request *mode
 		UpdatedAt:     timeNow,
 	}
 
-	transactionResponse, err := service.TransactionRepository.Create(ctx, tx, &transactionRequest)
+	transaction, err := service.TransactionRepository.Create(ctx, tx, &transactionRequest)
 	if err != nil {
 		return nil, err
 	}
 
-	return transactionResponse.ToTransactionResponse(), nil
+	return transaction, nil
 }
 
 func (service *TransactionServiceImpl) CreateByCsv(ctx context.Context, data [][]string) error {
@@ -118,7 +113,7 @@ func (service *TransactionServiceImpl) CreateByCsv(ctx context.Context, data [][
 	return nil
 }
 
-func (service *TransactionServiceImpl) Update(ctx context.Context, request *model.UpdateTransactionRequest) (*model.GetTransactionResponse, error) {
+func (service *TransactionServiceImpl) Update(ctx context.Context, request *model.UpdateTransactionRequest) (*entity.Transaction, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -136,20 +131,17 @@ func (service *TransactionServiceImpl) Update(ctx context.Context, request *mode
 		return nil, err
 	}
 
-	transactionRequest := entity.Transaction{
-		IdTransaction: transaction.IdTransaction,
-		ProductName:   request.ProductName,
-		CustomerName:  request.CustomerName,
-		NoTransaction: request.NoTransaction,
-		UpdatedAt:     timeNow,
-	}
+	transaction.ProductName = request.ProductName
+	transaction.CustomerName = request.CustomerName
+	transaction.NoTransaction = request.NoTransaction
+	transaction.UpdatedAt = timeNow
 
-	transactionResponse, err := service.TransactionRepository.Update(ctx, tx, &transactionRequest)
+	_, err = service.TransactionRepository.Update(ctx, tx, transaction)
 	if err != nil {
 		return nil, err
 	}
 
-	return transactionResponse.ToTransactionResponse(), nil
+	return transaction, nil
 }
 
 func (service *TransactionServiceImpl) Delete(ctx context.Context, noTransaction string) error {

@@ -86,12 +86,12 @@ func HandleMapsProblem(propertyProduct []string, minSupport float64) ([]string, 
 	return oneSet, support, totalTransaction, checkEligible, cleanSet
 }
 
-func FindConfidence(apriori []*model.GetGenerateAprioriResponse, productName map[string]float64, minSupport float64, minConfidence float64) []*model.GetGenerateAprioriResponse {
-	var confidence []*model.GetGenerateAprioriResponse
+func FindConfidence(apriori []*entity.GenerateApriori, productName map[string]float64, minSupport float64, minConfidence float64) []*entity.GenerateApriori {
+	var confidence []*entity.GenerateApriori
 	for _, value := range apriori {
 		if value.Iterate == apriori[len(apriori)-1].Iterate {
 			if val, ok := productName[value.ItemSet[0]]; ok && value.Support >= minSupport && float64(value.Transaction)/val*100 >= minConfidence {
-				confidence = append(confidence, &model.GetGenerateAprioriResponse{
+				confidence = append(confidence, &entity.GenerateApriori{
 					ItemSet:     value.ItemSet,
 					Support:     value.Support,
 					Iterate:     value.Iterate,
@@ -140,8 +140,8 @@ func FindCandidate(data []string, transactions []*model.GetProductNameTransactio
 	return counter
 }
 
-func FindDiscount(apriori []*model.GetGenerateAprioriResponse, minDiscount float64, maxDiscount float64) []*model.GetGenerateAprioriResponse {
-	var discounts []*model.GetGenerateAprioriResponse
+func FindDiscount(apriori []*entity.GenerateApriori, minDiscount float64, maxDiscount float64) []*entity.GenerateApriori {
+	var discounts []*entity.GenerateApriori
 	var calculateDiscount = (maxDiscount - minDiscount) / float64(len(apriori))
 
 	// Sorting if the value is greater, then the discount given will be large
@@ -151,7 +151,7 @@ func FindDiscount(apriori []*model.GetGenerateAprioriResponse, minDiscount float
 
 	for _, value := range apriori {
 		minDiscount += calculateDiscount
-		discounts = append(discounts, &model.GetGenerateAprioriResponse{
+		discounts = append(discounts, &entity.GenerateApriori{
 			ItemSet:     value.ItemSet,
 			Support:     value.Support,
 			Iterate:     value.Iterate,

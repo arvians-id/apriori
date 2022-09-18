@@ -22,7 +22,7 @@ func NewCategoryService(categoryRepository *repository.CategoryRepository, db *s
 	}
 }
 
-func (service *CategoryServiceImpl) FindAll(ctx context.Context) ([]*model.GetCategoryResponse, error) {
+func (service *CategoryServiceImpl) FindAll(ctx context.Context) ([]*entity.Category, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -34,30 +34,25 @@ func (service *CategoryServiceImpl) FindAll(ctx context.Context) ([]*model.GetCa
 		return nil, err
 	}
 
-	var categoryResponses []*model.GetCategoryResponse
-	for _, category := range categories {
-		categoryResponses = append(categoryResponses, category.ToCategoryResponse())
-	}
-
-	return categoryResponses, nil
+	return categories, nil
 }
 
-func (service *CategoryServiceImpl) FindById(ctx context.Context, id int) (*model.GetCategoryResponse, error) {
+func (service *CategoryServiceImpl) FindById(ctx context.Context, id int) (*entity.Category, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
 	}
 	defer helper.CommitOrRollback(tx)
 
-	categoryResponse, err := service.CategoryRepository.FindById(ctx, tx, id)
+	category, err := service.CategoryRepository.FindById(ctx, tx, id)
 	if err != nil {
 		return nil, err
 	}
 
-	return categoryResponse.ToCategoryResponse(), nil
+	return category, nil
 }
 
-func (service *CategoryServiceImpl) Create(ctx context.Context, request *model.CreateCategoryRequest) (*model.GetCategoryResponse, error) {
+func (service *CategoryServiceImpl) Create(ctx context.Context, request *model.CreateCategoryRequest) (*entity.Category, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -75,16 +70,16 @@ func (service *CategoryServiceImpl) Create(ctx context.Context, request *model.C
 		UpdatedAt: timeNow,
 	}
 
-	categoryResponse, err := service.CategoryRepository.Create(ctx, tx, &categoryRequest)
+	category, err := service.CategoryRepository.Create(ctx, tx, &categoryRequest)
 	if err != nil {
 		return nil, err
 	}
 
-	return categoryResponse.ToCategoryResponse(), nil
+	return category, nil
 
 }
 
-func (service *CategoryServiceImpl) Update(ctx context.Context, request *model.UpdateCategoryRequest) (*model.GetCategoryResponse, error) {
+func (service *CategoryServiceImpl) Update(ctx context.Context, request *model.UpdateCategoryRequest) (*entity.Category, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -103,12 +98,12 @@ func (service *CategoryServiceImpl) Update(ctx context.Context, request *model.U
 	category.Name = helper.UpperWords(request.Name)
 	category.UpdatedAt = timeNow
 
-	categoryResponse, err := service.CategoryRepository.Update(ctx, tx, category)
+	_, err = service.CategoryRepository.Update(ctx, tx, category)
 	if err != nil {
 		return nil, err
 	}
 
-	return categoryResponse.ToCategoryResponse(), nil
+	return category, nil
 }
 
 func (service *CategoryServiceImpl) Delete(ctx context.Context, id int) error {

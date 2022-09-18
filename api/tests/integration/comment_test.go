@@ -75,10 +75,11 @@ var _ = Describe("Comment API", func() {
 		// Create product
 		tx, _ = database.Begin()
 		productRepository := repository.NewProductRepository()
+		description := "Test Bang"
 		_, _ = productRepository.Create(context.Background(), tx, &entity.Product{
 			Code:        "Lfanp",
 			Name:        "Bantal Biasa",
-			Description: "Test Bang",
+			Description: &description,
 			Category:    "Bantal, Kasur",
 			Mass:        1000,
 			CreatedAt:   time.Now(),
@@ -88,22 +89,25 @@ var _ = Describe("Comment API", func() {
 		// Create payload
 		payloadRepository := repository.NewPaymentRepository()
 		payload, _ := payloadRepository.Create(context.Background(), tx, &entity.Payment{
-			UserId: sql.NullString{
-				String: helper.IntToStr(user.IdUser),
-				Valid:  true,
-			},
+			UserId: helper.IntToStr(user.IdUser),
 		})
 
 		// Create User Order
 		userOrderRepository := repository.NewUserOrderRepository()
+		code := "aXksCj2"
+		name := "Bantal"
+		price := int64(20000)
+		image := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/assets/%s", os.Getenv("AWS_BUCKET"), os.Getenv("AWS_REGION"), "no-image.png")
+		quantity := 1
+		totalPriceItem := int64(20000)
 		userOrder, _ := userOrderRepository.Create(context.Background(), tx, &entity.UserOrder{
 			PayloadId:      payload.IdPayload,
-			Code:           "aXksCj2",
-			Name:           "Bantal",
-			Price:          20000,
-			Image:          fmt.Sprintf("https://%s.s3.%s.amazonaws.com/assets/%s", os.Getenv("AWS_BUCKET"), os.Getenv("AWS_REGION"), "no-image.png"),
-			Quantity:       1,
-			TotalPriceItem: 20000,
+			Code:           &code,
+			Name:           &name,
+			Price:          &price,
+			Image:          &image,
+			Quantity:       &quantity,
+			TotalPriceItem: &totalPriceItem,
 		})
 		_ = tx.Commit()
 
@@ -178,18 +182,14 @@ var _ = Describe("Comment API", func() {
 				// Create Comment
 				tx, _ := database.Begin()
 				commentRepository := repository.NewCommentRepository()
+				description := "mantap bang"
+				tag := "keren, mantap"
 				comment, _ := commentRepository.Create(context.Background(), tx, &entity.Comment{
 					UserOrderId: order.IdOrder,
 					ProductCode: "Lfanp",
-					Description: sql.NullString{
-						String: "mantap bang",
-						Valid:  true,
-					},
-					Tag: sql.NullString{
-						String: "keren, mantap",
-						Valid:  true,
-					},
-					Rating: 4,
+					Description: &description,
+					Tag:         &tag,
+					Rating:      4,
 				})
 				_ = tx.Commit()
 
@@ -239,18 +239,14 @@ var _ = Describe("Comment API", func() {
 				// Create Comment
 				tx, _ := database.Begin()
 				commentRepository := repository.NewCommentRepository()
+				description := "mantap bang"
+				tag := "keren, mantap"
 				comment, _ := commentRepository.Create(context.Background(), tx, &entity.Comment{
 					UserOrderId: order.IdOrder,
 					ProductCode: "Lfanp",
-					Description: sql.NullString{
-						String: "mantap bang",
-						Valid:  true,
-					},
-					Tag: sql.NullString{
-						String: "keren, mantap",
-						Valid:  true,
-					},
-					Rating: 4,
+					Description: &description,
+					Tag:         &tag,
+					Rating:      4,
 				})
 				_ = tx.Commit()
 
@@ -300,18 +296,14 @@ var _ = Describe("Comment API", func() {
 				// Create Comment
 				tx, _ := database.Begin()
 				commentRepository := repository.NewCommentRepository()
+				description := "mantap bang"
+				tag := "keren, mantap"
 				comment1, _ := commentRepository.Create(context.Background(), tx, &entity.Comment{
 					UserOrderId: order.IdOrder,
 					ProductCode: "Lfanp",
-					Description: sql.NullString{
-						String: "mantap bang",
-						Valid:  true,
-					},
-					Tag: sql.NullString{
-						String: "keren, mantap",
-						Valid:  true,
-					},
-					Rating: 4,
+					Description: &description,
+					Tag:         &tag,
+					Rating:      4,
 				})
 
 				_, _ = commentRepository.Create(context.Background(), tx, &entity.Comment{
@@ -378,28 +370,22 @@ var _ = Describe("Comment API", func() {
 				// Create Comment
 				tx, _ := database.Begin()
 				commentRepository := repository.NewCommentRepository()
+				description := "mantap bang"
+				tag := "keren, mantap"
 				comment1, _ := commentRepository.Create(context.Background(), tx, &entity.Comment{
 					UserOrderId: order.IdOrder,
 					ProductCode: "Lfanp",
-					Description: sql.NullString{
-						String: "mantap bang",
-						Valid:  true,
-					},
-					Tag: sql.NullString{
-						String: "keren, mantap",
-						Valid:  true,
-					},
-					Rating: 4,
+					Description: &description,
+					Tag:         &tag,
+					Rating:      4,
 				})
 
-				comment2, _ := commentRepository.Create(context.Background(), tx, &entity.Comment{
+				tag = "jelek, tidak memuaskan"
+				_, _ = commentRepository.Create(context.Background(), tx, &entity.Comment{
 					UserOrderId: order.IdOrder,
 					ProductCode: "Lfanp",
-					Tag: sql.NullString{
-						String: "jelek, tidak memuaskan",
-						Valid:  true,
-					},
-					Rating: 2,
+					Tag:         &tag,
+					Rating:      2,
 				})
 				tx.Commit()
 
@@ -418,15 +404,15 @@ var _ = Describe("Comment API", func() {
 				Expect(responseBody["status"]).To(Equal("OK"))
 
 				commentResponse := responseBody["data"].([]interface{})
-				Expect(commentResponse[0].(map[string]interface{})["product_code"]).To(Equal(comment1.ProductCode))
-				Expect(commentResponse[0].(map[string]interface{})["description"]).To(Equal(comment1.Description.String))
-				Expect(commentResponse[0].(map[string]interface{})["tag"]).To(Equal(comment1.Tag.String))
-				Expect(int(commentResponse[0].(map[string]interface{})["rating"].(float64))).To(Equal(comment1.Rating))
+				Expect(commentResponse[1].(map[string]interface{})["product_code"]).To(Equal("Lfanp"))
+				Expect(commentResponse[1].(map[string]interface{})["description"]).To(Equal("mantap bang"))
+				Expect(commentResponse[1].(map[string]interface{})["tag"]).To(Equal("keren, mantap"))
+				Expect(int(commentResponse[1].(map[string]interface{})["rating"].(float64))).To(Equal(4))
 
-				Expect(commentResponse[1].(map[string]interface{})["product_code"]).To(Equal(comment2.ProductCode))
-				Expect(commentResponse[1].(map[string]interface{})["description"]).To(BeNil())
-				Expect(commentResponse[1].(map[string]interface{})["tag"]).To(Equal(comment2.Tag.String))
-				Expect(int(commentResponse[1].(map[string]interface{})["rating"].(float64))).To(Equal(comment2.Rating))
+				Expect(commentResponse[0].(map[string]interface{})["product_code"]).To(Equal("Lfanp"))
+				Expect(commentResponse[0].(map[string]interface{})["description"]).To(BeNil())
+				Expect(commentResponse[0].(map[string]interface{})["tag"]).To(Equal("jelek, tidak memuaskan"))
+				Expect(int(commentResponse[0].(map[string]interface{})["rating"].(float64))).To(Equal(2))
 			})
 		})
 	})

@@ -52,7 +52,7 @@ func (repository *UserOrderRepositoryImpl) FindAllByPayloadId(ctx context.Contex
 	return userOrders, nil
 }
 
-func (repository *UserOrderRepositoryImpl) FindAllByUserId(ctx context.Context, tx *sql.Tx, userId int) ([]*entity.UserOrderRelationByUserId, error) {
+func (repository *UserOrderRepositoryImpl) FindAllByUserId(ctx context.Context, tx *sql.Tx, userId int) ([]*entity.UserOrder, error) {
 	query := `SELECT 
 				id_order,
 			    payload_id,
@@ -80,20 +80,22 @@ func (repository *UserOrderRepositoryImpl) FindAllByUserId(ctx context.Context, 
 		}
 	}(rows)
 
-	var userOrders []*entity.UserOrderRelationByUserId
+	var userOrders []*entity.UserOrder
 	for rows.Next() {
-		var userOrder entity.UserOrderRelationByUserId
+		userOrder := entity.UserOrder{
+			Payment: &entity.Payment{},
+		}
 		err := rows.Scan(
-			&userOrder.UserOrder.IdOrder,
-			&userOrder.UserOrder.PayloadId,
-			&userOrder.UserOrder.Code,
-			&userOrder.UserOrder.Name,
-			&userOrder.UserOrder.Price,
-			&userOrder.UserOrder.Image,
-			&userOrder.UserOrder.Quantity,
-			&userOrder.UserOrder.TotalPriceItem,
-			&userOrder.OrderId,
-			&userOrder.TransactionStatus,
+			&userOrder.IdOrder,
+			&userOrder.PayloadId,
+			&userOrder.Code,
+			&userOrder.Name,
+			&userOrder.Price,
+			&userOrder.Image,
+			&userOrder.Quantity,
+			&userOrder.TotalPriceItem,
+			&userOrder.Payment.OrderId,
+			&userOrder.Payment.TransactionStatus,
 		)
 		if err != nil {
 			return nil, err

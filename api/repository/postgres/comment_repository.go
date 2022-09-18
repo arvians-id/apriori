@@ -58,7 +58,7 @@ func (repository *CommentRepositoryImpl) FindAllByProductCode(ctx context.Contex
 				LEFT JOIN payloads p ON p.id_payload = uo.payload_id 
 				LEFT JOIN users u ON u.id_user = p.user_id 
 			  WHERE c.product_code = $1 AND CAST(c.rating as TEXT) LIKE $2 AND c.tag SIMILAR TO $3
-			  ORDER BY c.created_at DESC`
+			  ORDER BY c.id_comment DESC`
 	rows, err := tx.QueryContext(ctx, query, productCode, "%"+rating+"%", "%("+tags+")%")
 	if err != nil {
 		return nil, err
@@ -73,7 +73,13 @@ func (repository *CommentRepositoryImpl) FindAllByProductCode(ctx context.Contex
 
 	var comments []*entity.Comment
 	for rows.Next() {
-		var comment entity.Comment
+		comment := entity.Comment{
+			UserOrder: &entity.UserOrder{
+				Payment: &entity.Payment{
+					User: &entity.User{},
+				},
+			},
+		}
 		err := rows.Scan(
 			&comment.IdComment,
 			&comment.UserOrderId,
@@ -82,8 +88,8 @@ func (repository *CommentRepositoryImpl) FindAllByProductCode(ctx context.Contex
 			&comment.Tag,
 			&comment.Rating,
 			&comment.CreatedAt,
-			&comment.UserId,
-			&comment.UserName,
+			&comment.UserOrder.Payment.User.IdUser,
+			&comment.UserOrder.Payment.User.Name,
 		)
 		if err != nil {
 			return nil, err
@@ -104,7 +110,13 @@ func (repository *CommentRepositoryImpl) FindById(ctx context.Context, tx *sql.T
 			  WHERE c.id_comment = $1`
 	row := tx.QueryRowContext(ctx, query, id)
 
-	var comment entity.Comment
+	comment := entity.Comment{
+		UserOrder: &entity.UserOrder{
+			Payment: &entity.Payment{
+				User: &entity.User{},
+			},
+		},
+	}
 	err := row.Scan(
 		&comment.IdComment,
 		&comment.UserOrderId,
@@ -113,8 +125,8 @@ func (repository *CommentRepositoryImpl) FindById(ctx context.Context, tx *sql.T
 		&comment.Tag,
 		&comment.Rating,
 		&comment.CreatedAt,
-		&comment.UserId,
-		&comment.UserName,
+		&comment.UserOrder.Payment.User.IdUser,
+		&comment.UserOrder.Payment.User.Name,
 	)
 	if err != nil {
 		return nil, err
@@ -132,7 +144,13 @@ func (repository *CommentRepositoryImpl) FindByUserOrderId(ctx context.Context, 
 			  WHERE c.user_order_id = $1`
 	row := tx.QueryRowContext(ctx, query, userOrderId)
 
-	var comment entity.Comment
+	comment := entity.Comment{
+		UserOrder: &entity.UserOrder{
+			Payment: &entity.Payment{
+				User: &entity.User{},
+			},
+		},
+	}
 	err := row.Scan(
 		&comment.IdComment,
 		&comment.UserOrderId,
@@ -141,8 +159,8 @@ func (repository *CommentRepositoryImpl) FindByUserOrderId(ctx context.Context, 
 		&comment.Tag,
 		&comment.Rating,
 		&comment.CreatedAt,
-		&comment.UserId,
-		&comment.UserName,
+		&comment.UserOrder.Payment.User.IdUser,
+		&comment.UserOrder.Payment.User.Name,
 	)
 	if err != nil {
 		return nil, err

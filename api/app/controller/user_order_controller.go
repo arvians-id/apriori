@@ -3,10 +3,9 @@ package controller
 import (
 	"apriori/app/middleware"
 	"apriori/app/response"
+	"apriori/entity"
 	"apriori/helper"
-	"apriori/model"
 	"apriori/service"
-	"bytes"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -73,8 +72,8 @@ func (controller *UserOrderController) FindAll(c *gin.Context) {
 		return
 	}
 
-	var paymentCacheResponses []model.GetPaymentResponse
-	err = json.Unmarshal(bytes.NewBufferString(paymentsCache).Bytes(), &paymentCacheResponses)
+	var paymentCacheResponses []entity.Payment
+	err = json.Unmarshal(paymentsCache, &paymentCacheResponses)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
@@ -112,8 +111,8 @@ func (controller *UserOrderController) FindAllByUserId(c *gin.Context) {
 		return
 	}
 
-	var userOrderCacheResponses []model.GetUserOrderRelationByUserIdResponse
-	err = json.Unmarshal(bytes.NewBufferString(userOrdersCache).Bytes(), &userOrderCacheResponses)
+	var userOrderCacheResponses []entity.UserOrder
+	err = json.Unmarshal(userOrdersCache, &userOrderCacheResponses)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
@@ -156,8 +155,8 @@ func (controller *UserOrderController) FindAllById(c *gin.Context) {
 		return
 	}
 
-	var userOrderCacheResponses []model.GetUserOrderResponse
-	err = json.Unmarshal(bytes.NewBufferString(userOrdersCache).Bytes(), &userOrderCacheResponses)
+	var userOrderCacheResponses []entity.UserOrder
+	err = json.Unmarshal(userOrdersCache, &userOrderCacheResponses)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return

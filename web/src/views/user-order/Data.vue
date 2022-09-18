@@ -68,10 +68,13 @@
                   <td>{{ item.transaction_time }}</td>
                   <td>{{ item.transaction_status }}</td>
                   <td>{{ item.bank_type }}</td>
-                  <td>{{ item.user_name }}</td>
-                  <td class="text-center">
-                    <span v-if="item.receipt_number !== undefined">{{ item.receipt_number }} <small><router-link :to="{ name: 'user-order.add-receipt-number', params: { order_id: item.order_id } }">(Edit here)</router-link></small></span>
+                  <td>{{ item.user.name }}</td>
+                  <td class="text-center" v-if="item.transaction_status === 'settlement'">
+                    <span v-if="item.receipt_number !== null">{{ item.receipt_number }} <small><router-link :to="{ name: 'user-order.add-receipt-number', params: { order_id: item.order_id } }">(Edit here)</router-link></small></span>
                     <router-link :to="{ name: 'user-order.add-receipt-number', params: { order_id: item.order_id } }" class="btn btn-success btn-sm" v-else>Input Receipt Number</router-link>
+                  </td>
+                  <td class="text-center" v-else>
+                    Nothing todo
                   </td>
                   <td class="text-center">
                     <router-link :to="{ name: 'user-order.detail', params: { order_id: item.order_id } }" class="btn btn-secondary btn-sm">Detail</router-link>

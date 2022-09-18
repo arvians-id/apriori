@@ -40,13 +40,13 @@ type PasswordResetRepository interface {
 }
 
 type PaymentRepository interface {
-	FindAll(ctx context.Context, tx *sql.Tx) ([]*entity.PaymentRelation, error)
+	FindAll(ctx context.Context, tx *sql.Tx) ([]*entity.Payment, error)
 	FindAllByUserId(ctx context.Context, tx *sql.Tx, userId int) ([]*entity.Payment, error)
 	FindByOrderId(ctx context.Context, tx *sql.Tx, orderId string) (*entity.Payment, error)
 	Create(ctx context.Context, tx *sql.Tx, payment *entity.Payment) (*entity.Payment, error)
 	Update(ctx context.Context, tx *sql.Tx, payment *entity.Payment) error
 	UpdateReceiptNumber(ctx context.Context, tx *sql.Tx, payment *entity.Payment) error
-	Delete(ctx context.Context, tx *sql.Tx, orderId string) error
+	Delete(ctx context.Context, tx *sql.Tx, orderId *string) error
 }
 
 type TransactionRepository interface {
@@ -62,7 +62,7 @@ type TransactionRepository interface {
 
 type UserOrderRepository interface {
 	FindAllByPayloadId(ctx context.Context, tx *sql.Tx, payloadId string) ([]*entity.UserOrder, error)
-	FindAllByUserId(ctx context.Context, tx *sql.Tx, userId int) ([]*entity.UserOrderRelationByUserId, error)
+	FindAllByUserId(ctx context.Context, tx *sql.Tx, userId int) ([]*entity.UserOrder, error)
 	FindById(ctx context.Context, tx *sql.Tx, id int) (*entity.UserOrder, error)
 	Create(ctx context.Context, tx *sql.Tx, userOrder *entity.UserOrder) (*entity.UserOrder, error)
 }
@@ -94,7 +94,7 @@ type CommentRepository interface {
 }
 
 type NotificationRepository interface {
-	FindAll(ctx context.Context, tx *sql.Tx) ([]*entity.NotificationRelation, error)
+	FindAll(ctx context.Context, tx *sql.Tx) ([]*entity.Notification, error)
 	FindAllByUserId(ctx context.Context, tx *sql.Tx, userId int) ([]*entity.Notification, error)
 	Create(ctx context.Context, tx *sql.Tx, notification *entity.Notification) (*entity.Notification, error)
 	Mark(ctx context.Context, tx *sql.Tx, id int) error

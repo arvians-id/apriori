@@ -1,26 +1,14 @@
 package entity
 
 import (
-	"apriori/model"
 	"time"
 )
 
 type Transaction struct {
-	IdTransaction int
-	ProductName   string
-	CustomerName  string
-	NoTransaction string
-	CreatedAt     time.Time
-	UpdatedAt     time.Time
-}
-
-func (transaction *Transaction) ToTransactionResponse() *model.GetTransactionResponse {
-	return &model.GetTransactionResponse{
-		IdTransaction: transaction.IdTransaction,
-		ProductName:   transaction.ProductName,
-		CustomerName:  transaction.CustomerName,
-		NoTransaction: transaction.NoTransaction,
-		CreatedAt:     transaction.CreatedAt.String(),
-		UpdatedAt:     transaction.UpdatedAt.String(),
-	}
+	IdTransaction int       `json:"id_transaction"`
+	ProductName   string    `json:"product_name"`
+	CustomerName  string    `json:"customer_name"`
+	NoTransaction string    `json:"no_transaction"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
 }

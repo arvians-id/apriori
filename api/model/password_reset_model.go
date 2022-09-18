@@ -9,9 +9,3 @@ type UpdateResetPasswordUserRequest struct {
 	Password string `json:"password" binding:"required,min=6"`
 	Token    string `json:"token"`
 }
-
-type GetPasswordResetResponse struct {
-	Email   string `json:"email"`
-	Token   string `json:"token"`
-	Expired int32  `json:"expired"`
-}

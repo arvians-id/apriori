@@ -1,6 +1,7 @@
 package service
 
 import (
+	"apriori/entity"
 	"apriori/model"
 	"context"
 	"github.com/gin-gonic/gin"
@@ -12,43 +13,43 @@ import (
 )
 
 type AprioriService interface {
-	FindAll(ctx context.Context) ([]*model.GetAprioriResponse, error)
-	FindAllByActive(ctx context.Context) ([]*model.GetAprioriResponse, error)
-	FindAllByCode(ctx context.Context, code string) ([]*model.GetAprioriResponse, error)
-	FindByCodeAndId(ctx context.Context, code string, id int) (*model.GetProductRecommendationResponse, error)
+	FindAll(ctx context.Context) ([]*entity.Apriori, error)
+	FindAllByActive(ctx context.Context) ([]*entity.Apriori, error)
+	FindAllByCode(ctx context.Context, code string) ([]*entity.Apriori, error)
+	FindByCodeAndId(ctx context.Context, code string, id int) (*entity.ProductRecommendation, error)
 	Create(ctx context.Context, requests []*model.CreateAprioriRequest) error
-	Update(ctx context.Context, request *model.UpdateAprioriRequest) (*model.GetAprioriResponse, error)
+	Update(ctx context.Context, request *model.UpdateAprioriRequest) (*entity.Apriori, error)
 	UpdateStatus(ctx context.Context, code string) error
 	Delete(ctx context.Context, code string) error
-	Generate(ctx context.Context, request *model.GenerateAprioriRequest) ([]*model.GetGenerateAprioriResponse, error)
+	Generate(ctx context.Context, request *model.GenerateAprioriRequest) ([]*entity.GenerateApriori, error)
 }
 
 type CacheService interface {
 	GetClient() (*redis.Client, error)
-	Get(ctx context.Context, key string) (string, error)
+	Get(ctx context.Context, key string) ([]byte, error)
 	Set(ctx context.Context, key string, value interface{}) error
 	Del(ctx context.Context, key ...string) error
 	FlushDB(ctx context.Context) error
 }
 
 type CategoryService interface {
-	FindAll(ctx context.Context) ([]*model.GetCategoryResponse, error)
-	FindById(ctx context.Context, id int) (*model.GetCategoryResponse, error)
-	Create(ctx context.Context, request *model.CreateCategoryRequest) (*model.GetCategoryResponse, error)
-	Update(ctx context.Context, request *model.UpdateCategoryRequest) (*model.GetCategoryResponse, error)
+	FindAll(ctx context.Context) ([]*entity.Category, error)
+	FindById(ctx context.Context, id int) (*entity.Category, error)
+	Create(ctx context.Context, request *model.CreateCategoryRequest) (*entity.Category, error)
+	Update(ctx context.Context, request *model.UpdateCategoryRequest) (*entity.Category, error)
 	Delete(ctx context.Context, id int) error
 }
 
 type CommentService interface {
-	FindAllRatingByProductCode(ctx context.Context, productCode string) ([]*model.GetRatingResponse, error)
-	FindAllByProductCode(ctx context.Context, productCode string, rating string, tags string) ([]*model.GetCommentResponse, error)
-	FindById(ctx context.Context, id int) (*model.GetCommentResponse, error)
-	FindByUserOrderId(ctx context.Context, userOrderId int) (*model.GetCommentResponse, error)
-	Create(ctx context.Context, request *model.CreateCommentRequest) (*model.GetCommentResponse, error)
+	FindAllRatingByProductCode(ctx context.Context, productCode string) ([]*entity.RatingFromComment, error)
+	FindAllByProductCode(ctx context.Context, productCode string, rating string, tags string) ([]*entity.Comment, error)
+	FindById(ctx context.Context, id int) (*entity.Comment, error)
+	FindByUserOrderId(ctx context.Context, userOrderId int) (*entity.Comment, error)
+	Create(ctx context.Context, request *model.CreateCommentRequest) (*entity.Comment, error)
 }
 
 type EmailService interface {
-	SendEmailWithText(toEmail string, subject string, message string) error
+	SendEmailWithText(toEmail string, subject string, message *string) error
 }
 
 type JwtService interface {
@@ -58,29 +59,29 @@ type JwtService interface {
 }
 
 type PasswordResetService interface {
-	CreateOrUpdateByEmail(ctx context.Context, email string) (*model.GetPasswordResetResponse, error)
+	CreateOrUpdateByEmail(ctx context.Context, email string) (*entity.PasswordReset, error)
 	Verify(ctx context.Context, request *model.UpdateResetPasswordUserRequest) error
 }
 
 type PaymentService interface {
 	GetClient()
-	FindAll(ctx context.Context) ([]*model.GetPaymentRelationResponse, error)
-	FindAllByUserId(ctx context.Context, userId int) ([]*model.GetPaymentResponse, error)
-	FindByOrderId(ctx context.Context, orderId string) (*model.GetPaymentResponse, error)
+	FindAll(ctx context.Context) ([]*entity.Payment, error)
+	FindAllByUserId(ctx context.Context, userId int) ([]*entity.Payment, error)
+	FindByOrderId(ctx context.Context, orderId string) (*entity.Payment, error)
 	CreateOrUpdate(ctx context.Context, request map[string]interface{}) error
-	UpdateReceiptNumber(ctx context.Context, request *model.AddReceiptNumberRequest) (*model.GetPaymentResponse, error)
+	UpdateReceiptNumber(ctx context.Context, request *model.AddReceiptNumberRequest) (*entity.Payment, error)
 	Delete(ctx context.Context, orderId string) error
 	GetToken(ctx context.Context, request *model.GetPaymentTokenRequest) (map[string]interface{}, error)
 }
 
 type ProductService interface {
-	FindAllByAdmin(ctx context.Context) ([]*model.GetProductResponse, error)
-	FindAll(ctx context.Context, search string, category string) ([]*model.GetProductResponse, error)
-	FindAllBySimilarCategory(ctx context.Context, code string) ([]*model.GetProductResponse, error)
-	FindAllRecommendation(ctx context.Context, code string) ([]*model.GetProductRecommendationResponse, error)
-	FindByCode(ctx context.Context, code string) (*model.GetProductResponse, error)
-	Create(ctx context.Context, request *model.CreateProductRequest) (*model.GetProductResponse, error)
-	Update(ctx context.Context, request *model.UpdateProductRequest) (*model.GetProductResponse, error)
+	FindAllByAdmin(ctx context.Context) ([]*entity.Product, error)
+	FindAll(ctx context.Context, search string, category string) ([]*entity.Product, error)
+	FindAllBySimilarCategory(ctx context.Context, code string) ([]*entity.Product, error)
+	FindAllRecommendation(ctx context.Context, code string) ([]*entity.ProductRecommendation, error)
+	FindByCode(ctx context.Context, code string) (*entity.Product, error)
+	Create(ctx context.Context, request *model.CreateProductRequest) (*entity.Product, error)
+	Update(ctx context.Context, request *model.UpdateProductRequest) (*entity.Product, error)
 	Delete(ctx context.Context, code string) error
 }
 
@@ -93,33 +94,33 @@ type StorageService interface {
 }
 
 type TransactionService interface {
-	FindAll(ctx context.Context) ([]*model.GetTransactionResponse, error)
-	FindByNoTransaction(ctx context.Context, noTransaction string) (*model.GetTransactionResponse, error)
-	Create(ctx context.Context, request *model.CreateTransactionRequest) (*model.GetTransactionResponse, error)
+	FindAll(ctx context.Context) ([]*entity.Transaction, error)
+	FindByNoTransaction(ctx context.Context, noTransaction string) (*entity.Transaction, error)
+	Create(ctx context.Context, request *model.CreateTransactionRequest) (*entity.Transaction, error)
 	CreateByCsv(ctx context.Context, data [][]string) error
-	Update(ctx context.Context, request *model.UpdateTransactionRequest) (*model.GetTransactionResponse, error)
+	Update(ctx context.Context, request *model.UpdateTransactionRequest) (*entity.Transaction, error)
 	Delete(ctx context.Context, noTransaction string) error
 	Truncate(ctx context.Context) error
 }
 
 type UserOrderService interface {
-	FindAllByPayloadId(ctx context.Context, payloadId int) ([]*model.GetUserOrderResponse, error)
-	FindAllByUserId(ctx context.Context, userId int) ([]*model.GetUserOrderRelationByUserIdResponse, error)
-	FindById(ctx context.Context, id int) (*model.GetUserOrderResponse, error)
+	FindAllByPayloadId(ctx context.Context, payloadId int) ([]*entity.UserOrder, error)
+	FindAllByUserId(ctx context.Context, userId int) ([]*entity.UserOrder, error)
+	FindById(ctx context.Context, id int) (*entity.UserOrder, error)
 }
 
 type UserService interface {
-	FindAll(ctx context.Context) ([]*model.GetUserResponse, error)
-	FindById(ctx context.Context, id int) (*model.GetUserResponse, error)
-	FindByEmail(ctx context.Context, request *model.GetUserCredentialRequest) (*model.GetUserResponse, error)
-	Create(ctx context.Context, request *model.CreateUserRequest) (*model.GetUserResponse, error)
-	Update(ctx context.Context, request *model.UpdateUserRequest) (*model.GetUserResponse, error)
+	FindAll(ctx context.Context) ([]*entity.User, error)
+	FindById(ctx context.Context, id int) (*entity.User, error)
+	FindByEmail(ctx context.Context, request *model.GetUserCredentialRequest) (*entity.User, error)
+	Create(ctx context.Context, request *model.CreateUserRequest) (*entity.User, error)
+	Update(ctx context.Context, request *model.UpdateUserRequest) (*entity.User, error)
 	Delete(ctx context.Context, id int) error
 }
 
 type NotificationService interface {
-	FindAll(ctx context.Context) ([]*model.GetNotificationRelationResponse, error)
-	FindAllByUserId(ctx context.Context, userId int) ([]*model.GetNotificationResponse, error)
+	FindAll(ctx context.Context) ([]*entity.Notification, error)
+	FindAllByUserId(ctx context.Context, userId int) ([]*entity.Notification, error)
 	Create(ctx context.Context, request *model.CreateNotificationRequest) *NotificationServiceImpl
 	MarkAll(ctx context.Context, userId int) error
 	Mark(ctx context.Context, id int) error

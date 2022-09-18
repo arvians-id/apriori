@@ -249,7 +249,7 @@
                           <li class="media my-4" style="border-bottom: 1px solid #e9ecef" v-for="item in comments" :key="item.id_comment">
                             <img src="https://my-apriori-bucket.s3.ap-southeast-1.amazonaws.com/assets/user.png" width="53" class="mr-3" alt="...">
                             <div class="media-body">
-                              <h4 class="mt-0 mb-0">{{ item.user_name }}</h4>
+                              <h4 class="mt-0 mb-0">{{ item.user_order.payment.user.name }}</h4>
                               <small>{{ item.created_at }}</small>
                               <div class="mb-2">
                                 <i class="fas fa-star text-warning" v-for="itemRating in item.rating" :key="itemRating"></i>
@@ -550,6 +550,7 @@ export default {
     async fetchComments(){
       await axios.get(`${process.env.VUE_APP_SERVICE_URL}/comments/product/${this.$route.params.code}`, { headers: authHeader() }).then(response => {
         if(response.data.data != null) {
+          console.log(response.data.data)
           this.totalData = response.data.data.length
           this.allComments = response.data.data
           this.comments = response.data.data.slice(0, this.limitData)

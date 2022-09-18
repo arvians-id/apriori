@@ -31,7 +31,7 @@ func Execute() {
 
 	schedule.Add(daily, &sendEmailNewsletter)
 	schedule.Add(daily, &clearTablePasswordResets)
-	schedule.Add(dailyCustom, &example)
+	schedule.Add(daily, &example)
 
 	schedule.Start()
 }

@@ -1,36 +1,31 @@
 package entity
 
 import (
-	"apriori/model"
 	"time"
 )
 
 type Product struct {
-	IdProduct   int
-	Code        string
-	Name        string
-	Description string
-	Price       int
-	Category    string
-	IsEmpty     bool
-	Mass        int
-	Image       string
-	CreatedAt   time.Time
-	UpdatedAt   time.Time
+	IdProduct   int       `json:"id_product"`
+	Code        string    `json:"code"`
+	Name        string    `json:"name"`
+	Description *string   `json:"description"`
+	Price       int       `json:"price"`
+	Category    string    `json:"category"`
+	IsEmpty     bool      `json:"is_empty"`
+	Mass        int       `json:"mass"`
+	Image       *string   `json:"image"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
-func (product *Product) ToProductResponse() *model.GetProductResponse {
-	return &model.GetProductResponse{
-		IdProduct:   product.IdProduct,
-		Code:        product.Code,
-		Name:        product.Name,
-		Description: product.Description,
-		Price:       product.Price,
-		Category:    product.Category,
-		IsEmpty:     product.IsEmpty,
-		Mass:        product.Mass,
-		Image:       product.Image,
-		CreatedAt:   product.CreatedAt.String(),
-		UpdatedAt:   product.UpdatedAt.String(),
-	}
+type ProductRecommendation struct {
+	AprioriId          int     `json:"apriori_id"`
+	AprioriCode        string  `json:"apriori_code"`
+	AprioriItem        string  `json:"apriori_item"`
+	AprioriDiscount    float64 `json:"apriori_discount"`
+	ProductTotalPrice  int     `json:"product_total_price"`
+	PriceAfterDiscount int     `json:"price_discount"`
+	Image              *string `json:"apriori_image"`
+	Mass               int     `json:"mass,omitempty"`
+	Description        *string `json:"apriori_description"`
 }

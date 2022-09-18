@@ -22,32 +22,6 @@ type UpdateProductRequest struct {
 	Image       string `form:"-"`
 }
 
-type GetProductResponse struct {
-	IdProduct   int    `json:"id_product"`
-	Code        string `json:"code"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Price       int    `json:"price"`
-	Category    string `json:"category"`
-	IsEmpty     bool   `json:"is_empty"`
-	Mass        int    `json:"mass"`
-	Image       string `json:"image"`
-	CreatedAt   string `json:"created_at"`
-	UpdatedAt   string `json:"updated_at"`
-}
-
-type GetProductRecommendationResponse struct {
-	AprioriId          int     `json:"apriori_id"`
-	AprioriCode        string  `json:"apriori_code"`
-	AprioriItem        string  `json:"apriori_item"`
-	AprioriDiscount    float64 `json:"apriori_discount"`
-	ProductTotalPrice  int     `json:"product_total_price"`
-	PriceAfterDiscount int     `json:"price_discount"`
-	Image              string  `json:"apriori_image,omitempty"`
-	Mass               int     `json:"mass,omitempty"`
-	Description        string  `json:"apriori_description,omitempty"`
-}
-
 type GetProductTransactionResponse struct {
 	Code        string  `json:"code"`
 	ProductName string  `json:"product_name"`

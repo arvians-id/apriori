@@ -121,7 +121,6 @@ export default {
                 email: response.data.data.email,
                 address: response.data.data.address,
                 phone: response.data.data.phone,
-                password: response.data.data.password,
               }
           }).catch(error => {
             if (error.response.status === 400 || error.response.status === 404) {

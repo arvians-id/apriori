@@ -58,7 +58,7 @@ func (service *PaymentServiceImpl) GetClient() {
 	}
 }
 
-func (service *PaymentServiceImpl) FindAll(ctx context.Context) ([]*model.GetPaymentRelationResponse, error) {
+func (service *PaymentServiceImpl) FindAll(ctx context.Context) ([]*entity.Payment, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -70,15 +70,10 @@ func (service *PaymentServiceImpl) FindAll(ctx context.Context) ([]*model.GetPay
 		return nil, err
 	}
 
-	var paymentResponses []*model.GetPaymentRelationResponse
-	for _, payment := range payments {
-		paymentResponses = append(paymentResponses, payment.ToPaymentRelationResponse())
-	}
-
-	return paymentResponses, nil
+	return payments, nil
 }
 
-func (service *PaymentServiceImpl) FindAllByUserId(ctx context.Context, userId int) ([]*model.GetPaymentResponse, error) {
+func (service *PaymentServiceImpl) FindAllByUserId(ctx context.Context, userId int) ([]*entity.Payment, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -90,27 +85,22 @@ func (service *PaymentServiceImpl) FindAllByUserId(ctx context.Context, userId i
 		return nil, err
 	}
 
-	var paymentResponses []*model.GetPaymentResponse
-	for _, payment := range payments {
-		paymentResponses = append(paymentResponses, payment.ToPaymentResponse())
-	}
-
-	return paymentResponses, nil
+	return payments, nil
 }
 
-func (service *PaymentServiceImpl) FindByOrderId(ctx context.Context, orderId string) (*model.GetPaymentResponse, error) {
+func (service *PaymentServiceImpl) FindByOrderId(ctx context.Context, orderId string) (*entity.Payment, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
 	}
 	defer helper.CommitOrRollback(tx)
 
-	paymentResponse, err := service.PaymentRepository.FindByOrderId(ctx, tx, orderId)
+	payment, err := service.PaymentRepository.FindByOrderId(ctx, tx, orderId)
 	if err != nil {
 		return nil, err
 	}
 
-	return paymentResponse.ToPaymentResponse(), nil
+	return payment, nil
 }
 
 func (service *PaymentServiceImpl) CreateOrUpdate(ctx context.Context, request map[string]interface{}) error {
@@ -141,92 +131,57 @@ func (service *PaymentServiceImpl) CreateOrUpdate(ctx context.Context, request m
 		settlementTime = ""
 	}
 
-	paymentRequest := entity.Payment{
-		UserId: sql.NullString{
-			String: request["custom_field1"].(string),
-			Valid:  true,
-		},
-		OrderId: sql.NullString{
-			String: request["order_id"].(string),
-			Valid:  true,
-		},
-		TransactionTime: sql.NullString{
-			String: request["transaction_time"].(string),
-			Valid:  true,
-		},
-		TransactionStatus: sql.NullString{
-			String: request["transaction_status"].(string),
-			Valid:  true,
-		},
-		TransactionId: sql.NullString{
-			String: request["transaction_id"].(string),
-			Valid:  true,
-		},
-		StatusCode: sql.NullString{
-			String: request["status_code"].(string),
-			Valid:  true,
-		},
-		SignatureKey: sql.NullString{
-			String: request["signature_key"].(string),
-			Valid:  true,
-		},
-		SettlementTime: sql.NullString{
-			String: settlementTime,
-			Valid:  true,
-		},
-		PaymentType: sql.NullString{
-			String: request["payment_type"].(string),
-			Valid:  true,
-		},
-		MerchantId: sql.NullString{
-			String: request["merchant_id"].(string),
-			Valid:  true,
-		},
-		GrossAmount: sql.NullString{
-			String: request["gross_amount"].(string),
-			Valid:  true,
-		},
-		FraudStatus: sql.NullString{
-			String: request["fraud_status"].(string),
-			Valid:  true,
-		},
-		BankType: sql.NullString{
-			String: bankType,
-			Valid:  true,
-		},
-		VANumber: sql.NullString{
-			String: vaNumber,
-			Valid:  true,
-		},
-		BillerCode: sql.NullString{
-			String: billerCode,
-			Valid:  true,
-		},
-		BillKey: sql.NullString{
-			String: billKey,
-			Valid:  true,
-		},
-	}
+	orderID := request["order_id"].(string)
+	transactionTime := request["transaction_time"].(string)
+	transactionStatus := request["transaction_status"].(string)
+	transactionId := request["transaction_id"].(string)
+	statusCode := request["status_code"].(string)
+	signatureKey := request["signature_key"].(string)
+	paymentType := request["payment_type"].(string)
+	merchantId := request["merchant_id"].(string)
+	grossAmount := request["gross_amount"].(string)
+	fraudStatus := request["fraud_status"].(string)
 
 	checkTransaction, _ := service.PaymentRepository.FindByOrderId(ctx, tx, request["order_id"].(string))
-	if checkTransaction.OrderId.Valid {
-		err := service.PaymentRepository.Update(ctx, tx, &paymentRequest)
+	checkTransaction.UserId = request["custom_field1"].(string)
+	checkTransaction.OrderId = &orderID
+	checkTransaction.TransactionTime = &transactionTime
+	checkTransaction.TransactionStatus = &transactionStatus
+	checkTransaction.TransactionId = &transactionId
+	checkTransaction.StatusCode = &statusCode
+	checkTransaction.SignatureKey = &signatureKey
+	checkTransaction.SettlementTime = &settlementTime
+	checkTransaction.PaymentType = &paymentType
+	checkTransaction.MerchantId = &merchantId
+	checkTransaction.GrossAmount = &grossAmount
+	checkTransaction.FraudStatus = &fraudStatus
+	checkTransaction.BankType = &bankType
+	checkTransaction.VANumber = &vaNumber
+	checkTransaction.BillerCode = &billerCode
+	checkTransaction.BillKey = &billKey
+
+	if checkTransaction.OrderId != nil {
+		err := service.PaymentRepository.Update(ctx, tx, checkTransaction)
 		if err != nil {
 			return err
 		}
+
 		if request["transaction_status"].(string) == "settlement" {
 			timeNow, err := time.Parse(helper.TimeFormat, time.Now().Format(helper.TimeFormat))
 			if err != nil {
 				return err
 			}
+
 			userOrder, err := service.UserOrderRepository.FindAllByPayloadId(ctx, tx, request["custom_field2"].(string))
 			if err != nil {
 				return err
 			}
+
 			var productName []string
 			for _, item := range userOrder {
-				productName = append(productName, item.Name)
+				productName = append(productName, *item.Name)
 			}
+
 			transaction := entity.Transaction{
 				ProductName:   strings.ToLower(strings.Join(productName, ", ")),
 				CustomerName:  request["custom_field3"].(string),
@@ -241,18 +196,21 @@ func (service *PaymentServiceImpl) CreateOrUpdate(ctx context.Context, request m
 			}
 
 			var notificationRequest model.CreateNotificationRequest
-			notificationRequest.UserId = helper.StrToInt(paymentRequest.UserId.String)
+			notificationRequest.UserId = helper.StrToInt(checkTransaction.UserId)
 			notificationRequest.Title = "Transaction Successfully"
 			notificationRequest.Description = "You have successfully made a payment. Thank you for shopping at Ryzy Shop"
 			notificationRequest.URL = "product"
-			_ = service.NotificationService.Create(ctx, &notificationRequest).WithSendMail()
+			err = service.NotificationService.Create(ctx, &notificationRequest).WithSendMail()
+			if err != nil {
+				return err
+			}
 		}
 	}
 
 	return nil
 }
 
-func (service *PaymentServiceImpl) UpdateReceiptNumber(ctx context.Context, request *model.AddReceiptNumberRequest) (*model.GetPaymentResponse, error) {
+func (service *PaymentServiceImpl) UpdateReceiptNumber(ctx context.Context, request *model.AddReceiptNumberRequest) (*entity.Payment, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -264,17 +222,14 @@ func (service *PaymentServiceImpl) UpdateReceiptNumber(ctx context.Context, requ
 		return nil, err
 	}
 
-	payment.ReceiptNumber = sql.NullString{
-		String: request.ReceiptNumber,
-		Valid:  true,
-	}
+	payment.ReceiptNumber = &request.ReceiptNumber
 
 	err = service.PaymentRepository.UpdateReceiptNumber(ctx, tx, payment)
 	if err != nil {
 		return nil, err
 	}
 
-	return payment.ToPaymentResponse(), nil
+	return payment, nil
 }
 
 func (service *PaymentServiceImpl) Delete(ctx context.Context, orderId string) error {
@@ -289,7 +244,7 @@ func (service *PaymentServiceImpl) Delete(ctx context.Context, orderId string) e
 		return err
 	}
 
-	err = service.PaymentRepository.Delete(ctx, tx, payment.OrderId.String)
+	err = service.PaymentRepository.Delete(ctx, tx, payment.OrderId)
 	if err != nil {
 		return err
 	}
@@ -350,41 +305,21 @@ func (service *PaymentServiceImpl) GetToken(ctx context.Context, request *model.
 	}
 	defer helper.CommitOrRollback(tx)
 
+	canceled := "canceled"
+	timeNow := time.Now().Format("2006-01-02 15:04:05")
 	paymentRequest := entity.Payment{
-		UserId: sql.NullString{
-			String: userId,
-			Valid:  true,
-		},
-		OrderId: sql.NullString{
-			String: orderID,
-			Valid:  true,
-		},
-		TransactionStatus: sql.NullString{
-			String: "canceled",
-			Valid:  true,
-		},
-		TransactionTime: sql.NullString{
-			String: time.Now().Format("2006-01-02 15:04:05"),
-			Valid:  true,
-		},
-		Address: sql.NullString{
-			String: request.Address,
-			Valid:  true,
-		},
-		Courier: sql.NullString{
-			String: request.Courier,
-			Valid:  true,
-		},
-		CourierService: sql.NullString{
-			String: request.CourierService,
-			Valid:  true,
-		},
+		UserId:            userId,
+		OrderId:           &orderID,
+		TransactionStatus: &canceled,
+		TransactionTime:   &timeNow,
+		Address:           &request.Address,
+		Courier:           &request.Courier,
+		CourierService:    &request.CourierService,
 	}
 	payment, err := service.PaymentRepository.Create(ctx, tx, &paymentRequest)
 	if err != nil {
 		return nil, err
 	}
-
 	// Send id payload
 	snapRequest.CustomField2 = helper.IntToStr(payment.IdPayload)
 	snapRequest.CustomField3 = request.CustomerName
@@ -400,14 +335,19 @@ func (service *PaymentServiceImpl) GetToken(ctx context.Context, request *model.
 
 	for _, item := range items {
 		code := CheckCode(item)
+		price := int64(item["price"].(float64))
+		quantity := int(item["quantity"].(float64))
+		totalPriceItem := int64(item["totalPricePerItem"].(float64))
+		name := item["name"].(string)
+		image := item["image"].(string)
 		userOrder := entity.UserOrder{
 			PayloadId:      payment.IdPayload,
-			Code:           code,
-			Name:           item["name"].(string),
-			Price:          int64(item["price"].(float64)),
-			Image:          item["image"].(string),
-			Quantity:       int(item["quantity"].(float64)),
-			TotalPriceItem: int64(item["totalPricePerItem"].(float64)),
+			Code:           &code,
+			Name:           &name,
+			Price:          &price,
+			Image:          &image,
+			Quantity:       &quantity,
+			TotalPriceItem: &totalPriceItem,
 		}
 		_, err := service.UserOrderRepository.Create(ctx, tx, &userOrder)
 		if err != nil {

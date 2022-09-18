@@ -40,15 +40,15 @@ func (cache *CacheServiceImpl) GetClient() (*redis.Client, error) {
 	return rdb, nil
 }
 
-func (cache *CacheServiceImpl) Get(ctx context.Context, key string) (string, error) {
+func (cache *CacheServiceImpl) Get(ctx context.Context, key string) ([]byte, error) {
 	rdb, err := cache.GetClient()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
-	value, err := rdb.Get(ctx, key).Result()
+	value, err := rdb.Get(ctx, key).Bytes()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 
 	return value, nil

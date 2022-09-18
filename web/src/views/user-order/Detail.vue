@@ -201,6 +201,7 @@ export default {
 
       await axios.get(`${process.env.VUE_APP_SERVICE_URL}/user-order/${this.$route.params.order_id}`, { headers: authHeader() }).then(response => {
         this.orders = response.data.data
+        console.log(response.data.data)
         if(response.data.data != null) {
           response.data.data.map(item => {
             this.totalPrice += item.total_price_item;
@@ -257,7 +258,7 @@ export default {
       this.isLoading = false;
     },
     numberWithCommas(x) {
-      return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
+      return x
     },
     print(){
       const except = document.getElementById("information");

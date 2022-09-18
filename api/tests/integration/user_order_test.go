@@ -33,7 +33,6 @@ var _ = Describe("User Order API", func() {
 	var tokenJWT string
 	var cookie *http.Cookie
 	var order1 *entity.UserOrder
-	var order2 *entity.UserOrder
 	var payment *entity.Payment
 	configuration := config.New("../../.env.test")
 
@@ -81,10 +80,11 @@ var _ = Describe("User Order API", func() {
 		// Create product
 		tx, _ = database.Begin()
 		productRepository := repository.NewProductRepository()
+		description := "Test Bang"
 		_, _ = productRepository.Create(context.Background(), tx, &entity.Product{
 			Code:        "Lfanp",
 			Name:        "Bantal Biasa",
-			Description: "Test Bang",
+			Description: &description,
 			Category:    "Bantal, Kasur",
 			Mass:        1000,
 			CreatedAt:   time.Now(),
@@ -93,42 +93,46 @@ var _ = Describe("User Order API", func() {
 
 		// Create payload
 		payloadRepository := repository.NewPaymentRepository()
+		orderId := "QESXmTNzqowsqTNZYmAD"
 		payload, _ := payloadRepository.Create(context.Background(), tx, &entity.Payment{
-			UserId: sql.NullString{
-				String: helper.IntToStr(user.IdUser),
-				Valid:  true,
-			},
-			OrderId: sql.NullString{
-				String: "QESXmTNzqowsqTNZYmAD",
-				Valid:  true,
-			},
+			UserId:  helper.IntToStr(user.IdUser),
+			OrderId: &orderId,
 		})
 
 		// Create User Order
 		userOrderRepository := repository.NewUserOrderRepository()
+		code := "aXksCj2"
+		name := "Bantal Biasa"
+		price := int64(20000)
+		image := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/assets/%s", os.Getenv("AWS_BUCKET"), os.Getenv("AWS_REGION"), "no-image.png")
+		quantity := 1
+		totalPriceItem := int64(20000)
 		userOrder1, _ := userOrderRepository.Create(context.Background(), tx, &entity.UserOrder{
 			PayloadId:      payload.IdPayload,
-			Code:           "aXksCj2",
-			Name:           "Bantal Biasa",
-			Price:          20000,
-			Image:          fmt.Sprintf("https://%s.s3.%s.amazonaws.com/assets/%s", os.Getenv("AWS_BUCKET"), os.Getenv("AWS_REGION"), "no-image.png"),
-			Quantity:       1,
-			TotalPriceItem: 20000,
+			Code:           &code,
+			Name:           &name,
+			Price:          &price,
+			Image:          &image,
+			Quantity:       &quantity,
+			TotalPriceItem: &totalPriceItem,
 		})
 
-		userOrder2, _ := userOrderRepository.Create(context.Background(), tx, &entity.UserOrder{
+		name = "Guling"
+		price = int64(10000)
+		quantity = 2
+		totalPriceItem = int64(20000)
+		_, _ = userOrderRepository.Create(context.Background(), tx, &entity.UserOrder{
 			PayloadId:      payload.IdPayload,
-			Code:           "aXksCj2",
-			Name:           "Guling",
-			Price:          10000,
-			Image:          fmt.Sprintf("https://%s.s3.%s.amazonaws.com/assets/%s", os.Getenv("AWS_BUCKET"), os.Getenv("AWS_REGION"), "no-image.png"),
-			Quantity:       2,
-			TotalPriceItem: 20000,
+			Code:           &code,
+			Name:           &name,
+			Price:          &price,
+			Image:          &image,
+			Quantity:       &quantity,
+			TotalPriceItem: &totalPriceItem,
 		})
 		_ = tx.Commit()
 
 		order1 = userOrder1
-		order2 = userOrder2
 		payment = payload
 	})
 
@@ -253,7 +257,7 @@ var _ = Describe("User Order API", func() {
 		When("the user order is exists", func() {
 			It("should return successful find all user order by order id response", func() {
 				// Find All User Order
-				request := httptest.NewRequest(http.MethodGet, "/api/user-order/"+payment.OrderId.String, nil)
+				request := httptest.NewRequest(http.MethodGet, "/api/user-order/"+*payment.OrderId, nil)
 				request.Header.Add("Content-Type", "application/json")
 				request.Header.Add("X-API-KEY", configuration.Get("X_API_KEY"))
 				request.AddCookie(cookie)
@@ -270,19 +274,17 @@ var _ = Describe("User Order API", func() {
 
 				userOrderResponse := responseBody["data"].([]interface{})
 
-				Expect(userOrderResponse[0].(map[string]interface{})["code"]).To(Equal(order1.Code))
-				Expect(userOrderResponse[0].(map[string]interface{})["name"]).To(Equal(order1.Name))
-				Expect(int64(userOrderResponse[0].(map[string]interface{})["price"].(float64))).To(Equal(order1.Price))
-				Expect(userOrderResponse[0].(map[string]interface{})["image"]).To(Equal(order1.Image))
-				Expect(int(userOrderResponse[0].(map[string]interface{})["quantity"].(float64))).To(Equal(order1.Quantity))
-				Expect(int64(userOrderResponse[0].(map[string]interface{})["total_price_item"].(float64))).To(Equal(order1.TotalPriceItem))
+				Expect(userOrderResponse[0].(map[string]interface{})["code"]).To(Equal("aXksCj2"))
+				Expect(userOrderResponse[0].(map[string]interface{})["name"]).To(Equal("Bantal Biasa"))
+				Expect(int64(userOrderResponse[0].(map[string]interface{})["price"].(float64))).To(Equal(int64(20000)))
+				Expect(int(userOrderResponse[0].(map[string]interface{})["quantity"].(float64))).To(Equal(1))
+				Expect(int64(userOrderResponse[0].(map[string]interface{})["total_price_item"].(float64))).To(Equal(int64(20000)))
 
-				Expect(userOrderResponse[1].(map[string]interface{})["code"]).To(Equal(order2.Code))
-				Expect(userOrderResponse[1].(map[string]interface{})["name"]).To(Equal(order2.Name))
-				Expect(int64(userOrderResponse[1].(map[string]interface{})["price"].(float64))).To(Equal(order2.Price))
-				Expect(userOrderResponse[1].(map[string]interface{})["image"]).To(Equal(order2.Image))
-				Expect(int(userOrderResponse[1].(map[string]interface{})["quantity"].(float64))).To(Equal(order2.Quantity))
-				Expect(int64(userOrderResponse[1].(map[string]interface{})["total_price_item"].(float64))).To(Equal(order2.TotalPriceItem))
+				Expect(userOrderResponse[1].(map[string]interface{})["code"]).To(Equal("aXksCj2"))
+				Expect(userOrderResponse[1].(map[string]interface{})["name"]).To(Equal("Guling"))
+				Expect(int64(userOrderResponse[1].(map[string]interface{})["price"].(float64))).To(Equal(int64(10000)))
+				Expect(int(userOrderResponse[1].(map[string]interface{})["quantity"].(float64))).To(Equal(2))
+				Expect(int64(userOrderResponse[1].(map[string]interface{})["total_price_item"].(float64))).To(Equal(int64(20000)))
 			})
 		})
 	})
@@ -327,12 +329,11 @@ var _ = Describe("User Order API", func() {
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("OK"))
 
-				Expect(responseBody["data"].(map[string]interface{})["code"]).To(Equal(order1.Code))
-				Expect(responseBody["data"].(map[string]interface{})["name"]).To(Equal(order1.Name))
-				Expect(int64(responseBody["data"].(map[string]interface{})["price"].(float64))).To(Equal(order1.Price))
-				Expect(responseBody["data"].(map[string]interface{})["image"]).To(Equal(order1.Image))
-				Expect(int(responseBody["data"].(map[string]interface{})["quantity"].(float64))).To(Equal(order1.Quantity))
-				Expect(int64(responseBody["data"].(map[string]interface{})["total_price_item"].(float64))).To(Equal(order1.TotalPriceItem))
+				Expect(responseBody["data"].(map[string]interface{})["code"]).To(Equal("aXksCj2"))
+				Expect(responseBody["data"].(map[string]interface{})["name"]).To(Equal("Bantal Biasa"))
+				Expect(int64(responseBody["data"].(map[string]interface{})["price"].(float64))).To(Equal(int64(20000)))
+				Expect(int(responseBody["data"].(map[string]interface{})["quantity"].(float64))).To(Equal(1))
+				Expect(int64(responseBody["data"].(map[string]interface{})["total_price_item"].(float64))).To(Equal(int64(20000)))
 			})
 		})
 	})

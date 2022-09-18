@@ -3,10 +3,10 @@ package controller
 import (
 	"apriori/app/middleware"
 	"apriori/app/response"
+	"apriori/entity"
 	"apriori/helper"
 	"apriori/model"
 	"apriori/service"
-	"bytes"
 	"encoding/json"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
@@ -68,8 +68,8 @@ func (controller *TransactionController) FindAll(c *gin.Context) {
 		return
 	}
 
-	var transactionCacheResponses []model.GetTransactionResponse
-	err = json.Unmarshal(bytes.NewBufferString(transactionCache).Bytes(), &transactionCacheResponses)
+	var transactionCacheResponses []entity.Transaction
+	err = json.Unmarshal(transactionCache, &transactionCacheResponses)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return

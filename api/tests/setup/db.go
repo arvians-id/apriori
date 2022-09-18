@@ -37,6 +37,14 @@ func TearDownTest(db *sql.DB) error {
 	if err != nil {
 		return err
 	}
+	_, err = db.Exec(`DELETE FROM comments;`)
+	if err != nil {
+		return err
+	}
+	_, err = db.Exec(`DELETE FROM notifications;`)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }

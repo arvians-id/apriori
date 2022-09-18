@@ -168,7 +168,7 @@ func (controller *AuthController) ForgotPassword(c *gin.Context) {
 	}
 
 	message := fmt.Sprintf("%s/auth/reset-password?signature=%v", os.Getenv("APP_URL_FE"), result.Token)
-	err = controller.EmailService.SendEmailWithText(result.Email, "Forgot Password", message)
+	err = controller.EmailService.SendEmailWithText(result.Email, "Forgot Password", &message)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return

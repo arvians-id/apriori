@@ -1,22 +1,12 @@
 package entity
 
 import (
-	"apriori/model"
 	"time"
 )
 
 type Category struct {
-	IdCategory int
-	Name       string
-	CreatedAt  time.Time
-	UpdatedAt  time.Time
-}
-
-func (category *Category) ToCategoryResponse() *model.GetCategoryResponse {
-	return &model.GetCategoryResponse{
-		IdCategory: category.IdCategory,
-		Name:       category.Name,
-		CreatedAt:  category.CreatedAt.String(),
-		UpdatedAt:  category.UpdatedAt.String(),
-	}
+	IdCategory int       `json:"id_category"`
+	Name       string    `json:"name"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }

@@ -14,13 +14,13 @@ func NewEmailService() EmailService {
 	return &EmailServiceImpl{}
 }
 
-func (service *EmailServiceImpl) SendEmailWithText(toEmail string, subject string, message string) error {
+func (service *EmailServiceImpl) SendEmailWithText(toEmail string, subject string, message *string) error {
 	go func() {
 		mailer := gomail.NewMessage()
 		mailer.SetHeader("From", os.Getenv("MAIL_FROM_ADDRESS"))
 		mailer.SetHeader("To", toEmail)
 		mailer.SetHeader("Subject", subject)
-		mailer.SetBody("text/html", message)
+		mailer.SetBody("text/html", *message)
 
 		port, err := strconv.Atoi(os.Getenv("MAIL_PORT"))
 		if err != nil {

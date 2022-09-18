@@ -1,8 +1,8 @@
 package service
 
 import (
+	"apriori/entity"
 	"apriori/helper"
-	"apriori/model"
 	"apriori/repository"
 	"context"
 	"database/sql"
@@ -29,7 +29,7 @@ func NewUserOrderService(
 	}
 }
 
-func (service *UserOrderServiceImpl) FindAllByPayloadId(ctx context.Context, payloadId int) ([]*model.GetUserOrderResponse, error) {
+func (service *UserOrderServiceImpl) FindAllByPayloadId(ctx context.Context, payloadId int) ([]*entity.UserOrder, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -41,15 +41,10 @@ func (service *UserOrderServiceImpl) FindAllByPayloadId(ctx context.Context, pay
 		return nil, err
 	}
 
-	var userOrderResponses []*model.GetUserOrderResponse
-	for _, userOrder := range userOrders {
-		userOrderResponses = append(userOrderResponses, userOrder.ToUserOrderResponse())
-	}
-
-	return userOrderResponses, nil
+	return userOrders, nil
 }
 
-func (service *UserOrderServiceImpl) FindAllByUserId(ctx context.Context, userId int) ([]*model.GetUserOrderRelationByUserIdResponse, error) {
+func (service *UserOrderServiceImpl) FindAllByUserId(ctx context.Context, userId int) ([]*entity.UserOrder, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -66,25 +61,20 @@ func (service *UserOrderServiceImpl) FindAllByUserId(ctx context.Context, userId
 		return nil, err
 	}
 
-	var userOrderResponses []*model.GetUserOrderRelationByUserIdResponse
-	for _, userOrder := range userOrders {
-		userOrderResponses = append(userOrderResponses, userOrder.ToUserOrderRelationByUserIdResponse())
-	}
-
-	return userOrderResponses, nil
+	return userOrders, nil
 }
 
-func (service *UserOrderServiceImpl) FindById(ctx context.Context, id int) (*model.GetUserOrderResponse, error) {
+func (service *UserOrderServiceImpl) FindById(ctx context.Context, id int) (*entity.UserOrder, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
 	}
 	defer helper.CommitOrRollback(tx)
 
-	userOrderResponse, err := service.UserOrderRepository.FindById(ctx, tx, id)
+	userOrder, err := service.UserOrderRepository.FindById(ctx, tx, id)
 	if err != nil {
 		return nil, err
 	}
 
-	return userOrderResponse.ToUserOrderResponse(), nil
+	return userOrder, nil
 }

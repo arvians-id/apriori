@@ -15,7 +15,7 @@ import (
 type NotificationServiceImpl struct {
 	NotificationRepository repository.NotificationRepository
 	UserRepository         repository.UserRepository
-	Notification           entity.NotificationRelation
+	Notification           *entity.Notification
 	EmailService           EmailService
 	Error                  error
 	DB                     *sql.DB
@@ -30,7 +30,7 @@ func NewNotificationService(notificationRepository *repository.NotificationRepos
 	}
 }
 
-func (service *NotificationServiceImpl) FindAll(ctx context.Context) ([]*model.GetNotificationRelationResponse, error) {
+func (service *NotificationServiceImpl) FindAll(ctx context.Context) ([]*entity.Notification, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -42,15 +42,10 @@ func (service *NotificationServiceImpl) FindAll(ctx context.Context) ([]*model.G
 		return nil, err
 	}
 
-	var notificationResponses []*model.GetNotificationRelationResponse
-	for _, notification := range notifications {
-		notificationResponses = append(notificationResponses, notification.ToNotificationRelationResponse())
-	}
-
-	return notificationResponses, nil
+	return notifications, nil
 }
 
-func (service *NotificationServiceImpl) FindAllByUserId(ctx context.Context, userId int) ([]*model.GetNotificationResponse, error) {
+func (service *NotificationServiceImpl) FindAllByUserId(ctx context.Context, userId int) ([]*entity.Notification, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -62,12 +57,7 @@ func (service *NotificationServiceImpl) FindAllByUserId(ctx context.Context, use
 		return nil, err
 	}
 
-	var notificationResponses []*model.GetNotificationResponse
-	for _, notification := range notifications {
-		notificationResponses = append(notificationResponses, notification.ToNotificationResponse())
-	}
-
-	return notificationResponses, nil
+	return notifications, nil
 }
 
 func (service *NotificationServiceImpl) Create(ctx context.Context, request *model.CreateNotificationRequest) *NotificationServiceImpl {
@@ -85,18 +75,12 @@ func (service *NotificationServiceImpl) Create(ctx context.Context, request *mod
 	}
 
 	notificationRequest := entity.Notification{
-		UserId: request.UserId,
-		Title:  strings.Title(request.Title),
-		Description: sql.NullString{
-			String: request.Description,
-			Valid:  true,
-		},
-		URL: sql.NullString{
-			String: request.URL,
-			Valid:  true,
-		},
-		IsRead:    false,
-		CreatedAt: timeNow,
+		UserId:      request.UserId,
+		Title:       strings.Title(request.Title),
+		Description: &request.Description,
+		URL:         &request.URL,
+		IsRead:      false,
+		CreatedAt:   timeNow,
 	}
 
 	notificationResponse, err := service.NotificationRepository.Create(ctx, tx, &notificationRequest)
@@ -111,11 +95,12 @@ func (service *NotificationServiceImpl) Create(ctx context.Context, request *mod
 		return nil
 	}
 
-	service.Notification = entity.NotificationRelation{
-		Notification: notificationRequest,
-		Name:         user.Name,
-		Email:        user.Email,
+	notificationRequest.User = &entity.User{
+		Name:  user.Name,
+		Email: user.Email,
 	}
+
+	service.Notification = &notificationRequest
 	return service
 }
 
@@ -151,9 +136,9 @@ func (service *NotificationServiceImpl) Mark(ctx context.Context, id int) error 
 
 func (service *NotificationServiceImpl) WithSendMail() error {
 	err := service.EmailService.SendEmailWithText(
-		service.Notification.Email,
-		service.Notification.Notification.Title,
-		service.Notification.Notification.Description.String,
+		service.Notification.User.Email,
+		service.Notification.Title,
+		service.Notification.Description,
 	)
 	if err != nil || service.Error != nil {
 		errors := fmt.Errorf("error: %s %s", err.Error(), service.Error.Error())
