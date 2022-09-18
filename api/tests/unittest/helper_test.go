@@ -1,8 +1,8 @@
 package unittest
 
 import (
-	"apriori/helper"
 	"fmt"
+	"github.com/arvians-id/apriori/helper"
 	"github.com/stretchr/testify/assert"
 	"testing"
 )

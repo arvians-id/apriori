@@ -1,9 +1,9 @@
 package repository
 
 import (
-	"apriori/entity"
 	"context"
 	"database/sql"
+	"github.com/arvians-id/apriori/entity"
 )
 
 type ProductRepository interface {

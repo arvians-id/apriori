@@ -1,12 +1,12 @@
 package service
 
 import (
-	"apriori/entity"
-	"apriori/helper"
-	"apriori/model"
-	"apriori/repository"
 	"context"
 	"database/sql"
+	"github.com/arvians-id/apriori/entity"
+	"github.com/arvians-id/apriori/helper"
+	"github.com/arvians-id/apriori/http/request"
+	"github.com/arvians-id/apriori/repository"
 	"time"
 )
 
@@ -58,7 +58,7 @@ func (service *TransactionServiceImpl) FindByNoTransaction(ctx context.Context, 
 	return transaction, nil
 }
 
-func (service *TransactionServiceImpl) Create(ctx context.Context, request *model.CreateTransactionRequest) (*entity.Transaction, error) {
+func (service *TransactionServiceImpl) Create(ctx context.Context, request *request.CreateTransactionRequest) (*entity.Transaction, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -113,7 +113,7 @@ func (service *TransactionServiceImpl) CreateByCsv(ctx context.Context, data [][
 	return nil
 }
 
-func (service *TransactionServiceImpl) Update(ctx context.Context, request *model.UpdateTransactionRequest) (*entity.Transaction, error) {
+func (service *TransactionServiceImpl) Update(ctx context.Context, request *request.UpdateTransactionRequest) (*entity.Transaction, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err

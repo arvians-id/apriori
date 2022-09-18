@@ -1,9 +1,9 @@
 package setup
 
 import (
-	"apriori/config"
-	"apriori/route"
 	"database/sql"
+	"github.com/arvians-id/apriori/config"
+	"github.com/arvians-id/apriori/route"
 	"github.com/gin-gonic/gin"
 )
 

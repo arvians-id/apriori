@@ -1,9 +1,9 @@
 package seeder
 
 import (
-	"apriori/database/faker"
-	"apriori/service"
 	"fmt"
+	"github.com/arvians-id/apriori/database/faker"
+	"github.com/arvians-id/apriori/service"
 	"time"
 )
 

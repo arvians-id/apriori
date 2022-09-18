@@ -1,13 +1,13 @@
 package service
 
 import (
-	"apriori/entity"
-	"apriori/helper"
-	"apriori/model"
-	"apriori/repository"
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/arvians-id/apriori/entity"
+	"github.com/arvians-id/apriori/helper"
+	"github.com/arvians-id/apriori/http/request"
+	"github.com/arvians-id/apriori/repository"
 	"strings"
 	"time"
 )
@@ -60,7 +60,7 @@ func (service *NotificationServiceImpl) FindAllByUserId(ctx context.Context, use
 	return notifications, nil
 }
 
-func (service *NotificationServiceImpl) Create(ctx context.Context, request *model.CreateNotificationRequest) *NotificationServiceImpl {
+func (service *NotificationServiceImpl) Create(ctx context.Context, request *request.CreateNotificationRequest) *NotificationServiceImpl {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		service.Error = err

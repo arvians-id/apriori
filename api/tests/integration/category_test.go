@@ -1,16 +1,16 @@
 package integration
 
 import (
-	"apriori/config"
-	"apriori/entity"
-	"apriori/helper"
-	repository "apriori/repository/postgres"
-	"apriori/service"
-	"apriori/tests/setup"
 	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/arvians-id/apriori/config"
+	"github.com/arvians-id/apriori/entity"
+	"github.com/arvians-id/apriori/helper"
+	repository "github.com/arvians-id/apriori/repository/postgres"
+	"github.com/arvians-id/apriori/service"
+	"github.com/arvians-id/apriori/tests/setup"
 	"github.com/gin-gonic/gin"
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"

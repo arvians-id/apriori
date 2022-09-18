@@ -1,11 +1,11 @@
 package service
 
 import (
-	"apriori/entity"
-	"apriori/helper"
-	"apriori/repository"
 	"context"
 	"database/sql"
+	"github.com/arvians-id/apriori/entity"
+	"github.com/arvians-id/apriori/helper"
+	"github.com/arvians-id/apriori/repository"
 )
 
 type UserOrderServiceImpl struct {

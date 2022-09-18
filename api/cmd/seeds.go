@@ -1,11 +1,11 @@
 package cmd
 
 import (
-	"apriori/config"
-	"apriori/database/seeder"
-	repository "apriori/repository/postgres"
-	"apriori/service"
 	"fmt"
+	"github.com/arvians-id/apriori/config"
+	"github.com/arvians-id/apriori/database/seeder"
+	repository "github.com/arvians-id/apriori/repository/postgres"
+	"github.com/arvians-id/apriori/service"
 	"github.com/spf13/cobra"
 )
 

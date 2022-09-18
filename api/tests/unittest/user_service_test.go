@@ -1,13 +1,13 @@
 package unittest
 
 import (
-	"apriori/app/response"
-	"apriori/entity"
-	"apriori/model"
-	repository "apriori/repository/mock"
-	"apriori/service"
 	"context"
 	"errors"
+	"github.com/arvians-id/apriori/entity"
+	"github.com/arvians-id/apriori/http/request"
+	"github.com/arvians-id/apriori/http/response"
+	repository "github.com/arvians-id/apriori/repository/mock"
+	"github.com/arvians-id/apriori/service"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/mock"
 	"golang.org/x/crypto/bcrypt"
@@ -101,7 +101,7 @@ func TestFindByEmail(t *testing.T) {
 		test := userRepository.Mock.On("FindByEmail", mock.Anything, "widdy@gmail.com").Return(nil, nil)
 
 		ctx := context.Background()
-		user, err := userService.FindByEmail(ctx, &model.GetUserCredentialRequest{
+		user, err := userService.FindByEmail(ctx, &request.GetUserCredentialRequest{
 			Email:    userRequest.Email,
 			Password: "Rahasia123.",
 		})
@@ -117,7 +117,7 @@ func TestFindByEmail(t *testing.T) {
 		test := userRepository.Mock.On("FindByEmail", mock.Anything, "widdy@gmail.com").Return(&userRequest, nil)
 
 		ctx := context.Background()
-		user, err := userService.FindByEmail(ctx, &model.GetUserCredentialRequest{
+		user, err := userService.FindByEmail(ctx, &request.GetUserCredentialRequest{
 			Email:    userRequest.Email,
 			Password: "Rahasia123.",
 		})
@@ -132,7 +132,7 @@ func TestCreate(t *testing.T) {
 	test := userRepository.Mock.On("Create", mock.Anything).Return(&userRequest, nil)
 
 	ctx := context.Background()
-	user, err := userService.Create(ctx, &model.CreateUserRequest{
+	user, err := userService.Create(ctx, &request.CreateUserRequest{
 		Name:     userRequest.Name,
 		Email:    userRequest.Email,
 		Address:  userRequest.Address,
@@ -152,7 +152,7 @@ func TestUpdate(t *testing.T) {
 		test2 := userRepository.Mock.On("Update", mock.Anything).Return(nil, nil)
 
 		ctx := context.Background()
-		user, err := userService.Update(ctx, &model.UpdateUserRequest{
+		user, err := userService.Update(ctx, &request.UpdateUserRequest{
 			IdUser:  1,
 			Role:    2,
 			Name:    "Arfiansyah",
@@ -180,7 +180,7 @@ func TestUpdate(t *testing.T) {
 		test2 := userRepository.Mock.On("Update", mock.Anything).Return(&userRequestUpdate, nil)
 
 		ctx := context.Background()
-		user, err := userService.Update(ctx, &model.UpdateUserRequest{
+		user, err := userService.Update(ctx, &request.UpdateUserRequest{
 			IdUser:  userRequestUpdate.IdUser,
 			Role:    userRequestUpdate.Role,
 			Name:    userRequestUpdate.Name,

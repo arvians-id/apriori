@@ -1,13 +1,13 @@
 package service
 
 import (
-	"apriori/entity"
-	"apriori/helper"
-	"apriori/model"
-	"apriori/repository"
 	"context"
 	"database/sql"
 	"errors"
+	"github.com/arvians-id/apriori/entity"
+	"github.com/arvians-id/apriori/helper"
+	"github.com/arvians-id/apriori/http/request"
+	"github.com/arvians-id/apriori/repository"
 	"golang.org/x/crypto/bcrypt"
 	"time"
 )
@@ -62,7 +62,7 @@ func (service *UserServiceImpl) FindById(ctx context.Context, id int) (*entity.U
 	return user, nil
 }
 
-func (service *UserServiceImpl) FindByEmail(ctx context.Context, request *model.GetUserCredentialRequest) (*entity.User, error) {
+func (service *UserServiceImpl) FindByEmail(ctx context.Context, request *request.GetUserCredentialRequest) (*entity.User, error) {
 	var tx *sql.Tx
 	if service.DB != nil {
 		transaction, err := service.DB.Begin()
@@ -86,7 +86,7 @@ func (service *UserServiceImpl) FindByEmail(ctx context.Context, request *model.
 	return user, nil
 }
 
-func (service *UserServiceImpl) Create(ctx context.Context, request *model.CreateUserRequest) (*entity.User, error) {
+func (service *UserServiceImpl) Create(ctx context.Context, request *request.CreateUserRequest) (*entity.User, error) {
 	var tx *sql.Tx
 	if service.DB != nil {
 		transaction, err := service.DB.Begin()
@@ -125,7 +125,7 @@ func (service *UserServiceImpl) Create(ctx context.Context, request *model.Creat
 	return user, nil
 }
 
-func (service *UserServiceImpl) Update(ctx context.Context, request *model.UpdateUserRequest) (*entity.User, error) {
+func (service *UserServiceImpl) Update(ctx context.Context, request *request.UpdateUserRequest) (*entity.User, error) {
 	var tx *sql.Tx
 	if service.DB != nil {
 		transaction, err := service.DB.Begin()

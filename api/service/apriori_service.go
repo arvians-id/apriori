@@ -1,13 +1,13 @@
 package service
 
 import (
-	"apriori/entity"
-	"apriori/helper"
-	"apriori/model"
-	"apriori/repository"
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/arvians-id/apriori/entity"
+	"github.com/arvians-id/apriori/helper"
+	"github.com/arvians-id/apriori/http/request"
+	"github.com/arvians-id/apriori/repository"
 	"math"
 	"os"
 	"strings"
@@ -116,7 +116,7 @@ func (service *AprioriServiceImpl) FindByCodeAndId(ctx context.Context, code str
 	}, nil
 }
 
-func (service *AprioriServiceImpl) Create(ctx context.Context, requests []*model.CreateAprioriRequest) error {
+func (service *AprioriServiceImpl) Create(ctx context.Context, requests []*request.CreateAprioriRequest) error {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return err
@@ -153,7 +153,7 @@ func (service *AprioriServiceImpl) Create(ctx context.Context, requests []*model
 	return nil
 }
 
-func (service *AprioriServiceImpl) Update(ctx context.Context, request *model.UpdateAprioriRequest) (*entity.Apriori, error) {
+func (service *AprioriServiceImpl) Update(ctx context.Context, request *request.UpdateAprioriRequest) (*entity.Apriori, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -231,7 +231,7 @@ func (service *AprioriServiceImpl) Delete(ctx context.Context, code string) erro
 	return nil
 }
 
-func (service *AprioriServiceImpl) Generate(ctx context.Context, request *model.GenerateAprioriRequest) ([]*entity.GenerateApriori, error) {
+func (service *AprioriServiceImpl) Generate(ctx context.Context, request *request.GenerateAprioriRequest) ([]*entity.GenerateApriori, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err

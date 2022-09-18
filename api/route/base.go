@@ -1,12 +1,12 @@
 package route
 
 import (
-	"apriori/app/controller"
-	"apriori/app/middleware"
-	"apriori/config"
-	repository "apriori/repository/postgres"
-	"apriori/service"
 	"database/sql"
+	"github.com/arvians-id/apriori/config"
+	"github.com/arvians-id/apriori/http/controller/rest"
+	"github.com/arvians-id/apriori/http/middleware"
+	repository "github.com/arvians-id/apriori/repository/postgres"
+	"github.com/arvians-id/apriori/service"
 	"github.com/gin-gonic/gin"
 	"io"
 	"log"
@@ -65,17 +65,17 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	commentService := service.NewCommentService(&commentRepository, &productRepository, db)
 
 	// Setup Controller
-	userController := controller.NewUserController(&userService)
-	authController := controller.NewAuthController(&userService, &jwtService, &emailService, &passwordResetService)
-	productController := controller.NewProductController(&productService, &storageService, &cacheService)
-	transactionController := controller.NewTransactionController(&transactionService, &storageService, &cacheService)
-	aprioriController := controller.NewAprioriController(aprioriService, &storageService, &cacheService)
-	paymentController := controller.NewPaymentController(&paymentService, &userOrderService, &emailService, &cacheService, &notificationService)
-	userOrderController := controller.NewUserOrderController(&paymentService, &userOrderService, &cacheService)
-	categoryController := controller.NewCategoryController(&categoryService, &cacheService)
-	commentController := controller.NewCommentController(&commentService)
-	rajaOngkirController := controller.NewRajaOngkirController()
-	notificationController := controller.NewNotificationController(&notificationService)
+	userController := rest.NewUserController(&userService)
+	authController := rest.NewAuthController(&userService, &jwtService, &emailService, &passwordResetService)
+	productController := rest.NewProductController(&productService, &storageService, &cacheService)
+	transactionController := rest.NewTransactionController(&transactionService, &storageService, &cacheService)
+	aprioriController := rest.NewAprioriController(aprioriService, &storageService, &cacheService)
+	paymentController := rest.NewPaymentController(&paymentService, &userOrderService, &emailService, &cacheService, &notificationService)
+	userOrderController := rest.NewUserOrderController(&paymentService, &userOrderService, &cacheService)
+	categoryController := rest.NewCategoryController(&categoryService, &cacheService)
+	commentController := rest.NewCommentController(&commentService)
+	rajaOngkirController := rest.NewRajaOngkirController()
+	notificationController := rest.NewNotificationController(&notificationService)
 
 	// CORS Middleware
 	router.Use(middleware.SetupCorsMiddleware())

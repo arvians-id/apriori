@@ -1,11 +1,11 @@
 package mock
 
 import (
-	"apriori/app/response"
-	"apriori/entity"
 	"context"
 	"database/sql"
 	"errors"
+	"github.com/arvians-id/apriori/entity"
+	"github.com/arvians-id/apriori/http/response"
 	"github.com/stretchr/testify/mock"
 )
 

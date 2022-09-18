@@ -1,12 +1,12 @@
 package service
 
 import (
-	"apriori/entity"
-	"apriori/helper"
-	"apriori/model"
-	"apriori/repository"
 	"context"
 	"database/sql"
+	"github.com/arvians-id/apriori/entity"
+	"github.com/arvians-id/apriori/helper"
+	"github.com/arvians-id/apriori/http/request"
+	"github.com/arvians-id/apriori/repository"
 	"strings"
 	"time"
 )
@@ -155,7 +155,7 @@ func (service *ProductServiceImpl) FindByCode(ctx context.Context, code string) 
 	return productResponse, nil
 }
 
-func (service *ProductServiceImpl) Create(ctx context.Context, request *model.CreateProductRequest) (*entity.Product, error) {
+func (service *ProductServiceImpl) Create(ctx context.Context, request *request.CreateProductRequest) (*entity.Product, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -191,7 +191,7 @@ func (service *ProductServiceImpl) Create(ctx context.Context, request *model.Cr
 	return productResponse, nil
 }
 
-func (service *ProductServiceImpl) Update(ctx context.Context, request *model.UpdateProductRequest) (*entity.Product, error) {
+func (service *ProductServiceImpl) Update(ctx context.Context, request *request.UpdateProductRequest) (*entity.Product, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err

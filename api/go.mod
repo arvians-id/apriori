@@ -1,4 +1,4 @@
-module apriori
+module github.com/arvians-id/apriori
 
 // +heroku goVersion go1.17
 go 1.17

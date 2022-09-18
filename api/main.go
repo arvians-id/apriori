@@ -1,10 +1,10 @@
 package main
 
 import (
-	"apriori/app/scheduler"
-	"apriori/cmd"
-	"apriori/config"
-	"apriori/route"
+	"github.com/arvians-id/apriori/cmd"
+	"github.com/arvians-id/apriori/config"
+	"github.com/arvians-id/apriori/route"
+	"github.com/arvians-id/apriori/scheduler"
 	"log"
 )
 

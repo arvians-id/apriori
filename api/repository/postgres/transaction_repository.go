@@ -1,10 +1,10 @@
 package postgres
 
 import (
-	"apriori/entity"
-	"apriori/repository"
 	"context"
 	"database/sql"
+	"github.com/arvians-id/apriori/entity"
+	"github.com/arvians-id/apriori/repository"
 	"log"
 	"strings"
 )

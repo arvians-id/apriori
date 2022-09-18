@@ -1,9 +1,9 @@
 package service
 
 import (
-	"apriori/config"
-	"apriori/helper"
 	"fmt"
+	"github.com/arvians-id/apriori/config"
+	"github.com/arvians-id/apriori/helper"
 	"github.com/aws/aws-sdk-go/aws"
 	"github.com/aws/aws-sdk-go/aws/credentials"
 	"github.com/aws/aws-sdk-go/aws/session"

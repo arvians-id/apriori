@@ -1,12 +1,12 @@
 package service
 
 import (
-	"apriori/entity"
-	"apriori/helper"
-	"apriori/model"
-	"apriori/repository"
 	"context"
 	"database/sql"
+	"github.com/arvians-id/apriori/entity"
+	"github.com/arvians-id/apriori/helper"
+	"github.com/arvians-id/apriori/http/request"
+	"github.com/arvians-id/apriori/repository"
 	"strings"
 	"time"
 )
@@ -101,7 +101,7 @@ func (service *CommentServiceImpl) FindByUserOrderId(ctx context.Context, userOr
 	return comment, nil
 }
 
-func (service *CommentServiceImpl) Create(ctx context.Context, request *model.CreateCommentRequest) (*entity.Comment, error) {
+func (service *CommentServiceImpl) Create(ctx context.Context, request *request.CreateCommentRequest) (*entity.Comment, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err

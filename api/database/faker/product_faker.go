@@ -1,11 +1,11 @@
 package faker
 
 import (
-	"apriori/helper"
-	"apriori/model"
-	"apriori/service"
 	"context"
 	"fmt"
+	"github.com/arvians-id/apriori/helper"
+	"github.com/arvians-id/apriori/http/request"
+	"github.com/arvians-id/apriori/service"
 	"github.com/brianvoe/gofakeit/v6"
 	"os"
 )
@@ -23,7 +23,7 @@ type Product struct {
 }
 
 type ProductFaker struct {
-	Product model.CreateProductRequest
+	Product request.CreateProductRequest
 }
 
 func NewProductFaker() *ProductFaker {
@@ -62,8 +62,8 @@ func (p *ProductFaker) SetImage(image string) *ProductFaker {
 	return p
 }
 
-func (p *ProductFaker) Seed(service service.ProductService) *model.CreateProductRequest {
-	_, _ = service.Create(context.Background(), &model.CreateProductRequest{
+func (p *ProductFaker) Seed(service service.ProductService) *request.CreateProductRequest {
+	_, _ = service.Create(context.Background(), &request.CreateProductRequest{
 		Code:        p.Product.Code,
 		Name:        p.Product.Name,
 		Price:       p.Product.Price,

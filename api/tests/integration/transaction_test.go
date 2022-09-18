@@ -1,15 +1,15 @@
 package integration
 
 import (
-	"apriori/config"
-	"apriori/entity"
-	repository "apriori/repository/postgres"
-	"apriori/service"
-	"apriori/tests/setup"
 	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/arvians-id/apriori/config"
+	"github.com/arvians-id/apriori/entity"
+	repository "github.com/arvians-id/apriori/repository/postgres"
+	"github.com/arvians-id/apriori/service"
+	"github.com/arvians-id/apriori/tests/setup"
 	"net/http"
 	"net/http/httptest"
 	"strings"

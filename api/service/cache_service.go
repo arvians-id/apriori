@@ -1,12 +1,12 @@
 package service
 
 import (
-	"apriori/config"
-	"apriori/helper"
 	"bytes"
 	"context"
 	"encoding/json"
 	"fmt"
+	"github.com/arvians-id/apriori/config"
+	"github.com/arvians-id/apriori/helper"
 	"github.com/go-redis/redis/v8"
 	"time"
 )

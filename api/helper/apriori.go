@@ -1,21 +1,21 @@
 package helper
 
 import (
-	"apriori/entity"
-	"apriori/model"
 	"fmt"
+	"github.com/arvians-id/apriori/entity"
+	"github.com/arvians-id/apriori/http/request"
 	"reflect"
 	"sort"
 	"strconv"
 	"strings"
 )
 
-func FindFirstItemSet(transactionsSet []*entity.Transaction, minimumSupport float64) ([]*model.GetProductNameTransactionResponse, map[string]float64, []string) {
+func FindFirstItemSet(transactionsSet []*entity.Transaction, minimumSupport float64) ([]*request.GetProductNameTransactionResponse, map[string]float64, []string) {
 	// Generate all product
-	var transactions []*model.GetProductNameTransactionResponse
+	var transactions []*request.GetProductNameTransactionResponse
 	for _, transaction := range transactionsSet {
 		productName := strings.Split(transaction.ProductName, ", ")
-		transactions = append(transactions, &model.GetProductNameTransactionResponse{
+		transactions = append(transactions, &request.GetProductNameTransactionResponse{
 			ProductName: productName,
 		})
 	}
@@ -118,7 +118,7 @@ func IsDuplicate(array []string) bool {
 	return false
 }
 
-func FindCandidate(data []string, transactions []*model.GetProductNameTransactionResponse) int {
+func FindCandidate(data []string, transactions []*request.GetProductNameTransactionResponse) int {
 	var counter int
 	for _, j := range transactions {
 		results := make([]string, 0) // slice to store the result

@@ -1,14 +1,14 @@
 package integration_test
 
 import (
-	"apriori/config"
-	"apriori/entity"
-	repository "apriori/repository/postgres"
-	"apriori/tests/setup"
 	"context"
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/arvians-id/apriori/config"
+	"github.com/arvians-id/apriori/entity"
+	repository "github.com/arvians-id/apriori/repository/postgres"
+	"github.com/arvians-id/apriori/tests/setup"
 	"strings"
 	"time"
 

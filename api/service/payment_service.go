@@ -1,14 +1,14 @@
 package service
 
 import (
-	"apriori/config"
-	"apriori/entity"
-	"apriori/helper"
-	"apriori/model"
-	"apriori/repository"
 	"context"
 	"database/sql"
 	"encoding/json"
+	"github.com/arvians-id/apriori/config"
+	"github.com/arvians-id/apriori/entity"
+	"github.com/arvians-id/apriori/helper"
+	"github.com/arvians-id/apriori/http/request"
+	"github.com/arvians-id/apriori/repository"
 	"github.com/veritrans/go-midtrans"
 	"reflect"
 	"strings"
@@ -103,7 +103,7 @@ func (service *PaymentServiceImpl) FindByOrderId(ctx context.Context, orderId st
 	return payment, nil
 }
 
-func (service *PaymentServiceImpl) CreateOrUpdate(ctx context.Context, request map[string]interface{}) error {
+func (service *PaymentServiceImpl) CreateOrUpdate(ctx context.Context, requestPayment map[string]interface{}) error {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return err
@@ -112,38 +112,38 @@ func (service *PaymentServiceImpl) CreateOrUpdate(ctx context.Context, request m
 
 	var bankType, vaNumber, billerCode, billKey, settlementTime string
 
-	if request["va_numbers"] != nil {
-		bankType = request["va_numbers"].([]interface{})[0].(map[string]interface{})["bank"].(string)
-		vaNumber = request["va_numbers"].([]interface{})[0].(map[string]interface{})["va_number"].(string)
-	} else if request["permata_va_number"] != nil {
+	if requestPayment["va_numbers"] != nil {
+		bankType = requestPayment["va_numbers"].([]interface{})[0].(map[string]interface{})["bank"].(string)
+		vaNumber = requestPayment["va_numbers"].([]interface{})[0].(map[string]interface{})["va_number"].(string)
+	} else if requestPayment["permata_va_number"] != nil {
 		bankType = "permata bank"
-		vaNumber = request["permata_va_number"].(string)
-	} else if request["biller_code"] != nil && request["bill_key"] != nil {
-		billerCode = request["biller_code"].(string)
-		billKey = request["bill_key"].(string)
+		vaNumber = requestPayment["permata_va_number"].(string)
+	} else if requestPayment["biller_code"] != nil && requestPayment["bill_key"] != nil {
+		billerCode = requestPayment["biller_code"].(string)
+		billKey = requestPayment["bill_key"].(string)
 		bankType = "mandiri"
 	}
 
-	setTime, ok := request["settlement_time"]
+	setTime, ok := requestPayment["settlement_time"]
 	if ok {
 		settlementTime = setTime.(string)
 	} else {
 		settlementTime = ""
 	}
 
-	orderID := request["order_id"].(string)
-	transactionTime := request["transaction_time"].(string)
-	transactionStatus := request["transaction_status"].(string)
-	transactionId := request["transaction_id"].(string)
-	statusCode := request["status_code"].(string)
-	signatureKey := request["signature_key"].(string)
-	paymentType := request["payment_type"].(string)
-	merchantId := request["merchant_id"].(string)
-	grossAmount := request["gross_amount"].(string)
-	fraudStatus := request["fraud_status"].(string)
+	orderID := requestPayment["order_id"].(string)
+	transactionTime := requestPayment["transaction_time"].(string)
+	transactionStatus := requestPayment["transaction_status"].(string)
+	transactionId := requestPayment["transaction_id"].(string)
+	statusCode := requestPayment["status_code"].(string)
+	signatureKey := requestPayment["signature_key"].(string)
+	paymentType := requestPayment["payment_type"].(string)
+	merchantId := requestPayment["merchant_id"].(string)
+	grossAmount := requestPayment["gross_amount"].(string)
+	fraudStatus := requestPayment["fraud_status"].(string)
 
-	checkTransaction, _ := service.PaymentRepository.FindByOrderId(ctx, tx, request["order_id"].(string))
-	checkTransaction.UserId = request["custom_field1"].(string)
+	checkTransaction, _ := service.PaymentRepository.FindByOrderId(ctx, tx, requestPayment["order_id"].(string))
+	checkTransaction.UserId = requestPayment["custom_field1"].(string)
 	checkTransaction.OrderId = &orderID
 	checkTransaction.TransactionTime = &transactionTime
 	checkTransaction.TransactionStatus = &transactionStatus
@@ -166,13 +166,13 @@ func (service *PaymentServiceImpl) CreateOrUpdate(ctx context.Context, request m
 			return err
 		}
 
-		if request["transaction_status"].(string) == "settlement" {
+		if requestPayment["transaction_status"].(string) == "settlement" {
 			timeNow, err := time.Parse(helper.TimeFormat, time.Now().Format(helper.TimeFormat))
 			if err != nil {
 				return err
 			}
 
-			userOrder, err := service.UserOrderRepository.FindAllByPayloadId(ctx, tx, request["custom_field2"].(string))
+			userOrder, err := service.UserOrderRepository.FindAllByPayloadId(ctx, tx, requestPayment["custom_field2"].(string))
 			if err != nil {
 				return err
 			}
@@ -184,8 +184,8 @@ func (service *PaymentServiceImpl) CreateOrUpdate(ctx context.Context, request m
 
 			transaction := entity.Transaction{
 				ProductName:   strings.ToLower(strings.Join(productName, ", ")),
-				CustomerName:  request["custom_field3"].(string),
-				NoTransaction: request["order_id"].(string),
+				CustomerName:  requestPayment["custom_field3"].(string),
+				NoTransaction: requestPayment["order_id"].(string),
 				CreatedAt:     timeNow,
 				UpdatedAt:     timeNow,
 			}
@@ -195,7 +195,7 @@ func (service *PaymentServiceImpl) CreateOrUpdate(ctx context.Context, request m
 				return err
 			}
 
-			var notificationRequest model.CreateNotificationRequest
+			var notificationRequest request.CreateNotificationRequest
 			notificationRequest.UserId = helper.StrToInt(checkTransaction.UserId)
 			notificationRequest.Title = "Transaction Successfully"
 			notificationRequest.Description = "You have successfully made a payment. Thank you for shopping at Ryzy Shop"
@@ -210,7 +210,7 @@ func (service *PaymentServiceImpl) CreateOrUpdate(ctx context.Context, request m
 	return nil
 }
 
-func (service *PaymentServiceImpl) UpdateReceiptNumber(ctx context.Context, request *model.AddReceiptNumberRequest) (*entity.Payment, error) {
+func (service *PaymentServiceImpl) UpdateReceiptNumber(ctx context.Context, request *request.AddReceiptNumberRequest) (*entity.Payment, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -251,7 +251,7 @@ func (service *PaymentServiceImpl) Delete(ctx context.Context, orderId string) e
 
 	return nil
 }
-func (service *PaymentServiceImpl) GetToken(ctx context.Context, request *model.GetPaymentTokenRequest) (map[string]interface{}, error) {
+func (service *PaymentServiceImpl) GetToken(ctx context.Context, request *request.GetPaymentTokenRequest) (map[string]interface{}, error) {
 	service.GetClient()
 
 	var items []map[string]interface{}
