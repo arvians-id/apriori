@@ -4,8 +4,8 @@ CREATE TABLE IF NOT EXISTS notifications (
     `title` VARCHAR(100) NOT NULL,
     `description` TEXT,
     `url` VARCHAR(200),
-    `created_at` TIMESTAMP,
     `is_read` TINYINT(1) NOT NULL DEFAULT 0,
+    `created_at` TIMESTAMP,
     PRIMARY KEY (`id_notification`),
     FOREIGN KEY (`user_id`) REFERENCES users(`id_user`) ON DELETE RESTRICT ON UPDATE CASCADE
 )

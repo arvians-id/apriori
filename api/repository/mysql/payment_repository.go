@@ -15,7 +15,7 @@ func NewPaymentRepository() repository.PaymentRepository {
 	return &PaymentRepositoryImpl{}
 }
 
-func (repository *PaymentRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) ([]*entity.PaymentRelation, error) {
+func (repository *PaymentRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) ([]*entity.Payment, error) {
 	query := `SELECT payloads.*,users.name 
 			  FROM payloads
 			  	LEFT JOIN users ON users.id_user = payloads.user_id
@@ -32,32 +32,34 @@ func (repository *PaymentRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx
 		}
 	}(rows)
 
-	var payments []*entity.PaymentRelation
+	var payments []*entity.Payment
 	for rows.Next() {
-		var payment entity.PaymentRelation
+		payment := entity.Payment{
+			User: &entity.User{},
+		}
 		err := rows.Scan(
-			&payment.Payment.IdPayload,
-			&payment.Payment.UserId,
-			&payment.Payment.OrderId,
-			&payment.Payment.TransactionTime,
-			&payment.Payment.TransactionStatus,
-			&payment.Payment.TransactionId,
-			&payment.Payment.StatusCode,
-			&payment.Payment.SignatureKey,
-			&payment.Payment.SettlementTime,
-			&payment.Payment.PaymentType,
-			&payment.Payment.MerchantId,
-			&payment.Payment.GrossAmount,
-			&payment.Payment.FraudStatus,
-			&payment.Payment.BankType,
-			&payment.Payment.VANumber,
-			&payment.Payment.BillerCode,
-			&payment.Payment.BillKey,
-			&payment.Payment.ReceiptNumber,
-			&payment.Payment.Address,
-			&payment.Payment.Courier,
-			&payment.Payment.CourierService,
-			&payment.UserName,
+			&payment.IdPayload,
+			&payment.UserId,
+			&payment.OrderId,
+			&payment.TransactionTime,
+			&payment.TransactionStatus,
+			&payment.TransactionId,
+			&payment.StatusCode,
+			&payment.SignatureKey,
+			&payment.SettlementTime,
+			&payment.PaymentType,
+			&payment.MerchantId,
+			&payment.GrossAmount,
+			&payment.FraudStatus,
+			&payment.BankType,
+			&payment.VANumber,
+			&payment.BillerCode,
+			&payment.BillKey,
+			&payment.ReceiptNumber,
+			&payment.Address,
+			&payment.Courier,
+			&payment.CourierService,
+			&payment.User.Name,
 		)
 		if err != nil {
 			return nil, err
@@ -254,7 +256,7 @@ func (repository *PaymentRepositoryImpl) UpdateReceiptNumber(ctx context.Context
 	return nil
 }
 
-func (repository *PaymentRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, orderId string) error {
+func (repository *PaymentRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, orderId *string) error {
 	query := "DELETE FROM payloads WHERE order_id = ?"
 	_, err := tx.ExecContext(ctx, query, orderId)
 	if err != nil {

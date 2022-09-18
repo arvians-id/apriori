@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS `apriories` (
     `support` DECIMAL(6,2) NOT NULL,
     `confidence` DECIMAL(6,2) NOT NULL,
     `range_date` VARCHAR(50) NOT NULL,
-    `is_active` TINYINT(1) NOT NULL,
+    `is_active` TINYINT(1) NOT NULL DEFAULT 0,
     `description` TEXT,
     `image` TEXT,
     `created_at` TIMESTAMP,

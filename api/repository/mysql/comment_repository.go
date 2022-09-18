@@ -73,7 +73,13 @@ func (repository *CommentRepositoryImpl) FindAllByProductCode(ctx context.Contex
 
 	var comments []*entity.Comment
 	for rows.Next() {
-		var comment entity.Comment
+		comment := entity.Comment{
+			UserOrder: &entity.UserOrder{
+				Payment: &entity.Payment{
+					User: &entity.User{},
+				},
+			},
+		}
 		err := rows.Scan(
 			&comment.IdComment,
 			&comment.UserOrderId,
@@ -82,8 +88,8 @@ func (repository *CommentRepositoryImpl) FindAllByProductCode(ctx context.Contex
 			&comment.Tag,
 			&comment.Rating,
 			&comment.CreatedAt,
-			&comment.UserId,
-			&comment.UserName,
+			&comment.UserOrder.Payment.User.IdUser,
+			&comment.UserOrder.Payment.User.Name,
 		)
 		if err != nil {
 			return nil, err
@@ -104,7 +110,13 @@ func (repository *CommentRepositoryImpl) FindById(ctx context.Context, tx *sql.T
 			  WHERE c.id_comment = ?`
 	row := tx.QueryRowContext(ctx, query, id)
 
-	var comment entity.Comment
+	comment := entity.Comment{
+		UserOrder: &entity.UserOrder{
+			Payment: &entity.Payment{
+				User: &entity.User{},
+			},
+		},
+	}
 	err := row.Scan(
 		&comment.IdComment,
 		&comment.UserOrderId,
@@ -113,8 +125,8 @@ func (repository *CommentRepositoryImpl) FindById(ctx context.Context, tx *sql.T
 		&comment.Tag,
 		&comment.Rating,
 		&comment.CreatedAt,
-		&comment.UserId,
-		&comment.UserName,
+		&comment.UserOrder.Payment.User.IdUser,
+		&comment.UserOrder.Payment.User.Name,
 	)
 	if err != nil {
 		return nil, err
@@ -132,7 +144,13 @@ func (repository *CommentRepositoryImpl) FindByUserOrderId(ctx context.Context, 
 			  WHERE c.user_order_id = ?`
 	row := tx.QueryRowContext(ctx, query, userOrderId)
 
-	var comment entity.Comment
+	comment := entity.Comment{
+		UserOrder: &entity.UserOrder{
+			Payment: &entity.Payment{
+				User: &entity.User{},
+			},
+		},
+	}
 	err := row.Scan(
 		&comment.IdComment,
 		&comment.UserOrderId,
@@ -141,8 +159,8 @@ func (repository *CommentRepositoryImpl) FindByUserOrderId(ctx context.Context, 
 		&comment.Tag,
 		&comment.Rating,
 		&comment.CreatedAt,
-		&comment.UserId,
-		&comment.UserName,
+		&comment.UserOrder.Payment.User.IdUser,
+		&comment.UserOrder.Payment.User.Name,
 	)
 	if err != nil {
 		return nil, err

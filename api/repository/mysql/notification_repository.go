@@ -15,7 +15,7 @@ func NewNotificationRepository() repository.NotificationRepository {
 	return &NotificationRepositoryImpl{}
 }
 
-func (repository *NotificationRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) ([]*entity.NotificationRelation, error) {
+func (repository *NotificationRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) ([]*entity.Notification, error) {
 	query := `SELECT n.*, u.name, u.email FROM notifications n LEFT JOIN users u ON u.id_user = n.user_id ORDER BY n.created_at DESC`
 	rows, err := tx.QueryContext(ctx, query)
 	if err != nil {
@@ -29,19 +29,19 @@ func (repository *NotificationRepositoryImpl) FindAll(ctx context.Context, tx *s
 		}
 	}(rows)
 
-	var notifications []*entity.NotificationRelation
+	var notifications []*entity.Notification
 	for rows.Next() {
-		var notification entity.NotificationRelation
+		var notification entity.Notification
 		err = rows.Scan(
-			&notification.Notification.IdNotification,
-			&notification.Notification.UserId,
-			&notification.Notification.Title,
-			&notification.Notification.Description,
-			&notification.Notification.URL,
-			&notification.Notification.IsRead,
-			&notification.Notification.CreatedAt,
-			&notification.Name,
-			&notification.Email,
+			&notification.IdNotification,
+			&notification.UserId,
+			&notification.Title,
+			&notification.Description,
+			&notification.URL,
+			&notification.IsRead,
+			&notification.CreatedAt,
+			&notification.User.Name,
+			&notification.User.Email,
 		)
 		if err != nil {
 			return nil, err

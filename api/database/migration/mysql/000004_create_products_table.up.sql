@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS `products` (
     `description` TEXT,
     `price` INTEGER NOT NULL,
     `category` VARCHAR(100) NOT NULL,
-    `is_empty` TINYINT(1) NOT NULL,
+    `is_empty` TINYINT(1) NOT NULL DEFAULT 0,
     `mass` INTEGER NOT NULL,
     `image` TEXT,
     `created_at` TIMESTAMP,

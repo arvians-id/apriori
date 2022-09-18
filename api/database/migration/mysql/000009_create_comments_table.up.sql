@@ -1,7 +1,7 @@
 CREATE TABLE IF NOT EXISTS `comments` (
     `id_comment` BIGINT(20) UNSIGNED NOT NULL AUTO_INCREMENT,
     `user_order_id` BIGINT(20) UNSIGNED NOT NULL,
-    `product_code` VARCHAR(10),
+    `product_code` VARCHAR(10) NOT NULL,
     `description` TEXT,
     `tag` VARCHAR(200),
     `rating` INTEGER NOT NULL,
