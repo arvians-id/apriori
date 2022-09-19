@@ -154,7 +154,7 @@ var _ = Describe("Transaction API", func() {
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("created"))
-				Expect(responseBody["data"].(map[string]interface{})["product_name"]).To(Equal("Kasur cinta, Bantal memori"))
+				Expect(responseBody["data"].(map[string]interface{})["product_name"]).To(Equal("kasur cinta, bantal memori"))
 				Expect(responseBody["data"].(map[string]interface{})["customer_name"]).To(Equal("Wids"))
 			})
 		})
@@ -199,7 +199,7 @@ var _ = Describe("Transaction API", func() {
 					tx, _ := database.Begin()
 					transactionRepository := repository.NewTransactionRepository()
 					row, _ := transactionRepository.Create(context.Background(), tx, &entity.Transaction{
-						ProductName:   "Kasur cinta, Bantal memori",
+						ProductName:   "kasur cinta, bantal memori",
 						CustomerName:  "Wids",
 						NoTransaction: "202320",
 						CreatedAt:     time.Now(),
@@ -268,7 +268,7 @@ var _ = Describe("Transaction API", func() {
 				tx, _ := database.Begin()
 				transactionRepository := repository.NewTransactionRepository()
 				row, _ := transactionRepository.Create(context.Background(), tx, &entity.Transaction{
-					ProductName:   "Kasur cinta, Bantal memori",
+					ProductName:   "kasur cinta, bantal memori",
 					CustomerName:  "Wids",
 					NoTransaction: "202320",
 					CreatedAt:     time.Now(),
@@ -292,7 +292,8 @@ var _ = Describe("Transaction API", func() {
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("updated"))
-				Expect(responseBody["data"].(map[string]interface{})["product_name"]).ShouldNot(Equal("Kasur cinta, Bantal memori"))
+				Expect(responseBody["data"].(map[string]interface{})["product_name"]).To(Equal("guling cinta, guling memori"))
+				Expect(responseBody["data"].(map[string]interface{})["product_name"]).ShouldNot(Equal("kasur cinta, bantal memori"))
 				Expect(responseBody["data"].(map[string]interface{})["customer_name"]).ShouldNot(Equal("Wids"))
 			})
 		})
@@ -325,7 +326,7 @@ var _ = Describe("Transaction API", func() {
 				tx, _ := database.Begin()
 				transactionRepository := repository.NewTransactionRepository()
 				row, _ := transactionRepository.Create(context.Background(), tx, &entity.Transaction{
-					ProductName:   "Kasur cinta, Bantal memori",
+					ProductName:   "kasur cinta, bantal memori",
 					CustomerName:  "Wids",
 					NoTransaction: "202320",
 					CreatedAt:     time.Now(),
@@ -381,13 +382,13 @@ var _ = Describe("Transaction API", func() {
 				tx, _ := database.Begin()
 				transactionRepository := repository.NewTransactionRepository()
 				transaction1, _ := transactionRepository.Create(context.Background(), tx, &entity.Transaction{
-					ProductName:  "Kasur cinta, Bantal memori",
+					ProductName:  "kasur cinta, bantal memori",
 					CustomerName: "Wids",
 					CreatedAt:    time.Now(),
 					UpdatedAt:    time.Now(),
 				})
 				transaction2, _ := transactionRepository.Create(context.Background(), tx, &entity.Transaction{
-					ProductName:  "Guling cinta, Guling memori",
+					ProductName:  "guling cinta, guling memori",
 					CustomerName: "Goengs",
 					CreatedAt:    time.Now(),
 					UpdatedAt:    time.Now(),
@@ -447,7 +448,7 @@ var _ = Describe("Transaction API", func() {
 				tx, _ := database.Begin()
 				transactionRepository := repository.NewTransactionRepository()
 				row, _ := transactionRepository.Create(context.Background(), tx, &entity.Transaction{
-					ProductName:   "Kasur cinta, Bantal memori",
+					ProductName:   "kasur cinta, bantal memori",
 					CustomerName:  "Wids",
 					NoTransaction: "202320",
 					CreatedAt:     time.Now(),
@@ -470,7 +471,7 @@ var _ = Describe("Transaction API", func() {
 
 				Expect(int(responseBody["code"].(float64))).To(Equal(http.StatusOK))
 				Expect(responseBody["status"]).To(Equal("OK"))
-				Expect(responseBody["data"].(map[string]interface{})["product_name"]).To(Equal("Kasur cinta, Bantal memori"))
+				Expect(responseBody["data"].(map[string]interface{})["product_name"]).To(Equal("kasur cinta, bantal memori"))
 				Expect(responseBody["data"].(map[string]interface{})["customer_name"]).To(Equal("Wids"))
 			})
 		})
@@ -483,7 +484,7 @@ var _ = Describe("Transaction API", func() {
 				tx, _ := database.Begin()
 				transactionRepository := repository.NewTransactionRepository()
 				_, _ = transactionRepository.Create(context.Background(), tx, &entity.Transaction{
-					ProductName:   "Kasur cinta, Bantal memori",
+					ProductName:   "kasur cinta, bantal memori",
 					CustomerName:  "Wids",
 					NoTransaction: "202320",
 					CreatedAt:     time.Now(),

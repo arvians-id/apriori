@@ -7,6 +7,7 @@ import (
 	"github.com/arvians-id/apriori/helper"
 	"github.com/arvians-id/apriori/http/request"
 	"github.com/arvians-id/apriori/repository"
+	"strings"
 	"time"
 )
 
@@ -71,7 +72,7 @@ func (service *TransactionServiceImpl) Create(ctx context.Context, request *requ
 	}
 
 	transactionRequest := entity.Transaction{
-		ProductName:   request.ProductName,
+		ProductName:   strings.ToLower(request.ProductName),
 		CustomerName:  request.CustomerName,
 		NoTransaction: helper.CreateTransaction(),
 		CreatedAt:     timeNow,
@@ -131,7 +132,7 @@ func (service *TransactionServiceImpl) Update(ctx context.Context, request *requ
 		return nil, err
 	}
 
-	transaction.ProductName = request.ProductName
+	transaction.ProductName = strings.ToLower(request.ProductName)
 	transaction.CustomerName = request.CustomerName
 	transaction.NoTransaction = request.NoTransaction
 	transaction.UpdatedAt = timeNow

@@ -226,6 +226,8 @@ export default {
       if (this.comment.tag.length > 0) {
         let tag = this.comment.tag
         this.comment.tag = tag.join(", ")
+      } else {
+        this.comment.tag = ""
       }
       this.comment.rating = parseInt(this.comment.rating)
 

@@ -29,21 +29,21 @@
                     <input type="text" class="form-control" v-model="product.name" required>
                   </div>
                   <div class="form-group">
-                    <label class="form-control-label">Price</label>
+                    <label class="form-control-label">Price</label> <small class="text-danger">*</small>
                     <input type="number" class="form-control" v-model="product.price" required>
                   </div>
                   <div class="form-group">
                     <label class="form-control-label">Category Name</label> <small class="text-danger">*use ctrl for selecting the category</small>
                     <select class="form-control" v-model="product.category" multiple required>
-                      <option v-for="(category, i) in categories" :value="category.name" :key="i">{{ category.name }}</option>
+                      <option v-for="(category, i) in categories" :value="category.name" :selected="product.category.includes(category.name)" :key="i">{{ category.name }}</option>
                     </select>
                   </div>
                   <div class="form-group">
-                    <label class="form-control-label">Mass (gram)</label>
+                    <label class="form-control-label">Mass (gram)</label> <small class="text-danger">*</small>
                     <input type="number" class="form-control" v-model="product.mass" required>
                   </div>
                   <div class="form-group">
-                    <label class="form-control-label">Status</label>
+                    <label class="form-control-label">Status</label> <small class="text-danger">*</small>
                     <select class="form-control" v-model="product.is_empty" required>
                       <option value="" disabled selected>Select</option>
                       <option value="false" :selected="product.is_empty === false">Activate</option>
@@ -160,7 +160,7 @@ export default {
         this.product = {
           name: response.data.data.name,
           price: response.data.data.price,
-          category: response.data.data.category,
+          category: response.data.data.category.split(", "),
           mass: response.data.data.mass,
           is_empty: response.data.data.is_empty,
           description: response.data.data.description,

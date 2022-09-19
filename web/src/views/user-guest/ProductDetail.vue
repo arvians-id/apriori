@@ -254,7 +254,7 @@
                               <div class="mb-2">
                                 <i class="fas fa-star text-warning" v-for="itemRating in item.rating" :key="itemRating"></i>
                               </div>
-                              <template v-if="item.tag !== undefined">
+                              <template v-if="item.tag !== ''">
                                 <button class="btn btn-dark btn-sm disabled mb-2" v-for="(item, i) in item.tag.split(',')" :key="i">{{ item }}</button>
                               </template>
                               <p>{{ item.description }}</p>

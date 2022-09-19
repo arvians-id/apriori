@@ -156,7 +156,6 @@ func (controller *TransactionController) Update(c *gin.Context) {
 	}
 
 	noTransactionParam := c.Param("number_transaction")
-
 	requestUpdate.NoTransaction = noTransactionParam
 	transaction, err := controller.TransactionService.Update(c.Request.Context(), &requestUpdate)
 	if err != nil {

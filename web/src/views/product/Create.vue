@@ -30,7 +30,7 @@
                     <input type="text" class="form-control" v-model="product.name" required>
                   </div>
                    <div class="form-group">
-                     <label class="form-control-label">Price</label>
+                     <label class="form-control-label">Price</label> <small class="text-danger">*</small>
                      <input type="number" class="form-control" v-model="product.price" required>
                    </div>
                    <div class="form-group">
@@ -40,7 +40,7 @@
                      </select>
                    </div>
                    <div class="form-group">
-                     <label class="form-control-label">Mass (gram)</label>
+                     <label class="form-control-label">Mass (gram)</label> <small class="text-danger">*</small>
                      <input type="number" class="form-control" v-model="product.mass" required>
                    </div>
                   <div class="form-group">

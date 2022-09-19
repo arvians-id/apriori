@@ -27,7 +27,7 @@
                   <div class="form-group">
                     <label class="form-control-label">Product Name</label> <small class="text-danger">*use ctrl for selecting the product</small>
                     <select multiple class="form-control" v-model="transaction.product_name">
-                      <option v-for="(item) in products" :key="item.id_product">{{ item.name }}</option>
+                      <option v-for="(item) in products" :key="item.id_product" :selected="transaction.product_name.includes(item.name.toLowerCase())">{{ item.name.toLowerCase() }}</option>
                     </select>
                   </div>
                   <div class="form-group">
