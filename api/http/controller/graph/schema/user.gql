@@ -1,0 +1,13 @@
+type User {
+    id_user: ID!
+    role: Int!
+    name: String!
+    email: String!
+    address: String!
+    phone: String!
+    password: String!
+    created_at: String!
+    updated_at: String!
+    notification: [Notification!]!
+    payment: [Payment!]!
+}

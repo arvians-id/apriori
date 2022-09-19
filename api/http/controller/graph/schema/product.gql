@@ -1,0 +1,39 @@
+type Product {
+    id_product: ID!
+    code: String!
+    name: String!
+    description: String
+    price: Int!
+    category: String!
+    is_empty: Boolean!
+    mass: Int!
+    image: String
+    created_at: String!
+    updated_at: String!
+}
+
+type ProductRecommendation {
+    apriori_id: ID!
+    apriori_code: String!
+    apriori_item: String!
+    apriori_discount: Float!
+    product_total_price: Int!
+    price_discount: Int!
+    apriori_image: String
+    mass: Int!
+    apriori_description: String
+}
+
+input NewProduct {
+    code: String! @binding(constraint: "required,min=2,max=10")
+    name: String! @binding(constraint: "required,min=6,max=100")
+    description: String @binding(constraint: "omitempty,max=256")
+    price: Int! @binding(constraint: "required,min=0")
+    category: String! @binding(constraint: "required,max=100")
+    mass: Int!
+    image: String
+}
+
+directive @binding(
+    constraint: String!
+) on INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION

@@ -301,8 +301,8 @@ func (service *AprioriServiceImpl) Generate(ctx context.Context, request *reques
 				apriori = append(apriori, &entity.GenerateApriori{
 					ItemSet:     dataTemp[i],
 					Support:     math.Round(result*100) / 100,
-					Iterate:     int32(iterate) + 2,
-					Transaction: int32(countCandidates),
+					Iterate:     iterate + 2,
+					Transaction: countCandidates,
 					Description: "Eligible",
 					RangeDate:   request.StartDate + " - " + request.EndDate,
 				})
@@ -310,8 +310,8 @@ func (service *AprioriServiceImpl) Generate(ctx context.Context, request *reques
 				apriori = append(apriori, &entity.GenerateApriori{
 					ItemSet:     dataTemp[i],
 					Support:     math.Round(result*100) / 100,
-					Iterate:     int32(iterate) + 2,
-					Transaction: int32(countCandidates),
+					Iterate:     iterate + 2,
+					Transaction: countCandidates,
 					Description: "Not Eligible",
 					RangeDate:   request.StartDate + " - " + request.EndDate,
 				})
@@ -330,7 +330,7 @@ func (service *AprioriServiceImpl) Generate(ctx context.Context, request *reques
 
 		var checkClean bool
 		for _, value := range apriori {
-			if value.Iterate == int32(iterate)+2 && value.Description == "Eligible" {
+			if value.Iterate == iterate+2 && value.Description == "Eligible" {
 				checkClean = true
 				break
 			}
@@ -338,14 +338,14 @@ func (service *AprioriServiceImpl) Generate(ctx context.Context, request *reques
 
 		countIterate := 0
 		for i := 0; i < len(apriori); i++ {
-			if apriori[i].Iterate == int32(iterate)+2 {
+			if apriori[i].Iterate == iterate+2 {
 				countIterate++
 			}
 		}
 
 		if checkClean == false {
 			for i := 0; i < len(apriori); i++ {
-				if apriori[i].Iterate == int32(iterate)+2 {
+				if apriori[i].Iterate == iterate+2 {
 					apriori = append(apriori[:i], apriori[i+countIterate:]...)
 				}
 			}
@@ -353,7 +353,7 @@ func (service *AprioriServiceImpl) Generate(ctx context.Context, request *reques
 		}
 
 		// if nothing else is sent to the candidate, then break it
-		if int32(iterate)+2 > apriori[len(apriori)-1].Iterate {
+		if iterate+2 > apriori[len(apriori)-1].Iterate {
 			break
 		}
 

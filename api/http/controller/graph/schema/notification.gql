@@ -1,0 +1,10 @@
+type Notification {
+    id_notification: ID!
+    user_id: ID!
+    title: String!
+    description: String
+    url: String
+    is_read: Boolean!
+    created_at: String!
+    user: User!
+}

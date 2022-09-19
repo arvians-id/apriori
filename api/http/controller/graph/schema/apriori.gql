@@ -1,0 +1,26 @@
+type Apriori {
+    id_apriori: ID!
+    code: String!
+    item: String!
+    discount: Float!
+    support: Float!
+    confidence: Float!
+    range_date: String!
+    is_active: Boolean!
+    description: String
+    mass: Int!
+    image: String
+    created_at: String!
+    user_order: UserOrder!
+}
+
+type GenerateApriori {
+    item_set : [String!]!
+    support: Float!
+    iterate: Int!
+    transaction: Int!
+    confidence: Float!
+    discount: Float!
+    description: String!
+    range_date: String!
+}

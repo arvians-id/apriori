@@ -1,0 +1,6 @@
+type Category {
+    id_category: ID!
+    name: String!
+    created_at: String!
+    updated_at: String!
+}

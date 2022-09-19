@@ -49,10 +49,10 @@ func FindFirstItemSet(transactionsSet []*entity.Transaction, minimumSupport floa
 
 	return transactions, productName, propertyProduct
 }
-func HandleMapsProblem(propertyProduct []string, minSupport float64) ([]string, []float64, []int32, []string, []string) {
+func HandleMapsProblem(propertyProduct []string, minSupport float64) ([]string, []float64, []int, []string, []string) {
 	var oneSet []string
 	var support []float64
-	var totalTransaction []int32
+	var totalTransaction []int
 	var checkEligible []string
 	var cleanSet []string
 
@@ -77,7 +77,7 @@ func HandleMapsProblem(propertyProduct []string, minSupport float64) ([]string, 
 
 		// Convert and insert total transaction
 		transactionNumber, _ := strconv.Atoi(isEligible[0])
-		totalTransaction = append(totalTransaction, int32(transactionNumber))
+		totalTransaction = append(totalTransaction, transactionNumber)
 
 		// Check Is Eligible
 		checkEligible = append(checkEligible, isEligible[1])

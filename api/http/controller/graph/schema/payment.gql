@@ -1,0 +1,25 @@
+type Payment {
+    id_payload: ID!
+    user_id: String!
+    order_id: String
+    transaction_time: String
+    transaction_status: String
+    transaction_id: String
+    status_code: String
+    signature_key: String
+    settlement_time: String
+    payment_type: String
+    merchant_id: String
+    gross_amount: String
+    fraud_status: String
+    bank_type: String
+    va_number: String
+    biller_code: String
+    bill_key: String
+    receipt_number: String
+    address: String
+    courier: String
+    courier_service: String
+    user: User!
+    user_order: [UserOrder!]!
+}

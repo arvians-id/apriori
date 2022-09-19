@@ -47,7 +47,7 @@ func (service *PasswordResetServiceImpl) CreateOrUpdateByEmail(ctx context.Conte
 	passwordResetRequest := entity.PasswordReset{
 		Email:   email,
 		Token:   tokenString,
-		Expired: int32(timestamp),
+		Expired: timestamp,
 	}
 
 	// Check if email is exists in table users

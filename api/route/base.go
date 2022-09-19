@@ -2,7 +2,12 @@ package route
 
 import (
 	"database/sql"
+	"github.com/99designs/gqlgen/graphql/handler"
+	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/arvians-id/apriori/config"
+	"github.com/arvians-id/apriori/http/controller/graph/directive"
+	"github.com/arvians-id/apriori/http/controller/graph/generated"
+	"github.com/arvians-id/apriori/http/controller/graph/resolver"
 	"github.com/arvians-id/apriori/http/controller/rest"
 	"github.com/arvians-id/apriori/http/middleware"
 	repository "github.com/arvians-id/apriori/repository/postgres"
@@ -79,6 +84,7 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 
 	// CORS Middleware
 	router.Use(middleware.SetupCorsMiddleware())
+	router.Use(middleware.GinContextToContextMiddleware())
 
 	// Main Route
 	router.GET("/", func(c *gin.Context) {
@@ -87,12 +93,41 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 		})
 	})
 
-	paymentController.Route(router)
+	// GraphQL Route
+	router.GET("/playground", func(c *gin.Context) {
+		h := playground.Handler("GraphQL", "/query")
+		h.ServeHTTP(c.Writer, c.Request)
+	})
 
+	router.POST("/query", func(c *gin.Context) {
+		generatedConfig := generated.Config{
+			Resolvers: &resolver.Resolver{
+				AprioriService:       aprioriService,
+				CacheService:         cacheService,
+				CategoryService:      categoryService,
+				CommentService:       commentService,
+				EmailService:         emailService,
+				JwtService:           jwtService,
+				NotificationService:  notificationService,
+				PasswordResetService: passwordResetService,
+				PaymentService:       paymentService,
+				ProductService:       productService,
+				StorageService:       storageService,
+				TransactionService:   transactionService,
+				UserOrderService:     userOrderService,
+				UserService:          userService,
+			},
+		}
+		// Schema directives
+		generatedConfig.Directives.Binding = directive.Binding
+		h := handler.NewDefaultServer(generated.NewExecutableSchema(generatedConfig))
+		h.ServeHTTP(c.Writer, c.Request)
+	})
+
+	// REST API Route
+	paymentController.Route(router)
 	// X API KEY Middleware
 	router.Use(middleware.SetupXApiKeyMiddleware())
-
-	// Setup Router
 	authController.Route(router)
 	userController.Route(router)
 	productController.Route(router)

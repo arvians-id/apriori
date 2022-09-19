@@ -23,8 +23,8 @@ type Apriori struct {
 type GenerateApriori struct {
 	ItemSet     []string `json:"item_set"`
 	Support     float64  `json:"support"`
-	Iterate     int32    `json:"iterate"`
-	Transaction int32    `json:"transaction"`
+	Iterate     int      `json:"iterate"`
+	Transaction int      `json:"transaction"`
 	Confidence  float64  `json:"confidence"`
 	Discount    float64  `json:"discount"`
 	Description string   `json:"description"`

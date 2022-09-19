@@ -1,0 +1,11 @@
+type UserOrder {
+    id_order: ID!
+    payload_id: ID!
+    code: String
+    name: String
+    price: Int
+    image: String
+    quantity: Int
+    total_price_item: Int
+    payment: Payment
+}

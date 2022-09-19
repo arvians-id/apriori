@@ -1,0 +1,16 @@
+type Comment {
+    id_comment: ID!
+    user_order_id: ID!
+    product_code: String!
+    description: String
+    tag: String
+    rating: Int!
+    created_at: String!
+    user_order: UserOrder
+}
+
+type RatingFromComment {
+    rating: Int!
+    result_rating: Int!
+    result_comment: Int!
+}

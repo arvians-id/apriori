@@ -1,0 +1,8 @@
+type Transaction {
+    id_transaction: ID!
+    product_name: String!
+    customer_name: String!
+    no_transaction: String!
+    created_at: String!
+    updated_at: String!
+}
