@@ -3,6 +3,7 @@ package service
 import (
 	"bytes"
 	"fmt"
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/arvians-id/apriori/config"
 	"github.com/arvians-id/apriori/helper"
 	"github.com/aws/aws-sdk-go/aws"
@@ -10,8 +11,10 @@ import (
 	"github.com/aws/aws-sdk-go/aws/session"
 	"github.com/aws/aws-sdk-go/service/s3"
 	"github.com/gin-gonic/gin"
+	"io/ioutil"
 	"log"
 	"mime/multipart"
+	"os"
 	"strings"
 	"sync"
 )
@@ -129,12 +132,33 @@ func (service *StorageServiceImpl) UploadFileS3(file multipart.File, header *mul
 	return filePath, nil
 }
 
-func (service *StorageServiceImpl) UploadFileS3GraphQL(fileBytes *bytes.Reader, fileName string) (string, error) {
+func (service *StorageServiceImpl) UploadFileS3GraphQL(fileUpload graphql.Upload, initFileName string) (string, error) {
 	sess, err := service.ConnectToAWS()
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
-	headerFileName := strings.Split(fileName, ".")
+
+	stream, err := ioutil.ReadAll(fileUpload.File)
+	if err != nil {
+		return "", err
+	}
+
+	err = ioutil.WriteFile(initFileName, stream, 0644)
+	if err != nil {
+		return "", err
+	}
+
+	file, err := os.Open(initFileName)
+	if err != nil {
+		return "", err
+	}
+	defer file.Close()
+
+	buffer := make([]byte, fileUpload.Size)
+	_, _ = file.Read(buffer)
+	fileBytes := bytes.NewReader(buffer)
+
+	headerFileName := strings.Split(fileUpload.Filename, ".")
 	fileNames := helper.RandomString(10) + "." + headerFileName[len(headerFileName)-1]
 
 	_, err = s3.New(sess).PutObject(&s3.PutObjectInput{
@@ -143,9 +167,8 @@ func (service *StorageServiceImpl) UploadFileS3GraphQL(fileBytes *bytes.Reader, 
 		Key:    aws.String(fileNames),
 		Body:   fileBytes,
 	})
-
 	if err != nil {
-		log.Fatal(err)
+		return "", err
 	}
 
 	filePath := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", service.MyBucket, service.MyRegion, fileNames)
