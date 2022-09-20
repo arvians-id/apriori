@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"github.com/arvians-id/apriori/config"
 	"github.com/arvians-id/apriori/helper"
-	"github.com/arvians-id/apriori/http/request"
+	request2 "github.com/arvians-id/apriori/http/controller/rest/request"
 	"github.com/arvians-id/apriori/model"
 	"github.com/arvians-id/apriori/repository"
 	"github.com/veritrans/go-midtrans"
@@ -195,7 +195,7 @@ func (service *PaymentServiceImpl) CreateOrUpdate(ctx context.Context, requestPa
 				return err
 			}
 
-			var notificationRequest request.CreateNotificationRequest
+			var notificationRequest request2.CreateNotificationRequest
 			notificationRequest.UserId = checkTransaction.UserId
 			notificationRequest.Title = "Transaction Successfully"
 			notificationRequest.Description = "You have successfully made a payment. Thank you for shopping at Ryzy Shop"
@@ -210,7 +210,7 @@ func (service *PaymentServiceImpl) CreateOrUpdate(ctx context.Context, requestPa
 	return nil
 }
 
-func (service *PaymentServiceImpl) UpdateReceiptNumber(ctx context.Context, request *request.AddReceiptNumberRequest) (*model.Payment, error) {
+func (service *PaymentServiceImpl) UpdateReceiptNumber(ctx context.Context, request *request2.AddReceiptNumberRequest) (*model.Payment, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -251,7 +251,7 @@ func (service *PaymentServiceImpl) Delete(ctx context.Context, orderId string) e
 
 	return nil
 }
-func (service *PaymentServiceImpl) GetToken(ctx context.Context, request *request.GetPaymentTokenRequest) (map[string]interface{}, error) {
+func (service *PaymentServiceImpl) GetToken(ctx context.Context, request *request2.GetPaymentTokenRequest) (map[string]interface{}, error) {
 	service.GetClient()
 
 	var items []map[string]interface{}

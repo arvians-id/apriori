@@ -4,3 +4,12 @@ type Category {
     created_at: Time!
     updated_at: Time!
 }
+
+input CreateCategoryRequest {
+    name: String! @binding(constraint: "required,max=20")
+}
+
+input UpdateCategoryRequest {
+    id_category: ID! @goField(name: "IdCategory")
+    name: String! @binding(constraint: "required,max=20")
+}

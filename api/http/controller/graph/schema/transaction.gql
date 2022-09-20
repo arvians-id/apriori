@@ -10,3 +10,18 @@ type Transaction {
 type GetProductNameTransactionResponse {
     product_name: [String!]!
 }
+
+input CreateTransactionRequest {
+    product_name: String! @binding(constraint: "required,max=256")
+    customer_name: String! @binding(constraint: "required,max=100")
+}
+
+input CreateTransactionFromFileRequest {
+    file: Int64! @binding(constraint: "required")
+}
+
+input UpdateTransactionRequest {
+    product_name: String! @binding(constraint: "required,max=256")
+    customer_name: String! @binding(constraint: "required,max=100")
+    no_transaction: String!
+}

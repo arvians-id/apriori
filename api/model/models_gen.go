@@ -4,7 +4,14 @@ package model
 
 import (
 	"time"
+
+	"github.com/99designs/gqlgen/graphql"
 )
+
+type AddReceiptNumberRequest struct {
+	OrderId       string `json:"order_id"`
+	ReceiptNumber string `json:"receipt_number"`
+}
 
 type Apriori struct {
 	IdApriori   int        `json:"id_apriori"`
@@ -40,6 +47,68 @@ type Comment struct {
 	UserOrder   *UserOrder `json:"user_order"`
 }
 
+type CreateAprioriRequest struct {
+	Item       string  `json:"item"`
+	Discount   float64 `json:"discount"`
+	Support    float64 `json:"support"`
+	Confidence float64 `json:"confidence"`
+	RangeDate  string  `json:"range_date"`
+	CreatedAt  string  `json:"created_at"`
+}
+
+type CreateCategoryRequest struct {
+	Name string `json:"name"`
+}
+
+type CreateCommentRequest struct {
+	UserOrderId int    `json:"user_order_id"`
+	ProductCode string `json:"product_code"`
+	Description string `json:"description"`
+	Tag         string `json:"tag"`
+	Rating      int    `json:"rating"`
+	CreatedAt   string `json:"created_at"`
+}
+
+type CreateNotificationRequest struct {
+	UserId      int    `json:"user_id"`
+	Title       string `json:"title"`
+	Description string `json:"description"`
+	URL         string `json:"url"`
+	IsRead      bool   `json:"is_read"`
+	CreatedAt   string `json:"created_at"`
+}
+
+type CreatePasswordResetRequest struct {
+	Email string `json:"email"`
+}
+
+type CreateProductRequest struct {
+	Code        string         `json:"code"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	Price       int            `json:"price"`
+	Category    string         `json:"category"`
+	Mass        int            `json:"mass"`
+	Image       graphql.Upload `json:"image"`
+}
+
+type CreateTransactionFromFileRequest struct {
+	File int64 `json:"file"`
+}
+
+type CreateTransactionRequest struct {
+	ProductName  string `json:"product_name"`
+	CustomerName string `json:"customer_name"`
+}
+
+type CreateUserRequest struct {
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Address  string `json:"address"`
+	Phone    string `json:"phone"`
+	Password string `json:"password"`
+}
+
 type GenerateApriori struct {
 	ItemSet     []string `json:"item_set"`
 	Support     float64  `json:"support"`
@@ -51,18 +120,44 @@ type GenerateApriori struct {
 	RangeDate   string   `json:"range_date"`
 }
 
+type GenerateAprioriRequest struct {
+	MinimumSupport    float64 `json:"minimum_support"`
+	MinimumConfidence float64 `json:"minimum_confidence"`
+	MinimumDiscount   int     `json:"minimum_discount"`
+	MaximumDiscount   int     `json:"maximum_discount"`
+	StartDate         string  `json:"start_date"`
+	EndDate           string  `json:"end_date"`
+}
+
+type GetDeliveryRequest struct {
+	Origin      string `json:"origin"`
+	Destination string `json:"destination"`
+	Weight      int    `json:"weight"`
+	Courier     string `json:"courier"`
+}
+
+type GetPaymentTokenRequest struct {
+	GrossAmount    int64    `json:"gross_amount"`
+	Items          []string `json:"items"`
+	UserId         int      `json:"user_id"`
+	CustomerName   string   `json:"customer_name"`
+	Address        string   `json:"address"`
+	Courier        string   `json:"courier"`
+	CourierService string   `json:"courier_service"`
+	ShippingCost   int64    `json:"shipping_cost"`
+}
+
 type GetProductNameTransactionResponse struct {
 	ProductName []string `json:"product_name"`
 }
 
-type NewProduct struct {
-	Code        string  `json:"code"`
-	Name        string  `json:"name"`
-	Description *string `json:"description"`
-	Price       int     `json:"price"`
-	Category    string  `json:"category"`
-	Mass        int     `json:"mass"`
-	Image       *string `json:"image"`
+type GetRefreshTokenRequest struct {
+	RefreshToken string `json:"refresh_token"`
+}
+
+type GetUserCredentialRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type Notification struct {
@@ -147,6 +242,52 @@ type Transaction struct {
 	NoTransaction string    `json:"no_transaction"`
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at"`
+}
+
+type UpdateAprioriRequest struct {
+	IdApriori   int    `json:"id_apriori"`
+	Code        string `json:"code"`
+	Description string `json:"description"`
+	Image       string `json:"image"`
+}
+
+type UpdateCategoryRequest struct {
+	IdCategory int    `json:"id_category"`
+	Name       string `json:"name"`
+}
+
+type UpdateProductRequest struct {
+	IdProduct   int    `json:"id_product"`
+	Code        string `json:"code"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+	Price       int    `json:"price"`
+	Category    string `json:"category"`
+	IsEmpty     bool   `json:"is_empty"`
+	Mass        int    `json:"mass"`
+	Image       string `json:"image"`
+}
+
+type UpdateResetPasswordUserRequest struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+	Token    string `json:"token"`
+}
+
+type UpdateTransactionRequest struct {
+	ProductName   string `json:"product_name"`
+	CustomerName  string `json:"customer_name"`
+	NoTransaction string `json:"no_transaction"`
+}
+
+type UpdateUserRequest struct {
+	IdUser   int    `json:"id_user"`
+	Role     int    `json:"role"`
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Address  string `json:"address"`
+	Phone    string `json:"phone"`
+	Password string `json:"password"`
 }
 
 type User struct {

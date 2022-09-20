@@ -8,3 +8,12 @@ type Notification {
     created_at: Time!
     user: User!
 }
+
+input CreateNotificationRequest {
+    user_id: ID! @goField(name: "UserId")
+    title: String!
+    description: String!
+    url: String!
+    is_read: Boolean!
+    created_at: String!
+}

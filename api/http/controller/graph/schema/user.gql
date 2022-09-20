@@ -11,3 +11,29 @@ type User {
     notification: [Notification!]!
     payment: [Payment!]!
 }
+input CreateUserRequest {
+    name: String! @binding(constraint: "required,max=20")
+    email: String! @binding(constraint: "required,email,max=100")
+    address: String! @binding(constraint: "required,max=100")
+    phone: String! @binding(constraint: "required,max=20")
+    password: String! @binding(constraint: "required,max=6")
+}
+
+input UpdateUserRequest {
+    id_user: ID! @goField(name: "IdUser")
+    role: Int! @binding(constraint: "omitempty,min=1,max=2")
+    name: String! @binding(constraint: "required,max=20")
+    email: String! @binding(constraint: "required,email,max=100")
+    address: String! @binding(constraint: "required,max=100")
+    phone: String! @binding(constraint: "required,max=20")
+    password: String! @binding(constraint: "omitempty,max=6")
+}
+
+input GetUserCredentialRequest {
+    email: String! @binding(constraint: "required,max=20")
+    password: String! @binding(constraint: "required,max=20")
+}
+
+input GetRefreshTokenRequest {
+    refresh_token: String!
+}

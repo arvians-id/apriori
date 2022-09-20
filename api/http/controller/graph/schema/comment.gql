@@ -14,3 +14,12 @@ type RatingFromComment {
     result_rating: Int!
     result_comment: Int!
 }
+
+input CreateCommentRequest {
+    user_order_id: ID! @goField(name: "UserOrderId")
+    product_code: String!
+    description: String!
+    tag: String!
+    rating: Int! @binding(constraint: "required")
+    created_at: String!
+}

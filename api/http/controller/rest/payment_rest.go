@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/arvians-id/apriori/helper"
+	request2 "github.com/arvians-id/apriori/http/controller/rest/request"
+	response2 "github.com/arvians-id/apriori/http/controller/rest/response"
 	"github.com/arvians-id/apriori/http/middleware"
-	"github.com/arvians-id/apriori/http/request"
-	"github.com/arvians-id/apriori/http/response"
 	"github.com/arvians-id/apriori/service"
 	"github.com/gin-gonic/gin"
 	"github.com/veritrans/go-midtrans"
@@ -57,11 +57,11 @@ func (controller *PaymentController) Route(router *gin.Engine) *gin.Engine {
 func (controller *PaymentController) FindAll(c *gin.Context) {
 	payments, err := controller.PaymentService.FindAll(c.Request.Context())
 	if err != nil {
-		response.ReturnErrorInternalServerError(c, err, nil)
+		response2.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response.ReturnSuccessOK(c, "OK", payments)
+	response2.ReturnSuccessOK(c, "OK", payments)
 }
 
 func (controller *PaymentController) FindByOrderId(c *gin.Context) {
@@ -69,64 +69,64 @@ func (controller *PaymentController) FindByOrderId(c *gin.Context) {
 
 	payment, err := controller.PaymentService.FindByOrderId(c.Request.Context(), orderIdParam)
 	if err != nil {
-		if err.Error() == response.ErrorNotFound {
-			response.ReturnErrorNotFound(c, err, nil)
+		if err.Error() == response2.ErrorNotFound {
+			response2.ReturnErrorNotFound(c, err, nil)
 			return
 		}
 
-		response.ReturnErrorInternalServerError(c, err, nil)
+		response2.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response.ReturnSuccessOK(c, "OK", payment)
+	response2.ReturnSuccessOK(c, "OK", payment)
 }
 
 func (controller *PaymentController) UpdateReceiptNumber(c *gin.Context) {
-	var requestPayment request.AddReceiptNumberRequest
+	var requestPayment request2.AddReceiptNumberRequest
 	err := c.ShouldBindJSON(&requestPayment)
 	if err != nil {
-		response.ReturnErrorBadRequest(c, err, nil)
+		response2.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
 	requestPayment.OrderId = c.Param("order_id")
 	payment, err := controller.PaymentService.UpdateReceiptNumber(c.Request.Context(), &requestPayment)
 	if err != nil {
-		if err.Error() == response.ErrorNotFound {
-			response.ReturnErrorNotFound(c, err, nil)
+		if err.Error() == response2.ErrorNotFound {
+			response2.ReturnErrorNotFound(c, err, nil)
 			return
 		}
 
-		response.ReturnErrorInternalServerError(c, err, nil)
+		response2.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
 	// Notification
-	var notificationRequest request.CreateNotificationRequest
+	var notificationRequest request2.CreateNotificationRequest
 	notificationRequest.UserId = payment.UserId
 	notificationRequest.Title = "Receipt number arrived"
 	notificationRequest.Description = "Your receipt number has been entered by the admin"
 	notificationRequest.URL = "product"
 	err = controller.NotificationService.Create(c.Request.Context(), &notificationRequest).WithSendMail()
 	if err != nil {
-		response.ReturnErrorInternalServerError(c, err, nil)
+		response2.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response.ReturnSuccessOK(c, "OK", nil)
+	response2.ReturnSuccessOK(c, "OK", nil)
 }
 
 func (controller *PaymentController) Pay(c *gin.Context) {
-	var requestToken request.GetPaymentTokenRequest
+	var requestToken request2.GetPaymentTokenRequest
 	err := c.ShouldBind(&requestToken)
 	if err != nil {
-		response.ReturnErrorBadRequest(c, err, nil)
+		response2.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
 	data, err := controller.PaymentService.GetToken(c.Request.Context(), &requestToken)
 	if err != nil {
-		response.ReturnErrorInternalServerError(c, err, nil)
+		response2.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
@@ -134,14 +134,14 @@ func (controller *PaymentController) Pay(c *gin.Context) {
 	key := fmt.Sprintf("user-order-payment-%v", requestToken.UserId)
 	_ = controller.CacheService.Del(c.Request.Context(), key)
 
-	response.ReturnSuccessOK(c, "OK", data)
+	response2.ReturnSuccessOK(c, "OK", data)
 }
 
 func (controller *PaymentController) Notification(c *gin.Context) {
 	var payload midtrans.ChargeReqWithMap
 	err := c.BindJSON(&payload)
 	if err != nil {
-		response.ReturnErrorBadRequest(c, err, nil)
+		response2.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
@@ -151,7 +151,7 @@ func (controller *PaymentController) Notification(c *gin.Context) {
 
 	err = controller.PaymentService.CreateOrUpdate(c.Request.Context(), resArray)
 	if err != nil {
-		response.ReturnErrorInternalServerError(c, err, nil)
+		response2.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
@@ -161,16 +161,16 @@ func (controller *PaymentController) Notification(c *gin.Context) {
 	key3 := fmt.Sprintf("user-order-rate-%v", helper.StrToInt(resArray["custom_field1"].(string)))
 	_ = controller.CacheService.Del(c.Request.Context(), key, key2, key3)
 
-	response.ReturnSuccessOK(c, "OK", nil)
+	response2.ReturnSuccessOK(c, "OK", nil)
 }
 
 func (controller *PaymentController) Delete(c *gin.Context) {
 	orderIdParam := c.Param("order_id")
 	err := controller.PaymentService.Delete(c.Request.Context(), orderIdParam)
 	if err != nil {
-		response.ReturnErrorInternalServerError(c, err, nil)
+		response2.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response.ReturnSuccessOK(c, "OK", nil)
+	response2.ReturnSuccessOK(c, "OK", nil)
 }

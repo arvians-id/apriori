@@ -23,3 +23,19 @@ type Payment {
     user: User!
     user_order: [UserOrder!]!
 }
+
+input GetPaymentTokenRequest {
+    gross_amount: Int64! @binding(constraint: "required")
+    items: [String!]! @binding(constraint: "required")
+    user_id: ID! @goField(name: "UserId")
+    customer_name: String! @binding(constraint: "required")
+    address: String! @binding(constraint: "required")
+    courier: String! @binding(constraint: "required")
+    courier_service: String! @binding(constraint: "required")
+    shipping_cost: Int64! @binding(constraint: "required")
+}
+
+input AddReceiptNumberRequest {
+    order_id: String! @goField(name: "OrderId")
+    receipt_number: String!
+}

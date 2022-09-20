@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"github.com/arvians-id/apriori/http/response"
+	"github.com/arvians-id/apriori/http/controller/rest/response"
 	"github.com/arvians-id/apriori/model"
 	"github.com/arvians-id/apriori/repository"
 	"log"

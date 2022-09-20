@@ -1,0 +1,6 @@
+input GetDeliveryRequest {
+    origin: String!
+    destination: String!
+    weight: Int!
+    courier: String!
+}

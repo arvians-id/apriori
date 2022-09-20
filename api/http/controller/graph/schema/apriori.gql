@@ -24,3 +24,28 @@ type GenerateApriori {
     description: String!
     range_date: String!
 }
+
+input CreateAprioriRequest {
+    item: String!
+    discount: Float!
+    support: Float!
+    confidence: Float!
+    range_date: String!
+    created_at: String!
+}
+
+input UpdateAprioriRequest {
+    id_apriori: ID! @goField(name: "IdApriori")
+    code: String!
+    description: String!
+    image: String!
+}
+
+input GenerateAprioriRequest {
+    minimum_support: Float! @binding(constraint: "required,max=100")
+    minimum_confidence: Float! @binding(constraint: "required,max=100")
+    minimum_discount: Int! @binding(constraint: "required")
+    maximum_discount: Int! @binding(constraint: "required,gtefield=MinimumDiscount")
+    start_date: String! @binding(constraint: "required")
+    end_date: String! @binding(constraint: "required")
+}

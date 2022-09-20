@@ -1,10 +1,15 @@
 scalar Time
 scalar Int64
+scalar Upload
 
 directive @goField(
     forceResolver: Boolean
     name: String
 ) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
+
+directive @binding(
+    constraint: String!
+) on INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION
 
 type Query {
     products: [Product!]!

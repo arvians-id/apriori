@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/arvians-id/apriori/helper"
+	response2 "github.com/arvians-id/apriori/http/controller/rest/response"
 	"github.com/arvians-id/apriori/http/middleware"
-	"github.com/arvians-id/apriori/http/response"
 	"github.com/arvians-id/apriori/model"
 	"github.com/arvians-id/apriori/service"
 	"github.com/gin-gonic/gin"
@@ -46,7 +46,7 @@ func (controller *UserOrderController) Route(router *gin.Engine) *gin.Engine {
 func (controller *UserOrderController) FindAll(c *gin.Context) {
 	id, isExist := c.Get("id_user")
 	if !isExist {
-		response.ReturnErrorUnauthorized(c, errors.New("unauthorized"), nil)
+		response2.ReturnErrorUnauthorized(c, errors.New("unauthorized"), nil)
 		return
 	}
 
@@ -55,37 +55,37 @@ func (controller *UserOrderController) FindAll(c *gin.Context) {
 	if err == redis.Nil {
 		payments, err := controller.PaymentService.FindAllByUserId(c.Request.Context(), int(id.(float64)))
 		if err != nil {
-			response.ReturnErrorInternalServerError(c, err, nil)
+			response2.ReturnErrorInternalServerError(c, err, nil)
 			return
 		}
 
 		err = controller.CacheService.Set(c.Request.Context(), key, payments)
 		if err != nil {
-			response.ReturnErrorInternalServerError(c, err, nil)
+			response2.ReturnErrorInternalServerError(c, err, nil)
 			return
 		}
 
-		response.ReturnSuccessOK(c, "OK", payments)
+		response2.ReturnSuccessOK(c, "OK", payments)
 		return
 	} else if err != nil {
-		response.ReturnErrorInternalServerError(c, err, nil)
+		response2.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
 	var paymentCacheResponses []model.Payment
 	err = json.Unmarshal(paymentsCache, &paymentCacheResponses)
 	if err != nil {
-		response.ReturnErrorInternalServerError(c, err, nil)
+		response2.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response.ReturnSuccessOK(c, "OK", paymentCacheResponses)
+	response2.ReturnSuccessOK(c, "OK", paymentCacheResponses)
 }
 
 func (controller *UserOrderController) FindAllByUserId(c *gin.Context) {
 	id, isExist := c.Get("id_user")
 	if !isExist {
-		response.ReturnErrorUnauthorized(c, errors.New("unauthorized"), nil)
+		response2.ReturnErrorUnauthorized(c, errors.New("unauthorized"), nil)
 		return
 	}
 
@@ -94,31 +94,31 @@ func (controller *UserOrderController) FindAllByUserId(c *gin.Context) {
 	if err == redis.Nil {
 		userOrders, err := controller.UserOrderService.FindAllByUserId(c.Request.Context(), int(id.(float64)))
 		if err != nil {
-			response.ReturnErrorInternalServerError(c, err, nil)
+			response2.ReturnErrorInternalServerError(c, err, nil)
 			return
 		}
 
 		err = controller.CacheService.Set(c.Request.Context(), key, userOrders)
 		if err != nil {
-			response.ReturnErrorInternalServerError(c, err, nil)
+			response2.ReturnErrorInternalServerError(c, err, nil)
 			return
 		}
 
-		response.ReturnSuccessOK(c, "OK", userOrders)
+		response2.ReturnSuccessOK(c, "OK", userOrders)
 		return
 	} else if err != nil {
-		response.ReturnErrorInternalServerError(c, err, nil)
+		response2.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
 	var userOrderCacheResponses []model.UserOrder
 	err = json.Unmarshal(userOrdersCache, &userOrderCacheResponses)
 	if err != nil {
-		response.ReturnErrorInternalServerError(c, err, nil)
+		response2.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response.ReturnSuccessOK(c, "OK", userOrderCacheResponses)
+	response2.ReturnSuccessOK(c, "OK", userOrderCacheResponses)
 }
 
 func (controller *UserOrderController) FindAllById(c *gin.Context) {
@@ -128,55 +128,55 @@ func (controller *UserOrderController) FindAllById(c *gin.Context) {
 	if err == redis.Nil {
 		payment, err := controller.PaymentService.FindByOrderId(c.Request.Context(), orderIdParam)
 		if err != nil {
-			if err.Error() == response.ErrorNotFound {
-				response.ReturnErrorNotFound(c, err, nil)
+			if err.Error() == response2.ErrorNotFound {
+				response2.ReturnErrorNotFound(c, err, nil)
 				return
 			}
 
-			response.ReturnErrorInternalServerError(c, err, nil)
+			response2.ReturnErrorInternalServerError(c, err, nil)
 			return
 		}
 		userOrder, err := controller.UserOrderService.FindAllByPayloadId(c.Request.Context(), payment.IdPayload)
 		if err != nil {
-			response.ReturnErrorInternalServerError(c, err, nil)
+			response2.ReturnErrorInternalServerError(c, err, nil)
 			return
 		}
 
 		err = controller.CacheService.Set(c.Request.Context(), key, userOrder)
 		if err != nil {
-			response.ReturnErrorInternalServerError(c, err, nil)
+			response2.ReturnErrorInternalServerError(c, err, nil)
 			return
 		}
 
-		response.ReturnSuccessOK(c, "OK", userOrder)
+		response2.ReturnSuccessOK(c, "OK", userOrder)
 		return
 	} else if err != nil {
-		response.ReturnErrorInternalServerError(c, err, nil)
+		response2.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
 	var userOrderCacheResponses []model.UserOrder
 	err = json.Unmarshal(userOrdersCache, &userOrderCacheResponses)
 	if err != nil {
-		response.ReturnErrorInternalServerError(c, err, nil)
+		response2.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response.ReturnSuccessOK(c, "OK", userOrderCacheResponses)
+	response2.ReturnSuccessOK(c, "OK", userOrderCacheResponses)
 }
 
 func (controller *UserOrderController) FindById(c *gin.Context) {
 	IdParam := helper.StrToInt(c.Param("id"))
 	userOrder, err := controller.UserOrderService.FindById(c.Request.Context(), IdParam)
 	if err != nil {
-		if err.Error() == response.ErrorNotFound {
-			response.ReturnErrorNotFound(c, err, nil)
+		if err.Error() == response2.ErrorNotFound {
+			response2.ReturnErrorNotFound(c, err, nil)
 			return
 		}
 
-		response.ReturnErrorInternalServerError(c, err, nil)
+		response2.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response.ReturnSuccessOK(c, "OK", userOrder)
+	response2.ReturnSuccessOK(c, "OK", userOrder)
 }

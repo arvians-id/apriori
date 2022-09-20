@@ -1,7 +1,7 @@
 package middleware
 
 import (
-	"github.com/arvians-id/apriori/http/response"
+	"github.com/arvians-id/apriori/http/controller/rest/response"
 	"github.com/arvians-id/apriori/service"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"

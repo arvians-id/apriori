@@ -3,8 +3,8 @@ package unittest
 import (
 	"context"
 	"errors"
-	"github.com/arvians-id/apriori/http/request"
-	"github.com/arvians-id/apriori/http/response"
+	"github.com/arvians-id/apriori/http/controller/rest/request"
+	"github.com/arvians-id/apriori/http/controller/rest/response"
 	"github.com/arvians-id/apriori/model"
 	repository "github.com/arvians-id/apriori/repository/mock"
 	"github.com/arvians-id/apriori/service"

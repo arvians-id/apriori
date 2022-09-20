@@ -4,7 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/arvians-id/apriori/helper"
-	"github.com/arvians-id/apriori/http/request"
+	"github.com/arvians-id/apriori/http/controller/rest/request"
 	"github.com/arvians-id/apriori/service"
 	"github.com/brianvoe/gofakeit/v6"
 	"os"

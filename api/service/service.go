@@ -1,8 +1,9 @@
 package service
 
 import (
+	"bytes"
 	"context"
-	request2 "github.com/arvians-id/apriori/http/request"
+	request2 "github.com/arvians-id/apriori/http/controller/rest/request"
 	"github.com/arvians-id/apriori/model"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
@@ -88,6 +89,7 @@ type ProductService interface {
 type StorageService interface {
 	UploadFile(c *gin.Context, image *multipart.FileHeader) (chan string, error)
 	UploadFileS3(file multipart.File, header *multipart.FileHeader) (string, error)
+	UploadFileS3GraphQL(fileBytes *bytes.Reader, fileName string) (string, error)
 	WaitUploadFileS3(file multipart.File, header *multipart.FileHeader, wg *sync.WaitGroup) (string, error)
 	//DeleteFileS3(fileName string) error
 	//WaitDeleteFileS3(fileName string, wg *sync.WaitGroup) error

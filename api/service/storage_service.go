@@ -1,6 +1,7 @@
 package service
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/arvians-id/apriori/config"
 	"github.com/arvians-id/apriori/helper"
@@ -125,6 +126,29 @@ func (service *StorageServiceImpl) UploadFileS3(file multipart.File, header *mul
 	}()
 
 	filePath := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", service.MyBucket, service.MyRegion, <-fileName)
+	return filePath, nil
+}
+
+func (service *StorageServiceImpl) UploadFileS3GraphQL(fileBytes *bytes.Reader, fileName string) (string, error) {
+	sess, err := service.ConnectToAWS()
+	if err != nil {
+		log.Fatal(err)
+	}
+	headerFileName := strings.Split(fileName, ".")
+	fileNames := helper.RandomString(10) + "." + headerFileName[len(headerFileName)-1]
+
+	_, err = s3.New(sess).PutObject(&s3.PutObjectInput{
+		Bucket: aws.String(service.MyBucket),
+		ACL:    aws.String("public-read"),
+		Key:    aws.String(fileNames),
+		Body:   fileBytes,
+	})
+
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	filePath := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", service.MyBucket, service.MyRegion, fileNames)
 	return filePath, nil
 }
 
