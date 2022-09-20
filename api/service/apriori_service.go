@@ -4,9 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/arvians-id/apriori/entity"
 	"github.com/arvians-id/apriori/helper"
 	"github.com/arvians-id/apriori/http/request"
+	"github.com/arvians-id/apriori/model"
 	"github.com/arvians-id/apriori/repository"
 	"math"
 	"os"
@@ -38,7 +38,7 @@ func NewAprioriService(
 	}
 }
 
-func (service *AprioriServiceImpl) FindAll(ctx context.Context) ([]*entity.Apriori, error) {
+func (service *AprioriServiceImpl) FindAll(ctx context.Context) ([]*model.Apriori, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -53,7 +53,7 @@ func (service *AprioriServiceImpl) FindAll(ctx context.Context) ([]*entity.Aprio
 	return apriories, nil
 }
 
-func (service *AprioriServiceImpl) FindAllByActive(ctx context.Context) ([]*entity.Apriori, error) {
+func (service *AprioriServiceImpl) FindAllByActive(ctx context.Context) ([]*model.Apriori, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -68,7 +68,7 @@ func (service *AprioriServiceImpl) FindAllByActive(ctx context.Context) ([]*enti
 	return apriories, nil
 }
 
-func (service *AprioriServiceImpl) FindAllByCode(ctx context.Context, code string) ([]*entity.Apriori, error) {
+func (service *AprioriServiceImpl) FindAllByCode(ctx context.Context, code string) ([]*model.Apriori, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -83,7 +83,7 @@ func (service *AprioriServiceImpl) FindAllByCode(ctx context.Context, code strin
 	return apriories, nil
 }
 
-func (service *AprioriServiceImpl) FindByCodeAndId(ctx context.Context, code string, id int) (*entity.ProductRecommendation, error) {
+func (service *AprioriServiceImpl) FindByCodeAndId(ctx context.Context, code string, id int) (*model.ProductRecommendation, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -103,16 +103,16 @@ func (service *AprioriServiceImpl) FindByCodeAndId(ctx context.Context, code str
 		mass += product.Mass
 	}
 
-	return &entity.ProductRecommendation{
+	return &model.ProductRecommendation{
 		AprioriId:          apriori.IdApriori,
 		AprioriCode:        apriori.Code,
 		AprioriItem:        apriori.Item,
 		AprioriDiscount:    apriori.Discount,
 		ProductTotalPrice:  totalPrice,
-		PriceAfterDiscount: totalPrice - (totalPrice * int(apriori.Discount) / 100),
-		Image:              apriori.Image,
+		PriceDiscount:      totalPrice - (totalPrice * int(apriori.Discount) / 100),
+		AprioriImage:       apriori.Image,
 		Mass:               mass,
-		Description:        apriori.Description,
+		AprioriDescription: apriori.Description,
 	}, nil
 }
 
@@ -128,11 +128,11 @@ func (service *AprioriServiceImpl) Create(ctx context.Context, requests []*reque
 		return err
 	}
 
-	var aprioriRequests []*entity.Apriori
+	var aprioriRequests []*model.Apriori
 	code := helper.RandomString(10)
 	for _, request := range requests {
 		image := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/assets/%s", os.Getenv("AWS_BUCKET"), os.Getenv("AWS_REGION"), "no-image.png")
-		aprioriRequests = append(aprioriRequests, &entity.Apriori{
+		aprioriRequests = append(aprioriRequests, &model.Apriori{
 			Code:       code,
 			Item:       request.Item,
 			Discount:   request.Discount,
@@ -153,7 +153,7 @@ func (service *AprioriServiceImpl) Create(ctx context.Context, requests []*reque
 	return nil
 }
 
-func (service *AprioriServiceImpl) Update(ctx context.Context, request *request.UpdateAprioriRequest) (*entity.Apriori, error) {
+func (service *AprioriServiceImpl) Update(ctx context.Context, request *request.UpdateAprioriRequest) (*model.Apriori, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -231,14 +231,14 @@ func (service *AprioriServiceImpl) Delete(ctx context.Context, code string) erro
 	return nil
 }
 
-func (service *AprioriServiceImpl) Generate(ctx context.Context, request *request.GenerateAprioriRequest) ([]*entity.GenerateApriori, error) {
+func (service *AprioriServiceImpl) Generate(ctx context.Context, request *request.GenerateAprioriRequest) ([]*model.GenerateApriori, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
 	}
 	defer helper.CommitOrRollback(tx)
 
-	var apriori []*entity.GenerateApriori
+	var apriori []*model.GenerateApriori
 
 	// Get all transaction from database
 	transactionsSet, err := service.TransactionRepository.FindAllItemSet(ctx, tx, request.StartDate, request.EndDate)
@@ -254,7 +254,7 @@ func (service *AprioriServiceImpl) Generate(ctx context.Context, request *reques
 
 	// Get one item set
 	for i := 0; i < len(oneSet); i++ {
-		apriori = append(apriori, &entity.GenerateApriori{
+		apriori = append(apriori, &model.GenerateApriori{
 			ItemSet:     []string{oneSet[i]},
 			Support:     support[i],
 			Iterate:     1,
@@ -298,7 +298,7 @@ func (service *AprioriServiceImpl) Generate(ctx context.Context, request *reques
 			countCandidates := helper.FindCandidate(dataTemp[i], transactions)
 			result := float64(countCandidates) / float64(len(transactionsSet)) * 100
 			if result >= request.MinimumSupport {
-				apriori = append(apriori, &entity.GenerateApriori{
+				apriori = append(apriori, &model.GenerateApriori{
 					ItemSet:     dataTemp[i],
 					Support:     math.Round(result*100) / 100,
 					Iterate:     iterate + 2,
@@ -307,7 +307,7 @@ func (service *AprioriServiceImpl) Generate(ctx context.Context, request *reques
 					RangeDate:   request.StartDate + " - " + request.EndDate,
 				})
 			} else {
-				apriori = append(apriori, &entity.GenerateApriori{
+				apriori = append(apriori, &model.GenerateApriori{
 					ItemSet:     dataTemp[i],
 					Support:     math.Round(result*100) / 100,
 					Iterate:     iterate + 2,
@@ -376,7 +376,7 @@ func (service *AprioriServiceImpl) Generate(ctx context.Context, request *reques
 	// Replace the last item set and add discount and confidence
 	for i := 0; i < len(discount); i++ {
 		if discount[i].Confidence >= request.MinimumConfidence {
-			apriori = append(apriori, &entity.GenerateApriori{
+			apriori = append(apriori, &model.GenerateApriori{
 				ItemSet:     discount[i].ItemSet,
 				Support:     math.Round(discount[i].Support*100) / 100,
 				Iterate:     discount[i].Iterate + 1,

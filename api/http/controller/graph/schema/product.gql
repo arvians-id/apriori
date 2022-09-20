@@ -1,5 +1,5 @@
 type Product {
-    id_product: ID!
+    id_product: ID! @goField(name: "IdProduct")
     code: String!
     name: String!
     description: String
@@ -8,20 +8,20 @@ type Product {
     is_empty: Boolean!
     mass: Int!
     image: String
-    created_at: String!
-    updated_at: String!
+    created_at: Time!
+    updated_at: Time!
 }
 
 type ProductRecommendation {
-    apriori_id: ID!
+    apriori_id: ID! @goField(name: "AprioriId")
     apriori_code: String!
     apriori_item: String!
     apriori_discount: Float!
+    apriori_description: String
+    apriori_image: String
     product_total_price: Int!
     price_discount: Int!
-    apriori_image: String
     mass: Int!
-    apriori_description: String
 }
 
 input NewProduct {

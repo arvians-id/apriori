@@ -1,6 +1,6 @@
 type Category {
-    id_category: ID!
+    id_category: ID! @goField(name: "IdCategory")
     name: String!
-    created_at: String!
-    updated_at: String!
+    created_at: Time!
+    updated_at: Time!
 }

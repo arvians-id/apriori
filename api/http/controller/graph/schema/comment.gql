@@ -1,11 +1,11 @@
 type Comment {
-    id_comment: ID!
-    user_order_id: ID!
+    id_comment: ID! @goField(name: "IdComment")
+    user_order_id: ID! @goField(name: "UserOrderId")
     product_code: String!
     description: String
     tag: String
     rating: Int!
-    created_at: String!
+    created_at: Time!
     user_order: UserOrder
 }
 

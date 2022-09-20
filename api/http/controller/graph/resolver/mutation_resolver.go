@@ -2,10 +2,9 @@ package resolver
 
 import (
 	"context"
-	"github.com/arvians-id/apriori/helper"
 	"github.com/arvians-id/apriori/http/controller/graph/generated"
-	"github.com/arvians-id/apriori/http/controller/graph/model"
 	"github.com/arvians-id/apriori/http/request"
+	"github.com/arvians-id/apriori/model"
 )
 
 func (r *mutationResolver) CreateProduct(ctx context.Context, input model.NewProduct) (*model.Product, error) {
@@ -23,7 +22,7 @@ func (r *mutationResolver) CreateProduct(ctx context.Context, input model.NewPro
 	}
 
 	return &model.Product{
-		IDProduct:   helper.IntToStr(product.IdProduct),
+		IdProduct:   product.IdProduct,
 		Code:        product.Code,
 		Name:        product.Name,
 		Description: product.Description,
@@ -32,8 +31,8 @@ func (r *mutationResolver) CreateProduct(ctx context.Context, input model.NewPro
 		IsEmpty:     product.IsEmpty,
 		Mass:        product.Mass,
 		Image:       product.Image,
-		CreatedAt:   product.CreatedAt.String(),
-		UpdatedAt:   product.UpdatedAt.String(),
+		CreatedAt:   product.CreatedAt,
+		UpdatedAt:   product.UpdatedAt,
 	}, nil
 }
 

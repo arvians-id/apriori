@@ -1,19 +1,19 @@
 type Payment {
-    id_payload: ID!
-    user_id: String!
-    order_id: String
+    id_payload: ID! @goField(name: "IdPayload")
+    user_id: ID! @goField(name: "UserId")
+    order_id: String @goField(name: "OrderId")
     transaction_time: String
     transaction_status: String
-    transaction_id: String
+    transaction_id: String @goField(name: "TransactionId")
     status_code: String
     signature_key: String
     settlement_time: String
     payment_type: String
-    merchant_id: String
+    merchant_id: String @goField(name: "MerchantId")
     gross_amount: String
     fraud_status: String
     bank_type: String
-    va_number: String
+    va_number: String @goField(name: "VANumber")
     biller_code: String
     bill_key: String
     receipt_number: String

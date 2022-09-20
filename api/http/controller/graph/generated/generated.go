@@ -10,10 +10,11 @@ import (
 	"strconv"
 	"sync"
 	"sync/atomic"
+	"time"
 
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/99designs/gqlgen/graphql/introspection"
-	"github.com/arvians-id/apriori/http/controller/graph/model"
+	"github.com/arvians-id/apriori/model"
 	gqlparser "github.com/vektah/gqlparser/v2"
 	"github.com/vektah/gqlparser/v2/ast"
 )
@@ -51,7 +52,7 @@ type ComplexityRoot struct {
 		CreatedAt   func(childComplexity int) int
 		Description func(childComplexity int) int
 		Discount    func(childComplexity int) int
-		IDApriori   func(childComplexity int) int
+		IdApriori   func(childComplexity int) int
 		Image       func(childComplexity int) int
 		IsActive    func(childComplexity int) int
 		Item        func(childComplexity int) int
@@ -63,7 +64,7 @@ type ComplexityRoot struct {
 
 	Category struct {
 		CreatedAt  func(childComplexity int) int
-		IDCategory func(childComplexity int) int
+		IdCategory func(childComplexity int) int
 		Name       func(childComplexity int) int
 		UpdatedAt  func(childComplexity int) int
 	}
@@ -71,12 +72,12 @@ type ComplexityRoot struct {
 	Comment struct {
 		CreatedAt   func(childComplexity int) int
 		Description func(childComplexity int) int
-		IDComment   func(childComplexity int) int
+		IdComment   func(childComplexity int) int
 		ProductCode func(childComplexity int) int
 		Rating      func(childComplexity int) int
 		Tag         func(childComplexity int) int
 		UserOrder   func(childComplexity int) int
-		UserOrderID func(childComplexity int) int
+		UserOrderId func(childComplexity int) int
 	}
 
 	GenerateApriori struct {
@@ -97,12 +98,12 @@ type ComplexityRoot struct {
 	Notification struct {
 		CreatedAt      func(childComplexity int) int
 		Description    func(childComplexity int) int
-		IDNotification func(childComplexity int) int
+		IdNotification func(childComplexity int) int
 		IsRead         func(childComplexity int) int
 		Title          func(childComplexity int) int
 		URL            func(childComplexity int) int
 		User           func(childComplexity int) int
-		UserID         func(childComplexity int) int
+		UserId         func(childComplexity int) int
 	}
 
 	PasswordReset struct {
@@ -120,21 +121,21 @@ type ComplexityRoot struct {
 		CourierService    func(childComplexity int) int
 		FraudStatus       func(childComplexity int) int
 		GrossAmount       func(childComplexity int) int
-		IDPayload         func(childComplexity int) int
-		MerchantID        func(childComplexity int) int
-		OrderID           func(childComplexity int) int
+		IdPayload         func(childComplexity int) int
+		MerchantId        func(childComplexity int) int
+		OrderId           func(childComplexity int) int
 		PaymentType       func(childComplexity int) int
 		ReceiptNumber     func(childComplexity int) int
 		SettlementTime    func(childComplexity int) int
 		SignatureKey      func(childComplexity int) int
 		StatusCode        func(childComplexity int) int
-		TransactionID     func(childComplexity int) int
+		TransactionId     func(childComplexity int) int
 		TransactionStatus func(childComplexity int) int
 		TransactionTime   func(childComplexity int) int
 		User              func(childComplexity int) int
-		UserID            func(childComplexity int) int
+		UserId            func(childComplexity int) int
 		UserOrder         func(childComplexity int) int
-		VaNumber          func(childComplexity int) int
+		VANumber          func(childComplexity int) int
 	}
 
 	Product struct {
@@ -142,7 +143,7 @@ type ComplexityRoot struct {
 		Code        func(childComplexity int) int
 		CreatedAt   func(childComplexity int) int
 		Description func(childComplexity int) int
-		IDProduct   func(childComplexity int) int
+		IdProduct   func(childComplexity int) int
 		Image       func(childComplexity int) int
 		IsEmpty     func(childComplexity int) int
 		Mass        func(childComplexity int) int
@@ -155,7 +156,7 @@ type ComplexityRoot struct {
 		AprioriCode        func(childComplexity int) int
 		AprioriDescription func(childComplexity int) int
 		AprioriDiscount    func(childComplexity int) int
-		AprioriID          func(childComplexity int) int
+		AprioriId          func(childComplexity int) int
 		AprioriImage       func(childComplexity int) int
 		AprioriItem        func(childComplexity int) int
 		Mass               func(childComplexity int) int
@@ -176,7 +177,7 @@ type ComplexityRoot struct {
 	Transaction struct {
 		CreatedAt     func(childComplexity int) int
 		CustomerName  func(childComplexity int) int
-		IDTransaction func(childComplexity int) int
+		IdTransaction func(childComplexity int) int
 		NoTransaction func(childComplexity int) int
 		ProductName   func(childComplexity int) int
 		UpdatedAt     func(childComplexity int) int
@@ -186,7 +187,7 @@ type ComplexityRoot struct {
 		Address      func(childComplexity int) int
 		CreatedAt    func(childComplexity int) int
 		Email        func(childComplexity int) int
-		IDUser       func(childComplexity int) int
+		IdUser       func(childComplexity int) int
 		Name         func(childComplexity int) int
 		Notification func(childComplexity int) int
 		Password     func(childComplexity int) int
@@ -198,10 +199,10 @@ type ComplexityRoot struct {
 
 	UserOrder struct {
 		Code           func(childComplexity int) int
-		IDOrder        func(childComplexity int) int
+		IdOrder        func(childComplexity int) int
 		Image          func(childComplexity int) int
 		Name           func(childComplexity int) int
-		PayloadID      func(childComplexity int) int
+		PayloadId      func(childComplexity int) int
 		Payment        func(childComplexity int) int
 		Price          func(childComplexity int) int
 		Quantity       func(childComplexity int) int
@@ -267,11 +268,11 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		return e.complexity.Apriori.Discount(childComplexity), true
 
 	case "Apriori.id_apriori":
-		if e.complexity.Apriori.IDApriori == nil {
+		if e.complexity.Apriori.IdApriori == nil {
 			break
 		}
 
-		return e.complexity.Apriori.IDApriori(childComplexity), true
+		return e.complexity.Apriori.IdApriori(childComplexity), true
 
 	case "Apriori.image":
 		if e.complexity.Apriori.Image == nil {
@@ -330,11 +331,11 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		return e.complexity.Category.CreatedAt(childComplexity), true
 
 	case "Category.id_category":
-		if e.complexity.Category.IDCategory == nil {
+		if e.complexity.Category.IdCategory == nil {
 			break
 		}
 
-		return e.complexity.Category.IDCategory(childComplexity), true
+		return e.complexity.Category.IdCategory(childComplexity), true
 
 	case "Category.name":
 		if e.complexity.Category.Name == nil {
@@ -365,11 +366,11 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		return e.complexity.Comment.Description(childComplexity), true
 
 	case "Comment.id_comment":
-		if e.complexity.Comment.IDComment == nil {
+		if e.complexity.Comment.IdComment == nil {
 			break
 		}
 
-		return e.complexity.Comment.IDComment(childComplexity), true
+		return e.complexity.Comment.IdComment(childComplexity), true
 
 	case "Comment.product_code":
 		if e.complexity.Comment.ProductCode == nil {
@@ -400,11 +401,11 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		return e.complexity.Comment.UserOrder(childComplexity), true
 
 	case "Comment.user_order_id":
-		if e.complexity.Comment.UserOrderID == nil {
+		if e.complexity.Comment.UserOrderId == nil {
 			break
 		}
 
-		return e.complexity.Comment.UserOrderID(childComplexity), true
+		return e.complexity.Comment.UserOrderId(childComplexity), true
 
 	case "GenerateApriori.confidence":
 		if e.complexity.GenerateApriori.Confidence == nil {
@@ -489,11 +490,11 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		return e.complexity.Notification.Description(childComplexity), true
 
 	case "Notification.id_notification":
-		if e.complexity.Notification.IDNotification == nil {
+		if e.complexity.Notification.IdNotification == nil {
 			break
 		}
 
-		return e.complexity.Notification.IDNotification(childComplexity), true
+		return e.complexity.Notification.IdNotification(childComplexity), true
 
 	case "Notification.is_read":
 		if e.complexity.Notification.IsRead == nil {
@@ -524,11 +525,11 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		return e.complexity.Notification.User(childComplexity), true
 
 	case "Notification.user_id":
-		if e.complexity.Notification.UserID == nil {
+		if e.complexity.Notification.UserId == nil {
 			break
 		}
 
-		return e.complexity.Notification.UserID(childComplexity), true
+		return e.complexity.Notification.UserId(childComplexity), true
 
 	case "PasswordReset.email":
 		if e.complexity.PasswordReset.Email == nil {
@@ -608,25 +609,25 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		return e.complexity.Payment.GrossAmount(childComplexity), true
 
 	case "Payment.id_payload":
-		if e.complexity.Payment.IDPayload == nil {
+		if e.complexity.Payment.IdPayload == nil {
 			break
 		}
 
-		return e.complexity.Payment.IDPayload(childComplexity), true
+		return e.complexity.Payment.IdPayload(childComplexity), true
 
 	case "Payment.merchant_id":
-		if e.complexity.Payment.MerchantID == nil {
+		if e.complexity.Payment.MerchantId == nil {
 			break
 		}
 
-		return e.complexity.Payment.MerchantID(childComplexity), true
+		return e.complexity.Payment.MerchantId(childComplexity), true
 
 	case "Payment.order_id":
-		if e.complexity.Payment.OrderID == nil {
+		if e.complexity.Payment.OrderId == nil {
 			break
 		}
 
-		return e.complexity.Payment.OrderID(childComplexity), true
+		return e.complexity.Payment.OrderId(childComplexity), true
 
 	case "Payment.payment_type":
 		if e.complexity.Payment.PaymentType == nil {
@@ -664,11 +665,11 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		return e.complexity.Payment.StatusCode(childComplexity), true
 
 	case "Payment.transaction_id":
-		if e.complexity.Payment.TransactionID == nil {
+		if e.complexity.Payment.TransactionId == nil {
 			break
 		}
 
-		return e.complexity.Payment.TransactionID(childComplexity), true
+		return e.complexity.Payment.TransactionId(childComplexity), true
 
 	case "Payment.transaction_status":
 		if e.complexity.Payment.TransactionStatus == nil {
@@ -692,11 +693,11 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		return e.complexity.Payment.User(childComplexity), true
 
 	case "Payment.user_id":
-		if e.complexity.Payment.UserID == nil {
+		if e.complexity.Payment.UserId == nil {
 			break
 		}
 
-		return e.complexity.Payment.UserID(childComplexity), true
+		return e.complexity.Payment.UserId(childComplexity), true
 
 	case "Payment.user_order":
 		if e.complexity.Payment.UserOrder == nil {
@@ -706,11 +707,11 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		return e.complexity.Payment.UserOrder(childComplexity), true
 
 	case "Payment.va_number":
-		if e.complexity.Payment.VaNumber == nil {
+		if e.complexity.Payment.VANumber == nil {
 			break
 		}
 
-		return e.complexity.Payment.VaNumber(childComplexity), true
+		return e.complexity.Payment.VANumber(childComplexity), true
 
 	case "Product.category":
 		if e.complexity.Product.Category == nil {
@@ -741,11 +742,11 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		return e.complexity.Product.Description(childComplexity), true
 
 	case "Product.id_product":
-		if e.complexity.Product.IDProduct == nil {
+		if e.complexity.Product.IdProduct == nil {
 			break
 		}
 
-		return e.complexity.Product.IDProduct(childComplexity), true
+		return e.complexity.Product.IdProduct(childComplexity), true
 
 	case "Product.image":
 		if e.complexity.Product.Image == nil {
@@ -811,11 +812,11 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		return e.complexity.ProductRecommendation.AprioriDiscount(childComplexity), true
 
 	case "ProductRecommendation.apriori_id":
-		if e.complexity.ProductRecommendation.AprioriID == nil {
+		if e.complexity.ProductRecommendation.AprioriId == nil {
 			break
 		}
 
-		return e.complexity.ProductRecommendation.AprioriID(childComplexity), true
+		return e.complexity.ProductRecommendation.AprioriId(childComplexity), true
 
 	case "ProductRecommendation.apriori_image":
 		if e.complexity.ProductRecommendation.AprioriImage == nil {
@@ -895,11 +896,11 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		return e.complexity.Transaction.CustomerName(childComplexity), true
 
 	case "Transaction.id_transaction":
-		if e.complexity.Transaction.IDTransaction == nil {
+		if e.complexity.Transaction.IdTransaction == nil {
 			break
 		}
 
-		return e.complexity.Transaction.IDTransaction(childComplexity), true
+		return e.complexity.Transaction.IdTransaction(childComplexity), true
 
 	case "Transaction.no_transaction":
 		if e.complexity.Transaction.NoTransaction == nil {
@@ -944,11 +945,11 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		return e.complexity.User.Email(childComplexity), true
 
 	case "User.id_user":
-		if e.complexity.User.IDUser == nil {
+		if e.complexity.User.IdUser == nil {
 			break
 		}
 
-		return e.complexity.User.IDUser(childComplexity), true
+		return e.complexity.User.IdUser(childComplexity), true
 
 	case "User.name":
 		if e.complexity.User.Name == nil {
@@ -1007,11 +1008,11 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		return e.complexity.UserOrder.Code(childComplexity), true
 
 	case "UserOrder.id_order":
-		if e.complexity.UserOrder.IDOrder == nil {
+		if e.complexity.UserOrder.IdOrder == nil {
 			break
 		}
 
-		return e.complexity.UserOrder.IDOrder(childComplexity), true
+		return e.complexity.UserOrder.IdOrder(childComplexity), true
 
 	case "UserOrder.image":
 		if e.complexity.UserOrder.Image == nil {
@@ -1028,11 +1029,11 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		return e.complexity.UserOrder.Name(childComplexity), true
 
 	case "UserOrder.payload_id":
-		if e.complexity.UserOrder.PayloadID == nil {
+		if e.complexity.UserOrder.PayloadId == nil {
 			break
 		}
 
-		return e.complexity.UserOrder.PayloadID(childComplexity), true
+		return e.complexity.UserOrder.PayloadId(childComplexity), true
 
 	case "UserOrder.payment":
 		if e.complexity.UserOrder.Payment == nil {
@@ -1132,7 +1133,7 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 
 var sources = []*ast.Source{
 	{Name: "../schema/apriori.gql", Input: `type Apriori {
-    id_apriori: ID!
+    id_apriori: ID! @goField(name: "IdApriori")
     code: String!
     item: String!
     discount: Float!
@@ -1143,7 +1144,7 @@ var sources = []*ast.Source{
     description: String
     mass: Int!
     image: String
-    created_at: String!
+    created_at: Time!
     user_order: UserOrder!
 }
 
@@ -1158,19 +1159,19 @@ type GenerateApriori {
     range_date: String!
 }`, BuiltIn: false},
 	{Name: "../schema/category.gql", Input: `type Category {
-    id_category: ID!
+    id_category: ID! @goField(name: "IdCategory")
     name: String!
-    created_at: String!
-    updated_at: String!
+    created_at: Time!
+    updated_at: Time!
 }`, BuiltIn: false},
 	{Name: "../schema/comment.gql", Input: `type Comment {
-    id_comment: ID!
-    user_order_id: ID!
+    id_comment: ID! @goField(name: "IdComment")
+    user_order_id: ID! @goField(name: "UserOrderId")
     product_code: String!
     description: String
     tag: String
     rating: Int!
-    created_at: String!
+    created_at: Time!
     user_order: UserOrder
 }
 
@@ -1183,36 +1184,36 @@ type RatingFromComment {
     createProduct(input: NewProduct!): Product!
 }`, BuiltIn: false},
 	{Name: "../schema/notification.gql", Input: `type Notification {
-    id_notification: ID!
-    user_id: ID!
+    id_notification: ID! @goField(name: "IdNotification")
+    user_id: ID! @goField(name: "UserId")
     title: String!
     description: String
     url: String
     is_read: Boolean!
-    created_at: String!
+    created_at: Time!
     user: User!
 }`, BuiltIn: false},
 	{Name: "../schema/password_reset.gql", Input: `type PasswordReset {
     email: String!
     token: String!
-    expired: Int!
+    expired: Int64!
 }`, BuiltIn: false},
 	{Name: "../schema/payment.gql", Input: `type Payment {
-    id_payload: ID!
-    user_id: String!
-    order_id: String
+    id_payload: ID! @goField(name: "IdPayload")
+    user_id: ID! @goField(name: "UserId")
+    order_id: String @goField(name: "OrderId")
     transaction_time: String
     transaction_status: String
-    transaction_id: String
+    transaction_id: String @goField(name: "TransactionId")
     status_code: String
     signature_key: String
     settlement_time: String
     payment_type: String
-    merchant_id: String
+    merchant_id: String @goField(name: "MerchantId")
     gross_amount: String
     fraud_status: String
     bank_type: String
-    va_number: String
+    va_number: String @goField(name: "VANumber")
     biller_code: String
     bill_key: String
     receipt_number: String
@@ -1223,7 +1224,7 @@ type RatingFromComment {
     user_order: [UserOrder!]!
 }`, BuiltIn: false},
 	{Name: "../schema/product.gql", Input: `type Product {
-    id_product: ID!
+    id_product: ID! @goField(name: "IdProduct")
     code: String!
     name: String!
     description: String
@@ -1232,20 +1233,20 @@ type RatingFromComment {
     is_empty: Boolean!
     mass: Int!
     image: String
-    created_at: String!
-    updated_at: String!
+    created_at: Time!
+    updated_at: Time!
 }
 
 type ProductRecommendation {
-    apriori_id: ID!
+    apriori_id: ID! @goField(name: "AprioriId")
     apriori_code: String!
     apriori_item: String!
     apriori_discount: Float!
+    apriori_description: String
+    apriori_image: String
     product_total_price: Int!
     price_discount: Int!
-    apriori_image: String
     mass: Int!
-    apriori_description: String
 }
 
 input NewProduct {
@@ -1261,39 +1262,47 @@ input NewProduct {
 directive @binding(
     constraint: String!
 ) on INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION`, BuiltIn: false},
-	{Name: "../schema/query.gql", Input: `type Query {
+	{Name: "../schema/query.gql", Input: `scalar Time
+scalar Int64
+
+directive @goField(
+    forceResolver: Boolean
+    name: String
+) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
+
+type Query {
     products: [Product!]!
 }`, BuiltIn: false},
 	{Name: "../schema/transaction.gql", Input: `type Transaction {
-    id_transaction: ID!
+    id_transaction: ID! @goField(name: "IdTransaction")
     product_name: String!
     customer_name: String!
     no_transaction: String!
-    created_at: String!
-    updated_at: String!
+    created_at: Time!
+    updated_at: Time!
 }`, BuiltIn: false},
 	{Name: "../schema/user.gql", Input: `type User {
-    id_user: ID!
+    id_user: ID! @goField(name: "IdUser")
     role: Int!
     name: String!
     email: String!
     address: String!
     phone: String!
     password: String!
-    created_at: String!
-    updated_at: String!
+    created_at: Time!
+    updated_at: Time!
     notification: [Notification!]!
     payment: [Payment!]!
 }`, BuiltIn: false},
 	{Name: "../schema/user_order.gql", Input: `type UserOrder {
-    id_order: ID!
-    payload_id: ID!
+    id_order: ID! @goField(name: "IdOrder")
+    payload_id: ID! @goField(name: "PayloadId")
     code: String
     name: String
-    price: Int
+    price: Int64
     image: String
     quantity: Int
-    total_price_item: Int
+    total_price_item: Int64
     payment: Payment
 }`, BuiltIn: false},
 }
@@ -1324,7 +1333,7 @@ func (ec *executionContext) field_Mutation_createProduct_args(ctx context.Contex
 	var arg0 model.NewProduct
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNNewProduct2githubᚗcomᚋarviansᚑidᚋaprioriᚋhttpᚋcontrollerᚋgraphᚋmodelᚐNewProduct(ctx, tmp)
+		arg0, err = ec.unmarshalNNewProduct2githubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐNewProduct(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -1400,7 +1409,7 @@ func (ec *executionContext) _Apriori_id_apriori(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.IDApriori, nil
+		return obj.IdApriori, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1412,9 +1421,9 @@ func (ec *executionContext) _Apriori_id_apriori(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Apriori_id_apriori(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1890,9 +1899,9 @@ func (ec *executionContext) _Apriori_created_at(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Apriori_created_at(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1902,7 +1911,7 @@ func (ec *executionContext) fieldContext_Apriori_created_at(ctx context.Context,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -1936,7 +1945,7 @@ func (ec *executionContext) _Apriori_user_order(ctx context.Context, field graph
 	}
 	res := resTmp.(*model.UserOrder)
 	fc.Result = res
-	return ec.marshalNUserOrder2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋhttpᚋcontrollerᚋgraphᚋmodelᚐUserOrder(ctx, field.Selections, res)
+	return ec.marshalNUserOrder2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐUserOrder(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Apriori_user_order(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -1986,7 +1995,7 @@ func (ec *executionContext) _Category_id_category(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.IDCategory, nil
+		return obj.IdCategory, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1998,9 +2007,9 @@ func (ec *executionContext) _Category_id_category(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Category_id_category(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2086,9 +2095,9 @@ func (ec *executionContext) _Category_created_at(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Category_created_at(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2098,7 +2107,7 @@ func (ec *executionContext) fieldContext_Category_created_at(ctx context.Context
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2130,9 +2139,9 @@ func (ec *executionContext) _Category_updated_at(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Category_updated_at(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2142,7 +2151,7 @@ func (ec *executionContext) fieldContext_Category_updated_at(ctx context.Context
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2162,7 +2171,7 @@ func (ec *executionContext) _Comment_id_comment(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.IDComment, nil
+		return obj.IdComment, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2174,9 +2183,9 @@ func (ec *executionContext) _Comment_id_comment(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Comment_id_comment(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2206,7 +2215,7 @@ func (ec *executionContext) _Comment_user_order_id(ctx context.Context, field gr
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.UserOrderID, nil
+		return obj.UserOrderId, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2218,9 +2227,9 @@ func (ec *executionContext) _Comment_user_order_id(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Comment_user_order_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2432,9 +2441,9 @@ func (ec *executionContext) _Comment_created_at(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Comment_created_at(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2444,7 +2453,7 @@ func (ec *executionContext) fieldContext_Comment_created_at(ctx context.Context,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -2475,7 +2484,7 @@ func (ec *executionContext) _Comment_user_order(ctx context.Context, field graph
 	}
 	res := resTmp.(*model.UserOrder)
 	fc.Result = res
-	return ec.marshalOUserOrder2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋhttpᚋcontrollerᚋgraphᚋmodelᚐUserOrder(ctx, field.Selections, res)
+	return ec.marshalOUserOrder2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐUserOrder(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Comment_user_order(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2891,7 +2900,7 @@ func (ec *executionContext) _Mutation_createProduct(ctx context.Context, field g
 	}
 	res := resTmp.(*model.Product)
 	fc.Result = res
-	return ec.marshalNProduct2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋhttpᚋcontrollerᚋgraphᚋmodelᚐProduct(ctx, field.Selections, res)
+	return ec.marshalNProduct2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐProduct(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_createProduct(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -2956,7 +2965,7 @@ func (ec *executionContext) _Notification_id_notification(ctx context.Context, f
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.IDNotification, nil
+		return obj.IdNotification, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -2968,9 +2977,9 @@ func (ec *executionContext) _Notification_id_notification(ctx context.Context, f
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Notification_id_notification(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3000,7 +3009,7 @@ func (ec *executionContext) _Notification_user_id(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.UserID, nil
+		return obj.UserId, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3012,9 +3021,9 @@ func (ec *executionContext) _Notification_user_id(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Notification_user_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3226,9 +3235,9 @@ func (ec *executionContext) _Notification_created_at(ctx context.Context, field 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Notification_created_at(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3238,7 +3247,7 @@ func (ec *executionContext) fieldContext_Notification_created_at(ctx context.Con
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3272,7 +3281,7 @@ func (ec *executionContext) _Notification_user(ctx context.Context, field graphq
 	}
 	res := resTmp.(*model.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋhttpᚋcontrollerᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Notification_user(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3426,9 +3435,9 @@ func (ec *executionContext) _PasswordReset_expired(ctx context.Context, field gr
 		}
 		return graphql.Null
 	}
-	res := resTmp.(int)
+	res := resTmp.(int64)
 	fc.Result = res
-	return ec.marshalNInt2int(ctx, field.Selections, res)
+	return ec.marshalNInt642int64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_PasswordReset_expired(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3438,7 +3447,7 @@ func (ec *executionContext) fieldContext_PasswordReset_expired(ctx context.Conte
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
+			return nil, errors.New("field of type Int64 does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3458,7 +3467,7 @@ func (ec *executionContext) _Payment_id_payload(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.IDPayload, nil
+		return obj.IdPayload, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3470,9 +3479,9 @@ func (ec *executionContext) _Payment_id_payload(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Payment_id_payload(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3502,7 +3511,7 @@ func (ec *executionContext) _Payment_user_id(ctx context.Context, field graphql.
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.UserID, nil
+		return obj.UserId, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3514,9 +3523,9 @@ func (ec *executionContext) _Payment_user_id(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNID2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Payment_user_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -3526,7 +3535,7 @@ func (ec *executionContext) fieldContext_Payment_user_id(ctx context.Context, fi
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type ID does not have child fields")
 		},
 	}
 	return fc, nil
@@ -3546,7 +3555,7 @@ func (ec *executionContext) _Payment_order_id(ctx context.Context, field graphql
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.OrderID, nil
+		return obj.OrderId, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3669,7 +3678,7 @@ func (ec *executionContext) _Payment_transaction_id(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.TransactionID, nil
+		return obj.TransactionId, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -3874,7 +3883,7 @@ func (ec *executionContext) _Payment_merchant_id(ctx context.Context, field grap
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.MerchantID, nil
+		return obj.MerchantId, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4038,7 +4047,7 @@ func (ec *executionContext) _Payment_va_number(ctx context.Context, field graphq
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.VaNumber, nil
+		return obj.VANumber, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4339,7 +4348,7 @@ func (ec *executionContext) _Payment_user(ctx context.Context, field graphql.Col
 	}
 	res := resTmp.(*model.User)
 	fc.Result = res
-	return ec.marshalNUser2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋhttpᚋcontrollerᚋgraphᚋmodelᚐUser(ctx, field.Selections, res)
+	return ec.marshalNUser2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Payment_user(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4407,7 +4416,7 @@ func (ec *executionContext) _Payment_user_order(ctx context.Context, field graph
 	}
 	res := resTmp.([]*model.UserOrder)
 	fc.Result = res
-	return ec.marshalNUserOrder2ᚕᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋhttpᚋcontrollerᚋgraphᚋmodelᚐUserOrderᚄ(ctx, field.Selections, res)
+	return ec.marshalNUserOrder2ᚕᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐUserOrderᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Payment_user_order(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4457,7 +4466,7 @@ func (ec *executionContext) _Product_id_product(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.IDProduct, nil
+		return obj.IdProduct, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4469,9 +4478,9 @@ func (ec *executionContext) _Product_id_product(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Product_id_product(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4859,9 +4868,9 @@ func (ec *executionContext) _Product_created_at(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Product_created_at(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4871,7 +4880,7 @@ func (ec *executionContext) fieldContext_Product_created_at(ctx context.Context,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4903,9 +4912,9 @@ func (ec *executionContext) _Product_updated_at(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Product_updated_at(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -4915,7 +4924,7 @@ func (ec *executionContext) fieldContext_Product_updated_at(ctx context.Context,
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -4935,7 +4944,7 @@ func (ec *executionContext) _ProductRecommendation_apriori_id(ctx context.Contex
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.AprioriID, nil
+		return obj.AprioriId, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4947,9 +4956,9 @@ func (ec *executionContext) _ProductRecommendation_apriori_id(ctx context.Contex
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_ProductRecommendation_apriori_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5097,6 +5106,88 @@ func (ec *executionContext) fieldContext_ProductRecommendation_apriori_discount(
 	return fc, nil
 }
 
+func (ec *executionContext) _ProductRecommendation_apriori_description(ctx context.Context, field graphql.CollectedField, obj *model.ProductRecommendation) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductRecommendation_apriori_description(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AprioriDescription, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductRecommendation_apriori_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductRecommendation",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _ProductRecommendation_apriori_image(ctx context.Context, field graphql.CollectedField, obj *model.ProductRecommendation) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_ProductRecommendation_apriori_image(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.AprioriImage, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		return graphql.Null
+	}
+	res := resTmp.(*string)
+	fc.Result = res
+	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_ProductRecommendation_apriori_image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "ProductRecommendation",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _ProductRecommendation_product_total_price(ctx context.Context, field graphql.CollectedField, obj *model.ProductRecommendation) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ProductRecommendation_product_total_price(ctx, field)
 	if err != nil {
@@ -5185,47 +5276,6 @@ func (ec *executionContext) fieldContext_ProductRecommendation_price_discount(ct
 	return fc, nil
 }
 
-func (ec *executionContext) _ProductRecommendation_apriori_image(ctx context.Context, field graphql.CollectedField, obj *model.ProductRecommendation) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ProductRecommendation_apriori_image(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.AprioriImage, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ProductRecommendation_apriori_image(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ProductRecommendation",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _ProductRecommendation_mass(ctx context.Context, field graphql.CollectedField, obj *model.ProductRecommendation) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_ProductRecommendation_mass(ctx, field)
 	if err != nil {
@@ -5270,47 +5320,6 @@ func (ec *executionContext) fieldContext_ProductRecommendation_mass(ctx context.
 	return fc, nil
 }
 
-func (ec *executionContext) _ProductRecommendation_apriori_description(ctx context.Context, field graphql.CollectedField, obj *model.ProductRecommendation) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_ProductRecommendation_apriori_description(ctx, field)
-	if err != nil {
-		return graphql.Null
-	}
-	ctx = graphql.WithFieldContext(ctx, fc)
-	defer func() {
-		if r := recover(); r != nil {
-			ec.Error(ctx, ec.Recover(ctx, r))
-			ret = graphql.Null
-		}
-	}()
-	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return obj.AprioriDescription, nil
-	})
-	if err != nil {
-		ec.Error(ctx, err)
-		return graphql.Null
-	}
-	if resTmp == nil {
-		return graphql.Null
-	}
-	res := resTmp.(*string)
-	fc.Result = res
-	return ec.marshalOString2ᚖstring(ctx, field.Selections, res)
-}
-
-func (ec *executionContext) fieldContext_ProductRecommendation_apriori_description(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
-	fc = &graphql.FieldContext{
-		Object:     "ProductRecommendation",
-		Field:      field,
-		IsMethod:   false,
-		IsResolver: false,
-		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
-		},
-	}
-	return fc, nil
-}
-
 func (ec *executionContext) _Query_products(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Query_products(ctx, field)
 	if err != nil {
@@ -5339,7 +5348,7 @@ func (ec *executionContext) _Query_products(ctx context.Context, field graphql.C
 	}
 	res := resTmp.([]*model.Product)
 	fc.Result = res
-	return ec.marshalNProduct2ᚕᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋhttpᚋcontrollerᚋgraphᚋmodelᚐProductᚄ(ctx, field.Selections, res)
+	return ec.marshalNProduct2ᚕᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐProductᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_products(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5654,7 +5663,7 @@ func (ec *executionContext) _Transaction_id_transaction(ctx context.Context, fie
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.IDTransaction, nil
+		return obj.IdTransaction, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5666,9 +5675,9 @@ func (ec *executionContext) _Transaction_id_transaction(ctx context.Context, fie
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Transaction_id_transaction(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5842,9 +5851,9 @@ func (ec *executionContext) _Transaction_created_at(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Transaction_created_at(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5854,7 +5863,7 @@ func (ec *executionContext) fieldContext_Transaction_created_at(ctx context.Cont
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -5886,9 +5895,9 @@ func (ec *executionContext) _Transaction_updated_at(ctx context.Context, field g
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Transaction_updated_at(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5898,7 +5907,7 @@ func (ec *executionContext) fieldContext_Transaction_updated_at(ctx context.Cont
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -5918,7 +5927,7 @@ func (ec *executionContext) _User_id_user(ctx context.Context, field graphql.Col
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.IDUser, nil
+		return obj.IdUser, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5930,9 +5939,9 @@ func (ec *executionContext) _User_id_user(ctx context.Context, field graphql.Col
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_id_user(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6238,9 +6247,9 @@ func (ec *executionContext) _User_created_at(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_created_at(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6250,7 +6259,7 @@ func (ec *executionContext) fieldContext_User_created_at(ctx context.Context, fi
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6282,9 +6291,9 @@ func (ec *executionContext) _User_updated_at(ctx context.Context, field graphql.
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(time.Time)
 	fc.Result = res
-	return ec.marshalNString2string(ctx, field.Selections, res)
+	return ec.marshalNTime2timeᚐTime(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_updated_at(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6294,7 +6303,7 @@ func (ec *executionContext) fieldContext_User_updated_at(ctx context.Context, fi
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type String does not have child fields")
+			return nil, errors.New("field of type Time does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6328,7 +6337,7 @@ func (ec *executionContext) _User_notification(ctx context.Context, field graphq
 	}
 	res := resTmp.([]*model.Notification)
 	fc.Result = res
-	return ec.marshalNNotification2ᚕᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋhttpᚋcontrollerᚋgraphᚋmodelᚐNotificationᚄ(ctx, field.Selections, res)
+	return ec.marshalNNotification2ᚕᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐNotificationᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_notification(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6390,7 +6399,7 @@ func (ec *executionContext) _User_payment(ctx context.Context, field graphql.Col
 	}
 	res := resTmp.([]*model.Payment)
 	fc.Result = res
-	return ec.marshalNPayment2ᚕᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋhttpᚋcontrollerᚋgraphᚋmodelᚐPaymentᚄ(ctx, field.Selections, res)
+	return ec.marshalNPayment2ᚕᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐPaymentᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_User_payment(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6468,7 +6477,7 @@ func (ec *executionContext) _UserOrder_id_order(ctx context.Context, field graph
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.IDOrder, nil
+		return obj.IdOrder, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6480,9 +6489,9 @@ func (ec *executionContext) _UserOrder_id_order(ctx context.Context, field graph
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_UserOrder_id_order(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6512,7 +6521,7 @@ func (ec *executionContext) _UserOrder_payload_id(ctx context.Context, field gra
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return obj.PayloadID, nil
+		return obj.PayloadId, nil
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6524,9 +6533,9 @@ func (ec *executionContext) _UserOrder_payload_id(ctx context.Context, field gra
 		}
 		return graphql.Null
 	}
-	res := resTmp.(string)
+	res := resTmp.(int)
 	fc.Result = res
-	return ec.marshalNID2string(ctx, field.Selections, res)
+	return ec.marshalNID2int(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_UserOrder_payload_id(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6647,9 +6656,9 @@ func (ec *executionContext) _UserOrder_price(ctx context.Context, field graphql.
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*int)
+	res := resTmp.(*int64)
 	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+	return ec.marshalOInt642ᚖint64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_UserOrder_price(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6659,7 +6668,7 @@ func (ec *executionContext) fieldContext_UserOrder_price(ctx context.Context, fi
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
+			return nil, errors.New("field of type Int64 does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6770,9 +6779,9 @@ func (ec *executionContext) _UserOrder_total_price_item(ctx context.Context, fie
 	if resTmp == nil {
 		return graphql.Null
 	}
-	res := resTmp.(*int)
+	res := resTmp.(*int64)
 	fc.Result = res
-	return ec.marshalOInt2ᚖint(ctx, field.Selections, res)
+	return ec.marshalOInt642ᚖint64(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_UserOrder_total_price_item(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6782,7 +6791,7 @@ func (ec *executionContext) fieldContext_UserOrder_total_price_item(ctx context.
 		IsMethod:   false,
 		IsResolver: false,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Int does not have child fields")
+			return nil, errors.New("field of type Int64 does not have child fields")
 		},
 	}
 	return fc, nil
@@ -6813,7 +6822,7 @@ func (ec *executionContext) _UserOrder_payment(ctx context.Context, field graphq
 	}
 	res := resTmp.(*model.Payment)
 	fc.Result = res
-	return ec.marshalOPayment2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋhttpᚋcontrollerᚋgraphᚋmodelᚐPayment(ctx, field.Selections, res)
+	return ec.marshalOPayment2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐPayment(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_UserOrder_payment(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -9533,6 +9542,14 @@ func (ec *executionContext) _ProductRecommendation(ctx context.Context, sel ast.
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
+		case "apriori_description":
+
+			out.Values[i] = ec._ProductRecommendation_apriori_description(ctx, field, obj)
+
+		case "apriori_image":
+
+			out.Values[i] = ec._ProductRecommendation_apriori_image(ctx, field, obj)
+
 		case "product_total_price":
 
 			out.Values[i] = ec._ProductRecommendation_product_total_price(ctx, field, obj)
@@ -9547,10 +9564,6 @@ func (ec *executionContext) _ProductRecommendation(ctx context.Context, sel ast.
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "apriori_image":
-
-			out.Values[i] = ec._ProductRecommendation_apriori_image(ctx, field, obj)
-
 		case "mass":
 
 			out.Values[i] = ec._ProductRecommendation_mass(ctx, field, obj)
@@ -9558,10 +9571,6 @@ func (ec *executionContext) _ProductRecommendation(ctx context.Context, sel ast.
 			if out.Values[i] == graphql.Null {
 				invalids++
 			}
-		case "apriori_description":
-
-			out.Values[i] = ec._ProductRecommendation_apriori_description(ctx, field, obj)
-
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -10252,13 +10261,13 @@ func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.S
 	return graphql.WrapContextMarshaler(ctx, res)
 }
 
-func (ec *executionContext) unmarshalNID2string(ctx context.Context, v interface{}) (string, error) {
-	res, err := graphql.UnmarshalID(v)
+func (ec *executionContext) unmarshalNID2int(ctx context.Context, v interface{}) (int, error) {
+	res, err := graphql.UnmarshalInt(v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNID2string(ctx context.Context, sel ast.SelectionSet, v string) graphql.Marshaler {
-	res := graphql.MarshalID(v)
+func (ec *executionContext) marshalNID2int(ctx context.Context, sel ast.SelectionSet, v int) graphql.Marshaler {
+	res := graphql.MarshalInt(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -10282,12 +10291,27 @@ func (ec *executionContext) marshalNInt2int(ctx context.Context, sel ast.Selecti
 	return res
 }
 
-func (ec *executionContext) unmarshalNNewProduct2githubᚗcomᚋarviansᚑidᚋaprioriᚋhttpᚋcontrollerᚋgraphᚋmodelᚐNewProduct(ctx context.Context, v interface{}) (model.NewProduct, error) {
+func (ec *executionContext) unmarshalNInt642int64(ctx context.Context, v interface{}) (int64, error) {
+	res, err := graphql.UnmarshalInt64(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNInt642int64(ctx context.Context, sel ast.SelectionSet, v int64) graphql.Marshaler {
+	res := graphql.MarshalInt64(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) unmarshalNNewProduct2githubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐNewProduct(ctx context.Context, v interface{}) (model.NewProduct, error) {
 	res, err := ec.unmarshalInputNewProduct(ctx, v)
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) marshalNNotification2ᚕᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋhttpᚋcontrollerᚋgraphᚋmodelᚐNotificationᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Notification) graphql.Marshaler {
+func (ec *executionContext) marshalNNotification2ᚕᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐNotificationᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Notification) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -10311,7 +10335,7 @@ func (ec *executionContext) marshalNNotification2ᚕᚖgithubᚗcomᚋarviansᚑ
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNNotification2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋhttpᚋcontrollerᚋgraphᚋmodelᚐNotification(ctx, sel, v[i])
+			ret[i] = ec.marshalNNotification2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐNotification(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -10331,7 +10355,7 @@ func (ec *executionContext) marshalNNotification2ᚕᚖgithubᚗcomᚋarviansᚑ
 	return ret
 }
 
-func (ec *executionContext) marshalNNotification2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋhttpᚋcontrollerᚋgraphᚋmodelᚐNotification(ctx context.Context, sel ast.SelectionSet, v *model.Notification) graphql.Marshaler {
+func (ec *executionContext) marshalNNotification2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐNotification(ctx context.Context, sel ast.SelectionSet, v *model.Notification) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -10341,7 +10365,7 @@ func (ec *executionContext) marshalNNotification2ᚖgithubᚗcomᚋarviansᚑid�
 	return ec._Notification(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNPayment2ᚕᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋhttpᚋcontrollerᚋgraphᚋmodelᚐPaymentᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Payment) graphql.Marshaler {
+func (ec *executionContext) marshalNPayment2ᚕᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐPaymentᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Payment) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -10365,7 +10389,7 @@ func (ec *executionContext) marshalNPayment2ᚕᚖgithubᚗcomᚋarviansᚑidᚋ
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNPayment2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋhttpᚋcontrollerᚋgraphᚋmodelᚐPayment(ctx, sel, v[i])
+			ret[i] = ec.marshalNPayment2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐPayment(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -10385,7 +10409,7 @@ func (ec *executionContext) marshalNPayment2ᚕᚖgithubᚗcomᚋarviansᚑidᚋ
 	return ret
 }
 
-func (ec *executionContext) marshalNPayment2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋhttpᚋcontrollerᚋgraphᚋmodelᚐPayment(ctx context.Context, sel ast.SelectionSet, v *model.Payment) graphql.Marshaler {
+func (ec *executionContext) marshalNPayment2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐPayment(ctx context.Context, sel ast.SelectionSet, v *model.Payment) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -10395,11 +10419,11 @@ func (ec *executionContext) marshalNPayment2ᚖgithubᚗcomᚋarviansᚑidᚋapr
 	return ec._Payment(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNProduct2githubᚗcomᚋarviansᚑidᚋaprioriᚋhttpᚋcontrollerᚋgraphᚋmodelᚐProduct(ctx context.Context, sel ast.SelectionSet, v model.Product) graphql.Marshaler {
+func (ec *executionContext) marshalNProduct2githubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐProduct(ctx context.Context, sel ast.SelectionSet, v model.Product) graphql.Marshaler {
 	return ec._Product(ctx, sel, &v)
 }
 
-func (ec *executionContext) marshalNProduct2ᚕᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋhttpᚋcontrollerᚋgraphᚋmodelᚐProductᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Product) graphql.Marshaler {
+func (ec *executionContext) marshalNProduct2ᚕᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐProductᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.Product) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -10423,7 +10447,7 @@ func (ec *executionContext) marshalNProduct2ᚕᚖgithubᚗcomᚋarviansᚑidᚋ
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNProduct2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋhttpᚋcontrollerᚋgraphᚋmodelᚐProduct(ctx, sel, v[i])
+			ret[i] = ec.marshalNProduct2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐProduct(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -10443,7 +10467,7 @@ func (ec *executionContext) marshalNProduct2ᚕᚖgithubᚗcomᚋarviansᚑidᚋ
 	return ret
 }
 
-func (ec *executionContext) marshalNProduct2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋhttpᚋcontrollerᚋgraphᚋmodelᚐProduct(ctx context.Context, sel ast.SelectionSet, v *model.Product) graphql.Marshaler {
+func (ec *executionContext) marshalNProduct2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐProduct(ctx context.Context, sel ast.SelectionSet, v *model.Product) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -10500,7 +10524,22 @@ func (ec *executionContext) marshalNString2ᚕstringᚄ(ctx context.Context, sel
 	return ret
 }
 
-func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋhttpᚋcontrollerᚋgraphᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
+func (ec *executionContext) unmarshalNTime2timeᚐTime(ctx context.Context, v interface{}) (time.Time, error) {
+	res, err := graphql.UnmarshalTime(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNTime2timeᚐTime(ctx context.Context, sel ast.SelectionSet, v time.Time) graphql.Marshaler {
+	res := graphql.MarshalTime(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐUser(ctx context.Context, sel ast.SelectionSet, v *model.User) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -10510,7 +10549,7 @@ func (ec *executionContext) marshalNUser2ᚖgithubᚗcomᚋarviansᚑidᚋaprior
 	return ec._User(ctx, sel, v)
 }
 
-func (ec *executionContext) marshalNUserOrder2ᚕᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋhttpᚋcontrollerᚋgraphᚋmodelᚐUserOrderᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.UserOrder) graphql.Marshaler {
+func (ec *executionContext) marshalNUserOrder2ᚕᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐUserOrderᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.UserOrder) graphql.Marshaler {
 	ret := make(graphql.Array, len(v))
 	var wg sync.WaitGroup
 	isLen1 := len(v) == 1
@@ -10534,7 +10573,7 @@ func (ec *executionContext) marshalNUserOrder2ᚕᚖgithubᚗcomᚋarviansᚑid�
 			if !isLen1 {
 				defer wg.Done()
 			}
-			ret[i] = ec.marshalNUserOrder2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋhttpᚋcontrollerᚋgraphᚋmodelᚐUserOrder(ctx, sel, v[i])
+			ret[i] = ec.marshalNUserOrder2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐUserOrder(ctx, sel, v[i])
 		}
 		if isLen1 {
 			f(i)
@@ -10554,7 +10593,7 @@ func (ec *executionContext) marshalNUserOrder2ᚕᚖgithubᚗcomᚋarviansᚑid�
 	return ret
 }
 
-func (ec *executionContext) marshalNUserOrder2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋhttpᚋcontrollerᚋgraphᚋmodelᚐUserOrder(ctx context.Context, sel ast.SelectionSet, v *model.UserOrder) graphql.Marshaler {
+func (ec *executionContext) marshalNUserOrder2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐUserOrder(ctx context.Context, sel ast.SelectionSet, v *model.UserOrder) graphql.Marshaler {
 	if v == nil {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
@@ -10859,7 +10898,23 @@ func (ec *executionContext) marshalOInt2ᚖint(ctx context.Context, sel ast.Sele
 	return res
 }
 
-func (ec *executionContext) marshalOPayment2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋhttpᚋcontrollerᚋgraphᚋmodelᚐPayment(ctx context.Context, sel ast.SelectionSet, v *model.Payment) graphql.Marshaler {
+func (ec *executionContext) unmarshalOInt642ᚖint64(ctx context.Context, v interface{}) (*int64, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalInt64(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOInt642ᚖint64(ctx context.Context, sel ast.SelectionSet, v *int64) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalInt64(*v)
+	return res
+}
+
+func (ec *executionContext) marshalOPayment2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐPayment(ctx context.Context, sel ast.SelectionSet, v *model.Payment) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}
@@ -10882,7 +10937,7 @@ func (ec *executionContext) marshalOString2ᚖstring(ctx context.Context, sel as
 	return res
 }
 
-func (ec *executionContext) marshalOUserOrder2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋhttpᚋcontrollerᚋgraphᚋmodelᚐUserOrder(ctx context.Context, sel ast.SelectionSet, v *model.UserOrder) graphql.Marshaler {
+func (ec *executionContext) marshalOUserOrder2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐUserOrder(ctx context.Context, sel ast.SelectionSet, v *model.UserOrder) graphql.Marshaler {
 	if v == nil {
 		return graphql.Null
 	}

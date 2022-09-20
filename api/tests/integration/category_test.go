@@ -6,8 +6,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/arvians-id/apriori/config"
-	"github.com/arvians-id/apriori/entity"
 	"github.com/arvians-id/apriori/helper"
+	"github.com/arvians-id/apriori/model"
 	repository "github.com/arvians-id/apriori/repository/postgres"
 	"github.com/arvians-id/apriori/service"
 	"github.com/arvians-id/apriori/tests/setup"
@@ -41,7 +41,7 @@ var _ = Describe("Category API", func() {
 		tx, _ := database.Begin()
 		userRepository := repository.NewUserRepository()
 		password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-		_, _ = userRepository.Create(context.Background(), tx, &entity.User{
+		_, _ = userRepository.Create(context.Background(), tx, &model.User{
 			Role:      1,
 			Name:      "Widdy",
 			Email:     "widdy@gmail.com",
@@ -135,7 +135,7 @@ var _ = Describe("Category API", func() {
 				// Create Category
 				tx, _ := database.Begin()
 				categoryRepository := repository.NewCategoryRepository()
-				_, _ = categoryRepository.Create(context.Background(), tx, &entity.Category{
+				_, _ = categoryRepository.Create(context.Background(), tx, &model.Category{
 					Name:      "Produk Kasur",
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
@@ -189,7 +189,7 @@ var _ = Describe("Category API", func() {
 				// Create Category
 				tx, _ := database.Begin()
 				categoryRepository := repository.NewCategoryRepository()
-				category, _ := categoryRepository.Create(context.Background(), tx, &entity.Category{
+				category, _ := categoryRepository.Create(context.Background(), tx, &model.Category{
 					Name:      "Produk Kasur",
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
@@ -244,7 +244,7 @@ var _ = Describe("Category API", func() {
 				// Create Category
 				tx, _ := database.Begin()
 				categoryRepository := repository.NewCategoryRepository()
-				category, _ := categoryRepository.Create(context.Background(), tx, &entity.Category{
+				category, _ := categoryRepository.Create(context.Background(), tx, &model.Category{
 					Name:      "Produk Kasur",
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
@@ -309,7 +309,7 @@ var _ = Describe("Category API", func() {
 				// Create Category
 				tx, _ := database.Begin()
 				categoryRepository := repository.NewCategoryRepository()
-				category, _ := categoryRepository.Create(context.Background(), tx, &entity.Category{
+				category, _ := categoryRepository.Create(context.Background(), tx, &model.Category{
 					Name:      "Produk Kasur",
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),

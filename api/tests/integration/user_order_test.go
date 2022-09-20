@@ -6,8 +6,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/arvians-id/apriori/config"
-	"github.com/arvians-id/apriori/entity"
 	"github.com/arvians-id/apriori/helper"
+	"github.com/arvians-id/apriori/model"
 	repository "github.com/arvians-id/apriori/repository/postgres"
 	"github.com/arvians-id/apriori/service"
 	"github.com/arvians-id/apriori/tests/setup"
@@ -32,8 +32,8 @@ var _ = Describe("User Order API", func() {
 	var database *sql.DB
 	var tokenJWT string
 	var cookie *http.Cookie
-	var order1 *entity.UserOrder
-	var payment *entity.Payment
+	var order1 *model.UserOrder
+	var payment *model.Payment
 	configuration := config.New("../../.env.test")
 
 	BeforeEach(func() {
@@ -48,7 +48,7 @@ var _ = Describe("User Order API", func() {
 		tx, _ := database.Begin()
 		userRepository := repository.NewUserRepository()
 		password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-		user, _ := userRepository.Create(context.Background(), tx, &entity.User{
+		user, _ := userRepository.Create(context.Background(), tx, &model.User{
 			Role:      1,
 			Name:      "Widdy",
 			Email:     "widdy@gmail.com",
@@ -81,7 +81,7 @@ var _ = Describe("User Order API", func() {
 		tx, _ = database.Begin()
 		productRepository := repository.NewProductRepository()
 		description := "Test Bang"
-		_, _ = productRepository.Create(context.Background(), tx, &entity.Product{
+		_, _ = productRepository.Create(context.Background(), tx, &model.Product{
 			Code:        "Lfanp",
 			Name:        "Bantal Biasa",
 			Description: &description,
@@ -94,8 +94,8 @@ var _ = Describe("User Order API", func() {
 		// Create payload
 		payloadRepository := repository.NewPaymentRepository()
 		orderId := "QESXmTNzqowsqTNZYmAD"
-		payload, _ := payloadRepository.Create(context.Background(), tx, &entity.Payment{
-			UserId:  helper.IntToStr(user.IdUser),
+		payload, _ := payloadRepository.Create(context.Background(), tx, &model.Payment{
+			UserId:  user.IdUser,
 			OrderId: &orderId,
 		})
 
@@ -107,7 +107,7 @@ var _ = Describe("User Order API", func() {
 		image := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/assets/%s", os.Getenv("AWS_BUCKET"), os.Getenv("AWS_REGION"), "no-image.png")
 		quantity := 1
 		totalPriceItem := int64(20000)
-		userOrder1, _ := userOrderRepository.Create(context.Background(), tx, &entity.UserOrder{
+		userOrder1, _ := userOrderRepository.Create(context.Background(), tx, &model.UserOrder{
 			PayloadId:      payload.IdPayload,
 			Code:           &code,
 			Name:           &name,
@@ -121,7 +121,7 @@ var _ = Describe("User Order API", func() {
 		price = int64(10000)
 		quantity = 2
 		totalPriceItem = int64(20000)
-		_, _ = userOrderRepository.Create(context.Background(), tx, &entity.UserOrder{
+		_, _ = userOrderRepository.Create(context.Background(), tx, &model.UserOrder{
 			PayloadId:      payload.IdPayload,
 			Code:           &code,
 			Name:           &name,

@@ -3,9 +3,9 @@ package service
 import (
 	"context"
 	"database/sql"
-	"github.com/arvians-id/apriori/entity"
 	"github.com/arvians-id/apriori/helper"
 	"github.com/arvians-id/apriori/http/request"
+	"github.com/arvians-id/apriori/model"
 	"github.com/arvians-id/apriori/repository"
 	"strings"
 	"time"
@@ -29,7 +29,7 @@ func NewCommentService(
 	}
 }
 
-func (service *CommentServiceImpl) FindAllRatingByProductCode(ctx context.Context, productCode string) ([]*entity.RatingFromComment, error) {
+func (service *CommentServiceImpl) FindAllRatingByProductCode(ctx context.Context, productCode string) ([]*model.RatingFromComment, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -49,7 +49,7 @@ func (service *CommentServiceImpl) FindAllRatingByProductCode(ctx context.Contex
 	return ratings, nil
 }
 
-func (service *CommentServiceImpl) FindAllByProductCode(ctx context.Context, productCode string, rating string, tags string) ([]*entity.Comment, error) {
+func (service *CommentServiceImpl) FindAllByProductCode(ctx context.Context, productCode string, rating string, tags string) ([]*model.Comment, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -71,7 +71,7 @@ func (service *CommentServiceImpl) FindAllByProductCode(ctx context.Context, pro
 	return comments, nil
 }
 
-func (service *CommentServiceImpl) FindById(ctx context.Context, id int) (*entity.Comment, error) {
+func (service *CommentServiceImpl) FindById(ctx context.Context, id int) (*model.Comment, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -86,7 +86,7 @@ func (service *CommentServiceImpl) FindById(ctx context.Context, id int) (*entit
 	return comment, nil
 }
 
-func (service *CommentServiceImpl) FindByUserOrderId(ctx context.Context, userOrderId int) (*entity.Comment, error) {
+func (service *CommentServiceImpl) FindByUserOrderId(ctx context.Context, userOrderId int) (*model.Comment, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -101,7 +101,7 @@ func (service *CommentServiceImpl) FindByUserOrderId(ctx context.Context, userOr
 	return comment, nil
 }
 
-func (service *CommentServiceImpl) Create(ctx context.Context, request *request.CreateCommentRequest) (*entity.Comment, error) {
+func (service *CommentServiceImpl) Create(ctx context.Context, request *request.CreateCommentRequest) (*model.Comment, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -113,7 +113,7 @@ func (service *CommentServiceImpl) Create(ctx context.Context, request *request.
 		return nil, err
 	}
 
-	commentRequest := entity.Comment{
+	commentRequest := model.Comment{
 		UserOrderId: request.UserOrderId,
 		ProductCode: request.ProductCode,
 		Description: &request.Description,

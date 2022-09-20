@@ -3,10 +3,10 @@ package rest
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/arvians-id/apriori/entity"
 	"github.com/arvians-id/apriori/http/middleware"
 	"github.com/arvians-id/apriori/http/request"
 	"github.com/arvians-id/apriori/http/response"
+	"github.com/arvians-id/apriori/model"
 	"github.com/arvians-id/apriori/service"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
@@ -135,7 +135,7 @@ func (controller *ProductController) FindByCode(c *gin.Context) {
 		return
 	}
 
-	var productCacheResponse entity.Product
+	var productCacheResponse model.Product
 	err = json.Unmarshal(productCache, &productCacheResponse)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)

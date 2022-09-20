@@ -3,7 +3,7 @@ package mysql
 import (
 	"context"
 	"database/sql"
-	"github.com/arvians-id/apriori/entity"
+	"github.com/arvians-id/apriori/model"
 	"github.com/arvians-id/apriori/repository"
 	"log"
 )
@@ -15,7 +15,7 @@ func NewCategoryRepository() repository.CategoryRepository {
 	return &CategoryRepositoryImpl{}
 }
 
-func (repository *CategoryRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) ([]*entity.Category, error) {
+func (repository *CategoryRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) ([]*model.Category, error) {
 	query := "SELECT * FROM categories ORDER BY id_category DESC"
 	rows, err := tx.QueryContext(ctx, query)
 	if err != nil {
@@ -29,9 +29,9 @@ func (repository *CategoryRepositoryImpl) FindAll(ctx context.Context, tx *sql.T
 		}
 	}(rows)
 
-	var categories []*entity.Category
+	var categories []*model.Category
 	for rows.Next() {
-		var category entity.Category
+		var category model.Category
 		err := rows.Scan(&category.IdCategory, &category.Name, &category.CreatedAt, &category.UpdatedAt)
 		if err != nil {
 			return nil, err
@@ -43,11 +43,11 @@ func (repository *CategoryRepositoryImpl) FindAll(ctx context.Context, tx *sql.T
 	return categories, nil
 }
 
-func (repository *CategoryRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, id int) (*entity.Category, error) {
+func (repository *CategoryRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, id int) (*model.Category, error) {
 	query := "SELECT * FROM categories WHERE id_category = ?"
 	row := tx.QueryRowContext(ctx, query, id)
 
-	var category entity.Category
+	var category model.Category
 	err := row.Scan(&category.IdCategory, &category.Name, &category.CreatedAt, &category.UpdatedAt)
 	if err != nil {
 		return nil, err
@@ -56,7 +56,7 @@ func (repository *CategoryRepositoryImpl) FindById(ctx context.Context, tx *sql.
 	return &category, nil
 }
 
-func (repository *CategoryRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, category *entity.Category) (*entity.Category, error) {
+func (repository *CategoryRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, category *model.Category) (*model.Category, error) {
 	query := "INSERT INTO categories (name,created_at,updated_at) VALUES(?,?,?)"
 	row, err := tx.ExecContext(ctx, query, category.Name, category.CreatedAt, category.UpdatedAt)
 	if err != nil {
@@ -73,11 +73,11 @@ func (repository *CategoryRepositoryImpl) Create(ctx context.Context, tx *sql.Tx
 	return category, nil
 }
 
-func (repository *CategoryRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, category *entity.Category) (*entity.Category, error) {
+func (repository *CategoryRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, category *model.Category) (*model.Category, error) {
 	query := "UPDATE categories SET name = ?, updated_at = ? WHERE id_category = ?"
 	_, err := tx.ExecContext(ctx, query, category.Name, category.UpdatedAt, category.IdCategory)
 	if err != nil {
-		return &entity.Category{}, err
+		return &model.Category{}, err
 	}
 
 	return category, nil

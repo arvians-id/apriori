@@ -3,9 +3,9 @@ package unittest
 import (
 	"context"
 	"errors"
-	"github.com/arvians-id/apriori/entity"
 	"github.com/arvians-id/apriori/http/request"
 	"github.com/arvians-id/apriori/http/response"
+	"github.com/arvians-id/apriori/model"
 	repository "github.com/arvians-id/apriori/repository/mock"
 	"github.com/arvians-id/apriori/service"
 	"github.com/stretchr/testify/assert"
@@ -22,7 +22,7 @@ var userService = service.UserServiceImpl{
 	UserRepository: userRepository,
 }
 
-var userRequest = entity.User{
+var userRequest = model.User{
 	IdUser:    1,
 	Role:      1,
 	Name:      "Widdy",
@@ -35,8 +35,8 @@ var userRequest = entity.User{
 }
 
 func TestFindByAll(t *testing.T) {
-	var userRequests []*entity.User
-	userRequests = append(userRequests, &userRequest, &entity.User{
+	var userRequests []*model.User
+	userRequests = append(userRequests, &userRequest, &model.User{
 		IdUser:    2,
 		Role:      1,
 		Name:      "Arfiansyah",
@@ -168,7 +168,7 @@ func TestUpdate(t *testing.T) {
 	})
 
 	t.Run("when the user is found, then update it", func(t *testing.T) {
-		userRequestUpdate := entity.User{
+		userRequestUpdate := model.User{
 			IdUser:  1,
 			Role:    2,
 			Name:    "Arfiansyah",

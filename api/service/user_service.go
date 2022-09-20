@@ -4,9 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"github.com/arvians-id/apriori/entity"
 	"github.com/arvians-id/apriori/helper"
 	"github.com/arvians-id/apriori/http/request"
+	"github.com/arvians-id/apriori/model"
 	"github.com/arvians-id/apriori/repository"
 	"golang.org/x/crypto/bcrypt"
 	"time"
@@ -24,7 +24,7 @@ func NewUserService(userRepository *repository.UserRepository, db *sql.DB) UserS
 	}
 }
 
-func (service *UserServiceImpl) FindAll(ctx context.Context) ([]*entity.User, error) {
+func (service *UserServiceImpl) FindAll(ctx context.Context) ([]*model.User, error) {
 	var tx *sql.Tx
 	if service.DB != nil {
 		transaction, err := service.DB.Begin()
@@ -43,7 +43,7 @@ func (service *UserServiceImpl) FindAll(ctx context.Context) ([]*entity.User, er
 	return users, nil
 }
 
-func (service *UserServiceImpl) FindById(ctx context.Context, id int) (*entity.User, error) {
+func (service *UserServiceImpl) FindById(ctx context.Context, id int) (*model.User, error) {
 	var tx *sql.Tx
 	if service.DB != nil {
 		transaction, err := service.DB.Begin()
@@ -62,7 +62,7 @@ func (service *UserServiceImpl) FindById(ctx context.Context, id int) (*entity.U
 	return user, nil
 }
 
-func (service *UserServiceImpl) FindByEmail(ctx context.Context, request *request.GetUserCredentialRequest) (*entity.User, error) {
+func (service *UserServiceImpl) FindByEmail(ctx context.Context, request *request.GetUserCredentialRequest) (*model.User, error) {
 	var tx *sql.Tx
 	if service.DB != nil {
 		transaction, err := service.DB.Begin()
@@ -86,7 +86,7 @@ func (service *UserServiceImpl) FindByEmail(ctx context.Context, request *reques
 	return user, nil
 }
 
-func (service *UserServiceImpl) Create(ctx context.Context, request *request.CreateUserRequest) (*entity.User, error) {
+func (service *UserServiceImpl) Create(ctx context.Context, request *request.CreateUserRequest) (*model.User, error) {
 	var tx *sql.Tx
 	if service.DB != nil {
 		transaction, err := service.DB.Begin()
@@ -107,7 +107,7 @@ func (service *UserServiceImpl) Create(ctx context.Context, request *request.Cre
 		return nil, err
 	}
 
-	userRequest := entity.User{
+	userRequest := model.User{
 		Role:      2,
 		Name:      request.Name,
 		Email:     request.Email,
@@ -125,7 +125,7 @@ func (service *UserServiceImpl) Create(ctx context.Context, request *request.Cre
 	return user, nil
 }
 
-func (service *UserServiceImpl) Update(ctx context.Context, request *request.UpdateUserRequest) (*entity.User, error) {
+func (service *UserServiceImpl) Update(ctx context.Context, request *request.UpdateUserRequest) (*model.User, error) {
 	var tx *sql.Tx
 	if service.DB != nil {
 		transaction, err := service.DB.Begin()

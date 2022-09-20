@@ -3,11 +3,11 @@ package rest
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/arvians-id/apriori/entity"
 	"github.com/arvians-id/apriori/helper"
 	"github.com/arvians-id/apriori/http/middleware"
 	"github.com/arvians-id/apriori/http/request"
 	"github.com/arvians-id/apriori/http/response"
+	"github.com/arvians-id/apriori/model"
 	"github.com/arvians-id/apriori/service"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
@@ -67,7 +67,7 @@ func (controller *CategoryController) FindAll(c *gin.Context) {
 		return
 	}
 
-	var categoryCacheResponses []entity.Category
+	var categoryCacheResponses []model.Category
 	err = json.Unmarshal(categoriesCache, &categoryCacheResponses)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)

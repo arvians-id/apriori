@@ -3,9 +3,9 @@ package service
 import (
 	"context"
 	"database/sql"
-	"github.com/arvians-id/apriori/entity"
 	"github.com/arvians-id/apriori/helper"
 	"github.com/arvians-id/apriori/http/request"
+	"github.com/arvians-id/apriori/model"
 	"github.com/arvians-id/apriori/repository"
 	"strings"
 	"time"
@@ -32,7 +32,7 @@ func NewProductService(
 	}
 }
 
-func (service *ProductServiceImpl) FindAllByAdmin(ctx context.Context) ([]*entity.Product, error) {
+func (service *ProductServiceImpl) FindAllByAdmin(ctx context.Context) ([]*model.Product, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -47,7 +47,7 @@ func (service *ProductServiceImpl) FindAllByAdmin(ctx context.Context) ([]*entit
 	return products, nil
 }
 
-func (service *ProductServiceImpl) FindAll(ctx context.Context, search string, category string) ([]*entity.Product, error) {
+func (service *ProductServiceImpl) FindAll(ctx context.Context, search string, category string) ([]*model.Product, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -62,7 +62,7 @@ func (service *ProductServiceImpl) FindAll(ctx context.Context, search string, c
 	return products, nil
 }
 
-func (service *ProductServiceImpl) FindAllBySimilarCategory(ctx context.Context, code string) ([]*entity.Product, error) {
+func (service *ProductServiceImpl) FindAllBySimilarCategory(ctx context.Context, code string) ([]*model.Product, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -81,7 +81,7 @@ func (service *ProductServiceImpl) FindAllBySimilarCategory(ctx context.Context,
 		return nil, err
 	}
 
-	var productResponses []*entity.Product
+	var productResponses []*model.Product
 	for _, productCategory := range productCategories {
 		if productCategory.Code != code {
 			productResponses = append(productResponses, productCategory)
@@ -91,7 +91,7 @@ func (service *ProductServiceImpl) FindAllBySimilarCategory(ctx context.Context,
 	return productResponses, nil
 }
 
-func (service *ProductServiceImpl) FindAllRecommendation(ctx context.Context, code string) ([]*entity.ProductRecommendation, error) {
+func (service *ProductServiceImpl) FindAllRecommendation(ctx context.Context, code string) ([]*model.ProductRecommendation, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -108,7 +108,7 @@ func (service *ProductServiceImpl) FindAllRecommendation(ctx context.Context, co
 		return nil, err
 	}
 
-	var productResponses []*entity.ProductRecommendation
+	var productResponses []*model.ProductRecommendation
 	for _, apriori := range apriories {
 		productNames := strings.Split(apriori.Item, ",")
 		var exists bool
@@ -125,14 +125,14 @@ func (service *ProductServiceImpl) FindAllRecommendation(ctx context.Context, co
 				totalPrice += productByName.Price
 			}
 
-			productResponses = append(productResponses, &entity.ProductRecommendation{
-				AprioriId:          apriori.IdApriori,
-				AprioriCode:        apriori.Code,
-				AprioriItem:        apriori.Item,
-				AprioriDiscount:    apriori.Discount,
-				ProductTotalPrice:  totalPrice,
-				PriceAfterDiscount: totalPrice - (totalPrice * int(apriori.Discount) / 100),
-				Image:              apriori.Image,
+			productResponses = append(productResponses, &model.ProductRecommendation{
+				AprioriId:         apriori.IdApriori,
+				AprioriCode:       apriori.Code,
+				AprioriItem:       apriori.Item,
+				AprioriDiscount:   apriori.Discount,
+				ProductTotalPrice: totalPrice,
+				PriceDiscount:     totalPrice - (totalPrice * int(apriori.Discount) / 100),
+				AprioriImage:      apriori.Image,
 			})
 		}
 	}
@@ -140,7 +140,7 @@ func (service *ProductServiceImpl) FindAllRecommendation(ctx context.Context, co
 	return productResponses, nil
 }
 
-func (service *ProductServiceImpl) FindByCode(ctx context.Context, code string) (*entity.Product, error) {
+func (service *ProductServiceImpl) FindByCode(ctx context.Context, code string) (*model.Product, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -155,7 +155,7 @@ func (service *ProductServiceImpl) FindByCode(ctx context.Context, code string) 
 	return productResponse, nil
 }
 
-func (service *ProductServiceImpl) Create(ctx context.Context, request *request.CreateProductRequest) (*entity.Product, error) {
+func (service *ProductServiceImpl) Create(ctx context.Context, request *request.CreateProductRequest) (*model.Product, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -170,7 +170,7 @@ func (service *ProductServiceImpl) Create(ctx context.Context, request *request.
 		request.Image = "no-image.png"
 	}
 
-	productRequest := entity.Product{
+	productRequest := model.Product{
 		Code:        request.Code,
 		Name:        helper.UpperWords(request.Name),
 		Description: &request.Description,
@@ -191,7 +191,7 @@ func (service *ProductServiceImpl) Create(ctx context.Context, request *request.
 	return productResponse, nil
 }
 
-func (service *ProductServiceImpl) Update(ctx context.Context, request *request.UpdateProductRequest) (*entity.Product, error) {
+func (service *ProductServiceImpl) Update(ctx context.Context, request *request.UpdateProductRequest) (*model.Product, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err

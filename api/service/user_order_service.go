@@ -3,8 +3,8 @@ package service
 import (
 	"context"
 	"database/sql"
-	"github.com/arvians-id/apriori/entity"
 	"github.com/arvians-id/apriori/helper"
+	"github.com/arvians-id/apriori/model"
 	"github.com/arvians-id/apriori/repository"
 )
 
@@ -29,7 +29,7 @@ func NewUserOrderService(
 	}
 }
 
-func (service *UserOrderServiceImpl) FindAllByPayloadId(ctx context.Context, payloadId int) ([]*entity.UserOrder, error) {
+func (service *UserOrderServiceImpl) FindAllByPayloadId(ctx context.Context, payloadId int) ([]*model.UserOrder, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -44,7 +44,7 @@ func (service *UserOrderServiceImpl) FindAllByPayloadId(ctx context.Context, pay
 	return userOrders, nil
 }
 
-func (service *UserOrderServiceImpl) FindAllByUserId(ctx context.Context, userId int) ([]*entity.UserOrder, error) {
+func (service *UserOrderServiceImpl) FindAllByUserId(ctx context.Context, userId int) ([]*model.UserOrder, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -64,7 +64,7 @@ func (service *UserOrderServiceImpl) FindAllByUserId(ctx context.Context, userId
 	return userOrders, nil
 }
 
-func (service *UserOrderServiceImpl) FindById(ctx context.Context, id int) (*entity.UserOrder, error) {
+func (service *UserOrderServiceImpl) FindById(ctx context.Context, id int) (*model.UserOrder, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err

@@ -4,10 +4,10 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"github.com/arvians-id/apriori/entity"
 	"github.com/arvians-id/apriori/helper"
 	"github.com/arvians-id/apriori/http/middleware"
 	"github.com/arvians-id/apriori/http/response"
+	"github.com/arvians-id/apriori/model"
 	"github.com/arvians-id/apriori/service"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
@@ -72,7 +72,7 @@ func (controller *UserOrderController) FindAll(c *gin.Context) {
 		return
 	}
 
-	var paymentCacheResponses []entity.Payment
+	var paymentCacheResponses []model.Payment
 	err = json.Unmarshal(paymentsCache, &paymentCacheResponses)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
@@ -111,7 +111,7 @@ func (controller *UserOrderController) FindAllByUserId(c *gin.Context) {
 		return
 	}
 
-	var userOrderCacheResponses []entity.UserOrder
+	var userOrderCacheResponses []model.UserOrder
 	err = json.Unmarshal(userOrdersCache, &userOrderCacheResponses)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
@@ -155,7 +155,7 @@ func (controller *UserOrderController) FindAllById(c *gin.Context) {
 		return
 	}
 
-	var userOrderCacheResponses []entity.UserOrder
+	var userOrderCacheResponses []model.UserOrder
 	err = json.Unmarshal(userOrdersCache, &userOrderCacheResponses)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)

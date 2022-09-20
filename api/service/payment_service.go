@@ -5,9 +5,9 @@ import (
 	"database/sql"
 	"encoding/json"
 	"github.com/arvians-id/apriori/config"
-	"github.com/arvians-id/apriori/entity"
 	"github.com/arvians-id/apriori/helper"
 	"github.com/arvians-id/apriori/http/request"
+	"github.com/arvians-id/apriori/model"
 	"github.com/arvians-id/apriori/repository"
 	"github.com/veritrans/go-midtrans"
 	"reflect"
@@ -58,7 +58,7 @@ func (service *PaymentServiceImpl) GetClient() {
 	}
 }
 
-func (service *PaymentServiceImpl) FindAll(ctx context.Context) ([]*entity.Payment, error) {
+func (service *PaymentServiceImpl) FindAll(ctx context.Context) ([]*model.Payment, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -73,7 +73,7 @@ func (service *PaymentServiceImpl) FindAll(ctx context.Context) ([]*entity.Payme
 	return payments, nil
 }
 
-func (service *PaymentServiceImpl) FindAllByUserId(ctx context.Context, userId int) ([]*entity.Payment, error) {
+func (service *PaymentServiceImpl) FindAllByUserId(ctx context.Context, userId int) ([]*model.Payment, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -88,7 +88,7 @@ func (service *PaymentServiceImpl) FindAllByUserId(ctx context.Context, userId i
 	return payments, nil
 }
 
-func (service *PaymentServiceImpl) FindByOrderId(ctx context.Context, orderId string) (*entity.Payment, error) {
+func (service *PaymentServiceImpl) FindByOrderId(ctx context.Context, orderId string) (*model.Payment, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -143,7 +143,7 @@ func (service *PaymentServiceImpl) CreateOrUpdate(ctx context.Context, requestPa
 	fraudStatus := requestPayment["fraud_status"].(string)
 
 	checkTransaction, _ := service.PaymentRepository.FindByOrderId(ctx, tx, requestPayment["order_id"].(string))
-	checkTransaction.UserId = requestPayment["custom_field1"].(string)
+	checkTransaction.UserId = helper.StrToInt(requestPayment["custom_field1"].(string))
 	checkTransaction.OrderId = &orderID
 	checkTransaction.TransactionTime = &transactionTime
 	checkTransaction.TransactionStatus = &transactionStatus
@@ -182,7 +182,7 @@ func (service *PaymentServiceImpl) CreateOrUpdate(ctx context.Context, requestPa
 				productName = append(productName, *item.Name)
 			}
 
-			transaction := entity.Transaction{
+			transaction := model.Transaction{
 				ProductName:   strings.ToLower(strings.Join(productName, ", ")),
 				CustomerName:  requestPayment["custom_field3"].(string),
 				NoTransaction: requestPayment["order_id"].(string),
@@ -196,7 +196,7 @@ func (service *PaymentServiceImpl) CreateOrUpdate(ctx context.Context, requestPa
 			}
 
 			var notificationRequest request.CreateNotificationRequest
-			notificationRequest.UserId = helper.StrToInt(checkTransaction.UserId)
+			notificationRequest.UserId = checkTransaction.UserId
 			notificationRequest.Title = "Transaction Successfully"
 			notificationRequest.Description = "You have successfully made a payment. Thank you for shopping at Ryzy Shop"
 			notificationRequest.URL = "product"
@@ -210,7 +210,7 @@ func (service *PaymentServiceImpl) CreateOrUpdate(ctx context.Context, requestPa
 	return nil
 }
 
-func (service *PaymentServiceImpl) UpdateReceiptNumber(ctx context.Context, request *request.AddReceiptNumberRequest) (*entity.Payment, error) {
+func (service *PaymentServiceImpl) UpdateReceiptNumber(ctx context.Context, request *request.AddReceiptNumberRequest) (*model.Payment, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -288,7 +288,6 @@ func (service *PaymentServiceImpl) GetToken(ctx context.Context, request *reques
 	})
 
 	orderID := helper.RandomString(20)
-	userId := helper.IntToStr(request.UserId)
 	var snapRequest midtrans.SnapReq
 	snapRequest.TransactionDetails.OrderID = orderID
 	snapRequest.TransactionDetails.GrossAmt = request.GrossAmount
@@ -296,7 +295,7 @@ func (service *PaymentServiceImpl) GetToken(ctx context.Context, request *reques
 	snapRequest.CustomerDetail = &midtrans.CustDetail{
 		FName: request.CustomerName,
 	}
-	snapRequest.CustomField1 = userId
+	snapRequest.CustomField1 = helper.IntToStr(request.UserId)
 
 	// Save to database
 	tx, err := service.DB.Begin()
@@ -307,8 +306,8 @@ func (service *PaymentServiceImpl) GetToken(ctx context.Context, request *reques
 
 	canceled := "canceled"
 	timeNow := time.Now().Format("2006-01-02 15:04:05")
-	paymentRequest := entity.Payment{
-		UserId:            userId,
+	paymentRequest := model.Payment{
+		UserId:            request.UserId,
 		OrderId:           &orderID,
 		TransactionStatus: &canceled,
 		TransactionTime:   &timeNow,
@@ -340,7 +339,7 @@ func (service *PaymentServiceImpl) GetToken(ctx context.Context, request *reques
 		totalPriceItem := int64(item["totalPricePerItem"].(float64))
 		name := item["name"].(string)
 		image := item["image"].(string)
-		userOrder := entity.UserOrder{
+		userOrder := model.UserOrder{
 			PayloadId:      payment.IdPayload,
 			Code:           &code,
 			Name:           &name,

@@ -1,8 +1,8 @@
 type Transaction {
-    id_transaction: ID!
+    id_transaction: ID! @goField(name: "IdTransaction")
     product_name: String!
     customer_name: String!
     no_transaction: String!
-    created_at: String!
-    updated_at: String!
+    created_at: Time!
+    updated_at: Time!
 }

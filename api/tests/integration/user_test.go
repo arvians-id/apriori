@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/arvians-id/apriori/config"
-	"github.com/arvians-id/apriori/entity"
+	"github.com/arvians-id/apriori/model"
 	repository "github.com/arvians-id/apriori/repository/postgres"
 	"github.com/arvians-id/apriori/tests/setup"
 	"net/http"
@@ -28,7 +28,7 @@ var _ = Describe("User API", func() {
 	var server *gin.Engine
 	var database *sql.DB
 	var tokenJWT string
-	var row entity.User
+	var row model.User
 	var cookie *http.Cookie
 	configuration := config.New("../../.env.test")
 
@@ -44,7 +44,7 @@ var _ = Describe("User API", func() {
 		tx, _ := database.Begin()
 		userRepository := repository.NewUserRepository()
 		password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-		user, _ := userRepository.Create(context.Background(), tx, &entity.User{
+		user, _ := userRepository.Create(context.Background(), tx, &model.User{
 			Name:      "Widdy",
 			Email:     "widdy@gmail.com",
 			Password:  string(password),
@@ -569,14 +569,14 @@ var _ = Describe("User API", func() {
 				tx, _ := database.Begin()
 				userRepository := repository.NewUserRepository()
 				password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-				user1, _ := userRepository.Create(context.Background(), tx, &entity.User{
+				user1, _ := userRepository.Create(context.Background(), tx, &model.User{
 					Name:      "Widdy",
 					Email:     "arfian@gmail.com",
 					Password:  string(password),
 					CreatedAt: time.Now(),
 					UpdatedAt: time.Now(),
 				})
-				user2, _ := userRepository.Create(context.Background(), tx, &entity.User{
+				user2, _ := userRepository.Create(context.Background(), tx, &model.User{
 					Name:      "Agung",
 					Email:     "agung@gmail.com",
 					Password:  string(password),

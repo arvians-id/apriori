@@ -3,9 +3,9 @@ package service
 import (
 	"context"
 	"database/sql"
-	"github.com/arvians-id/apriori/entity"
 	"github.com/arvians-id/apriori/helper"
 	"github.com/arvians-id/apriori/http/request"
+	"github.com/arvians-id/apriori/model"
 	"github.com/arvians-id/apriori/repository"
 	"time"
 )
@@ -22,7 +22,7 @@ func NewCategoryService(categoryRepository *repository.CategoryRepository, db *s
 	}
 }
 
-func (service *CategoryServiceImpl) FindAll(ctx context.Context) ([]*entity.Category, error) {
+func (service *CategoryServiceImpl) FindAll(ctx context.Context) ([]*model.Category, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -37,7 +37,7 @@ func (service *CategoryServiceImpl) FindAll(ctx context.Context) ([]*entity.Cate
 	return categories, nil
 }
 
-func (service *CategoryServiceImpl) FindById(ctx context.Context, id int) (*entity.Category, error) {
+func (service *CategoryServiceImpl) FindById(ctx context.Context, id int) (*model.Category, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -52,7 +52,7 @@ func (service *CategoryServiceImpl) FindById(ctx context.Context, id int) (*enti
 	return category, nil
 }
 
-func (service *CategoryServiceImpl) Create(ctx context.Context, request *request.CreateCategoryRequest) (*entity.Category, error) {
+func (service *CategoryServiceImpl) Create(ctx context.Context, request *request.CreateCategoryRequest) (*model.Category, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -64,7 +64,7 @@ func (service *CategoryServiceImpl) Create(ctx context.Context, request *request
 		return nil, err
 	}
 
-	categoryRequest := entity.Category{
+	categoryRequest := model.Category{
 		Name:      helper.UpperWords(request.Name),
 		CreatedAt: timeNow,
 		UpdatedAt: timeNow,
@@ -79,7 +79,7 @@ func (service *CategoryServiceImpl) Create(ctx context.Context, request *request
 
 }
 
-func (service *CategoryServiceImpl) Update(ctx context.Context, request *request.UpdateCategoryRequest) (*entity.Category, error) {
+func (service *CategoryServiceImpl) Update(ctx context.Context, request *request.UpdateCategoryRequest) (*model.Category, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err

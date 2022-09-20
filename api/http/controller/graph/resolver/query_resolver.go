@@ -2,10 +2,9 @@ package resolver
 
 import (
 	"context"
-	"github.com/arvians-id/apriori/helper"
 	"github.com/arvians-id/apriori/http/controller/graph/generated"
-	"github.com/arvians-id/apriori/http/controller/graph/model"
 	"github.com/arvians-id/apriori/http/middleware"
+	"github.com/arvians-id/apriori/model"
 )
 
 func (r *Resolver) Query() generated.QueryResolver { return &queryResolver{r} }
@@ -28,7 +27,7 @@ func (r *queryResolver) Products(ctx context.Context) ([]*model.Product, error) 
 	var result []*model.Product
 	for _, product := range products {
 		result = append(result, &model.Product{
-			IDProduct:   helper.IntToStr(product.IdProduct),
+			IdProduct:   product.IdProduct,
 			Code:        product.Code,
 			Name:        product.Name,
 			Description: product.Description,
@@ -37,8 +36,8 @@ func (r *queryResolver) Products(ctx context.Context) ([]*model.Product, error) 
 			IsEmpty:     product.IsEmpty,
 			Mass:        product.Mass,
 			Image:       product.Image,
-			CreatedAt:   product.CreatedAt.String(),
-			UpdatedAt:   product.UpdatedAt.String(),
+			CreatedAt:   product.CreatedAt,
+			UpdatedAt:   product.UpdatedAt,
 		})
 	}
 

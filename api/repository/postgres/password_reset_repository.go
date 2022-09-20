@@ -3,7 +3,7 @@ package postgres
 import (
 	"context"
 	"database/sql"
-	"github.com/arvians-id/apriori/entity"
+	"github.com/arvians-id/apriori/model"
 	"github.com/arvians-id/apriori/repository"
 )
 
@@ -14,7 +14,7 @@ func NewPasswordResetRepository() repository.PasswordResetRepository {
 	return &PasswordResetRepositoryImpl{}
 }
 
-func (repository *PasswordResetRepositoryImpl) FindByEmailAndToken(ctx context.Context, tx *sql.Tx, passwordReset *entity.PasswordReset) (*entity.PasswordReset, error) {
+func (repository *PasswordResetRepositoryImpl) FindByEmailAndToken(ctx context.Context, tx *sql.Tx, passwordReset *model.PasswordReset) (*model.PasswordReset, error) {
 	query := "SELECT * FROM password_resets WHERE email = $1 AND token = $2"
 	row := tx.QueryRowContext(ctx, query, passwordReset.Email, passwordReset.Token)
 
@@ -27,11 +27,11 @@ func (repository *PasswordResetRepositoryImpl) FindByEmailAndToken(ctx context.C
 
 }
 
-func (repository *PasswordResetRepositoryImpl) FindByEmail(ctx context.Context, tx *sql.Tx, email string) (*entity.PasswordReset, error) {
+func (repository *PasswordResetRepositoryImpl) FindByEmail(ctx context.Context, tx *sql.Tx, email string) (*model.PasswordReset, error) {
 	query := "SELECT * FROM password_resets WHERE email = $1"
 	row := tx.QueryRowContext(ctx, query, email)
 
-	var passwordReset entity.PasswordReset
+	var passwordReset model.PasswordReset
 	err := row.Scan(&passwordReset.Email, &passwordReset.Token, &passwordReset.Expired)
 	if err != nil {
 		return nil, err
@@ -40,7 +40,7 @@ func (repository *PasswordResetRepositoryImpl) FindByEmail(ctx context.Context, 
 	return &passwordReset, nil
 }
 
-func (repository *PasswordResetRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, passwordReset *entity.PasswordReset) (*entity.PasswordReset, error) {
+func (repository *PasswordResetRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, passwordReset *model.PasswordReset) (*model.PasswordReset, error) {
 	query := "INSERT INTO password_resets (email,token,expired) VALUES($1,$2,$3)"
 	_, err := tx.ExecContext(ctx, query, passwordReset.Email, passwordReset.Token, passwordReset.Expired)
 	if err != nil {
@@ -50,7 +50,7 @@ func (repository *PasswordResetRepositoryImpl) Create(ctx context.Context, tx *s
 	return passwordReset, nil
 }
 
-func (repository *PasswordResetRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, passwordReset *entity.PasswordReset) (*entity.PasswordReset, error) {
+func (repository *PasswordResetRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, passwordReset *model.PasswordReset) (*model.PasswordReset, error) {
 	query := "UPDATE password_resets SET token = $1, expired = $2 WHERE email = $3"
 	_, err := tx.ExecContext(ctx, query, passwordReset.Token, passwordReset.Expired, passwordReset.Email)
 	if err != nil {

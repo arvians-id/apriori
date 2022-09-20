@@ -1,10 +1,10 @@
 type Notification {
-    id_notification: ID!
-    user_id: ID!
+    id_notification: ID! @goField(name: "IdNotification")
+    user_id: ID! @goField(name: "UserId")
     title: String!
     description: String
     url: String
     is_read: Boolean!
-    created_at: String!
+    created_at: Time!
     user: User!
 }

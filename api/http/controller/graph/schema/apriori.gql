@@ -1,5 +1,5 @@
 type Apriori {
-    id_apriori: ID!
+    id_apriori: ID! @goField(name: "IdApriori")
     code: String!
     item: String!
     discount: Float!
@@ -10,7 +10,7 @@ type Apriori {
     description: String
     mass: Int!
     image: String
-    created_at: String!
+    created_at: Time!
     user_order: UserOrder!
 }
 

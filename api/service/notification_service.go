@@ -4,9 +4,9 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
-	"github.com/arvians-id/apriori/entity"
 	"github.com/arvians-id/apriori/helper"
 	"github.com/arvians-id/apriori/http/request"
+	"github.com/arvians-id/apriori/model"
 	"github.com/arvians-id/apriori/repository"
 	"strings"
 	"time"
@@ -15,7 +15,7 @@ import (
 type NotificationServiceImpl struct {
 	NotificationRepository repository.NotificationRepository
 	UserRepository         repository.UserRepository
-	Notification           *entity.Notification
+	Notification           *model.Notification
 	EmailService           EmailService
 	Error                  error
 	DB                     *sql.DB
@@ -30,7 +30,7 @@ func NewNotificationService(notificationRepository *repository.NotificationRepos
 	}
 }
 
-func (service *NotificationServiceImpl) FindAll(ctx context.Context) ([]*entity.Notification, error) {
+func (service *NotificationServiceImpl) FindAll(ctx context.Context) ([]*model.Notification, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -45,7 +45,7 @@ func (service *NotificationServiceImpl) FindAll(ctx context.Context) ([]*entity.
 	return notifications, nil
 }
 
-func (service *NotificationServiceImpl) FindAllByUserId(ctx context.Context, userId int) ([]*entity.Notification, error) {
+func (service *NotificationServiceImpl) FindAllByUserId(ctx context.Context, userId int) ([]*model.Notification, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -74,7 +74,7 @@ func (service *NotificationServiceImpl) Create(ctx context.Context, request *req
 		return nil
 	}
 
-	notificationRequest := entity.Notification{
+	notificationRequest := model.Notification{
 		UserId:      request.UserId,
 		Title:       strings.Title(request.Title),
 		Description: &request.Description,
@@ -95,7 +95,7 @@ func (service *NotificationServiceImpl) Create(ctx context.Context, request *req
 		return nil
 	}
 
-	notificationRequest.User = &entity.User{
+	notificationRequest.User = &model.User{
 		Name:  user.Name,
 		Email: user.Email,
 	}

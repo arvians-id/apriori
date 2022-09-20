@@ -3,7 +3,7 @@ package postgres
 import (
 	"context"
 	"database/sql"
-	"github.com/arvians-id/apriori/entity"
+	"github.com/arvians-id/apriori/model"
 	"github.com/arvians-id/apriori/repository"
 	"log"
 )
@@ -15,7 +15,7 @@ func NewNotificationRepository() repository.NotificationRepository {
 	return &NotificationRepositoryImpl{}
 }
 
-func (repository *NotificationRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) ([]*entity.Notification, error) {
+func (repository *NotificationRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) ([]*model.Notification, error) {
 	query := `SELECT n.*, u.name, u.email FROM notifications n LEFT JOIN users u ON u.id_user = n.user_id ORDER BY n.created_at DESC`
 	rows, err := tx.QueryContext(ctx, query)
 	if err != nil {
@@ -29,10 +29,10 @@ func (repository *NotificationRepositoryImpl) FindAll(ctx context.Context, tx *s
 		}
 	}(rows)
 
-	var notifications []*entity.Notification
+	var notifications []*model.Notification
 	for rows.Next() {
-		notification := entity.Notification{
-			User: &entity.User{},
+		notification := model.Notification{
+			User: &model.User{},
 		}
 		err = rows.Scan(
 			&notification.IdNotification,
@@ -55,7 +55,7 @@ func (repository *NotificationRepositoryImpl) FindAll(ctx context.Context, tx *s
 	return notifications, nil
 }
 
-func (repository *NotificationRepositoryImpl) FindAllByUserId(ctx context.Context, tx *sql.Tx, userId int) ([]*entity.Notification, error) {
+func (repository *NotificationRepositoryImpl) FindAllByUserId(ctx context.Context, tx *sql.Tx, userId int) ([]*model.Notification, error) {
 	query := `SELECT * FROM notifications WHERE user_id = $1 ORDER BY created_at DESC`
 	rows, err := tx.QueryContext(ctx, query, userId)
 	if err != nil {
@@ -69,9 +69,9 @@ func (repository *NotificationRepositoryImpl) FindAllByUserId(ctx context.Contex
 		}
 	}(rows)
 
-	var notifications []*entity.Notification
+	var notifications []*model.Notification
 	for rows.Next() {
-		var notification entity.Notification
+		var notification model.Notification
 		err = rows.Scan(
 			&notification.IdNotification,
 			&notification.UserId,
@@ -91,7 +91,7 @@ func (repository *NotificationRepositoryImpl) FindAllByUserId(ctx context.Contex
 	return notifications, nil
 }
 
-func (repository *NotificationRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, notification *entity.Notification) (*entity.Notification, error) {
+func (repository *NotificationRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, notification *model.Notification) (*model.Notification, error) {
 	id := 0
 	query := `INSERT INTO notifications (user_id, title, description, url, is_read, created_at) VALUES($1, $2, $3, $4, $5, $6) RETURNING id_notification`
 	row := tx.QueryRowContext(

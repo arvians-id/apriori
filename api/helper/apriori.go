@@ -2,15 +2,15 @@ package helper
 
 import (
 	"fmt"
-	"github.com/arvians-id/apriori/entity"
 	"github.com/arvians-id/apriori/http/request"
+	"github.com/arvians-id/apriori/model"
 	"reflect"
 	"sort"
 	"strconv"
 	"strings"
 )
 
-func FindFirstItemSet(transactionsSet []*entity.Transaction, minimumSupport float64) ([]*request.GetProductNameTransactionResponse, map[string]float64, []string) {
+func FindFirstItemSet(transactionsSet []*model.Transaction, minimumSupport float64) ([]*request.GetProductNameTransactionResponse, map[string]float64, []string) {
 	// Generate all product
 	var transactions []*request.GetProductNameTransactionResponse
 	for _, transaction := range transactionsSet {
@@ -86,12 +86,12 @@ func HandleMapsProblem(propertyProduct []string, minSupport float64) ([]string, 
 	return oneSet, support, totalTransaction, checkEligible, cleanSet
 }
 
-func FindConfidence(apriori []*entity.GenerateApriori, productName map[string]float64, minSupport float64, minConfidence float64) []*entity.GenerateApriori {
-	var confidence []*entity.GenerateApriori
+func FindConfidence(apriori []*model.GenerateApriori, productName map[string]float64, minSupport float64, minConfidence float64) []*model.GenerateApriori {
+	var confidence []*model.GenerateApriori
 	for _, value := range apriori {
 		if value.Iterate == apriori[len(apriori)-1].Iterate {
 			if val, ok := productName[value.ItemSet[0]]; ok && value.Support >= minSupport && float64(value.Transaction)/val*100 >= minConfidence {
-				confidence = append(confidence, &entity.GenerateApriori{
+				confidence = append(confidence, &model.GenerateApriori{
 					ItemSet:     value.ItemSet,
 					Support:     value.Support,
 					Iterate:     value.Iterate,
@@ -140,8 +140,8 @@ func FindCandidate(data []string, transactions []*request.GetProductNameTransact
 	return counter
 }
 
-func FindDiscount(apriori []*entity.GenerateApriori, minDiscount float64, maxDiscount float64) []*entity.GenerateApriori {
-	var discounts []*entity.GenerateApriori
+func FindDiscount(apriori []*model.GenerateApriori, minDiscount float64, maxDiscount float64) []*model.GenerateApriori {
+	var discounts []*model.GenerateApriori
 	var calculateDiscount = (maxDiscount - minDiscount) / float64(len(apriori))
 
 	// Sorting if the value is greater, then the discount given will be large
@@ -151,7 +151,7 @@ func FindDiscount(apriori []*entity.GenerateApriori, minDiscount float64, maxDis
 
 	for _, value := range apriori {
 		minDiscount += calculateDiscount
-		discounts = append(discounts, &entity.GenerateApriori{
+		discounts = append(discounts, &model.GenerateApriori{
 			ItemSet:     value.ItemSet,
 			Support:     value.Support,
 			Iterate:     value.Iterate,

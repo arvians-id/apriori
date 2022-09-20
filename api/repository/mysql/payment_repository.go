@@ -3,7 +3,7 @@ package mysql
 import (
 	"context"
 	"database/sql"
-	"github.com/arvians-id/apriori/entity"
+	"github.com/arvians-id/apriori/model"
 	"github.com/arvians-id/apriori/repository"
 	"log"
 )
@@ -15,7 +15,7 @@ func NewPaymentRepository() repository.PaymentRepository {
 	return &PaymentRepositoryImpl{}
 }
 
-func (repository *PaymentRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) ([]*entity.Payment, error) {
+func (repository *PaymentRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) ([]*model.Payment, error) {
 	query := `SELECT payloads.*,users.name 
 			  FROM payloads
 			  	LEFT JOIN users ON users.id_user = payloads.user_id
@@ -32,10 +32,10 @@ func (repository *PaymentRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx
 		}
 	}(rows)
 
-	var payments []*entity.Payment
+	var payments []*model.Payment
 	for rows.Next() {
-		payment := entity.Payment{
-			User: &entity.User{},
+		payment := model.Payment{
+			User: &model.User{},
 		}
 		err := rows.Scan(
 			&payment.IdPayload,
@@ -71,7 +71,7 @@ func (repository *PaymentRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx
 	return payments, nil
 }
 
-func (repository *PaymentRepositoryImpl) FindAllByUserId(ctx context.Context, tx *sql.Tx, userId int) ([]*entity.Payment, error) {
+func (repository *PaymentRepositoryImpl) FindAllByUserId(ctx context.Context, tx *sql.Tx, userId int) ([]*model.Payment, error) {
 	query := `SELECT * FROM payloads 
 			  WHERE user_id = ? 
 			  ORDER BY settlement_time DESC, bank_type DESC`
@@ -87,9 +87,9 @@ func (repository *PaymentRepositoryImpl) FindAllByUserId(ctx context.Context, tx
 		}
 	}(rows)
 
-	var payments []*entity.Payment
+	var payments []*model.Payment
 	for rows.Next() {
-		var payment entity.Payment
+		var payment model.Payment
 		err := rows.Scan(
 			&payment.IdPayload,
 			&payment.UserId,
@@ -123,11 +123,11 @@ func (repository *PaymentRepositoryImpl) FindAllByUserId(ctx context.Context, tx
 	return payments, nil
 }
 
-func (repository *PaymentRepositoryImpl) FindByOrderId(ctx context.Context, tx *sql.Tx, orderId string) (*entity.Payment, error) {
+func (repository *PaymentRepositoryImpl) FindByOrderId(ctx context.Context, tx *sql.Tx, orderId string) (*model.Payment, error) {
 	query := "SELECT * FROM payloads WHERE order_id = ?"
 	row := tx.QueryRowContext(ctx, query, orderId)
 
-	var payment entity.Payment
+	var payment model.Payment
 	err := row.Scan(
 		&payment.IdPayload,
 		&payment.UserId,
@@ -158,7 +158,7 @@ func (repository *PaymentRepositoryImpl) FindByOrderId(ctx context.Context, tx *
 	return &payment, nil
 }
 
-func (repository *PaymentRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, payment *entity.Payment) (*entity.Payment, error) {
+func (repository *PaymentRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, payment *model.Payment) (*model.Payment, error) {
 	query := `INSERT INTO payloads(user_id,order_id,transaction_time,transaction_status,transaction_id,status_code,signature_key,settlement_time,payment_type,merchant_id,gross_amount,fraud_status,bank_type,va_number,biller_code,bill_key,receipt_number,address,courier,courier_service) 
 			  VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)`
 	row, err := tx.ExecContext(
@@ -199,7 +199,7 @@ func (repository *PaymentRepositoryImpl) Create(ctx context.Context, tx *sql.Tx,
 	return payment, nil
 }
 
-func (repository *PaymentRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, payment *entity.Payment) error {
+func (repository *PaymentRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, payment *model.Payment) error {
 	query := `UPDATE payloads 
          	  SET user_id = ?,
          	      order_id = ?,
@@ -246,7 +246,7 @@ func (repository *PaymentRepositoryImpl) Update(ctx context.Context, tx *sql.Tx,
 	return nil
 }
 
-func (repository *PaymentRepositoryImpl) UpdateReceiptNumber(ctx context.Context, tx *sql.Tx, payment *entity.Payment) error {
+func (repository *PaymentRepositoryImpl) UpdateReceiptNumber(ctx context.Context, tx *sql.Tx, payment *model.Payment) error {
 	query := `UPDATE payloads SET receipt_number = ? WHERE order_id = ?`
 	_, err := tx.ExecContext(ctx, query, payment.ReceiptNumber, payment.OrderId)
 	if err != nil {

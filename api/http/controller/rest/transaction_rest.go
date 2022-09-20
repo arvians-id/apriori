@@ -2,11 +2,11 @@ package rest
 
 import (
 	"encoding/json"
-	"github.com/arvians-id/apriori/entity"
 	"github.com/arvians-id/apriori/helper"
 	"github.com/arvians-id/apriori/http/middleware"
 	"github.com/arvians-id/apriori/http/request"
 	"github.com/arvians-id/apriori/http/response"
+	"github.com/arvians-id/apriori/model"
 	"github.com/arvians-id/apriori/service"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
@@ -68,7 +68,7 @@ func (controller *TransactionController) FindAll(c *gin.Context) {
 		return
 	}
 
-	var transactionCacheResponses []entity.Transaction
+	var transactionCacheResponses []model.Transaction
 	err = json.Unmarshal(transactionCache, &transactionCacheResponses)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)

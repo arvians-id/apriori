@@ -6,9 +6,9 @@ import (
 	"database/sql"
 	"errors"
 	"fmt"
-	"github.com/arvians-id/apriori/entity"
 	"github.com/arvians-id/apriori/helper"
 	"github.com/arvians-id/apriori/http/request"
+	"github.com/arvians-id/apriori/model"
 	"github.com/arvians-id/apriori/repository"
 	"golang.org/x/crypto/bcrypt"
 	"strconv"
@@ -33,7 +33,7 @@ func NewPasswordResetService(
 	}
 }
 
-func (service *PasswordResetServiceImpl) CreateOrUpdateByEmail(ctx context.Context, email string) (*entity.PasswordReset, error) {
+func (service *PasswordResetServiceImpl) CreateOrUpdateByEmail(ctx context.Context, email string) (*model.PasswordReset, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -44,7 +44,7 @@ func (service *PasswordResetServiceImpl) CreateOrUpdateByEmail(ctx context.Conte
 	timestampString := strconv.Itoa(int(timestamp))
 	token := md5.Sum([]byte(email + timestampString))
 	tokenString := fmt.Sprintf("%x", token)
-	passwordResetRequest := entity.PasswordReset{
+	passwordResetRequest := model.PasswordReset{
 		Email:   email,
 		Token:   tokenString,
 		Expired: timestamp,
@@ -85,7 +85,7 @@ func (service *PasswordResetServiceImpl) Verify(ctx context.Context, request *re
 	defer helper.CommitOrRollback(tx)
 
 	// Check if email and token is exists in table password_resets
-	passwordResetRequest := entity.PasswordReset{
+	passwordResetRequest := model.PasswordReset{
 		Email: request.Email,
 		Token: request.Token,
 	}

@@ -1,11 +1,11 @@
 type UserOrder {
-    id_order: ID!
-    payload_id: ID!
+    id_order: ID! @goField(name: "IdOrder")
+    payload_id: ID! @goField(name: "PayloadId")
     code: String
     name: String
-    price: Int
+    price: Int64
     image: String
     quantity: Int
-    total_price_item: Int
+    total_price_item: Int64
     payment: Payment
 }

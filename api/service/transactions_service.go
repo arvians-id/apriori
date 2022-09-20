@@ -3,9 +3,9 @@ package service
 import (
 	"context"
 	"database/sql"
-	"github.com/arvians-id/apriori/entity"
 	"github.com/arvians-id/apriori/helper"
 	"github.com/arvians-id/apriori/http/request"
+	"github.com/arvians-id/apriori/model"
 	"github.com/arvians-id/apriori/repository"
 	"strings"
 	"time"
@@ -29,7 +29,7 @@ func NewTransactionService(
 	}
 }
 
-func (service *TransactionServiceImpl) FindAll(ctx context.Context) ([]*entity.Transaction, error) {
+func (service *TransactionServiceImpl) FindAll(ctx context.Context) ([]*model.Transaction, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -44,7 +44,7 @@ func (service *TransactionServiceImpl) FindAll(ctx context.Context) ([]*entity.T
 	return transactions, nil
 }
 
-func (service *TransactionServiceImpl) FindByNoTransaction(ctx context.Context, noTransaction string) (*entity.Transaction, error) {
+func (service *TransactionServiceImpl) FindByNoTransaction(ctx context.Context, noTransaction string) (*model.Transaction, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -59,7 +59,7 @@ func (service *TransactionServiceImpl) FindByNoTransaction(ctx context.Context, 
 	return transaction, nil
 }
 
-func (service *TransactionServiceImpl) Create(ctx context.Context, request *request.CreateTransactionRequest) (*entity.Transaction, error) {
+func (service *TransactionServiceImpl) Create(ctx context.Context, request *request.CreateTransactionRequest) (*model.Transaction, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err
@@ -71,7 +71,7 @@ func (service *TransactionServiceImpl) Create(ctx context.Context, request *requ
 		return nil, err
 	}
 
-	transactionRequest := entity.Transaction{
+	transactionRequest := model.Transaction{
 		ProductName:   strings.ToLower(request.ProductName),
 		CustomerName:  request.CustomerName,
 		NoTransaction: helper.CreateTransaction(),
@@ -94,10 +94,10 @@ func (service *TransactionServiceImpl) CreateByCsv(ctx context.Context, data [][
 	}
 	defer helper.CommitOrRollback(tx)
 
-	var transactions []*entity.Transaction
+	var transactions []*model.Transaction
 	for _, transaction := range data {
 		createdAt, _ := time.Parse(helper.TimeFormat, transaction[3]+" 00:00:00")
-		transactions = append(transactions, &entity.Transaction{
+		transactions = append(transactions, &model.Transaction{
 			ProductName:   transaction[0],
 			CustomerName:  transaction[1],
 			NoTransaction: transaction[2],
@@ -114,7 +114,7 @@ func (service *TransactionServiceImpl) CreateByCsv(ctx context.Context, data [][
 	return nil
 }
 
-func (service *TransactionServiceImpl) Update(ctx context.Context, request *request.UpdateTransactionRequest) (*entity.Transaction, error) {
+func (service *TransactionServiceImpl) Update(ctx context.Context, request *request.UpdateTransactionRequest) (*model.Transaction, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return nil, err

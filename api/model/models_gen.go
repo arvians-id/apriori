@@ -2,8 +2,12 @@
 
 package model
 
+import (
+	"time"
+)
+
 type Apriori struct {
-	IDApriori   string     `json:"id_apriori"`
+	IdApriori   int        `json:"id_apriori"`
 	Code        string     `json:"code"`
 	Item        string     `json:"item"`
 	Discount    float64    `json:"discount"`
@@ -14,25 +18,25 @@ type Apriori struct {
 	Description *string    `json:"description"`
 	Mass        int        `json:"mass"`
 	Image       *string    `json:"image"`
-	CreatedAt   string     `json:"created_at"`
+	CreatedAt   time.Time  `json:"created_at"`
 	UserOrder   *UserOrder `json:"user_order"`
 }
 
 type Category struct {
-	IDCategory string `json:"id_category"`
-	Name       string `json:"name"`
-	CreatedAt  string `json:"created_at"`
-	UpdatedAt  string `json:"updated_at"`
+	IdCategory int       `json:"id_category"`
+	Name       string    `json:"name"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
 }
 
 type Comment struct {
-	IDComment   string     `json:"id_comment"`
-	UserOrderID string     `json:"user_order_id"`
+	IdComment   int        `json:"id_comment"`
+	UserOrderId int        `json:"user_order_id"`
 	ProductCode string     `json:"product_code"`
 	Description *string    `json:"description"`
 	Tag         *string    `json:"tag"`
 	Rating      int        `json:"rating"`
-	CreatedAt   string     `json:"created_at"`
+	CreatedAt   time.Time  `json:"created_at"`
 	UserOrder   *UserOrder `json:"user_order"`
 }
 
@@ -58,38 +62,38 @@ type NewProduct struct {
 }
 
 type Notification struct {
-	IDNotification string  `json:"id_notification"`
-	UserID         string  `json:"user_id"`
-	Title          string  `json:"title"`
-	Description    *string `json:"description"`
-	URL            *string `json:"url"`
-	IsRead         bool    `json:"is_read"`
-	CreatedAt      string  `json:"created_at"`
-	User           *User   `json:"user"`
+	IdNotification int       `json:"id_notification"`
+	UserId         int       `json:"user_id"`
+	Title          string    `json:"title"`
+	Description    *string   `json:"description"`
+	URL            *string   `json:"url"`
+	IsRead         bool      `json:"is_read"`
+	CreatedAt      time.Time `json:"created_at"`
+	User           *User     `json:"user"`
 }
 
 type PasswordReset struct {
 	Email   string `json:"email"`
 	Token   string `json:"token"`
-	Expired int    `json:"expired"`
+	Expired int64  `json:"expired"`
 }
 
 type Payment struct {
-	IDPayload         string       `json:"id_payload"`
-	UserID            string       `json:"user_id"`
-	OrderID           *string      `json:"order_id"`
+	IdPayload         int          `json:"id_payload"`
+	UserId            int          `json:"user_id"`
+	OrderId           *string      `json:"order_id"`
 	TransactionTime   *string      `json:"transaction_time"`
 	TransactionStatus *string      `json:"transaction_status"`
-	TransactionID     *string      `json:"transaction_id"`
+	TransactionId     *string      `json:"transaction_id"`
 	StatusCode        *string      `json:"status_code"`
 	SignatureKey      *string      `json:"signature_key"`
 	SettlementTime    *string      `json:"settlement_time"`
 	PaymentType       *string      `json:"payment_type"`
-	MerchantID        *string      `json:"merchant_id"`
+	MerchantId        *string      `json:"merchant_id"`
 	GrossAmount       *string      `json:"gross_amount"`
 	FraudStatus       *string      `json:"fraud_status"`
 	BankType          *string      `json:"bank_type"`
-	VaNumber          *string      `json:"va_number"`
+	VANumber          *string      `json:"va_number"`
 	BillerCode        *string      `json:"biller_code"`
 	BillKey           *string      `json:"bill_key"`
 	ReceiptNumber     *string      `json:"receipt_number"`
@@ -101,29 +105,29 @@ type Payment struct {
 }
 
 type Product struct {
-	IDProduct   string  `json:"id_product"`
-	Code        string  `json:"code"`
-	Name        string  `json:"name"`
-	Description *string `json:"description"`
-	Price       int     `json:"price"`
-	Category    string  `json:"category"`
-	IsEmpty     bool    `json:"is_empty"`
-	Mass        int     `json:"mass"`
-	Image       *string `json:"image"`
-	CreatedAt   string  `json:"created_at"`
-	UpdatedAt   string  `json:"updated_at"`
+	IdProduct   int       `json:"id_product"`
+	Code        string    `json:"code"`
+	Name        string    `json:"name"`
+	Description *string   `json:"description"`
+	Price       int       `json:"price"`
+	Category    string    `json:"category"`
+	IsEmpty     bool      `json:"is_empty"`
+	Mass        int       `json:"mass"`
+	Image       *string   `json:"image"`
+	CreatedAt   time.Time `json:"created_at"`
+	UpdatedAt   time.Time `json:"updated_at"`
 }
 
 type ProductRecommendation struct {
-	AprioriID          string  `json:"apriori_id"`
+	AprioriId          int     `json:"apriori_id"`
 	AprioriCode        string  `json:"apriori_code"`
 	AprioriItem        string  `json:"apriori_item"`
 	AprioriDiscount    float64 `json:"apriori_discount"`
+	AprioriDescription *string `json:"apriori_description"`
+	AprioriImage       *string `json:"apriori_image"`
 	ProductTotalPrice  int     `json:"product_total_price"`
 	PriceDiscount      int     `json:"price_discount"`
-	AprioriImage       *string `json:"apriori_image"`
 	Mass               int     `json:"mass"`
-	AprioriDescription *string `json:"apriori_description"`
 }
 
 type RatingFromComment struct {
@@ -133,36 +137,36 @@ type RatingFromComment struct {
 }
 
 type Transaction struct {
-	IDTransaction string `json:"id_transaction"`
-	ProductName   string `json:"product_name"`
-	CustomerName  string `json:"customer_name"`
-	NoTransaction string `json:"no_transaction"`
-	CreatedAt     string `json:"created_at"`
-	UpdatedAt     string `json:"updated_at"`
+	IdTransaction int       `json:"id_transaction"`
+	ProductName   string    `json:"product_name"`
+	CustomerName  string    `json:"customer_name"`
+	NoTransaction string    `json:"no_transaction"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
 }
 
 type User struct {
-	IDUser       string          `json:"id_user"`
+	IdUser       int             `json:"id_user"`
 	Role         int             `json:"role"`
 	Name         string          `json:"name"`
 	Email        string          `json:"email"`
 	Address      string          `json:"address"`
 	Phone        string          `json:"phone"`
 	Password     string          `json:"password"`
-	CreatedAt    string          `json:"created_at"`
-	UpdatedAt    string          `json:"updated_at"`
+	CreatedAt    time.Time       `json:"created_at"`
+	UpdatedAt    time.Time       `json:"updated_at"`
 	Notification []*Notification `json:"notification"`
 	Payment      []*Payment      `json:"payment"`
 }
 
 type UserOrder struct {
-	IDOrder        string   `json:"id_order"`
-	PayloadID      string   `json:"payload_id"`
+	IdOrder        int      `json:"id_order"`
+	PayloadId      int      `json:"payload_id"`
 	Code           *string  `json:"code"`
 	Name           *string  `json:"name"`
-	Price          *int     `json:"price"`
+	Price          *int64   `json:"price"`
 	Image          *string  `json:"image"`
 	Quantity       *int     `json:"quantity"`
-	TotalPriceItem *int     `json:"total_price_item"`
+	TotalPriceItem *int64   `json:"total_price_item"`
 	Payment        *Payment `json:"payment"`
 }

@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/arvians-id/apriori/config"
-	"github.com/arvians-id/apriori/entity"
+	"github.com/arvians-id/apriori/model"
 	repository "github.com/arvians-id/apriori/repository/postgres"
 	"github.com/arvians-id/apriori/service"
 	"github.com/arvians-id/apriori/tests/setup"
@@ -43,7 +43,7 @@ var _ = Describe("Product API", func() {
 		tx, _ := database.Begin()
 		userRepository := repository.NewUserRepository()
 		password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-		_, _ = userRepository.Create(context.Background(), tx, &entity.User{
+		_, _ = userRepository.Create(context.Background(), tx, &model.User{
 			Name:      "Widdy",
 			Email:     "widdy@gmail.com",
 			Password:  string(password),
@@ -144,7 +144,7 @@ var _ = Describe("Product API", func() {
 					tx, _ := database.Begin()
 					productRepository := repository.NewProductRepository()
 					description := "Test"
-					row, _ := productRepository.Create(context.Background(), tx, &entity.Product{
+					row, _ := productRepository.Create(context.Background(), tx, &model.Product{
 						Code:        "SK6",
 						Name:        "Widdy",
 						Description: &description,
@@ -203,7 +203,7 @@ var _ = Describe("Product API", func() {
 				tx, _ := database.Begin()
 				productRepository := repository.NewProductRepository()
 				description := "Test"
-				row, _ := productRepository.Create(context.Background(), tx, &entity.Product{
+				row, _ := productRepository.Create(context.Background(), tx, &model.Product{
 					Code:        "SK6",
 					Name:        "Widdy",
 					Description: &description,
@@ -260,7 +260,7 @@ var _ = Describe("Product API", func() {
 				tx, _ := database.Begin()
 				productRepository := repository.NewProductRepository()
 				description := "Test"
-				product1, _ := productRepository.Create(context.Background(), tx, &entity.Product{
+				product1, _ := productRepository.Create(context.Background(), tx, &model.Product{
 					Code:        "SK6",
 					Name:        "Guling",
 					Description: &description,
@@ -270,7 +270,7 @@ var _ = Describe("Product API", func() {
 					UpdatedAt:   time.Now(),
 				})
 				description = "Test Bang"
-				product2, _ := productRepository.Create(context.Background(), tx, &entity.Product{
+				product2, _ := productRepository.Create(context.Background(), tx, &model.Product{
 					Code:        "SK1",
 					Name:        "Bantal",
 					Description: &description,
@@ -335,7 +335,7 @@ var _ = Describe("Product API", func() {
 				tx, _ := database.Begin()
 				productRepository := repository.NewProductRepository()
 				description := "Test"
-				product1, _ := productRepository.Create(context.Background(), tx, &entity.Product{
+				product1, _ := productRepository.Create(context.Background(), tx, &model.Product{
 					Code:        "SK6",
 					Name:        "Guling",
 					Description: &description,
@@ -345,7 +345,7 @@ var _ = Describe("Product API", func() {
 					UpdatedAt:   time.Now(),
 				})
 				description = "Test Bang"
-				_, _ = productRepository.Create(context.Background(), tx, &entity.Product{
+				_, _ = productRepository.Create(context.Background(), tx, &model.Product{
 					Code:        "SK1",
 					Name:        "Bantal",
 					Description: &description,
@@ -400,7 +400,7 @@ var _ = Describe("Product API", func() {
 				tx, _ := database.Begin()
 				productRepository := repository.NewProductRepository()
 				description := "Test"
-				product1, _ := productRepository.Create(context.Background(), tx, &entity.Product{
+				product1, _ := productRepository.Create(context.Background(), tx, &model.Product{
 					Code:        "SK6",
 					Name:        "Guling",
 					Description: &description,
@@ -410,7 +410,7 @@ var _ = Describe("Product API", func() {
 					UpdatedAt:   time.Now(),
 				})
 				description = "Test Bang"
-				_, _ = productRepository.Create(context.Background(), tx, &entity.Product{
+				_, _ = productRepository.Create(context.Background(), tx, &model.Product{
 					Code:        "SK1",
 					Name:        "Bantal",
 					Description: &description,
@@ -446,7 +446,7 @@ var _ = Describe("Product API", func() {
 				tx, _ := database.Begin()
 				productRepository := repository.NewProductRepository()
 				description := "Test"
-				product1, _ := productRepository.Create(context.Background(), tx, &entity.Product{
+				product1, _ := productRepository.Create(context.Background(), tx, &model.Product{
 					Code:        "SK6",
 					Name:        "Guling",
 					Description: &description,
@@ -456,7 +456,7 @@ var _ = Describe("Product API", func() {
 					UpdatedAt:   time.Now(),
 				})
 				description = "Test Bang"
-				_, _ = productRepository.Create(context.Background(), tx, &entity.Product{
+				_, _ = productRepository.Create(context.Background(), tx, &model.Product{
 					Code:        "SK1",
 					Name:        "Bantal",
 					Description: &description,
@@ -518,7 +518,7 @@ var _ = Describe("Product API", func() {
 				tx, _ := database.Begin()
 				productRepository := repository.NewProductRepository()
 				description := "Test"
-				row, _ := productRepository.Create(context.Background(), tx, &entity.Product{
+				row, _ := productRepository.Create(context.Background(), tx, &model.Product{
 					Code:        "SK6",
 					Name:        "Widdy",
 					Description: &description,
@@ -558,7 +558,7 @@ var _ = Describe("Product API", func() {
 				tx, _ := database.Begin()
 				productRepository := repository.NewProductRepository()
 				description := "Test Bang"
-				product, _ := productRepository.Create(context.Background(), tx, &entity.Product{
+				product, _ := productRepository.Create(context.Background(), tx, &model.Product{
 					Code:        "SK1",
 					Name:        "Bantal Biasa",
 					Description: &description,
@@ -570,9 +570,9 @@ var _ = Describe("Product API", func() {
 
 				// Create Apriori
 				aprioriRepository := repository.NewAprioriRepository()
-				var aprioriRequests []*entity.Apriori
+				var aprioriRequests []*model.Apriori
 				image := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/assets/%s", os.Getenv("AWS_BUCKET"), os.Getenv("AWS_REGION"), "no-image.png")
-				aprioriRequests = append(aprioriRequests, &entity.Apriori{
+				aprioriRequests = append(aprioriRequests, &model.Apriori{
 					Code:       "uRwCmCplpF",
 					Item:       "guling biasa",
 					Discount:   25.00,
@@ -610,7 +610,7 @@ var _ = Describe("Product API", func() {
 				tx, _ := database.Begin()
 				productRepository := repository.NewProductRepository()
 				description := "Test Bang"
-				product, _ := productRepository.Create(context.Background(), tx, &entity.Product{
+				product, _ := productRepository.Create(context.Background(), tx, &model.Product{
 					Code:        "SK1",
 					Name:        "Bantal Biasa",
 					Description: &description,
@@ -622,9 +622,9 @@ var _ = Describe("Product API", func() {
 
 				// Create Apriori
 				aprioriRepository := repository.NewAprioriRepository()
-				var aprioriRequests []*entity.Apriori
+				var aprioriRequests []*model.Apriori
 				image := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/assets/%s", os.Getenv("AWS_BUCKET"), os.Getenv("AWS_REGION"), "no-image.png")
-				aprioriRequests = append(aprioriRequests, &entity.Apriori{
+				aprioriRequests = append(aprioriRequests, &model.Apriori{
 					Code:       "uRwCmCplpF",
 					Item:       "bantal biasa",
 					Discount:   25.00,

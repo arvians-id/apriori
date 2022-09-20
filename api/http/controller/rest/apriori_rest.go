@@ -3,11 +3,11 @@ package rest
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/arvians-id/apriori/entity"
 	"github.com/arvians-id/apriori/helper"
 	"github.com/arvians-id/apriori/http/middleware"
 	"github.com/arvians-id/apriori/http/request"
 	"github.com/arvians-id/apriori/http/response"
+	"github.com/arvians-id/apriori/model"
 	"github.com/arvians-id/apriori/service"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
@@ -162,7 +162,7 @@ func (controller *AprioriController) UpdateStatus(c *gin.Context) {
 }
 
 func (controller *AprioriController) Create(c *gin.Context) {
-	var generateRequests []*entity.GenerateApriori
+	var generateRequests []*model.GenerateApriori
 	err := c.ShouldBindJSON(&generateRequests)
 	if err != nil {
 		response.ReturnErrorBadRequest(c, err, nil)
@@ -243,7 +243,7 @@ func (controller *AprioriController) Generate(c *gin.Context) {
 		return
 	}
 
-	var aprioriCacheResponses []entity.GenerateApriori
+	var aprioriCacheResponses []model.GenerateApriori
 	err = json.Unmarshal(aprioriCache, &aprioriCacheResponses)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)

@@ -6,8 +6,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/arvians-id/apriori/config"
-	"github.com/arvians-id/apriori/entity"
 	"github.com/arvians-id/apriori/helper"
+	"github.com/arvians-id/apriori/model"
 	repository "github.com/arvians-id/apriori/repository/postgres"
 	"github.com/arvians-id/apriori/service"
 	"github.com/arvians-id/apriori/tests/setup"
@@ -27,7 +27,7 @@ var _ = Describe("Notification API", func() {
 	var database *sql.DB
 	var tokenJWT string
 	var cookie *http.Cookie
-	var notification1 *entity.Notification
+	var notification1 *model.Notification
 	configuration := config.New("../../.env.test")
 
 	BeforeEach(func() {
@@ -42,7 +42,7 @@ var _ = Describe("Notification API", func() {
 		tx, _ := database.Begin()
 		userRepository := repository.NewUserRepository()
 		password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-		user, _ := userRepository.Create(context.Background(), tx, &entity.User{
+		user, _ := userRepository.Create(context.Background(), tx, &model.User{
 			Role:      1,
 			Name:      "Widdy",
 			Email:     "widdy@gmail.com",
@@ -75,7 +75,7 @@ var _ = Describe("Notification API", func() {
 		notificationRepository := repository.NewNotificationRepository()
 		description := "This is first notification"
 		url := "https://google.com"
-		notificationOne, _ := notificationRepository.Create(context.Background(), tx, &entity.Notification{
+		notificationOne, _ := notificationRepository.Create(context.Background(), tx, &model.Notification{
 			UserId:      user.IdUser,
 			Title:       "First notification",
 			Description: &description,
@@ -86,7 +86,7 @@ var _ = Describe("Notification API", func() {
 
 		description = "This is second notification"
 		url = "https://facebook.com"
-		_, _ = notificationRepository.Create(context.Background(), tx, &entity.Notification{
+		_, _ = notificationRepository.Create(context.Background(), tx, &model.Notification{
 			UserId:      user.IdUser,
 			Title:       "Second notification",
 			Description: &description,

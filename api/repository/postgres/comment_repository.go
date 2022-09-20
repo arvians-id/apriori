@@ -3,7 +3,7 @@ package postgres
 import (
 	"context"
 	"database/sql"
-	"github.com/arvians-id/apriori/entity"
+	"github.com/arvians-id/apriori/model"
 	"github.com/arvians-id/apriori/repository"
 	"log"
 )
@@ -15,7 +15,7 @@ func NewCommentRepository() repository.CommentRepository {
 	return &CommentRepositoryImpl{}
 }
 
-func (repository *CommentRepositoryImpl) FindAllRatingByProductCode(ctx context.Context, tx *sql.Tx, productCode string) ([]*entity.RatingFromComment, error) {
+func (repository *CommentRepositoryImpl) FindAllRatingByProductCode(ctx context.Context, tx *sql.Tx, productCode string) ([]*model.RatingFromComment, error) {
 	query := `SELECT rating, rating * COUNT(rating) as result_rating, SUM(CASE WHEN description != '' THEN 1 ELSE 0 END) as result_comment 
 			  FROM comments 
 			  WHERE product_code = $1 
@@ -33,9 +33,9 @@ func (repository *CommentRepositoryImpl) FindAllRatingByProductCode(ctx context.
 		}
 	}(rows)
 
-	var ratings []*entity.RatingFromComment
+	var ratings []*model.RatingFromComment
 	for rows.Next() {
-		var rating entity.RatingFromComment
+		var rating model.RatingFromComment
 		err := rows.Scan(
 			&rating.Rating,
 			&rating.ResultRating,
@@ -51,7 +51,7 @@ func (repository *CommentRepositoryImpl) FindAllRatingByProductCode(ctx context.
 	return ratings, nil
 }
 
-func (repository *CommentRepositoryImpl) FindAllByProductCode(ctx context.Context, tx *sql.Tx, productCode string, rating string, tags string) ([]*entity.Comment, error) {
+func (repository *CommentRepositoryImpl) FindAllByProductCode(ctx context.Context, tx *sql.Tx, productCode string, rating string, tags string) ([]*model.Comment, error) {
 	query := `SELECT c.*,u.id_user,u.name 
 			  FROM comments c 
 				LEFT JOIN user_orders uo ON uo.id_order = c.user_order_id 
@@ -71,12 +71,12 @@ func (repository *CommentRepositoryImpl) FindAllByProductCode(ctx context.Contex
 		}
 	}(rows)
 
-	var comments []*entity.Comment
+	var comments []*model.Comment
 	for rows.Next() {
-		comment := entity.Comment{
-			UserOrder: &entity.UserOrder{
-				Payment: &entity.Payment{
-					User: &entity.User{},
+		comment := model.Comment{
+			UserOrder: &model.UserOrder{
+				Payment: &model.Payment{
+					User: &model.User{},
 				},
 			},
 		}
@@ -101,7 +101,7 @@ func (repository *CommentRepositoryImpl) FindAllByProductCode(ctx context.Contex
 	return comments, nil
 }
 
-func (repository *CommentRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, id int) (*entity.Comment, error) {
+func (repository *CommentRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, id int) (*model.Comment, error) {
 	query := `SELECT c.*,u.id_user,u.name 
 			  FROM comments c 
 				LEFT JOIN user_orders uo ON uo.id_order = c.user_order_id 
@@ -110,10 +110,10 @@ func (repository *CommentRepositoryImpl) FindById(ctx context.Context, tx *sql.T
 			  WHERE c.id_comment = $1`
 	row := tx.QueryRowContext(ctx, query, id)
 
-	comment := entity.Comment{
-		UserOrder: &entity.UserOrder{
-			Payment: &entity.Payment{
-				User: &entity.User{},
+	comment := model.Comment{
+		UserOrder: &model.UserOrder{
+			Payment: &model.Payment{
+				User: &model.User{},
 			},
 		},
 	}
@@ -135,7 +135,7 @@ func (repository *CommentRepositoryImpl) FindById(ctx context.Context, tx *sql.T
 	return &comment, nil
 }
 
-func (repository *CommentRepositoryImpl) FindByUserOrderId(ctx context.Context, tx *sql.Tx, userOrderId int) (*entity.Comment, error) {
+func (repository *CommentRepositoryImpl) FindByUserOrderId(ctx context.Context, tx *sql.Tx, userOrderId int) (*model.Comment, error) {
 	query := `SELECT c.*,u.id_user,u.name 
 			  FROM comments c 
 				LEFT JOIN user_orders uo ON uo.id_order = c.user_order_id 
@@ -144,10 +144,10 @@ func (repository *CommentRepositoryImpl) FindByUserOrderId(ctx context.Context, 
 			  WHERE c.user_order_id = $1`
 	row := tx.QueryRowContext(ctx, query, userOrderId)
 
-	comment := entity.Comment{
-		UserOrder: &entity.UserOrder{
-			Payment: &entity.Payment{
-				User: &entity.User{},
+	comment := model.Comment{
+		UserOrder: &model.UserOrder{
+			Payment: &model.Payment{
+				User: &model.User{},
 			},
 		},
 	}
@@ -170,7 +170,7 @@ func (repository *CommentRepositoryImpl) FindByUserOrderId(ctx context.Context, 
 
 }
 
-func (repository *CommentRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, comment *entity.Comment) (*entity.Comment, error) {
+func (repository *CommentRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, comment *model.Comment) (*model.Comment, error) {
 	id := 0
 	query := `INSERT INTO comments (user_order_id, product_code, description, tag, rating, created_at) 
 			  VALUES ($1, $2, $3, $4, $5, $6) RETURNING id_comment`

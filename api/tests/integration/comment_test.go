@@ -6,8 +6,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/arvians-id/apriori/config"
-	"github.com/arvians-id/apriori/entity"
 	"github.com/arvians-id/apriori/helper"
+	"github.com/arvians-id/apriori/model"
 	repository "github.com/arvians-id/apriori/repository/postgres"
 	"github.com/arvians-id/apriori/service"
 	"github.com/arvians-id/apriori/tests/setup"
@@ -28,7 +28,7 @@ var _ = Describe("Comment API", func() {
 	var database *sql.DB
 	var tokenJWT string
 	var cookie *http.Cookie
-	var order *entity.UserOrder
+	var order *model.UserOrder
 	configuration := config.New("../../.env.test")
 
 	BeforeEach(func() {
@@ -43,7 +43,7 @@ var _ = Describe("Comment API", func() {
 		tx, _ := database.Begin()
 		userRepository := repository.NewUserRepository()
 		password, _ := bcrypt.GenerateFromPassword([]byte("Rahasia123"), bcrypt.DefaultCost)
-		user, _ := userRepository.Create(context.Background(), tx, &entity.User{
+		user, _ := userRepository.Create(context.Background(), tx, &model.User{
 			Role:      1,
 			Name:      "Widdy",
 			Email:     "widdy@gmail.com",
@@ -76,7 +76,7 @@ var _ = Describe("Comment API", func() {
 		tx, _ = database.Begin()
 		productRepository := repository.NewProductRepository()
 		description := "Test Bang"
-		_, _ = productRepository.Create(context.Background(), tx, &entity.Product{
+		_, _ = productRepository.Create(context.Background(), tx, &model.Product{
 			Code:        "Lfanp",
 			Name:        "Bantal Biasa",
 			Description: &description,
@@ -88,8 +88,8 @@ var _ = Describe("Comment API", func() {
 
 		// Create payload
 		payloadRepository := repository.NewPaymentRepository()
-		payload, _ := payloadRepository.Create(context.Background(), tx, &entity.Payment{
-			UserId: helper.IntToStr(user.IdUser),
+		payload, _ := payloadRepository.Create(context.Background(), tx, &model.Payment{
+			UserId: user.IdUser,
 		})
 
 		// Create User Order
@@ -100,7 +100,7 @@ var _ = Describe("Comment API", func() {
 		image := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/assets/%s", os.Getenv("AWS_BUCKET"), os.Getenv("AWS_REGION"), "no-image.png")
 		quantity := 1
 		totalPriceItem := int64(20000)
-		userOrder, _ := userOrderRepository.Create(context.Background(), tx, &entity.UserOrder{
+		userOrder, _ := userOrderRepository.Create(context.Background(), tx, &model.UserOrder{
 			PayloadId:      payload.IdPayload,
 			Code:           &code,
 			Name:           &name,
@@ -184,7 +184,7 @@ var _ = Describe("Comment API", func() {
 				commentRepository := repository.NewCommentRepository()
 				description := "mantap bang"
 				tag := "keren, mantap"
-				comment, _ := commentRepository.Create(context.Background(), tx, &entity.Comment{
+				comment, _ := commentRepository.Create(context.Background(), tx, &model.Comment{
 					UserOrderId: order.IdOrder,
 					ProductCode: "Lfanp",
 					Description: &description,
@@ -241,7 +241,7 @@ var _ = Describe("Comment API", func() {
 				commentRepository := repository.NewCommentRepository()
 				description := "mantap bang"
 				tag := "keren, mantap"
-				comment, _ := commentRepository.Create(context.Background(), tx, &entity.Comment{
+				comment, _ := commentRepository.Create(context.Background(), tx, &model.Comment{
 					UserOrderId: order.IdOrder,
 					ProductCode: "Lfanp",
 					Description: &description,
@@ -298,7 +298,7 @@ var _ = Describe("Comment API", func() {
 				commentRepository := repository.NewCommentRepository()
 				description := "mantap bang"
 				tag := "keren, mantap"
-				comment1, _ := commentRepository.Create(context.Background(), tx, &entity.Comment{
+				comment1, _ := commentRepository.Create(context.Background(), tx, &model.Comment{
 					UserOrderId: order.IdOrder,
 					ProductCode: "Lfanp",
 					Description: &description,
@@ -306,13 +306,13 @@ var _ = Describe("Comment API", func() {
 					Rating:      4,
 				})
 
-				_, _ = commentRepository.Create(context.Background(), tx, &entity.Comment{
+				_, _ = commentRepository.Create(context.Background(), tx, &model.Comment{
 					UserOrderId: order.IdOrder,
 					ProductCode: "Lfanp",
 					Rating:      3,
 				})
 
-				_, _ = commentRepository.Create(context.Background(), tx, &entity.Comment{
+				_, _ = commentRepository.Create(context.Background(), tx, &model.Comment{
 					UserOrderId: order.IdOrder,
 					ProductCode: "Lfanp",
 					Rating:      4,
@@ -372,7 +372,7 @@ var _ = Describe("Comment API", func() {
 				commentRepository := repository.NewCommentRepository()
 				description := "mantap bang"
 				tag := "keren, mantap"
-				comment1, _ := commentRepository.Create(context.Background(), tx, &entity.Comment{
+				comment1, _ := commentRepository.Create(context.Background(), tx, &model.Comment{
 					UserOrderId: order.IdOrder,
 					ProductCode: "Lfanp",
 					Description: &description,
@@ -381,7 +381,7 @@ var _ = Describe("Comment API", func() {
 				})
 
 				tag = "jelek, tidak memuaskan"
-				_, _ = commentRepository.Create(context.Background(), tx, &entity.Comment{
+				_, _ = commentRepository.Create(context.Background(), tx, &model.Comment{
 					UserOrderId: order.IdOrder,
 					ProductCode: "Lfanp",
 					Tag:         &tag,
