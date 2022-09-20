@@ -6,3 +6,7 @@ type Transaction {
     created_at: Time!
     updated_at: Time!
 }
+
+type GetProductNameTransactionResponse {
+    product_name: [String!]!
+}

@@ -21,10 +21,3 @@ type UpdateProductRequest struct {
 	Mass        int    `form:"mass"`
 	Image       string `form:"-"`
 }
-
-type GetProductTransactionResponse struct {
-	Code        string  `json:"code"`
-	ProductName string  `json:"product_name"`
-	Transaction int32   `json:"transaction"`
-	Support     float32 `json:"support"`
-}

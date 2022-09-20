@@ -51,6 +51,10 @@ type GenerateApriori struct {
 	RangeDate   string   `json:"range_date"`
 }
 
+type GetProductNameTransactionResponse struct {
+	ProductName []string `json:"product_name"`
+}
+
 type NewProduct struct {
 	Code        string  `json:"code"`
 	Name        string  `json:"name"`
