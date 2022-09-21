@@ -36,7 +36,6 @@ input CreateProductRequest {
 }
 
 input UpdateProductRequest {
-    id_product: Int! @goField(name: "IdProduct")
     code: String!
     name: String! @binding(constraint: "required,min=6,max=100")
     description: String! @binding(constraint: "omitempty,max=256")
@@ -44,5 +43,5 @@ input UpdateProductRequest {
     category: String! @binding(constraint: "required,max=100")
     is_empty: Boolean!
     mass: Int!
-    image: String!
+    image: Upload!
 }

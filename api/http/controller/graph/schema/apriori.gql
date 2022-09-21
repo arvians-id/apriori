@@ -25,6 +25,17 @@ type GenerateApriori {
     range_date: String!
 }
 
+input GenerateCreateAprioriRequest {
+    item_set : [String!]!
+    support: Float!
+    iterate: Int!
+    transaction: Int!
+    confidence: Float!
+    discount: Float!
+    description: String!
+    range_date: String!
+}
+
 input CreateAprioriRequest {
     item: String!
     discount: Float!

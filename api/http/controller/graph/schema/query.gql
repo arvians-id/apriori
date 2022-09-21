@@ -12,5 +12,55 @@ directive @binding(
 ) on INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION
 
 type Query {
-    products: [Product!]!
+#   Auth
+    AuthToken: Boolean!
+
+#   User
+    UserFindAll: [User!]!
+    UserProfile: User!
+    UserFindById(id: ID!): User!
+
+#   Category
+    CategoryFindAll: [Category!]!
+    CategoryFindById(id: ID!): Category!
+
+#   Transaction
+    TransactionFindAll: [Transaction!]!
+    TransactionFindByNoTransaction(number_transaction: String!): Transaction!
+
+#   Payment
+    PaymentFindAll: [Payment!]!
+    PaymentFindByOrderId(order_id: String!): Payment!
+
+#   User Order
+    UserOrderFindAll: [Payment!]!
+    UserOrderFindAllByUserId: [UserOrder!]!
+    UserOrderFindAllById(order_id: String!): [UserOrder!]!
+    UserOrderFindById(id: ID!): UserOrder!
+
+#   Comment
+    CommentFindAllRatingByProductCode(product_code: String!): [RatingFromComment!]!
+    CommentFindAllByProductCode(product_id: String!, tags: String!, ratings: String!): [Comment!]!
+    CommentFindByUserOrderId(user_order_id: ID!): Comment!
+    CommentFindById(id: ID!): Comment!
+
+#   Raja Ongkir
+    RajaOngkirFindAll(place: String!): Boolean! @deprecated(reason: "Still bugging on response")
+
+#   Notification
+    NotificationFindAll: [Notification!]!
+    NotificationFindAllByUserId: [Notification!]!
+
+#   Apriori
+    AprioriFindAll: [Apriori!]!
+    AprioriFindAllByCode(code: String!): [Apriori!]!
+    AprioriFindAllByActive: [Apriori!]!
+    AprioriFindByCodeAndId(code: String!, id: ID!): ProductRecommendation!
+
+#   Product
+    ProductFindAllByAdmin: [Product!]!
+    ProductFindAllSimilarCategory(code: String!): [Product!]!
+    ProductFindAllByUser(search: String, category: String): [Product!]!
+    ProductFindAllRecommendation(code: String!): [ProductRecommendation!]!
+    ProductFindByCode(code: String!): Product!
 }

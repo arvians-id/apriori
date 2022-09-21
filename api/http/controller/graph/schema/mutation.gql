@@ -1,3 +1,55 @@
 type Mutation {
-    createProduct(input: CreateProductRequest!): Product!
+#   Auth
+    AuthLogin(input: GetUserCredentialRequest!): TokenJWT!
+    AuthRegister(input: CreateUserRequest!): User!
+    AuthRefresh(input: GetRefreshTokenRequest!): TokenJWT!
+    AuthForgotPassword(input: CreatePasswordResetRequest!): String!
+    AuthVerifyResetPassword(input: UpdateResetPasswordUserRequest!): Boolean!
+    AuthLogout: Boolean!
+
+#   User
+    UserCreate(input: CreateUserRequest!): User!
+    UserUpdate(input: UpdateUserRequest!): User!
+    UserDelete(id: ID!): Boolean!
+    UpdateProfile(input: UpdateUserRequest!): User!
+
+#   Category
+    CategoryCreate(input: CreateCategoryRequest!): Category!
+    CategoryUpdate(input: UpdateCategoryRequest!): Category!
+    CategoryDelete(id: ID!): Boolean!
+
+#   Transaction
+    TransactionCreate(input: CreateTransactionRequest!): Transaction!
+    TransactionCreateByCsv(input: CreateTransactionRequest!): Transaction! @deprecated(reason: "Use TransactionCreate instead")
+    TransactionUpdate(input: UpdateTransactionRequest!): Transaction!
+    TransactionDelete(number_transaction: String!): Boolean!
+    TransactionTruncate: Boolean!
+
+#   Payment
+    PaymentUpdateReceiptNumber(input: AddReceiptNumberRequest!): Boolean!
+    PaymentPay(input: GetPaymentTokenRequest!): Payment! @deprecated(reason: "Still bugging")
+    PaymentNotification: Boolean!
+    PaymentDelete(order_id: String!): Boolean!
+
+#   Comment
+    CommentCreate(input: CreateCommentRequest!): Comment!
+
+#   Raja Ongkir
+    RajaOngkirCost(input: GetDeliveryRequest!): Boolean! @deprecated(reason: "Still bugging on response")
+
+#   Notification
+    NotificationMarkAll: Boolean!
+    NotificationMark(id: ID!): Boolean!
+
+#   Apriori
+    AprioriCreate(input: GenerateCreateAprioriRequest!): Boolean!
+    AprioriUpdate(input: UpdateAprioriRequest!): Apriori!
+    AprioriDelete(code: String!): Boolean!
+    AprioriGenerate(input: GenerateAprioriRequest!): GenerateApriori!
+    AprioriUpdateStatus(code: String!): Boolean!
+
+#   Product
+    ProductCreate(input: CreateProductRequest!): Product!
+    ProductUpdate(input: UpdateProductRequest!): Product!
+    ProductDelete(code: String!): Boolean!
 }

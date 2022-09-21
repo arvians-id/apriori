@@ -138,22 +138,26 @@ func (service *StorageServiceImpl) UploadFileS3GraphQL(fileUpload graphql.Upload
 		return "", err
 	}
 
+	// Read the file
 	stream, err := ioutil.ReadAll(fileUpload.File)
 	if err != nil {
 		return "", err
 	}
 
+	// then write it to a file
 	err = ioutil.WriteFile(initFileName, stream, 0644)
 	if err != nil {
 		return "", err
 	}
 
+	// Open the file
 	file, err := os.Open(initFileName)
 	if err != nil {
 		return "", err
 	}
 	defer file.Close()
 
+	// Upload the file to S3.
 	buffer := make([]byte, fileUpload.Size)
 	_, _ = file.Read(buffer)
 	fileBytes := bytes.NewReader(buffer)

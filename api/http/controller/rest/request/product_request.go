@@ -11,7 +11,6 @@ type CreateProductRequest struct {
 }
 
 type UpdateProductRequest struct {
-	IdProduct   int    `form:"-"`
 	Code        string `form:"-"`
 	Name        string `form:"name" binding:"required,min=6,max=100"`
 	Description string `form:"description" binding:"omitempty,max=256"`

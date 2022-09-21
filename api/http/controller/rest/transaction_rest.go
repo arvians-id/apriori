@@ -37,7 +37,7 @@ func (controller *TransactionController) Route(router *gin.Engine) *gin.Engine {
 		authorized.GET("/transactions", controller.FindAll)
 		authorized.GET("/transactions/:number_transaction", controller.FindByNoTransaction)
 		authorized.POST("/transactions", controller.Create)
-		authorized.POST("/transactions/csv", controller.CreateByCsv)
+		authorized.POST("/transactions/csv", controller.CreateByCSV)
 		authorized.PATCH("/transactions/:number_transaction", controller.Update)
 		authorized.DELETE("/transactions/:number_transaction", controller.Delete)
 		authorized.DELETE("/transactions/truncate", controller.Truncate)
@@ -114,7 +114,7 @@ func (controller *TransactionController) Create(c *gin.Context) {
 	response2.ReturnSuccessOK(c, "created", transaction)
 }
 
-func (controller *TransactionController) CreateByCsv(c *gin.Context) {
+func (controller *TransactionController) CreateByCSV(c *gin.Context) {
 	file, header, err := c.Request.FormFile("file")
 	if err != nil {
 		response2.ReturnErrorBadRequest(c, err, nil)

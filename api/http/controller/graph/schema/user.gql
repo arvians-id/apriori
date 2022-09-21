@@ -11,6 +11,12 @@ type User {
     notification: [Notification!]!
     payment: [Payment!]!
 }
+
+type TokenJWT {
+    access_token: String!
+    refresh_token: String!
+}
+
 input CreateUserRequest {
     name: String! @binding(constraint: "required,max=20")
     email: String! @binding(constraint: "required,email,max=100")

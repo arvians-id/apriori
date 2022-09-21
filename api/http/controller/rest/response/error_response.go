@@ -6,9 +6,10 @@ import (
 )
 
 var (
-	ErrorNotFound       = "sql: no rows in result set"
-	WrongPassword       = "wrong password"
-	VerificationExpired = "reset password verification is expired"
+	ErrorNotFound         = "sql: no rows in result set"
+	WrongPassword         = "wrong password"
+	VerificationExpired   = "reset password verification is expired"
+	ResponseErrorNotFound = "data not found"
 )
 
 func ReturnErrorNotFound(c *gin.Context, err error, data interface{}) {

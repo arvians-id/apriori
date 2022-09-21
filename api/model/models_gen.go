@@ -129,6 +129,17 @@ type GenerateAprioriRequest struct {
 	EndDate           string  `json:"end_date"`
 }
 
+type GenerateCreateAprioriRequest struct {
+	ItemSet     []string `json:"item_set"`
+	Support     float64  `json:"support"`
+	Iterate     int      `json:"iterate"`
+	Transaction int      `json:"transaction"`
+	Confidence  float64  `json:"confidence"`
+	Discount    float64  `json:"discount"`
+	Description string   `json:"description"`
+	RangeDate   string   `json:"range_date"`
+}
+
 type GetDeliveryRequest struct {
 	Origin      string `json:"origin"`
 	Destination string `json:"destination"`
@@ -235,6 +246,11 @@ type RatingFromComment struct {
 	ResultComment int `json:"result_comment"`
 }
 
+type TokenJwt struct {
+	AccessToken  string `json:"access_token"`
+	RefreshToken string `json:"refresh_token"`
+}
+
 type Transaction struct {
 	IdTransaction int       `json:"id_transaction"`
 	ProductName   string    `json:"product_name"`
@@ -257,15 +273,14 @@ type UpdateCategoryRequest struct {
 }
 
 type UpdateProductRequest struct {
-	IdProduct   int    `json:"id_product"`
-	Code        string `json:"code"`
-	Name        string `json:"name"`
-	Description string `json:"description"`
-	Price       int    `json:"price"`
-	Category    string `json:"category"`
-	IsEmpty     bool   `json:"is_empty"`
-	Mass        int    `json:"mass"`
-	Image       string `json:"image"`
+	Code        string         `json:"code"`
+	Name        string         `json:"name"`
+	Description string         `json:"description"`
+	Price       int            `json:"price"`
+	Category    string         `json:"category"`
+	IsEmpty     bool           `json:"is_empty"`
+	Mass        int            `json:"mass"`
+	Image       graphql.Upload `json:"image"`
 }
 
 type UpdateResetPasswordUserRequest struct {
