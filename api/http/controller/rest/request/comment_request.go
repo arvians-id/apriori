@@ -6,5 +6,4 @@ type CreateCommentRequest struct {
 	Description string `json:"description"`
 	Tag         string `json:"tag"`
 	Rating      int    `json:"rating" binding:"required"`
-	CreatedAt   string `json:"created_at"`
 }

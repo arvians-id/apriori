@@ -2071,7 +2071,6 @@ input CreateCommentRequest {
     description: String!
     tag: String!
     rating: Int! @binding(constraint: "required")
-    created_at: String!
 }`, BuiltIn: false},
 	{Name: "../schema/mutation.gql", Input: `type Mutation {
 #   Auth
@@ -2379,7 +2378,7 @@ input CreateUserRequest {
 }
 
 input UpdateUserRequest {
-    id_user: ID! @goField(name: "IdUser")
+    id_user: ID @goField(name: "IdUser")
     role: Int! @binding(constraint: "omitempty,min=1,max=2")
     name: String! @binding(constraint: "required,max=20")
     email: String! @binding(constraint: "required,email,max=100")
@@ -14935,7 +14934,7 @@ func (ec *executionContext) unmarshalInputCreateCommentRequest(ctx context.Conte
 		asMap[k] = v
 	}
 
-	fieldsInOrder := [...]string{"user_order_id", "product_code", "description", "tag", "rating", "created_at"}
+	fieldsInOrder := [...]string{"user_order_id", "product_code", "description", "tag", "rating"}
 	for _, k := range fieldsInOrder {
 		v, ok := asMap[k]
 		if !ok {
@@ -14999,14 +14998,6 @@ func (ec *executionContext) unmarshalInputCreateCommentRequest(ctx context.Conte
 			} else {
 				err := fmt.Errorf(`unexpected type %T from directive, should be int`, tmp)
 				return it, graphql.ErrorOnPath(ctx, err)
-			}
-		case "created_at":
-			var err error
-
-			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("created_at"))
-			it.CreatedAt, err = ec.unmarshalNString2string(ctx, v)
-			if err != nil {
-				return it, err
 			}
 		}
 	}
@@ -16626,7 +16617,7 @@ func (ec *executionContext) unmarshalInputUpdateUserRequest(ctx context.Context,
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id_user"))
-			it.IdUser, err = ec.unmarshalNID2int(ctx, v)
+			it.IdUser, err = ec.unmarshalOID2ᚖint(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -20404,6 +20395,22 @@ func (ec *executionContext) marshalOBoolean2ᚖbool(ctx context.Context, sel ast
 		return graphql.Null
 	}
 	res := graphql.MarshalBoolean(*v)
+	return res
+}
+
+func (ec *executionContext) unmarshalOID2ᚖint(ctx context.Context, v interface{}) (*int, error) {
+	if v == nil {
+		return nil, nil
+	}
+	res, err := graphql.UnmarshalInt(v)
+	return &res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalOID2ᚖint(ctx context.Context, sel ast.SelectionSet, v *int) graphql.Marshaler {
+	if v == nil {
+		return graphql.Null
+	}
+	res := graphql.MarshalInt(*v)
 	return res
 }
 

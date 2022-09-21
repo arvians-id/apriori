@@ -26,7 +26,7 @@ input CreateUserRequest {
 }
 
 input UpdateUserRequest {
-    id_user: ID! @goField(name: "IdUser")
+    id_user: ID @goField(name: "IdUser")
     role: Int! @binding(constraint: "omitempty,min=1,max=2")
     name: String! @binding(constraint: "required,max=20")
     email: String! @binding(constraint: "required,email,max=100")

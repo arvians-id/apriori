@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"github.com/arvians-id/apriori/http/controller/graph/generated"
 	"github.com/arvians-id/apriori/http/controller/rest/response"
+	"github.com/arvians-id/apriori/http/middleware"
 	"github.com/arvians-id/apriori/model"
 	"github.com/go-redis/redis/v8"
 	"strings"
@@ -119,53 +120,212 @@ func (r *queryResolver) ProductFindByCode(ctx context.Context, code string) (*mo
 }
 
 func (r *queryResolver) AuthToken(ctx context.Context) (bool, error) {
-	//TODO implement me
-	panic("implement me")
+	ginContext, err := middleware.GinContextFromContext(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	_, isExist := ginContext.Get("id_user")
+	if !isExist {
+		return false, errors.New("unauthorized")
+	}
+
+	return true, nil
 }
 
 func (r *queryResolver) UserFindAll(ctx context.Context) ([]*model.User, error) {
-	//TODO implement me
-	panic("implement me")
+	users, err := r.UserService.FindAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return users, nil
 }
 
 func (r *queryResolver) UserProfile(ctx context.Context) (*model.User, error) {
-	//TODO implement me
-	panic("implement me")
+	ginContext, err := middleware.GinContextFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	id, isExist := ginContext.Get("id_user")
+	if !isExist {
+		return nil, errors.New("unauthorized")
+	}
+
+	user, err := r.UserService.FindById(ctx, int(id.(float64)))
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
 }
 
 func (r *queryResolver) UserFindByID(ctx context.Context, id int) (*model.User, error) {
-	//TODO implement me
-	panic("implement me")
+	user, err := r.UserService.FindById(ctx, id)
+	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			return nil, errors.New(response.ResponseErrorNotFound)
+		}
+
+		return nil, err
+	}
+
+	return user, nil
 }
 
 func (r *queryResolver) CategoryFindAll(ctx context.Context) ([]*model.Category, error) {
-	//TODO implement me
-	panic("implement me")
+	categoriesCache, err := r.CacheService.Get(ctx, "categories")
+	if err == redis.Nil {
+		categories, err := r.CategoryService.FindAll(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		err = r.CacheService.Set(ctx, "categories", categories)
+		if err != nil {
+			return nil, err
+		}
+
+		return categories, nil
+	} else if err != nil {
+		return nil, err
+	}
+
+	var categoryCacheResponses []*model.Category
+	err = json.Unmarshal(categoriesCache, &categoryCacheResponses)
+	if err != nil {
+		return nil, err
+	}
+
+	return categoryCacheResponses, nil
 }
 
 func (r *queryResolver) CategoryFindByID(ctx context.Context, id int) (*model.Category, error) {
-	//TODO implement me
-	panic("implement me")
+	category, err := r.CategoryService.FindById(ctx, id)
+	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			return nil, errors.New(response.ResponseErrorNotFound)
+		}
+
+		return nil, err
+	}
+
+	return category, nil
 }
 
 func (r *queryResolver) TransactionFindAll(ctx context.Context) ([]*model.Transaction, error) {
-	//TODO implement me
-	panic("implement me")
+	transactionCache, err := r.CacheService.Get(ctx, "all-transaction")
+	if err == redis.Nil {
+		transaction, err := r.TransactionService.FindAll(ctx)
+		if err != nil {
+			return nil, err
+		}
+
+		err = r.CacheService.Set(ctx, "all-transaction", transaction)
+		if err != nil {
+			return nil, err
+		}
+
+		return transaction, nil
+	} else if err != nil {
+		return nil, err
+	}
+
+	var transactionCacheResponses []*model.Transaction
+	err = json.Unmarshal(transactionCache, &transactionCacheResponses)
+	if err != nil {
+		return nil, err
+	}
+
+	return transactionCacheResponses, nil
 }
 
 func (r *queryResolver) TransactionFindByNoTransaction(ctx context.Context, numberTransaction string) (*model.Transaction, error) {
-	//TODO implement me
-	panic("implement me")
+	transactions, err := r.TransactionService.FindByNoTransaction(ctx, numberTransaction)
+	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			return nil, errors.New(response.ResponseErrorNotFound)
+		}
+
+		return nil, err
+	}
+
+	return transactions, nil
 }
 
 func (r *queryResolver) PaymentFindAll(ctx context.Context) ([]*model.Payment, error) {
-	//TODO implement me
-	panic("implement me")
+	payments, err := r.PaymentService.FindAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return payments, nil
 }
 
 func (r *queryResolver) PaymentFindByOrderID(ctx context.Context, orderID string) (*model.Payment, error) {
-	//TODO implement me
-	panic("implement me")
+	payment, err := r.PaymentService.FindByOrderId(ctx, orderID)
+	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			return nil, errors.New(response.ResponseErrorNotFound)
+		}
+
+		return nil, err
+	}
+
+	return payment, nil
+}
+
+func (r *queryResolver) CommentFindAllRatingByProductCode(ctx context.Context, productCode string) ([]*model.RatingFromComment, error) {
+	comments, err := r.CommentService.FindAllRatingByProductCode(ctx, productCode)
+	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			return nil, errors.New(response.ResponseErrorNotFound)
+		}
+
+		return nil, err
+	}
+
+	return comments, nil
+}
+
+func (r *queryResolver) CommentFindAllByProductCode(ctx context.Context, productID string, tags string, ratings string) ([]*model.Comment, error) {
+	comments, err := r.CommentService.FindAllByProductCode(ctx, productID, ratings, tags)
+	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			return nil, errors.New(response.ResponseErrorNotFound)
+		}
+
+		return nil, err
+	}
+
+	return comments, nil
+}
+
+func (r *queryResolver) CommentFindByUserOrderID(ctx context.Context, userOrderID int) (*model.Comment, error) {
+	comment, err := r.CommentService.FindByUserOrderId(ctx, userOrderID)
+	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			return nil, errors.New(response.ResponseErrorNotFound)
+		}
+
+		return nil, err
+	}
+
+	return comment, nil
+}
+
+func (r *queryResolver) CommentFindByID(ctx context.Context, id int) (*model.Comment, error) {
+	comment, err := r.CommentService.FindById(ctx, id)
+	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			return nil, errors.New(response.ResponseErrorNotFound)
+		}
+
+		return nil, err
+	}
+
+	return comment, nil
 }
 
 func (r *queryResolver) UserOrderFindAll(ctx context.Context) ([]*model.Payment, error) {
@@ -184,26 +344,6 @@ func (r *queryResolver) UserOrderFindAllByID(ctx context.Context, orderID string
 }
 
 func (r *queryResolver) UserOrderFindByID(ctx context.Context, id int) (*model.UserOrder, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (r *queryResolver) CommentFindAllRatingByProductCode(ctx context.Context, productCode string) ([]*model.RatingFromComment, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (r *queryResolver) CommentFindAllByProductCode(ctx context.Context, productID string, tags string, ratings string) ([]*model.Comment, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (r *queryResolver) CommentFindByUserOrderID(ctx context.Context, userOrderID int) (*model.Comment, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (r *queryResolver) CommentFindByID(ctx context.Context, id int) (*model.Comment, error) {
 	//TODO implement me
 	panic("implement me")
 }

@@ -66,7 +66,6 @@ type CreateCommentRequest struct {
 	Description string `json:"description"`
 	Tag         string `json:"tag"`
 	Rating      int    `json:"rating"`
-	CreatedAt   string `json:"created_at"`
 }
 
 type CreateNotificationRequest struct {
@@ -296,7 +295,7 @@ type UpdateTransactionRequest struct {
 }
 
 type UpdateUserRequest struct {
-	IdUser   int    `json:"id_user"`
+	IdUser   *int   `json:"id_user"`
 	Role     int    `json:"role"`
 	Name     string `json:"name"`
 	Email    string `json:"email"`

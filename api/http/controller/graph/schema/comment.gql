@@ -21,5 +21,4 @@ input CreateCommentRequest {
     description: String!
     tag: String!
     rating: Int! @binding(constraint: "required")
-    created_at: String!
 }

@@ -38,7 +38,7 @@
 [GIN-debug] GET    /api/transactions         --> github.com/arvians-id/apriori/http/controller/rest.(*TransactionController).FindAll-fm (7 handlers)
 [GIN-debug] GET    /api/transactions/:number_transaction --> github.com/arvians-id/apriori/http/controller/rest.(*TransactionController).FindByNoTransaction-fm (7 handlers)
 [GIN-debug] POST   /api/transactions         --> github.com/arvians-id/apriori/http/controller/rest.(*TransactionController).Create-fm (7 handlers)
-[GIN-debug] POST   /api/transactions/csv     --> github.com/arvians-id/apriori/http/controller/rest.(*TransactionController).CreateByCsv-fm (7 handlers)
+[GIN-debug] POST   /api/transactions/csv     --> github.com/arvians-id/apriori/http/controller/rest.(*TransactionController).CreateByCSV-fm (7 handlers)
 [GIN-debug] PATCH  /api/transactions/:number_transaction --> github.com/arvians-id/apriori/http/controller/rest.(*TransactionController).Update-fm (7 handlers)
 [GIN-debug] DELETE /api/transactions/:number_transaction --> github.com/arvians-id/apriori/http/controller/rest.(*TransactionController).Delete-fm (7 handlers)
 [GIN-debug] DELETE /api/transactions/truncate --> github.com/arvians-id/apriori/http/controller/rest.(*TransactionController).Truncate-fm (7 handlers)
@@ -74,6 +74,8 @@
 [GIN-debug] [WARNING] You trusted all proxies, this is NOT safe. We recommend you to set a value.
 Please check https://pkg.go.dev/github.com/gin-gonic/gin#readme-don-t-trust-all-proxies for details.
 [GIN-debug] Listening and serving HTTP on :8080
-[GIN] 2022/09/21 - 11:03:16 | 200 |    478.0976ms |             ::1 | POST     "/query"
-[GIN] 2022/09/21 - 11:03:22 | 200 |     11.0686ms |             ::1 | POST     "/query"
-[GIN] 2022/09/21 - 11:03:33 | 200 |     11.5853ms |             ::1 | POST     "/query"
+[GIN] 2022/09/21 - 16:43:14 | 200 |     20.3279ms |             ::1 | POST     "/query"
+[GIN] 2022/09/21 - 16:43:17 | 200 |     22.1835ms |             ::1 | POST     "/query"
+[GIN] 2022/09/21 - 16:43:21 | 200 |      4.6617ms |             ::1 | POST     "/query"
+[GIN] 2022/09/21 - 16:43:23 | 200 |      4.2628ms |             ::1 | POST     "/query"
+[GIN] 2022/09/21 - 16:43:23 | 200 |      3.6998ms |             ::1 | POST     "/query"
