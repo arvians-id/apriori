@@ -10,6 +10,7 @@ import (
 	"github.com/arvians-id/apriori/http/middleware"
 	"github.com/arvians-id/apriori/model"
 	"github.com/go-redis/redis/v8"
+	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -155,7 +156,7 @@ func (r *queryResolver) UserProfile(ctx context.Context) (*model.User, error) {
 		return nil, errors.New("unauthorized")
 	}
 
-	user, err := r.UserService.FindById(ctx, int(id.(float64)))
+	user, err := r.UserService.FindById(ginContext, int(id.(float64)))
 	if err != nil {
 		return nil, err
 	}
@@ -343,7 +344,12 @@ func (r *queryResolver) RajaOngkirFindAll(ctx context.Context, place string, pro
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	res, _ := http.DefaultClient.Do(req)
-	defer res.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			return
+		}
+	}(res.Body)
 
 	var rajaOngkirModel interface{}
 	err := json.NewDecoder(res.Body).Decode(&rajaOngkirModel)
@@ -355,23 +361,133 @@ func (r *queryResolver) RajaOngkirFindAll(ctx context.Context, place string, pro
 }
 
 func (r *queryResolver) UserOrderFindAll(ctx context.Context) ([]*model.Payment, error) {
-	//TODO implement me
-	panic("implement me")
+	ginContext, err := middleware.GinContextFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	id, isExist := ginContext.Get("id_user")
+	if !isExist {
+		return nil, errors.New("unauthorized")
+	}
+
+	key := fmt.Sprintf("user-order-payment-%v", int(id.(float64)))
+	paymentsCache, err := r.CacheService.Get(ginContext, key)
+	if err == redis.Nil {
+		payments, err := r.PaymentService.FindAllByUserId(ginContext, int(id.(float64)))
+		if err != nil {
+			return nil, err
+		}
+
+		err = r.CacheService.Set(ginContext, key, payments)
+		if err != nil {
+			return nil, err
+		}
+
+		return payments, nil
+	} else if err != nil {
+		return nil, err
+	}
+
+	var paymentCacheResponses []*model.Payment
+	err = json.Unmarshal(paymentsCache, &paymentCacheResponses)
+	if err != nil {
+		return nil, err
+	}
+
+	return paymentCacheResponses, nil
 }
 
 func (r *queryResolver) UserOrderFindAllByUserID(ctx context.Context) ([]*model.UserOrder, error) {
-	//TODO implement me
-	panic("implement me")
+	ginContext, err := middleware.GinContextFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	id, isExist := ginContext.Get("id_user")
+	if !isExist {
+		return nil, errors.New("unauthorized")
+	}
+
+	key := fmt.Sprintf("user-order-rate-%v", int(id.(float64)))
+	userOrdersCache, err := r.CacheService.Get(ginContext, key)
+	if err == redis.Nil {
+		userOrders, err := r.UserOrderService.FindAllByUserId(ginContext, int(id.(float64)))
+		if err != nil {
+			return nil, err
+		}
+
+		err = r.CacheService.Set(ginContext, key, userOrders)
+		if err != nil {
+			return nil, err
+		}
+
+		return userOrders, nil
+	} else if err != nil {
+		return nil, err
+	}
+
+	var userOrderCacheResponses []*model.UserOrder
+	err = json.Unmarshal(userOrdersCache, &userOrderCacheResponses)
+	if err != nil {
+		return nil, err
+	}
+
+	return userOrderCacheResponses, nil
 }
 
 func (r *queryResolver) UserOrderFindAllByID(ctx context.Context, orderID string) ([]*model.UserOrder, error) {
-	//TODO implement me
-	panic("implement me")
+	ginContext, err := middleware.GinContextFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	key := fmt.Sprintf("user-order-id-%v", orderID)
+	userOrdersCache, err := r.CacheService.Get(ginContext, key)
+	if err == redis.Nil {
+		payment, err := r.PaymentService.FindByOrderId(ginContext, orderID)
+		if err != nil {
+			if err.Error() == response.ErrorNotFound {
+				return nil, errors.New(response.ResponseErrorNotFound)
+			}
+
+			return nil, err
+		}
+		userOrder, err := r.UserOrderService.FindAllByPayloadId(ginContext, payment.IdPayload)
+		if err != nil {
+			return nil, err
+		}
+
+		err = r.CacheService.Set(ginContext, key, userOrder)
+		if err != nil {
+			return nil, err
+		}
+
+		return userOrder, nil
+	} else if err != nil {
+		return nil, err
+	}
+
+	var userOrderCacheResponses []*model.UserOrder
+	err = json.Unmarshal(userOrdersCache, &userOrderCacheResponses)
+	if err != nil {
+		return nil, err
+	}
+
+	return userOrderCacheResponses, nil
 }
 
 func (r *queryResolver) UserOrderFindByID(ctx context.Context, id int) (*model.UserOrder, error) {
-	//TODO implement me
-	panic("implement me")
+	userOrder, err := r.UserOrderService.FindById(ctx, id)
+	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			return nil, errors.New(response.ResponseErrorNotFound)
+		}
+
+		return nil, err
+	}
+
+	return userOrder, nil
 }
 
 func (r *queryResolver) NotificationFindAll(ctx context.Context) ([]*model.Notification, error) {
@@ -394,7 +510,7 @@ func (r *queryResolver) NotificationFindAllByUserID(ctx context.Context) ([]*mod
 		return nil, errors.New("unauthorized")
 	}
 
-	notifications, err := r.NotificationService.FindAllByUserId(ctx, int(id.(float64)))
+	notifications, err := r.NotificationService.FindAllByUserId(ginContext, int(id.(float64)))
 	if err != nil {
 		return nil, err
 	}

@@ -14,6 +14,7 @@ import (
 	"github.com/arvians-id/apriori/model"
 	"github.com/go-redis/redis/v8"
 	"github.com/veritrans/go-midtrans"
+	"io"
 	"net/http"
 	"net/url"
 	"os"
@@ -35,7 +36,7 @@ func (r *mutationResolver) AuthLogin(ctx context.Context, input model.GetUserCre
 		return nil, err
 	}
 
-	user, err := r.UserService.FindByEmail(ctx, (*request.GetUserCredentialRequest)(&input))
+	user, err := r.UserService.FindByEmail(ginContext, (*request.GetUserCredentialRequest)(&input))
 	if err != nil {
 		if err.Error() == response.ErrorNotFound {
 			return nil, errors.New(response.ResponseErrorNotFound)
@@ -211,7 +212,7 @@ func (r *mutationResolver) UpdateProfile(ctx context.Context, input model.Update
 		return nil, errors.New("unauthorized")
 	}
 
-	user, err := r.UserService.Update(ctx, &request.UpdateUserRequest{
+	user, err := r.UserService.Update(ginContext, &request.UpdateUserRequest{
 		IdUser:   int(id.(float64)),
 		Name:     input.Name,
 		Email:    input.Email,
@@ -292,7 +293,12 @@ func (r *mutationResolver) TransactionCreateByCSV(ctx context.Context, file grap
 	if err != nil {
 		return false, err
 	}
-	defer os.Remove(initFileName)
+	defer func(name string) {
+		err := os.Remove(name)
+		if err != nil {
+			return
+		}
+	}(initFileName)
 
 	data, err := helper.OpenCsvFile(fileNameGenerated)
 	if err != nil {
@@ -415,7 +421,7 @@ func (r *mutationResolver) PaymentNotification(ctx context.Context) (bool, error
 	resArray := make(map[string]interface{})
 	err = json.Unmarshal(encode, &resArray)
 
-	err = r.PaymentService.CreateOrUpdate(ctx, resArray)
+	err = r.PaymentService.CreateOrUpdate(ginContext, resArray)
 	if err != nil {
 		return false, err
 	}
@@ -424,7 +430,7 @@ func (r *mutationResolver) PaymentNotification(ctx context.Context) (bool, error
 	key := fmt.Sprintf("user-order-id-%v", helper.StrToInt(resArray["custom_field2"].(string)))
 	key2 := fmt.Sprintf("user-order-payment-%v", helper.StrToInt(resArray["custom_field1"].(string)))
 	key3 := fmt.Sprintf("user-order-rate-%v", helper.StrToInt(resArray["custom_field1"].(string)))
-	_ = r.CacheService.Del(ctx, key, key2, key3)
+	_ = r.CacheService.Del(ginContext, key, key2, key3)
 
 	return true, nil
 }
@@ -461,7 +467,12 @@ func (r *mutationResolver) RajaOngkirCost(ctx context.Context, input model.GetDe
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
 	res, _ := http.DefaultClient.Do(req)
-	defer res.Body.Close()
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			return
+		}
+	}(res.Body)
 
 	var rajaOngkirModel interface{}
 	err := json.NewDecoder(res.Body).Decode(&rajaOngkirModel)
@@ -483,7 +494,7 @@ func (r *mutationResolver) NotificationMarkAll(ctx context.Context) (bool, error
 		return false, errors.New("unauthorized")
 	}
 
-	err = r.NotificationService.MarkAll(ctx, int(id.(float64)))
+	err = r.NotificationService.MarkAll(ginContext, int(id.(float64)))
 	if err != nil {
 		return false, err
 	}
@@ -529,7 +540,12 @@ func (r *mutationResolver) AprioriUpdate(ctx context.Context, input model.Update
 		if err != nil {
 			return nil, err
 		}
-		defer os.Remove(initFileName)
+		defer func(name string) {
+			err := os.Remove(name)
+			if err != nil {
+				return
+			}
+		}(initFileName)
 		fileName = fileNameGenerated
 	}
 
@@ -620,7 +636,12 @@ func (r *mutationResolver) ProductCreate(ctx context.Context, input model.Create
 		if err != nil {
 			return nil, err
 		}
-		defer os.Remove(initFileName)
+		defer func(name string) {
+			err := os.Remove(name)
+			if err != nil {
+				return
+			}
+		}(initFileName)
 		fileName = fileNameGenerated
 	}
 
@@ -648,7 +669,12 @@ func (r *mutationResolver) ProductUpdate(ctx context.Context, input model.Update
 		if err != nil {
 			return nil, err
 		}
-		defer os.Remove(initFileName)
+		defer func(name string) {
+			err := os.Remove(name)
+			if err != nil {
+				return
+			}
+		}(initFileName)
 		fileName = fileNameGenerated
 	}
 
