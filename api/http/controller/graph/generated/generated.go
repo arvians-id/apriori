@@ -96,7 +96,7 @@ type ComplexityRoot struct {
 	}
 
 	Mutation struct {
-		AprioriCreate              func(childComplexity int, input model.GenerateCreateAprioriRequest) int
+		AprioriCreate              func(childComplexity int, input []*model.GenerateCreateAprioriRequest) int
 		AprioriDelete              func(childComplexity int, code string) int
 		AprioriGenerate            func(childComplexity int, input model.GenerateAprioriRequest) int
 		AprioriUpdate              func(childComplexity int, input model.UpdateAprioriRequest) int
@@ -122,7 +122,7 @@ type ComplexityRoot struct {
 		ProductUpdate              func(childComplexity int, input model.UpdateProductRequest) int
 		RajaOngkirCost             func(childComplexity int, input model.GetDeliveryRequest) int
 		TransactionCreate          func(childComplexity int, input model.CreateTransactionRequest) int
-		TransactionCreateByCSV     func(childComplexity int, input model.CreateTransactionRequest) int
+		TransactionCreateByCSV     func(childComplexity int, file graphql.Upload) int
 		TransactionDelete          func(childComplexity int, numberTransaction string) int
 		TransactionTruncate        func(childComplexity int) int
 		TransactionUpdate          func(childComplexity int, input model.UpdateTransactionRequest) int
@@ -222,7 +222,7 @@ type ComplexityRoot struct {
 		ProductFindAllRecommendation      func(childComplexity int, code string) int
 		ProductFindAllSimilarCategory     func(childComplexity int, code string) int
 		ProductFindByCode                 func(childComplexity int, code string) int
-		RajaOngkirFindAll                 func(childComplexity int, place string) int
+		RajaOngkirFindAll                 func(childComplexity int, place string, province *string) int
 		TransactionFindAll                func(childComplexity int) int
 		TransactionFindByNoTransaction    func(childComplexity int, numberTransaction string) int
 		UserFindAll                       func(childComplexity int) int
@@ -296,22 +296,22 @@ type MutationResolver interface {
 	CategoryUpdate(ctx context.Context, input model.UpdateCategoryRequest) (*model.Category, error)
 	CategoryDelete(ctx context.Context, id int) (bool, error)
 	TransactionCreate(ctx context.Context, input model.CreateTransactionRequest) (*model.Transaction, error)
-	TransactionCreateByCSV(ctx context.Context, input model.CreateTransactionRequest) (*model.Transaction, error)
+	TransactionCreateByCSV(ctx context.Context, file graphql.Upload) (bool, error)
 	TransactionUpdate(ctx context.Context, input model.UpdateTransactionRequest) (*model.Transaction, error)
 	TransactionDelete(ctx context.Context, numberTransaction string) (bool, error)
 	TransactionTruncate(ctx context.Context) (bool, error)
 	PaymentUpdateReceiptNumber(ctx context.Context, input model.AddReceiptNumberRequest) (bool, error)
-	PaymentPay(ctx context.Context, input model.GetPaymentTokenRequest) (*model.Payment, error)
+	PaymentPay(ctx context.Context, input model.GetPaymentTokenRequest) (map[string]interface{}, error)
 	PaymentNotification(ctx context.Context) (bool, error)
 	PaymentDelete(ctx context.Context, orderID string) (bool, error)
 	CommentCreate(ctx context.Context, input model.CreateCommentRequest) (*model.Comment, error)
-	RajaOngkirCost(ctx context.Context, input model.GetDeliveryRequest) (bool, error)
+	RajaOngkirCost(ctx context.Context, input model.GetDeliveryRequest) (interface{}, error)
 	NotificationMarkAll(ctx context.Context) (bool, error)
 	NotificationMark(ctx context.Context, id int) (bool, error)
-	AprioriCreate(ctx context.Context, input model.GenerateCreateAprioriRequest) (bool, error)
+	AprioriCreate(ctx context.Context, input []*model.GenerateCreateAprioriRequest) (bool, error)
 	AprioriUpdate(ctx context.Context, input model.UpdateAprioriRequest) (*model.Apriori, error)
 	AprioriDelete(ctx context.Context, code string) (bool, error)
-	AprioriGenerate(ctx context.Context, input model.GenerateAprioriRequest) (*model.GenerateApriori, error)
+	AprioriGenerate(ctx context.Context, input model.GenerateAprioriRequest) ([]*model.GenerateApriori, error)
 	AprioriUpdateStatus(ctx context.Context, code string) (bool, error)
 	ProductCreate(ctx context.Context, input model.CreateProductRequest) (*model.Product, error)
 	ProductUpdate(ctx context.Context, input model.UpdateProductRequest) (*model.Product, error)
@@ -336,7 +336,7 @@ type QueryResolver interface {
 	CommentFindAllByProductCode(ctx context.Context, productID string, tags string, ratings string) ([]*model.Comment, error)
 	CommentFindByUserOrderID(ctx context.Context, userOrderID int) (*model.Comment, error)
 	CommentFindByID(ctx context.Context, id int) (*model.Comment, error)
-	RajaOngkirFindAll(ctx context.Context, place string) (bool, error)
+	RajaOngkirFindAll(ctx context.Context, place string, province *string) (interface{}, error)
 	NotificationFindAll(ctx context.Context) ([]*model.Notification, error)
 	NotificationFindAllByUserID(ctx context.Context) ([]*model.Notification, error)
 	AprioriFindAll(ctx context.Context) ([]*model.Apriori, error)
@@ -613,7 +613,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.AprioriCreate(childComplexity, args["input"].(model.GenerateCreateAprioriRequest)), true
+		return e.complexity.Mutation.AprioriCreate(childComplexity, args["input"].([]*model.GenerateCreateAprioriRequest)), true
 
 	case "Mutation.AprioriDelete":
 		if e.complexity.Mutation.AprioriDelete == nil {
@@ -910,7 +910,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Mutation.TransactionCreateByCSV(childComplexity, args["input"].(model.CreateTransactionRequest)), true
+		return e.complexity.Mutation.TransactionCreateByCSV(childComplexity, args["file"].(graphql.Upload)), true
 
 	case "Mutation.TransactionDelete":
 		if e.complexity.Mutation.TransactionDelete == nil {
@@ -1579,7 +1579,7 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 			return 0, false
 		}
 
-		return e.complexity.Query.RajaOngkirFindAll(childComplexity, args["place"].(string)), true
+		return e.complexity.Query.RajaOngkirFindAll(childComplexity, args["place"].(string), args["province"].(*string)), true
 
 	case "Query.TransactionFindAll":
 		if e.complexity.Query.TransactionFindAll == nil {
@@ -2022,7 +2022,7 @@ input UpdateAprioriRequest {
     id_apriori: ID! @goField(name: "IdApriori")
     code: String!
     description: String!
-    image: String!
+    image: Upload!
 }
 
 input GenerateAprioriRequest {
@@ -2094,14 +2094,14 @@ input CreateCommentRequest {
 
 #   Transaction
     TransactionCreate(input: CreateTransactionRequest!): Transaction!
-    TransactionCreateByCsv(input: CreateTransactionRequest!): Transaction! @deprecated(reason: "Use TransactionCreate instead")
+    TransactionCreateByCsv(file: Upload!): Boolean!
     TransactionUpdate(input: UpdateTransactionRequest!): Transaction!
     TransactionDelete(number_transaction: String!): Boolean!
     TransactionTruncate: Boolean!
 
 #   Payment
     PaymentUpdateReceiptNumber(input: AddReceiptNumberRequest!): Boolean!
-    PaymentPay(input: GetPaymentTokenRequest!): Payment! @deprecated(reason: "Still bugging")
+    PaymentPay(input: GetPaymentTokenRequest!): Map!
     PaymentNotification: Boolean!
     PaymentDelete(order_id: String!): Boolean!
 
@@ -2109,17 +2109,17 @@ input CreateCommentRequest {
     CommentCreate(input: CreateCommentRequest!): Comment!
 
 #   Raja Ongkir
-    RajaOngkirCost(input: GetDeliveryRequest!): Boolean! @deprecated(reason: "Still bugging on response")
+    RajaOngkirCost(input: GetDeliveryRequest!): Any!
 
 #   Notification
     NotificationMarkAll: Boolean!
     NotificationMark(id: ID!): Boolean!
 
 #   Apriori
-    AprioriCreate(input: GenerateCreateAprioriRequest!): Boolean!
+    AprioriCreate(input: [GenerateCreateAprioriRequest!]!): Boolean!
     AprioriUpdate(input: UpdateAprioriRequest!): Apriori!
     AprioriDelete(code: String!): Boolean!
-    AprioriGenerate(input: GenerateAprioriRequest!): GenerateApriori!
+    AprioriGenerate(input: GenerateAprioriRequest!): [GenerateApriori!]!
     AprioriUpdateStatus(code: String!): Boolean!
 
 #   Product
@@ -2252,6 +2252,8 @@ input UpdateProductRequest {
 	{Name: "../schema/query.gql", Input: `scalar Time
 scalar Int64
 scalar Upload
+scalar Map
+scalar Any
 
 directive @goField(
     forceResolver: Boolean
@@ -2296,7 +2298,7 @@ type Query {
     CommentFindById(id: ID!): Comment!
 
 #   Raja Ongkir
-    RajaOngkirFindAll(place: String!): Boolean! @deprecated(reason: "Still bugging on response")
+    RajaOngkirFindAll(place: String!, province: String): Any!
 
 #   Notification
     NotificationFindAll: [Notification!]!
@@ -2432,10 +2434,10 @@ func (ec *executionContext) dir_binding_args(ctx context.Context, rawArgs map[st
 func (ec *executionContext) field_Mutation_AprioriCreate_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.GenerateCreateAprioriRequest
+	var arg0 []*model.GenerateCreateAprioriRequest
 	if tmp, ok := rawArgs["input"]; ok {
 		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNGenerateCreateAprioriRequest2githubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐGenerateCreateAprioriRequest(ctx, tmp)
+		arg0, err = ec.unmarshalNGenerateCreateAprioriRequest2ᚕᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐGenerateCreateAprioriRequestᚄ(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
@@ -2762,15 +2764,15 @@ func (ec *executionContext) field_Mutation_RajaOngkirCost_args(ctx context.Conte
 func (ec *executionContext) field_Mutation_TransactionCreateByCsv_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
 	args := map[string]interface{}{}
-	var arg0 model.CreateTransactionRequest
-	if tmp, ok := rawArgs["input"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("input"))
-		arg0, err = ec.unmarshalNCreateTransactionRequest2githubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐCreateTransactionRequest(ctx, tmp)
+	var arg0 graphql.Upload
+	if tmp, ok := rawArgs["file"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("file"))
+		arg0, err = ec.unmarshalNUpload2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx, tmp)
 		if err != nil {
 			return nil, err
 		}
 	}
-	args["input"] = arg0
+	args["file"] = arg0
 	return args, nil
 }
 
@@ -3107,6 +3109,15 @@ func (ec *executionContext) field_Query_RajaOngkirFindAll_args(ctx context.Conte
 		}
 	}
 	args["place"] = arg0
+	var arg1 *string
+	if tmp, ok := rawArgs["province"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("province"))
+		arg1, err = ec.unmarshalOString2ᚖstring(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["province"] = arg1
 	return args, nil
 }
 
@@ -5659,7 +5670,7 @@ func (ec *executionContext) _Mutation_TransactionCreateByCsv(ctx context.Context
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().TransactionCreateByCSV(rctx, fc.Args["input"].(model.CreateTransactionRequest))
+		return ec.resolvers.Mutation().TransactionCreateByCSV(rctx, fc.Args["file"].(graphql.Upload))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5671,9 +5682,9 @@ func (ec *executionContext) _Mutation_TransactionCreateByCsv(ctx context.Context
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Transaction)
+	res := resTmp.(bool)
 	fc.Result = res
-	return ec.marshalNTransaction2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐTransaction(ctx, field.Selections, res)
+	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_TransactionCreateByCsv(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5683,21 +5694,7 @@ func (ec *executionContext) fieldContext_Mutation_TransactionCreateByCsv(ctx con
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id_transaction":
-				return ec.fieldContext_Transaction_id_transaction(ctx, field)
-			case "product_name":
-				return ec.fieldContext_Transaction_product_name(ctx, field)
-			case "customer_name":
-				return ec.fieldContext_Transaction_customer_name(ctx, field)
-			case "no_transaction":
-				return ec.fieldContext_Transaction_no_transaction(ctx, field)
-			case "created_at":
-				return ec.fieldContext_Transaction_created_at(ctx, field)
-			case "updated_at":
-				return ec.fieldContext_Transaction_updated_at(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Transaction", field.Name)
+			return nil, errors.New("field of type Boolean does not have child fields")
 		},
 	}
 	defer func() {
@@ -5963,9 +5960,9 @@ func (ec *executionContext) _Mutation_PaymentPay(ctx context.Context, field grap
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.Payment)
+	res := resTmp.(map[string]interface{})
 	fc.Result = res
-	return ec.marshalNPayment2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐPayment(ctx, field.Selections, res)
+	return ec.marshalNMap2map(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_PaymentPay(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -5975,55 +5972,7 @@ func (ec *executionContext) fieldContext_Mutation_PaymentPay(ctx context.Context
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			switch field.Name {
-			case "id_payload":
-				return ec.fieldContext_Payment_id_payload(ctx, field)
-			case "user_id":
-				return ec.fieldContext_Payment_user_id(ctx, field)
-			case "order_id":
-				return ec.fieldContext_Payment_order_id(ctx, field)
-			case "transaction_time":
-				return ec.fieldContext_Payment_transaction_time(ctx, field)
-			case "transaction_status":
-				return ec.fieldContext_Payment_transaction_status(ctx, field)
-			case "transaction_id":
-				return ec.fieldContext_Payment_transaction_id(ctx, field)
-			case "status_code":
-				return ec.fieldContext_Payment_status_code(ctx, field)
-			case "signature_key":
-				return ec.fieldContext_Payment_signature_key(ctx, field)
-			case "settlement_time":
-				return ec.fieldContext_Payment_settlement_time(ctx, field)
-			case "payment_type":
-				return ec.fieldContext_Payment_payment_type(ctx, field)
-			case "merchant_id":
-				return ec.fieldContext_Payment_merchant_id(ctx, field)
-			case "gross_amount":
-				return ec.fieldContext_Payment_gross_amount(ctx, field)
-			case "fraud_status":
-				return ec.fieldContext_Payment_fraud_status(ctx, field)
-			case "bank_type":
-				return ec.fieldContext_Payment_bank_type(ctx, field)
-			case "va_number":
-				return ec.fieldContext_Payment_va_number(ctx, field)
-			case "biller_code":
-				return ec.fieldContext_Payment_biller_code(ctx, field)
-			case "bill_key":
-				return ec.fieldContext_Payment_bill_key(ctx, field)
-			case "receipt_number":
-				return ec.fieldContext_Payment_receipt_number(ctx, field)
-			case "address":
-				return ec.fieldContext_Payment_address(ctx, field)
-			case "courier":
-				return ec.fieldContext_Payment_courier(ctx, field)
-			case "courier_service":
-				return ec.fieldContext_Payment_courier_service(ctx, field)
-			case "user":
-				return ec.fieldContext_Payment_user(ctx, field)
-			case "user_order":
-				return ec.fieldContext_Payment_user_order(ctx, field)
-			}
-			return nil, fmt.Errorf("no field named %q was found under type Payment", field.Name)
+			return nil, errors.New("field of type Map does not have child fields")
 		},
 	}
 	defer func() {
@@ -6238,9 +6187,9 @@ func (ec *executionContext) _Mutation_RajaOngkirCost(ctx context.Context, field 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(bool)
+	res := resTmp.(interface{})
 	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+	return ec.marshalNAny2interface(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_RajaOngkirCost(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -6250,7 +6199,7 @@ func (ec *executionContext) fieldContext_Mutation_RajaOngkirCost(ctx context.Con
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
+			return nil, errors.New("field of type Any does not have child fields")
 		},
 	}
 	defer func() {
@@ -6380,7 +6329,7 @@ func (ec *executionContext) _Mutation_AprioriCreate(ctx context.Context, field g
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().AprioriCreate(rctx, fc.Args["input"].(model.GenerateCreateAprioriRequest))
+		return ec.resolvers.Mutation().AprioriCreate(rctx, fc.Args["input"].([]*model.GenerateCreateAprioriRequest))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6585,9 +6534,9 @@ func (ec *executionContext) _Mutation_AprioriGenerate(ctx context.Context, field
 		}
 		return graphql.Null
 	}
-	res := resTmp.(*model.GenerateApriori)
+	res := resTmp.([]*model.GenerateApriori)
 	fc.Result = res
-	return ec.marshalNGenerateApriori2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐGenerateApriori(ctx, field.Selections, res)
+	return ec.marshalNGenerateApriori2ᚕᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐGenerateAprioriᚄ(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Mutation_AprioriGenerate(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -10571,7 +10520,7 @@ func (ec *executionContext) _Query_RajaOngkirFindAll(ctx context.Context, field 
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().RajaOngkirFindAll(rctx, fc.Args["place"].(string))
+		return ec.resolvers.Query().RajaOngkirFindAll(rctx, fc.Args["place"].(string), fc.Args["province"].(*string))
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10583,9 +10532,9 @@ func (ec *executionContext) _Query_RajaOngkirFindAll(ctx context.Context, field 
 		}
 		return graphql.Null
 	}
-	res := resTmp.(bool)
+	res := resTmp.(interface{})
 	fc.Result = res
-	return ec.marshalNBoolean2bool(ctx, field.Selections, res)
+	return ec.marshalNAny2interface(ctx, field.Selections, res)
 }
 
 func (ec *executionContext) fieldContext_Query_RajaOngkirFindAll(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
@@ -10595,7 +10544,7 @@ func (ec *executionContext) fieldContext_Query_RajaOngkirFindAll(ctx context.Con
 		IsMethod:   true,
 		IsResolver: true,
 		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
-			return nil, errors.New("field of type Boolean does not have child fields")
+			return nil, errors.New("field of type Any does not have child fields")
 		},
 	}
 	defer func() {
@@ -16219,7 +16168,7 @@ func (ec *executionContext) unmarshalInputUpdateAprioriRequest(ctx context.Conte
 			var err error
 
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("image"))
-			it.Image, err = ec.unmarshalNString2string(ctx, v)
+			it.Image, err = ec.unmarshalNUpload2githubᚗcomᚋ99designsᚋgqlgenᚋgraphqlᚐUpload(ctx, v)
 			if err != nil {
 				return it, err
 			}
@@ -19219,6 +19168,27 @@ func (ec *executionContext) unmarshalNAddReceiptNumberRequest2githubᚗcomᚋarv
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
+func (ec *executionContext) unmarshalNAny2interface(ctx context.Context, v interface{}) (interface{}, error) {
+	res, err := graphql.UnmarshalAny(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNAny2interface(ctx context.Context, sel ast.SelectionSet, v interface{}) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	res := graphql.MarshalAny(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
 func (ec *executionContext) marshalNApriori2githubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐApriori(ctx context.Context, sel ast.SelectionSet, v model.Apriori) graphql.Marshaler {
 	return ec._Apriori(ctx, sel, &v)
 }
@@ -19453,8 +19423,48 @@ func (ec *executionContext) marshalNFloat2float64(ctx context.Context, sel ast.S
 	return graphql.WrapContextMarshaler(ctx, res)
 }
 
-func (ec *executionContext) marshalNGenerateApriori2githubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐGenerateApriori(ctx context.Context, sel ast.SelectionSet, v model.GenerateApriori) graphql.Marshaler {
-	return ec._GenerateApriori(ctx, sel, &v)
+func (ec *executionContext) marshalNGenerateApriori2ᚕᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐGenerateAprioriᚄ(ctx context.Context, sel ast.SelectionSet, v []*model.GenerateApriori) graphql.Marshaler {
+	ret := make(graphql.Array, len(v))
+	var wg sync.WaitGroup
+	isLen1 := len(v) == 1
+	if !isLen1 {
+		wg.Add(len(v))
+	}
+	for i := range v {
+		i := i
+		fc := &graphql.FieldContext{
+			Index:  &i,
+			Result: &v[i],
+		}
+		ctx := graphql.WithFieldContext(ctx, fc)
+		f := func(i int) {
+			defer func() {
+				if r := recover(); r != nil {
+					ec.Error(ctx, ec.Recover(ctx, r))
+					ret = nil
+				}
+			}()
+			if !isLen1 {
+				defer wg.Done()
+			}
+			ret[i] = ec.marshalNGenerateApriori2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐGenerateApriori(ctx, sel, v[i])
+		}
+		if isLen1 {
+			f(i)
+		} else {
+			go f(i)
+		}
+
+	}
+	wg.Wait()
+
+	for _, e := range ret {
+		if e == graphql.Null {
+			return graphql.Null
+		}
+	}
+
+	return ret
 }
 
 func (ec *executionContext) marshalNGenerateApriori2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐGenerateApriori(ctx context.Context, sel ast.SelectionSet, v *model.GenerateApriori) graphql.Marshaler {
@@ -19472,9 +19482,26 @@ func (ec *executionContext) unmarshalNGenerateAprioriRequest2githubᚗcomᚋarvi
 	return res, graphql.ErrorOnPath(ctx, err)
 }
 
-func (ec *executionContext) unmarshalNGenerateCreateAprioriRequest2githubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐGenerateCreateAprioriRequest(ctx context.Context, v interface{}) (model.GenerateCreateAprioriRequest, error) {
+func (ec *executionContext) unmarshalNGenerateCreateAprioriRequest2ᚕᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐGenerateCreateAprioriRequestᚄ(ctx context.Context, v interface{}) ([]*model.GenerateCreateAprioriRequest, error) {
+	var vSlice []interface{}
+	if v != nil {
+		vSlice = graphql.CoerceList(v)
+	}
+	var err error
+	res := make([]*model.GenerateCreateAprioriRequest, len(vSlice))
+	for i := range vSlice {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithIndex(i))
+		res[i], err = ec.unmarshalNGenerateCreateAprioriRequest2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐGenerateCreateAprioriRequest(ctx, vSlice[i])
+		if err != nil {
+			return nil, err
+		}
+	}
+	return res, nil
+}
+
+func (ec *executionContext) unmarshalNGenerateCreateAprioriRequest2ᚖgithubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐGenerateCreateAprioriRequest(ctx context.Context, v interface{}) (*model.GenerateCreateAprioriRequest, error) {
 	res, err := ec.unmarshalInputGenerateCreateAprioriRequest(ctx, v)
-	return res, graphql.ErrorOnPath(ctx, err)
+	return &res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNGetDeliveryRequest2githubᚗcomᚋarviansᚑidᚋaprioriᚋmodelᚐGetDeliveryRequest(ctx context.Context, v interface{}) (model.GetDeliveryRequest, error) {
@@ -19534,6 +19561,27 @@ func (ec *executionContext) unmarshalNInt642int64(ctx context.Context, v interfa
 
 func (ec *executionContext) marshalNInt642int64(ctx context.Context, sel ast.SelectionSet, v int64) graphql.Marshaler {
 	res := graphql.MarshalInt64(v)
+	if res == graphql.Null {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+	}
+	return res
+}
+
+func (ec *executionContext) unmarshalNMap2map(ctx context.Context, v interface{}) (map[string]interface{}, error) {
+	res, err := graphql.UnmarshalMap(v)
+	return res, graphql.ErrorOnPath(ctx, err)
+}
+
+func (ec *executionContext) marshalNMap2map(ctx context.Context, sel ast.SelectionSet, v map[string]interface{}) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	res := graphql.MarshalMap(v)
 	if res == graphql.Null {
 		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
 			ec.Errorf(ctx, "the requested element is null which the schema does not allow")

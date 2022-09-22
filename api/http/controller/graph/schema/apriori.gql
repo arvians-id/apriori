@@ -49,7 +49,7 @@ input UpdateAprioriRequest {
     id_apriori: ID! @goField(name: "IdApriori")
     code: String!
     description: String!
-    image: String!
+    image: Upload!
 }
 
 input GenerateAprioriRequest {

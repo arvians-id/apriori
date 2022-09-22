@@ -260,10 +260,10 @@ type Transaction struct {
 }
 
 type UpdateAprioriRequest struct {
-	IdApriori   int    `json:"id_apriori"`
-	Code        string `json:"code"`
-	Description string `json:"description"`
-	Image       string `json:"image"`
+	IdApriori   int            `json:"id_apriori"`
+	Code        string         `json:"code"`
+	Description string         `json:"description"`
+	Image       graphql.Upload `json:"image"`
 }
 
 type UpdateCategoryRequest struct {

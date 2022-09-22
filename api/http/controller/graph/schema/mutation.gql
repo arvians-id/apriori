@@ -20,14 +20,14 @@ type Mutation {
 
 #   Transaction
     TransactionCreate(input: CreateTransactionRequest!): Transaction!
-    TransactionCreateByCsv(input: CreateTransactionRequest!): Transaction! @deprecated(reason: "Use TransactionCreate instead")
+    TransactionCreateByCsv(file: Upload!): Boolean!
     TransactionUpdate(input: UpdateTransactionRequest!): Transaction!
     TransactionDelete(number_transaction: String!): Boolean!
     TransactionTruncate: Boolean!
 
 #   Payment
     PaymentUpdateReceiptNumber(input: AddReceiptNumberRequest!): Boolean!
-    PaymentPay(input: GetPaymentTokenRequest!): Payment! @deprecated(reason: "Still bugging")
+    PaymentPay(input: GetPaymentTokenRequest!): Map!
     PaymentNotification: Boolean!
     PaymentDelete(order_id: String!): Boolean!
 
@@ -35,17 +35,17 @@ type Mutation {
     CommentCreate(input: CreateCommentRequest!): Comment!
 
 #   Raja Ongkir
-    RajaOngkirCost(input: GetDeliveryRequest!): Boolean! @deprecated(reason: "Still bugging on response")
+    RajaOngkirCost(input: GetDeliveryRequest!): Any!
 
 #   Notification
     NotificationMarkAll: Boolean!
     NotificationMark(id: ID!): Boolean!
 
 #   Apriori
-    AprioriCreate(input: GenerateCreateAprioriRequest!): Boolean!
+    AprioriCreate(input: [GenerateCreateAprioriRequest!]!): Boolean!
     AprioriUpdate(input: UpdateAprioriRequest!): Apriori!
     AprioriDelete(code: String!): Boolean!
-    AprioriGenerate(input: GenerateAprioriRequest!): GenerateApriori!
+    AprioriGenerate(input: GenerateAprioriRequest!): [GenerateApriori!]!
     AprioriUpdateStatus(code: String!): Boolean!
 
 #   Product

@@ -10,6 +10,8 @@ import (
 	"github.com/arvians-id/apriori/http/middleware"
 	"github.com/arvians-id/apriori/model"
 	"github.com/go-redis/redis/v8"
+	"net/http"
+	"os"
 	"strings"
 )
 
@@ -328,6 +330,30 @@ func (r *queryResolver) CommentFindByID(ctx context.Context, id int) (*model.Com
 	return comment, nil
 }
 
+func (r *queryResolver) RajaOngkirFindAll(ctx context.Context, place string, province *string) (interface{}, error) {
+	if place == "province" {
+		place = "province"
+	} else if place == "city" {
+		place = "city?province=" + *province
+	}
+
+	url := "https://api.rajaongkir.com/starter/" + place
+	req, _ := http.NewRequest("GET", url, nil)
+	req.Header.Add("key", os.Getenv("RAJA_ONGKIR_SECRET_KEY"))
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	res, _ := http.DefaultClient.Do(req)
+	defer res.Body.Close()
+
+	var rajaOngkirModel interface{}
+	err := json.NewDecoder(res.Body).Decode(&rajaOngkirModel)
+	if err != nil {
+		return nil, err
+	}
+
+	return rajaOngkirModel, nil
+}
+
 func (r *queryResolver) UserOrderFindAll(ctx context.Context) ([]*model.Payment, error) {
 	//TODO implement me
 	panic("implement me")
@@ -348,37 +374,78 @@ func (r *queryResolver) UserOrderFindByID(ctx context.Context, id int) (*model.U
 	panic("implement me")
 }
 
-func (r *queryResolver) RajaOngkirFindAll(ctx context.Context, place string) (bool, error) {
-	//TODO implement me
-	panic("implement me")
-}
-
 func (r *queryResolver) NotificationFindAll(ctx context.Context) ([]*model.Notification, error) {
-	//TODO implement me
-	panic("implement me")
+	notifications, err := r.NotificationService.FindAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return notifications, nil
 }
 
 func (r *queryResolver) NotificationFindAllByUserID(ctx context.Context) ([]*model.Notification, error) {
-	//TODO implement me
-	panic("implement me")
+	ginContext, err := middleware.GinContextFromContext(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	id, isExist := ginContext.Get("id_user")
+	if !isExist {
+		return nil, errors.New("unauthorized")
+	}
+
+	notifications, err := r.NotificationService.FindAllByUserId(ctx, int(id.(float64)))
+	if err != nil {
+		return nil, err
+	}
+
+	return notifications, nil
 }
 
 func (r *queryResolver) AprioriFindAll(ctx context.Context) ([]*model.Apriori, error) {
-	//TODO implement me
-	panic("implement me")
+	apriories, err := r.AprioriService.FindAll(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	return apriories, nil
 }
 
 func (r *queryResolver) AprioriFindAllByCode(ctx context.Context, code string) ([]*model.Apriori, error) {
-	//TODO implement me
-	panic("implement me")
+	apriories, err := r.AprioriService.FindAllByCode(ctx, code)
+	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			return nil, errors.New(response.ResponseErrorNotFound)
+		}
+
+		return nil, err
+	}
+
+	return apriories, nil
 }
 
 func (r *queryResolver) AprioriFindAllByActive(ctx context.Context) ([]*model.Apriori, error) {
-	//TODO implement me
-	panic("implement me")
+	apriories, err := r.AprioriService.FindAllByActive(ctx)
+	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			return nil, errors.New(response.ResponseErrorNotFound)
+		}
+
+		return nil, err
+	}
+
+	return apriories, nil
 }
 
 func (r *queryResolver) AprioriFindByCodeAndID(ctx context.Context, code string, id int) (*model.ProductRecommendation, error) {
-	//TODO implement me
-	panic("implement me")
+	apriori, err := r.AprioriService.FindByCodeAndId(ctx, code, id)
+	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			return nil, errors.New(response.ResponseErrorNotFound)
+		}
+
+		return nil, err
+	}
+
+	return apriori, nil
 }

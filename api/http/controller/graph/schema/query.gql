@@ -1,6 +1,8 @@
 scalar Time
 scalar Int64
 scalar Upload
+scalar Map
+scalar Any
 
 directive @goField(
     forceResolver: Boolean
@@ -45,7 +47,7 @@ type Query {
     CommentFindById(id: ID!): Comment!
 
 #   Raja Ongkir
-    RajaOngkirFindAll(place: String!): Boolean! @deprecated(reason: "Still bugging on response")
+    RajaOngkirFindAll(place: String!, province: String): Any!
 
 #   Notification
     NotificationFindAll: [Notification!]!

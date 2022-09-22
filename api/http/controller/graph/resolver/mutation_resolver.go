@@ -5,18 +5,21 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/99designs/gqlgen/graphql"
 	"github.com/arvians-id/apriori/helper"
 	"github.com/arvians-id/apriori/http/controller/graph/generated"
 	"github.com/arvians-id/apriori/http/controller/rest/request"
 	"github.com/arvians-id/apriori/http/controller/rest/response"
 	"github.com/arvians-id/apriori/http/middleware"
 	"github.com/arvians-id/apriori/model"
+	"github.com/go-redis/redis/v8"
 	"github.com/veritrans/go-midtrans"
 	"log"
 	"net/http"
 	"net/url"
 	"os"
 	"strconv"
+	"strings"
 	"time"
 )
 
@@ -312,9 +315,28 @@ func (r *mutationResolver) TransactionCreate(ctx context.Context, input model.Cr
 	return transaction, nil
 }
 
-func (r *mutationResolver) TransactionCreateByCSV(ctx context.Context, input model.CreateTransactionRequest) (*model.Transaction, error) {
-	//TODO implement me
-	panic("implement me")
+func (r *mutationResolver) TransactionCreateByCSV(ctx context.Context, file graphql.Upload) (bool, error) {
+	initFileName := fmt.Sprintf("%v-%s", file.Size, file.Filename)
+	fileNameGenerated, err := r.StorageService.UploadFileS3GraphQL(file, initFileName)
+	if err != nil {
+		return false, err
+	}
+	defer os.Remove(initFileName)
+
+	data, err := helper.OpenCsvFile(fileNameGenerated)
+	if err != nil {
+		return false, err
+	}
+
+	err = r.TransactionService.CreateByCsv(ctx, data)
+	if err != nil {
+		return false, err
+	}
+
+	// delete previous cache
+	_ = r.CacheService.Del(ctx, "all-transaction")
+
+	return true, nil
 }
 
 func (r *mutationResolver) TransactionUpdate(ctx context.Context, input model.UpdateTransactionRequest) (*model.Transaction, error) {
@@ -397,9 +419,26 @@ func (r *mutationResolver) PaymentUpdateReceiptNumber(ctx context.Context, input
 	return true, nil
 }
 
-func (r *mutationResolver) PaymentPay(ctx context.Context, input model.GetPaymentTokenRequest) (*model.Payment, error) {
-	//TODO implement me
-	panic("implement me")
+func (r *mutationResolver) PaymentPay(ctx context.Context, input model.GetPaymentTokenRequest) (map[string]interface{}, error) {
+	data, err := r.PaymentService.GetToken(ctx, &request.GetPaymentTokenRequest{
+		GrossAmount:    input.GrossAmount,
+		Items:          input.Items,
+		UserId:         input.UserId,
+		CustomerName:   input.CustomerName,
+		Address:        input.Address,
+		Courier:        input.Courier,
+		CourierService: input.CourierService,
+		ShippingCost:   input.ShippingCost,
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	// delete previous cache
+	key := fmt.Sprintf("user-order-payment-%v", input.UserId)
+	_ = r.CacheService.Del(ctx, key)
+
+	return data, nil
 }
 
 func (r *mutationResolver) PaymentNotification(ctx context.Context) (bool, error) {
@@ -456,44 +495,177 @@ func (r *mutationResolver) CommentCreate(ctx context.Context, input model.Create
 	return comment, nil
 }
 
-func (r *mutationResolver) RajaOngkirCost(ctx context.Context, input model.GetDeliveryRequest) (bool, error) {
-	//TODO implement me
-	panic("implement me")
+func (r *mutationResolver) RajaOngkirCost(ctx context.Context, input model.GetDeliveryRequest) (interface{}, error) {
+	payload := fmt.Sprintf(
+		"origin=%v&destination=%v&weight=%v&courier=%v",
+		input.Origin,
+		input.Destination,
+		input.Weight,
+		input.Courier,
+	)
+	data := strings.NewReader(payload)
+	req, _ := http.NewRequest("POST", "https://api.rajaongkir.com/starter/cost", data)
+	req.Header.Add("key", os.Getenv("RAJA_ONGKIR_SECRET_KEY"))
+	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	res, _ := http.DefaultClient.Do(req)
+	defer res.Body.Close()
+
+	var rajaOngkirModel interface{}
+	err := json.NewDecoder(res.Body).Decode(&rajaOngkirModel)
+	if err != nil {
+		return nil, err
+	}
+
+	return rajaOngkirModel, nil
 }
 
 func (r *mutationResolver) NotificationMarkAll(ctx context.Context) (bool, error) {
-	//TODO implement me
-	panic("implement me")
+	ginContext, err := middleware.GinContextFromContext(ctx)
+	if err != nil {
+		return false, err
+	}
+
+	id, isExist := ginContext.Get("id_user")
+	if !isExist {
+		return false, errors.New("unauthorized")
+	}
+
+	err = r.NotificationService.MarkAll(ctx, int(id.(float64)))
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
 func (r *mutationResolver) NotificationMark(ctx context.Context, id int) (bool, error) {
-	//TODO implement me
-	panic("implement me")
+	err := r.NotificationService.Mark(ctx, id)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
-func (r *mutationResolver) AprioriCreate(ctx context.Context, input model.GenerateCreateAprioriRequest) (bool, error) {
-	//TODO implement me
-	panic("implement me")
+func (r *mutationResolver) AprioriCreate(ctx context.Context, input []*model.GenerateCreateAprioriRequest) (bool, error) {
+	var aprioriRequests []*request.CreateAprioriRequest
+	for _, generateRequest := range input {
+		ItemSet := strings.Join(generateRequest.ItemSet, ", ")
+		aprioriRequests = append(aprioriRequests, &request.CreateAprioriRequest{
+			Item:       ItemSet,
+			Discount:   generateRequest.Discount,
+			Support:    generateRequest.Support,
+			Confidence: generateRequest.Confidence,
+			RangeDate:  generateRequest.RangeDate,
+		})
+	}
+
+	err := r.AprioriService.Create(ctx, aprioriRequests)
+	if err != nil {
+		return false, err
+	}
+
+	return true, nil
 }
 
 func (r *mutationResolver) AprioriUpdate(ctx context.Context, input model.UpdateAprioriRequest) (*model.Apriori, error) {
-	//TODO implement me
-	panic("implement me")
+	var fileName string
+	if input.Image.Filename != "" {
+		initFileName := fmt.Sprintf("%v-%s", input.Image.Size, input.Image.Filename)
+		fileNameGenerated, err := r.StorageService.UploadFileS3GraphQL(input.Image, initFileName)
+		if err != nil {
+			return nil, err
+		}
+		defer os.Remove(initFileName)
+		fileName = fileNameGenerated
+	}
+
+	apriories, err := r.AprioriService.Update(ctx, &request.UpdateAprioriRequest{
+		IdApriori:   input.IdApriori,
+		Code:        input.Code,
+		Description: input.Description,
+		Image:       fileName,
+	})
+	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			return nil, errors.New(response.ResponseErrorNotFound)
+		}
+
+		return nil, err
+	}
+
+	return apriories, nil
 }
 
 func (r *mutationResolver) AprioriDelete(ctx context.Context, code string) (bool, error) {
-	//TODO implement me
-	panic("implement me")
+	err := r.AprioriService.Delete(ctx, code)
+	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			return false, errors.New(response.ResponseErrorNotFound)
+		}
+
+		return false, err
+	}
+
+	return true, nil
 }
 
-func (r *mutationResolver) AprioriGenerate(ctx context.Context, input model.GenerateAprioriRequest) (*model.GenerateApriori, error) {
-	//TODO implement me
-	panic("implement me")
+func (r *mutationResolver) AprioriGenerate(ctx context.Context, input model.GenerateAprioriRequest) ([]*model.GenerateApriori, error) {
+	key := fmt.Sprintf(
+		"%v%v%v%v%s%s",
+		input.MinimumDiscount,
+		input.MaximumDiscount,
+		input.MinimumSupport,
+		input.MinimumConfidence,
+		input.StartDate,
+		input.EndDate,
+	)
+	aprioriCache, err := r.CacheService.Get(ctx, key)
+	if err == redis.Nil {
+		//apriori, err := r.AprioriService.Generate(ctx, (*request.GenerateAprioriRequest)(&input))
+		apriori, err := r.AprioriService.Generate(ctx, &request.GenerateAprioriRequest{
+			MinimumDiscount:   input.MinimumDiscount,
+			MaximumDiscount:   input.MaximumDiscount,
+			MinimumSupport:    input.MinimumSupport,
+			MinimumConfidence: input.MinimumConfidence,
+			StartDate:         input.StartDate,
+			EndDate:           input.EndDate,
+		})
+		if err != nil {
+			return nil, err
+		}
+
+		err = r.CacheService.Set(ctx, key, apriori)
+		if err != nil {
+			return nil, err
+		}
+
+		return apriori, nil
+	} else if err != nil {
+		return nil, err
+	}
+
+	var aprioriCacheResponses []*model.GenerateApriori
+	err = json.Unmarshal(aprioriCache, &aprioriCacheResponses)
+	if err != nil {
+		return nil, err
+	}
+
+	return aprioriCacheResponses, nil
 }
 
 func (r *mutationResolver) AprioriUpdateStatus(ctx context.Context, code string) (bool, error) {
-	//TODO implement me
-	panic("implement me")
+	err := r.AprioriService.UpdateStatus(ctx, code)
+	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			return false, errors.New(response.ResponseErrorNotFound)
+		}
+
+		return false, err
+	}
+
+	return true, nil
 }
 
 func (r *mutationResolver) ProductCreate(ctx context.Context, input model.CreateProductRequest) (*model.Product, error) {

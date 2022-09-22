@@ -6,7 +6,6 @@ import (
 	"github.com/arvians-id/apriori/http/controller/rest/request"
 	"github.com/arvians-id/apriori/http/controller/rest/response"
 	"github.com/gin-gonic/gin"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"strings"
@@ -40,10 +39,9 @@ func (controller *RajaOngkirController) FindAll(c *gin.Context) {
 
 	res, _ := http.DefaultClient.Do(req)
 	defer res.Body.Close()
-	body, _ := ioutil.ReadAll(res.Body)
 
 	var rajaOngkirModel interface{}
-	err := json.Unmarshal(body, &rajaOngkirModel)
+	err := json.NewDecoder(res.Body).Decode(&rajaOngkirModel)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
@@ -76,10 +74,9 @@ func (controller *RajaOngkirController) GetCost(c *gin.Context) {
 
 	res, _ := http.DefaultClient.Do(req)
 	defer res.Body.Close()
-	body, _ := ioutil.ReadAll(res.Body)
 
 	var rajaOngkirModel interface{}
-	err = json.Unmarshal(body, &rajaOngkirModel)
+	err = json.NewDecoder(res.Body).Decode(&rajaOngkirModel)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
