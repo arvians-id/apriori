@@ -14,7 +14,6 @@ import (
 	"github.com/arvians-id/apriori/model"
 	"github.com/go-redis/redis/v8"
 	"github.com/veritrans/go-midtrans"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -36,10 +35,7 @@ func (r *mutationResolver) AuthLogin(ctx context.Context, input model.GetUserCre
 		return nil, err
 	}
 
-	user, err := r.UserService.FindByEmail(ctx, &request.GetUserCredentialRequest{
-		Email:    input.Email,
-		Password: input.Password,
-	})
+	user, err := r.UserService.FindByEmail(ctx, (*request.GetUserCredentialRequest)(&input))
 	if err != nil {
 		if err.Error() == response.ErrorNotFound {
 			return nil, errors.New(response.ResponseErrorNotFound)
@@ -74,13 +70,7 @@ func (r *mutationResolver) AuthLogin(ctx context.Context, input model.GetUserCre
 }
 
 func (r *mutationResolver) AuthRegister(ctx context.Context, input model.CreateUserRequest) (*model.User, error) {
-	user, err := r.UserService.Create(ctx, &request.CreateUserRequest{
-		Name:     input.Name,
-		Email:    input.Email,
-		Address:  input.Address,
-		Phone:    input.Phone,
-		Password: input.Password,
-	})
+	user, err := r.UserService.Create(ctx, (*request.CreateUserRequest)(&input))
 	if err != nil {
 		return nil, err
 	}
@@ -135,12 +125,7 @@ func (r *mutationResolver) AuthForgotPassword(ctx context.Context, input model.C
 }
 
 func (r *mutationResolver) AuthVerifyResetPassword(ctx context.Context, input model.UpdateResetPasswordUserRequest) (bool, error) {
-	err := r.PasswordResetService.Verify(ctx, &request.UpdateResetPasswordUserRequest{
-		Email:    input.Email,
-		Password: input.Password,
-		Token:    input.Token,
-	})
-	log.Println(err)
+	err := r.PasswordResetService.Verify(ctx, (*request.UpdateResetPasswordUserRequest)(&input))
 	if err != nil {
 		if err.Error() == response.ErrorNotFound {
 			return false, errors.New(response.ResponseErrorNotFound)
@@ -174,13 +159,7 @@ func (r *mutationResolver) AuthLogout(ctx context.Context) (bool, error) {
 }
 
 func (r *mutationResolver) UserCreate(ctx context.Context, input model.CreateUserRequest) (*model.User, error) {
-	user, err := r.UserService.Create(ctx, &request.CreateUserRequest{
-		Name:     input.Name,
-		Email:    input.Email,
-		Address:  input.Address,
-		Phone:    input.Phone,
-		Password: input.Password,
-	})
+	user, err := r.UserService.Create(ctx, (*request.CreateUserRequest)(&input))
 	if err != nil {
 		return nil, err
 	}
@@ -252,9 +231,7 @@ func (r *mutationResolver) UpdateProfile(ctx context.Context, input model.Update
 }
 
 func (r *mutationResolver) CategoryCreate(ctx context.Context, input model.CreateCategoryRequest) (*model.Category, error) {
-	category, err := r.CategoryService.Create(ctx, &request.CreateCategoryRequest{
-		Name: input.Name,
-	})
+	category, err := r.CategoryService.Create(ctx, (*request.CreateCategoryRequest)(&input))
 	if err != nil {
 		return nil, err
 	}
@@ -266,10 +243,7 @@ func (r *mutationResolver) CategoryCreate(ctx context.Context, input model.Creat
 }
 
 func (r *mutationResolver) CategoryUpdate(ctx context.Context, input model.UpdateCategoryRequest) (*model.Category, error) {
-	category, err := r.CategoryService.Update(ctx, &request.UpdateCategoryRequest{
-		IdCategory: input.IdCategory,
-		Name:       input.Name,
-	})
+	category, err := r.CategoryService.Update(ctx, (*request.UpdateCategoryRequest)(&input))
 	if err != nil {
 		if err.Error() == response.ErrorNotFound {
 			return nil, errors.New(response.ResponseErrorNotFound)
@@ -301,10 +275,7 @@ func (r *mutationResolver) CategoryDelete(ctx context.Context, id int) (bool, er
 }
 
 func (r *mutationResolver) TransactionCreate(ctx context.Context, input model.CreateTransactionRequest) (*model.Transaction, error) {
-	transaction, err := r.TransactionService.Create(ctx, &request.CreateTransactionRequest{
-		ProductName:  input.ProductName,
-		CustomerName: input.CustomerName,
-	})
+	transaction, err := r.TransactionService.Create(ctx, (*request.CreateTransactionRequest)(&input))
 	if err != nil {
 		return nil, err
 	}
@@ -340,11 +311,7 @@ func (r *mutationResolver) TransactionCreateByCSV(ctx context.Context, file grap
 }
 
 func (r *mutationResolver) TransactionUpdate(ctx context.Context, input model.UpdateTransactionRequest) (*model.Transaction, error) {
-	transaction, err := r.TransactionService.Update(ctx, &request.UpdateTransactionRequest{
-		ProductName:   input.ProductName,
-		CustomerName:  input.CustomerName,
-		NoTransaction: input.NoTransaction,
-	})
+	transaction, err := r.TransactionService.Update(ctx, (*request.UpdateTransactionRequest)(&input))
 	if err != nil {
 		if err.Error() == response.ErrorNotFound {
 			return nil, errors.New(response.ResponseErrorNotFound)
@@ -420,16 +387,7 @@ func (r *mutationResolver) PaymentUpdateReceiptNumber(ctx context.Context, input
 }
 
 func (r *mutationResolver) PaymentPay(ctx context.Context, input model.GetPaymentTokenRequest) (map[string]interface{}, error) {
-	data, err := r.PaymentService.GetToken(ctx, &request.GetPaymentTokenRequest{
-		GrossAmount:    input.GrossAmount,
-		Items:          input.Items,
-		UserId:         input.UserId,
-		CustomerName:   input.CustomerName,
-		Address:        input.Address,
-		Courier:        input.Courier,
-		CourierService: input.CourierService,
-		ShippingCost:   input.ShippingCost,
-	})
+	data, err := r.PaymentService.GetToken(ctx, (*request.GetPaymentTokenRequest)(&input))
 	if err != nil {
 		return nil, err
 	}
@@ -481,13 +439,7 @@ func (r *mutationResolver) PaymentDelete(ctx context.Context, orderID string) (b
 }
 
 func (r *mutationResolver) CommentCreate(ctx context.Context, input model.CreateCommentRequest) (*model.Comment, error) {
-	comment, err := r.CommentService.Create(ctx, &request.CreateCommentRequest{
-		UserOrderId: input.UserOrderId,
-		ProductCode: input.ProductCode,
-		Description: input.Description,
-		Tag:         input.Tag,
-		Rating:      input.Rating,
-	})
+	comment, err := r.CommentService.Create(ctx, (*request.CreateCommentRequest)(&input))
 	if err != nil {
 		return nil, err
 	}
@@ -623,15 +575,7 @@ func (r *mutationResolver) AprioriGenerate(ctx context.Context, input model.Gene
 	)
 	aprioriCache, err := r.CacheService.Get(ctx, key)
 	if err == redis.Nil {
-		//apriori, err := r.AprioriService.Generate(ctx, (*request.GenerateAprioriRequest)(&input))
-		apriori, err := r.AprioriService.Generate(ctx, &request.GenerateAprioriRequest{
-			MinimumDiscount:   input.MinimumDiscount,
-			MaximumDiscount:   input.MaximumDiscount,
-			MinimumSupport:    input.MinimumSupport,
-			MinimumConfidence: input.MinimumConfidence,
-			StartDate:         input.StartDate,
-			EndDate:           input.EndDate,
-		})
+		apriori, err := r.AprioriService.Generate(ctx, (*request.GenerateAprioriRequest)(&input))
 		if err != nil {
 			return nil, err
 		}

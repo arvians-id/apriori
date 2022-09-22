@@ -2029,7 +2029,7 @@ input GenerateAprioriRequest {
     minimum_support: Float! @binding(constraint: "required,max=100")
     minimum_confidence: Float! @binding(constraint: "required,max=100")
     minimum_discount: Int! @binding(constraint: "required")
-    maximum_discount: Int! @binding(constraint: "required,gtefield=MinimumDiscount")
+    maximum_discount: Int! @binding(constraint: "required")
     start_date: String! @binding(constraint: "required")
     end_date: String! @binding(constraint: "required")
 }`, BuiltIn: false},
@@ -15600,7 +15600,7 @@ func (ec *executionContext) unmarshalInputGenerateAprioriRequest(ctx context.Con
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("maximum_discount"))
 			directive0 := func(ctx context.Context) (interface{}, error) { return ec.unmarshalNInt2int(ctx, v) }
 			directive1 := func(ctx context.Context) (interface{}, error) {
-				constraint, err := ec.unmarshalNString2string(ctx, "required,gtefield=MinimumDiscount")
+				constraint, err := ec.unmarshalNString2string(ctx, "required")
 				if err != nil {
 					return nil, err
 				}

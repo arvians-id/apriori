@@ -56,7 +56,7 @@ input GenerateAprioriRequest {
     minimum_support: Float! @binding(constraint: "required,max=100")
     minimum_confidence: Float! @binding(constraint: "required,max=100")
     minimum_discount: Int! @binding(constraint: "required")
-    maximum_discount: Int! @binding(constraint: "required,gtefield=MinimumDiscount")
+    maximum_discount: Int! @binding(constraint: "required")
     start_date: String! @binding(constraint: "required")
     end_date: String! @binding(constraint: "required")
 }
