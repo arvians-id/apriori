@@ -10,7 +10,8 @@ import (
 )
 
 type jwtCustomClaim struct {
-	IdUser int `json:"id_user"`
+	IdUser   int `json:"id_user"`
+	RoleUser int `json:"role"`
 	jwt.StandardClaims
 }
 
@@ -42,7 +43,7 @@ func getRefreshSecretKey() string {
 	return os.Getenv("JWT_SECRET_REFRESH_KEY")
 }
 
-func (service *JwtServiceImpl) GenerateToken(id int, expirationTime time.Time) (*TokenDetails, error) {
+func (service *JwtServiceImpl) GenerateToken(id int, role int, expirationTime time.Time) (*TokenDetails, error) {
 	tokens := &TokenDetails{}
 	tokens.AtExpires = expirationTime.Unix()
 	expiredTimeRefresh, _ := strconv.Atoi(os.Getenv("JWT_REFRESH_EXPIRED_TIME"))
@@ -50,7 +51,8 @@ func (service *JwtServiceImpl) GenerateToken(id int, expirationTime time.Time) (
 
 	// Access token
 	accessToken := jwtCustomClaim{
-		IdUser: id,
+		IdUser:   id,
+		RoleUser: role,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: tokens.AtExpires,
 		},
@@ -65,7 +67,8 @@ func (service *JwtServiceImpl) GenerateToken(id int, expirationTime time.Time) (
 
 	// Refresh token
 	refreshToken := jwtCustomClaim{
-		IdUser: id,
+		IdUser:   id,
+		RoleUser: role,
 		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: tokens.RtExpires,
 		},
@@ -107,13 +110,14 @@ func (service *JwtServiceImpl) RefreshToken(refreshToken string) (*TokenDetails,
 
 	// Get id user
 	id := int(claims["id_user"].(float64))
+	role := int(claims["role"].(float64))
 
 	// Delete the previous Refresh Token
 	// --
 
 	// Create new pairs of refresh and access tokens
 	expiredTimeAccess, _ := strconv.Atoi(os.Getenv("JWT_ACCESS_EXPIRED_TIME"))
-	tokens, err := service.GenerateToken(id, time.Now().Add(time.Duration(expiredTimeAccess)*24*time.Hour))
+	tokens, err := service.GenerateToken(id, role, time.Now().Add(time.Duration(expiredTimeAccess)*24*time.Hour))
 	if err != nil {
 		return nil, err
 	}

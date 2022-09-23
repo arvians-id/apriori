@@ -13,12 +13,16 @@ directive @binding(
     constraint: String!
 ) on INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION
 
+directive @hasRole(
+    roles: String!
+) on FIELD_DEFINITION
+
 type Query {
 #   Auth
     AuthToken: Boolean!
 
 #   User
-    UserFindAll: [User!]!
+    UserFindAll: [User!]! @hasRole(roles: "admin")
     UserProfile: User!
     UserFindById(id: ID!): User!
 

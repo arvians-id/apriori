@@ -54,7 +54,7 @@ type EmailService interface {
 }
 
 type JwtService interface {
-	GenerateToken(IdUser int, expirationTime time.Time) (*TokenDetails, error)
+	GenerateToken(IdUser int, RoleUser int, expirationTime time.Time) (*TokenDetails, error)
 	RefreshToken(refreshToken string) (*TokenDetails, error)
 	ValidateToken(token string) (*jwt.Token, error)
 }

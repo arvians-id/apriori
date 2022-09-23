@@ -43,6 +43,7 @@ type ResolverRoot interface {
 
 type DirectiveRoot struct {
 	Binding func(ctx context.Context, obj interface{}, next graphql.Resolver, constraint string) (res interface{}, err error)
+	HasRole func(ctx context.Context, obj interface{}, next graphql.Resolver, roles string) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
@@ -2119,7 +2120,7 @@ input CreateCommentRequest {
     AprioriCreate(input: [GenerateCreateAprioriRequest!]!): Boolean!
     AprioriUpdate(input: UpdateAprioriRequest!): Apriori!
     AprioriDelete(code: String!): Boolean!
-    AprioriGenerate(input: GenerateAprioriRequest!): [GenerateApriori!]!
+    AprioriGenerate(input: GenerateAprioriRequest!): [GenerateApriori!]! @hasRole(roles: "user")
     AprioriUpdateStatus(code: String!): Boolean!
 
 #   Product
@@ -2264,12 +2265,16 @@ directive @binding(
     constraint: String!
 ) on INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION
 
+directive @hasRole(
+    roles: String!
+) on FIELD_DEFINITION
+
 type Query {
 #   Auth
     AuthToken: Boolean!
 
 #   User
-    UserFindAll: [User!]!
+    UserFindAll: [User!]! @hasRole(roles: "admin")
     UserProfile: User!
     UserFindById(id: ID!): User!
 
@@ -2428,6 +2433,21 @@ func (ec *executionContext) dir_binding_args(ctx context.Context, rawArgs map[st
 		}
 	}
 	args["constraint"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) dir_hasRole_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["roles"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("roles"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["roles"] = arg0
 	return args, nil
 }
 
@@ -6521,8 +6541,32 @@ func (ec *executionContext) _Mutation_AprioriGenerate(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().AprioriGenerate(rctx, fc.Args["input"].(model.GenerateAprioriRequest))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().AprioriGenerate(rctx, fc.Args["input"].(model.GenerateAprioriRequest))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "user")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.GenerateApriori); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/arvians-id/apriori/model.GenerateApriori`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9275,8 +9319,32 @@ func (ec *executionContext) _Query_UserFindAll(ctx context.Context, field graphq
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().UserFindAll(rctx)
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().UserFindAll(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "admin")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.User); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/arvians-id/apriori/model.User`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)

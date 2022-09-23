@@ -51,7 +51,7 @@ func (r *mutationResolver) AuthLogin(ctx context.Context, input model.GetUserCre
 
 	expiredTimeAccess, _ := strconv.Atoi(os.Getenv("JWT_ACCESS_EXPIRED_TIME"))
 	expirationTime := time.Now().Add(time.Duration(expiredTimeAccess) * 24 * time.Hour)
-	token, err := r.JwtService.GenerateToken(user.IdUser, expirationTime)
+	token, err := r.JwtService.GenerateToken(user.IdUser, user.Role, expirationTime)
 	if err != nil {
 		return nil, err
 	}

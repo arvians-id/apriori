@@ -81,7 +81,7 @@ func (controller *AuthController) Login(c *gin.Context) {
 
 	expiredTimeAccess, _ := strconv.Atoi(os.Getenv("JWT_ACCESS_EXPIRED_TIME"))
 	expirationTime := time.Now().Add(time.Duration(expiredTimeAccess) * 24 * time.Hour)
-	token, err := controller.JwtService.GenerateToken(user.IdUser, expirationTime)
+	token, err := controller.JwtService.GenerateToken(user.IdUser, user.Role, expirationTime)
 	if err != nil {
 		response2.ReturnErrorInternalServerError(c, err, nil)
 		return
