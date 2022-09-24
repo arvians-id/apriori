@@ -79,7 +79,7 @@
                   <div class="card-body" v-if="isLoading">
                     <div class="loading-skeleton">
                       <div class="row">
-                        <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                        <div class="col-12 col-md-6 col-lg-4">
                           <div class="card">
                             <div class="embed-responsive embed-responsive-16by9">
                               <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
@@ -182,7 +182,7 @@
                   <div class="card-body" v-else>
                     <!-- List group -->
                     <div class="row" v-if="products.length > 0">
-                      <div class="col-12 col-md-6 col-lg-4 col-xl-3" v-for="item in products" :key="item.id_product">
+                      <div class="col-12 col-md-6 col-lg-4" v-for="item in products" :key="item.id_product">
                         <div class="card">
                           <div class="embed-responsive embed-responsive-16by9">
                             <img class="card-img-top embed-responsive-item" :src="item.image" alt="Preview Image">
@@ -220,7 +220,7 @@
             <div class="card-body" v-if="isLoading2">
               <div class="loading-skeleton">
                 <div class="row">
-                  <div class="col-12 col-md-6 col-lg-3">
+                  <div class="col-12 col-md-6 col-lg-4">
                     <div class="card card-pricing border-0 mb-4">
                       <div class="embed-responsive embed-responsive-16by9">
                         <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
@@ -285,7 +285,7 @@
             </div>
             <div class="card-body" v-else>
               <div class="row" v-if="recommendation.length > 0">
-                <div class="col-12 col-md-6 col-lg-3" v-for="item in recommendation" :key="item.apriori_id">
+                <div class="col-12 col-md-6 col-lg-4" v-for="item in recommendation" :key="item.apriori_id">
                   <div class="card card-pricing border-0 mb-4">
                     <div class="embed-responsive embed-responsive-16by9">
                       <img class="card-img-top embed-responsive-item" :src="item.image" alt="Preview Image">
