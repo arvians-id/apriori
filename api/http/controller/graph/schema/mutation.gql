@@ -1,55 +1,55 @@
 type Mutation {
-#   Auth
-    AuthLogin(input: GetUserCredentialRequest!): TokenJWT!
-    AuthRegister(input: CreateUserRequest!): User!
-    AuthRefresh(input: GetRefreshTokenRequest!): TokenJWT!
-    AuthForgotPassword(input: CreatePasswordResetRequest!): String!
-    AuthVerifyResetPassword(input: UpdateResetPasswordUserRequest!): Boolean!
-    AuthLogout: Boolean!
+    #   Auth
+    AuthLogin(input: GetUserCredentialRequest!): TokenJWT! @apiKey
+    AuthRegister(input: CreateUserRequest!): User! @apiKey
+    AuthRefresh(input: GetRefreshTokenRequest!): TokenJWT! @apiKey
+    AuthForgotPassword(input: CreatePasswordResetRequest!): String! @apiKey
+    AuthVerifyResetPassword(input: UpdateResetPasswordUserRequest!): Boolean! @apiKey
+    AuthLogout: Boolean! @apiKey
 
-#   User
-    UserCreate(input: CreateUserRequest!): User!
-    UserUpdate(input: UpdateUserRequest!): User!
-    UserDelete(id: ID!): Boolean!
-    UpdateProfile(input: UpdateUserRequest!): User!
+    #   User
+    UserCreate(input: CreateUserRequest!): User! @hasRole(roles: "admin")
+    UserUpdate(input: UpdateUserRequest!): User! @hasRole(roles: "admin")
+    UserDelete(id: ID!): Boolean! @hasRole(roles: "admin")
+    UpdateProfile(input: UpdateUserRequest!): User! @hasRole(roles: "user")
 
-#   Category
-    CategoryCreate(input: CreateCategoryRequest!): Category!
-    CategoryUpdate(input: UpdateCategoryRequest!): Category!
-    CategoryDelete(id: ID!): Boolean!
+    #   Category
+    CategoryCreate(input: CreateCategoryRequest!): Category! @hasRole(roles: "admin")
+    CategoryUpdate(input: UpdateCategoryRequest!): Category! @hasRole(roles: "admin")
+    CategoryDelete(id: ID!): Boolean! @hasRole(roles: "admin")
 
-#   Transaction
-    TransactionCreate(input: CreateTransactionRequest!): Transaction!
-    TransactionCreateByCsv(file: Upload!): Boolean!
-    TransactionUpdate(input: UpdateTransactionRequest!): Transaction!
-    TransactionDelete(number_transaction: String!): Boolean!
-    TransactionTruncate: Boolean!
+    #   Transaction
+    TransactionCreate(input: CreateTransactionRequest!): Transaction! @hasRole(roles: "admin")
+    TransactionCreateByCsv(file: Upload!): Boolean! @hasRole(roles: "admin")
+    TransactionUpdate(input: UpdateTransactionRequest!): Transaction! @hasRole(roles: "admin")
+    TransactionDelete(number_transaction: String!): Boolean! @hasRole(roles: "admin")
+    TransactionTruncate: Boolean! @hasRole(roles: "admin")
 
-#   Payment
-    PaymentUpdateReceiptNumber(input: AddReceiptNumberRequest!): Boolean!
-    PaymentPay(input: GetPaymentTokenRequest!): Map!
+    #   Payment
+    PaymentUpdateReceiptNumber(input: AddReceiptNumberRequest!): Boolean! @hasRole(roles: "admin")
+    PaymentPay(input: GetPaymentTokenRequest!): Map! @apiKey
     PaymentNotification: Boolean!
-    PaymentDelete(order_id: String!): Boolean!
+    PaymentDelete(order_id: String!): Boolean! @hasRole(roles: "admin")
 
-#   Comment
-    CommentCreate(input: CreateCommentRequest!): Comment!
+    #   Comment
+    CommentCreate(input: CreateCommentRequest!): Comment! @hasRole(roles: "user")
 
-#   Raja Ongkir
-    RajaOngkirCost(input: GetDeliveryRequest!): Any!
+    #   Raja Ongkir
+    RajaOngkirCost(input: GetDeliveryRequest!): Any! @apiKey
 
-#   Notification
-    NotificationMarkAll: Boolean!
-    NotificationMark(id: ID!): Boolean!
+    #   Notification
+    NotificationMarkAll: Boolean! @hasRole(roles: "user")
+    NotificationMark(id: ID!): Boolean! @hasRole(roles: "user")
 
-#   Apriori
-    AprioriCreate(input: [GenerateCreateAprioriRequest!]!): Boolean!
-    AprioriUpdate(input: UpdateAprioriRequest!): Apriori!
-    AprioriDelete(code: String!): Boolean!
-    AprioriGenerate(input: GenerateAprioriRequest!): [GenerateApriori!]! @hasRole(roles: "user")
-    AprioriUpdateStatus(code: String!): Boolean!
+    #   Apriori
+    AprioriCreate(input: [GenerateCreateAprioriRequest!]!): Boolean! @hasRole(roles: "admin")
+    AprioriUpdate(input: UpdateAprioriRequest!): Apriori! @hasRole(roles: "admin")
+    AprioriDelete(code: String!): Boolean! @hasRole(roles: "admin")
+    AprioriGenerate(input: GenerateAprioriRequest!): [GenerateApriori!]! @hasRole(roles: "admin")
+    AprioriUpdateStatus(code: String!): Boolean! @hasRole(roles: "admin")
 
-#   Product
-    ProductCreate(input: CreateProductRequest!): Product!
-    ProductUpdate(input: UpdateProductRequest!): Product!
-    ProductDelete(code: String!): Boolean!
+    #   Product
+    ProductCreate(input: CreateProductRequest!): Product! @hasRole(roles: "admin")
+    ProductUpdate(input: UpdateProductRequest!): Product! @hasRole(roles: "admin")
+    ProductDelete(code: String!): Boolean! @hasRole(roles: "admin")
 }

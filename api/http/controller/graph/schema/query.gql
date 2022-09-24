@@ -1,72 +1,53 @@
-scalar Time
-scalar Int64
-scalar Upload
-scalar Map
-scalar Any
-
-directive @goField(
-    forceResolver: Boolean
-    name: String
-) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
-
-directive @binding(
-    constraint: String!
-) on INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION
-
-directive @hasRole(
-    roles: String!
-) on FIELD_DEFINITION
-
 type Query {
-#   Auth
-    AuthToken: Boolean!
+  #   Auth
+  AuthToken: Boolean! @apiKey
 
-#   User
-    UserFindAll: [User!]! @hasRole(roles: "admin")
-    UserProfile: User!
-    UserFindById(id: ID!): User!
+  #   User
+  UserFindAll: [User!]! @hasRole(roles: "admin")
+  UserProfile: User! @hasRole(roles: "user")
+  UserFindById(id: ID!): User! @hasRole(roles: "admin")
 
-#   Category
-    CategoryFindAll: [Category!]!
-    CategoryFindById(id: ID!): Category!
+  #   Category
+  CategoryFindAll: [Category!]! @apiKey
+  CategoryFindById(id: ID!): Category! @hasRole(roles: "user")
 
-#   Transaction
-    TransactionFindAll: [Transaction!]!
-    TransactionFindByNoTransaction(number_transaction: String!): Transaction!
+  #   Transaction
+  TransactionFindAll: [Transaction!]! @hasRole(roles: "admin")
+  TransactionFindByNoTransaction(number_transaction: String!): Transaction! @hasRole(roles: "admin")
 
-#   Payment
-    PaymentFindAll: [Payment!]!
-    PaymentFindByOrderId(order_id: String!): Payment!
+  #   Payment
+  PaymentFindAll: [Payment!]! @hasRole(roles: "admin")
+  PaymentFindByOrderId(order_id: String!): Payment! @hasRole(roles: "admin")
 
-#   User Order
-    UserOrderFindAll: [Payment!]!
-    UserOrderFindAllByUserId: [UserOrder!]!
-    UserOrderFindAllById(order_id: String!): [UserOrder!]!
-    UserOrderFindById(id: ID!): UserOrder!
+  #   User Order
+  UserOrderFindAll: [Payment!]! @hasRole(roles: "user")
+  UserOrderFindAllByUserId: [UserOrder!]! @hasRole(roles: "user")
+  UserOrderFindAllById(order_id: String!): [UserOrder!]! @hasRole(roles: "user")
+  UserOrderFindById(id: ID!): UserOrder! @hasRole(roles: "user")
 
-#   Comment
-    CommentFindAllRatingByProductCode(product_code: String!): [RatingFromComment!]!
-    CommentFindAllByProductCode(product_id: String!, tags: String!, ratings: String!): [Comment!]!
-    CommentFindByUserOrderId(user_order_id: ID!): Comment!
-    CommentFindById(id: ID!): Comment!
+  #   Comment
+  CommentFindAllRatingByProductCode(product_code: String!): [RatingFromComment!]! @apiKey
+  CommentFindAllByProductCode(product_id: String!, tags: String!, ratings: String!): [Comment!]! @apiKey
+  CommentFindByUserOrderId(user_order_id: ID!): Comment! @apiKey
+  CommentFindById(id: ID!): Comment! @apiKey
 
-#   Raja Ongkir
-    RajaOngkirFindAll(place: String!, province: String): Any!
+  #   Raja Ongkir
+  RajaOngkirFindAll(place: String!, province: String): Any! @apiKey
 
-#   Notification
-    NotificationFindAll: [Notification!]!
-    NotificationFindAllByUserId: [Notification!]!
+  #   Notification
+  NotificationFindAll: [Notification!]! @hasRole(roles: "admin")
+  NotificationFindAllByUserId: [Notification!]! @hasRole(roles: "user")
 
-#   Apriori
-    AprioriFindAll: [Apriori!]!
-    AprioriFindAllByCode(code: String!): [Apriori!]!
-    AprioriFindAllByActive: [Apriori!]!
-    AprioriFindByCodeAndId(code: String!, id: ID!): ProductRecommendation!
+  #   Apriori
+  AprioriFindAll: [Apriori!]! @apiKey
+  AprioriFindAllByCode(code: String!): [Apriori!]! @apiKey
+  AprioriFindAllByActive: [Apriori!]! @apiKey
+  AprioriFindByCodeAndId(code: String!, id: ID!): ProductRecommendation! @apiKey
 
-#   Product
-    ProductFindAllByAdmin: [Product!]!
-    ProductFindAllSimilarCategory(code: String!): [Product!]!
-    ProductFindAllByUser(search: String, category: String): [Product!]!
-    ProductFindAllRecommendation(code: String!): [ProductRecommendation!]!
-    ProductFindByCode(code: String!): Product!
+  #   Product
+  ProductFindAllByAdmin: [Product!]! @hasRole(roles: "admin")
+  ProductFindAllSimilarCategory(code: String!): [Product!]! @apiKey
+  ProductFindAllByUser(search: String, category: String): [Product!]! @apiKey
+  ProductFindAllRecommendation(code: String!): [ProductRecommendation!]! @apiKey
+  ProductFindByCode(code: String!): Product! @apiKey
 }

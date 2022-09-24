@@ -42,8 +42,9 @@ type ResolverRoot interface {
 }
 
 type DirectiveRoot struct {
+	ApiKey  func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
 	Binding func(ctx context.Context, obj interface{}, next graphql.Resolver, constraint string) (res interface{}, err error)
-	HasRole func(ctx context.Context, obj interface{}, next graphql.Resolver, roles string) (res interface{}, err error)
+	HasRole func(ctx context.Context, obj interface{}, next graphql.Resolver, roles string, useAPIKey *bool) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
@@ -2073,60 +2074,81 @@ input CreateCommentRequest {
     tag: String!
     rating: Int! @binding(constraint: "required")
 }`, BuiltIn: false},
+	{Name: "../schema/main.gql", Input: `scalar Time
+scalar Int64
+scalar Upload
+scalar Map
+scalar Any
+
+directive @goField(
+    forceResolver: Boolean
+    name: String
+) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
+
+directive @binding(
+    constraint: String!
+) on INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION
+
+directive @hasRole(
+    roles: String!
+    useApiKey: Boolean
+) on FIELD_DEFINITION
+
+directive @apiKey on FIELD_DEFINITION`, BuiltIn: false},
 	{Name: "../schema/mutation.gql", Input: `type Mutation {
-#   Auth
-    AuthLogin(input: GetUserCredentialRequest!): TokenJWT!
-    AuthRegister(input: CreateUserRequest!): User!
-    AuthRefresh(input: GetRefreshTokenRequest!): TokenJWT!
-    AuthForgotPassword(input: CreatePasswordResetRequest!): String!
-    AuthVerifyResetPassword(input: UpdateResetPasswordUserRequest!): Boolean!
-    AuthLogout: Boolean!
+    #   Auth
+    AuthLogin(input: GetUserCredentialRequest!): TokenJWT! @apiKey
+    AuthRegister(input: CreateUserRequest!): User! @apiKey
+    AuthRefresh(input: GetRefreshTokenRequest!): TokenJWT! @apiKey
+    AuthForgotPassword(input: CreatePasswordResetRequest!): String! @apiKey
+    AuthVerifyResetPassword(input: UpdateResetPasswordUserRequest!): Boolean! @apiKey
+    AuthLogout: Boolean! @apiKey
 
-#   User
-    UserCreate(input: CreateUserRequest!): User!
-    UserUpdate(input: UpdateUserRequest!): User!
-    UserDelete(id: ID!): Boolean!
-    UpdateProfile(input: UpdateUserRequest!): User!
+    #   User
+    UserCreate(input: CreateUserRequest!): User! @hasRole(roles: "admin")
+    UserUpdate(input: UpdateUserRequest!): User! @hasRole(roles: "admin")
+    UserDelete(id: ID!): Boolean! @hasRole(roles: "admin")
+    UpdateProfile(input: UpdateUserRequest!): User! @hasRole(roles: "user")
 
-#   Category
-    CategoryCreate(input: CreateCategoryRequest!): Category!
-    CategoryUpdate(input: UpdateCategoryRequest!): Category!
-    CategoryDelete(id: ID!): Boolean!
+    #   Category
+    CategoryCreate(input: CreateCategoryRequest!): Category! @hasRole(roles: "admin")
+    CategoryUpdate(input: UpdateCategoryRequest!): Category! @hasRole(roles: "admin")
+    CategoryDelete(id: ID!): Boolean! @hasRole(roles: "admin")
 
-#   Transaction
-    TransactionCreate(input: CreateTransactionRequest!): Transaction!
-    TransactionCreateByCsv(file: Upload!): Boolean!
-    TransactionUpdate(input: UpdateTransactionRequest!): Transaction!
-    TransactionDelete(number_transaction: String!): Boolean!
-    TransactionTruncate: Boolean!
+    #   Transaction
+    TransactionCreate(input: CreateTransactionRequest!): Transaction! @hasRole(roles: "admin")
+    TransactionCreateByCsv(file: Upload!): Boolean! @hasRole(roles: "admin")
+    TransactionUpdate(input: UpdateTransactionRequest!): Transaction! @hasRole(roles: "admin")
+    TransactionDelete(number_transaction: String!): Boolean! @hasRole(roles: "admin")
+    TransactionTruncate: Boolean! @hasRole(roles: "admin")
 
-#   Payment
-    PaymentUpdateReceiptNumber(input: AddReceiptNumberRequest!): Boolean!
-    PaymentPay(input: GetPaymentTokenRequest!): Map!
+    #   Payment
+    PaymentUpdateReceiptNumber(input: AddReceiptNumberRequest!): Boolean! @hasRole(roles: "admin")
+    PaymentPay(input: GetPaymentTokenRequest!): Map! @apiKey
     PaymentNotification: Boolean!
-    PaymentDelete(order_id: String!): Boolean!
+    PaymentDelete(order_id: String!): Boolean! @hasRole(roles: "admin")
 
-#   Comment
-    CommentCreate(input: CreateCommentRequest!): Comment!
+    #   Comment
+    CommentCreate(input: CreateCommentRequest!): Comment! @hasRole(roles: "user")
 
-#   Raja Ongkir
-    RajaOngkirCost(input: GetDeliveryRequest!): Any!
+    #   Raja Ongkir
+    RajaOngkirCost(input: GetDeliveryRequest!): Any! @apiKey
 
-#   Notification
-    NotificationMarkAll: Boolean!
-    NotificationMark(id: ID!): Boolean!
+    #   Notification
+    NotificationMarkAll: Boolean! @hasRole(roles: "user")
+    NotificationMark(id: ID!): Boolean! @hasRole(roles: "user")
 
-#   Apriori
-    AprioriCreate(input: [GenerateCreateAprioriRequest!]!): Boolean!
-    AprioriUpdate(input: UpdateAprioriRequest!): Apriori!
-    AprioriDelete(code: String!): Boolean!
-    AprioriGenerate(input: GenerateAprioriRequest!): [GenerateApriori!]! @hasRole(roles: "user")
-    AprioriUpdateStatus(code: String!): Boolean!
+    #   Apriori
+    AprioriCreate(input: [GenerateCreateAprioriRequest!]!): Boolean! @hasRole(roles: "admin")
+    AprioriUpdate(input: UpdateAprioriRequest!): Apriori! @hasRole(roles: "admin")
+    AprioriDelete(code: String!): Boolean! @hasRole(roles: "admin")
+    AprioriGenerate(input: GenerateAprioriRequest!): [GenerateApriori!]! @hasRole(roles: "admin")
+    AprioriUpdateStatus(code: String!): Boolean! @hasRole(roles: "admin")
 
-#   Product
-    ProductCreate(input: CreateProductRequest!): Product!
-    ProductUpdate(input: UpdateProductRequest!): Product!
-    ProductDelete(code: String!): Boolean!
+    #   Product
+    ProductCreate(input: CreateProductRequest!): Product! @hasRole(roles: "admin")
+    ProductUpdate(input: UpdateProductRequest!): Product! @hasRole(roles: "admin")
+    ProductDelete(code: String!): Boolean! @hasRole(roles: "admin")
 }`, BuiltIn: false},
 	{Name: "../schema/notification.gql", Input: `type Notification {
     id_notification: ID! @goField(name: "IdNotification")
@@ -2250,77 +2272,58 @@ input UpdateProductRequest {
     mass: Int!
     image: Upload!
 }`, BuiltIn: false},
-	{Name: "../schema/query.gql", Input: `scalar Time
-scalar Int64
-scalar Upload
-scalar Map
-scalar Any
+	{Name: "../schema/query.gql", Input: `type Query {
+  #   Auth
+  AuthToken: Boolean! @apiKey
 
-directive @goField(
-    forceResolver: Boolean
-    name: String
-) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
+  #   User
+  UserFindAll: [User!]! @hasRole(roles: "admin")
+  UserProfile: User! @hasRole(roles: "user")
+  UserFindById(id: ID!): User! @hasRole(roles: "admin")
 
-directive @binding(
-    constraint: String!
-) on INPUT_FIELD_DEFINITION | ARGUMENT_DEFINITION
+  #   Category
+  CategoryFindAll: [Category!]! @apiKey
+  CategoryFindById(id: ID!): Category! @hasRole(roles: "user")
 
-directive @hasRole(
-    roles: String!
-) on FIELD_DEFINITION
+  #   Transaction
+  TransactionFindAll: [Transaction!]! @hasRole(roles: "admin")
+  TransactionFindByNoTransaction(number_transaction: String!): Transaction! @hasRole(roles: "admin")
 
-type Query {
-#   Auth
-    AuthToken: Boolean!
+  #   Payment
+  PaymentFindAll: [Payment!]! @hasRole(roles: "admin")
+  PaymentFindByOrderId(order_id: String!): Payment! @hasRole(roles: "admin")
 
-#   User
-    UserFindAll: [User!]! @hasRole(roles: "admin")
-    UserProfile: User!
-    UserFindById(id: ID!): User!
+  #   User Order
+  UserOrderFindAll: [Payment!]! @hasRole(roles: "user")
+  UserOrderFindAllByUserId: [UserOrder!]! @hasRole(roles: "user")
+  UserOrderFindAllById(order_id: String!): [UserOrder!]! @hasRole(roles: "user")
+  UserOrderFindById(id: ID!): UserOrder! @hasRole(roles: "user")
 
-#   Category
-    CategoryFindAll: [Category!]!
-    CategoryFindById(id: ID!): Category!
+  #   Comment
+  CommentFindAllRatingByProductCode(product_code: String!): [RatingFromComment!]! @apiKey
+  CommentFindAllByProductCode(product_id: String!, tags: String!, ratings: String!): [Comment!]! @apiKey
+  CommentFindByUserOrderId(user_order_id: ID!): Comment! @apiKey
+  CommentFindById(id: ID!): Comment! @apiKey
 
-#   Transaction
-    TransactionFindAll: [Transaction!]!
-    TransactionFindByNoTransaction(number_transaction: String!): Transaction!
+  #   Raja Ongkir
+  RajaOngkirFindAll(place: String!, province: String): Any! @apiKey
 
-#   Payment
-    PaymentFindAll: [Payment!]!
-    PaymentFindByOrderId(order_id: String!): Payment!
+  #   Notification
+  NotificationFindAll: [Notification!]! @hasRole(roles: "admin")
+  NotificationFindAllByUserId: [Notification!]! @hasRole(roles: "user")
 
-#   User Order
-    UserOrderFindAll: [Payment!]!
-    UserOrderFindAllByUserId: [UserOrder!]!
-    UserOrderFindAllById(order_id: String!): [UserOrder!]!
-    UserOrderFindById(id: ID!): UserOrder!
+  #   Apriori
+  AprioriFindAll: [Apriori!]! @apiKey
+  AprioriFindAllByCode(code: String!): [Apriori!]! @apiKey
+  AprioriFindAllByActive: [Apriori!]! @apiKey
+  AprioriFindByCodeAndId(code: String!, id: ID!): ProductRecommendation! @apiKey
 
-#   Comment
-    CommentFindAllRatingByProductCode(product_code: String!): [RatingFromComment!]!
-    CommentFindAllByProductCode(product_id: String!, tags: String!, ratings: String!): [Comment!]!
-    CommentFindByUserOrderId(user_order_id: ID!): Comment!
-    CommentFindById(id: ID!): Comment!
-
-#   Raja Ongkir
-    RajaOngkirFindAll(place: String!, province: String): Any!
-
-#   Notification
-    NotificationFindAll: [Notification!]!
-    NotificationFindAllByUserId: [Notification!]!
-
-#   Apriori
-    AprioriFindAll: [Apriori!]!
-    AprioriFindAllByCode(code: String!): [Apriori!]!
-    AprioriFindAllByActive: [Apriori!]!
-    AprioriFindByCodeAndId(code: String!, id: ID!): ProductRecommendation!
-
-#   Product
-    ProductFindAllByAdmin: [Product!]!
-    ProductFindAllSimilarCategory(code: String!): [Product!]!
-    ProductFindAllByUser(search: String, category: String): [Product!]!
-    ProductFindAllRecommendation(code: String!): [ProductRecommendation!]!
-    ProductFindByCode(code: String!): Product!
+  #   Product
+  ProductFindAllByAdmin: [Product!]! @hasRole(roles: "admin")
+  ProductFindAllSimilarCategory(code: String!): [Product!]! @apiKey
+  ProductFindAllByUser(search: String, category: String): [Product!]! @apiKey
+  ProductFindAllRecommendation(code: String!): [ProductRecommendation!]! @apiKey
+  ProductFindByCode(code: String!): Product! @apiKey
 }`, BuiltIn: false},
 	{Name: "../schema/raja_ongkir.gql", Input: `input GetDeliveryRequest {
     origin: String!
@@ -2448,6 +2451,15 @@ func (ec *executionContext) dir_hasRole_args(ctx context.Context, rawArgs map[st
 		}
 	}
 	args["roles"] = arg0
+	var arg1 *bool
+	if tmp, ok := rawArgs["useApiKey"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("useApiKey"))
+		arg1, err = ec.unmarshalOBoolean2ᚖbool(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["useApiKey"] = arg1
 	return args, nil
 }
 
@@ -4788,8 +4800,28 @@ func (ec *executionContext) _Mutation_AuthLogin(ctx context.Context, field graph
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().AuthLogin(rctx, fc.Args["input"].(model.GetUserCredentialRequest))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().AuthLogin(rctx, fc.Args["input"].(model.GetUserCredentialRequest))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.ApiKey == nil {
+				return nil, errors.New("directive apiKey is not implemented")
+			}
+			return ec.directives.ApiKey(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.TokenJwt); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/arvians-id/apriori/model.TokenJwt`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4849,8 +4881,28 @@ func (ec *executionContext) _Mutation_AuthRegister(ctx context.Context, field gr
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().AuthRegister(rctx, fc.Args["input"].(model.CreateUserRequest))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().AuthRegister(rctx, fc.Args["input"].(model.CreateUserRequest))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.ApiKey == nil {
+				return nil, errors.New("directive apiKey is not implemented")
+			}
+			return ec.directives.ApiKey(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.User); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/arvians-id/apriori/model.User`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4928,8 +4980,28 @@ func (ec *executionContext) _Mutation_AuthRefresh(ctx context.Context, field gra
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().AuthRefresh(rctx, fc.Args["input"].(model.GetRefreshTokenRequest))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().AuthRefresh(rctx, fc.Args["input"].(model.GetRefreshTokenRequest))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.ApiKey == nil {
+				return nil, errors.New("directive apiKey is not implemented")
+			}
+			return ec.directives.ApiKey(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.TokenJwt); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/arvians-id/apriori/model.TokenJwt`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -4989,8 +5061,28 @@ func (ec *executionContext) _Mutation_AuthForgotPassword(ctx context.Context, fi
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().AuthForgotPassword(rctx, fc.Args["input"].(model.CreatePasswordResetRequest))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().AuthForgotPassword(rctx, fc.Args["input"].(model.CreatePasswordResetRequest))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.ApiKey == nil {
+				return nil, errors.New("directive apiKey is not implemented")
+			}
+			return ec.directives.ApiKey(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(string); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be string`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5044,8 +5136,28 @@ func (ec *executionContext) _Mutation_AuthVerifyResetPassword(ctx context.Contex
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().AuthVerifyResetPassword(rctx, fc.Args["input"].(model.UpdateResetPasswordUserRequest))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().AuthVerifyResetPassword(rctx, fc.Args["input"].(model.UpdateResetPasswordUserRequest))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.ApiKey == nil {
+				return nil, errors.New("directive apiKey is not implemented")
+			}
+			return ec.directives.ApiKey(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5099,8 +5211,28 @@ func (ec *executionContext) _Mutation_AuthLogout(ctx context.Context, field grap
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().AuthLogout(rctx)
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().AuthLogout(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.ApiKey == nil {
+				return nil, errors.New("directive apiKey is not implemented")
+			}
+			return ec.directives.ApiKey(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5143,8 +5275,32 @@ func (ec *executionContext) _Mutation_UserCreate(ctx context.Context, field grap
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UserCreate(rctx, fc.Args["input"].(model.CreateUserRequest))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UserCreate(rctx, fc.Args["input"].(model.CreateUserRequest))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "admin")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.User); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/arvians-id/apriori/model.User`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5222,8 +5378,32 @@ func (ec *executionContext) _Mutation_UserUpdate(ctx context.Context, field grap
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UserUpdate(rctx, fc.Args["input"].(model.UpdateUserRequest))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UserUpdate(rctx, fc.Args["input"].(model.UpdateUserRequest))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "admin")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.User); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/arvians-id/apriori/model.User`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5301,8 +5481,32 @@ func (ec *executionContext) _Mutation_UserDelete(ctx context.Context, field grap
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UserDelete(rctx, fc.Args["id"].(int))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UserDelete(rctx, fc.Args["id"].(int))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "admin")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5356,8 +5560,32 @@ func (ec *executionContext) _Mutation_UpdateProfile(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().UpdateProfile(rctx, fc.Args["input"].(model.UpdateUserRequest))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().UpdateProfile(rctx, fc.Args["input"].(model.UpdateUserRequest))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "user")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.User); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/arvians-id/apriori/model.User`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5435,8 +5663,32 @@ func (ec *executionContext) _Mutation_CategoryCreate(ctx context.Context, field 
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CategoryCreate(rctx, fc.Args["input"].(model.CreateCategoryRequest))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CategoryCreate(rctx, fc.Args["input"].(model.CreateCategoryRequest))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "admin")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Category); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/arvians-id/apriori/model.Category`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5500,8 +5752,32 @@ func (ec *executionContext) _Mutation_CategoryUpdate(ctx context.Context, field 
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CategoryUpdate(rctx, fc.Args["input"].(model.UpdateCategoryRequest))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CategoryUpdate(rctx, fc.Args["input"].(model.UpdateCategoryRequest))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "admin")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Category); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/arvians-id/apriori/model.Category`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5565,8 +5841,32 @@ func (ec *executionContext) _Mutation_CategoryDelete(ctx context.Context, field 
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CategoryDelete(rctx, fc.Args["id"].(int))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CategoryDelete(rctx, fc.Args["id"].(int))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "admin")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5620,8 +5920,32 @@ func (ec *executionContext) _Mutation_TransactionCreate(ctx context.Context, fie
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().TransactionCreate(rctx, fc.Args["input"].(model.CreateTransactionRequest))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().TransactionCreate(rctx, fc.Args["input"].(model.CreateTransactionRequest))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "admin")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Transaction); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/arvians-id/apriori/model.Transaction`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5689,8 +6013,32 @@ func (ec *executionContext) _Mutation_TransactionCreateByCsv(ctx context.Context
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().TransactionCreateByCSV(rctx, fc.Args["file"].(graphql.Upload))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().TransactionCreateByCSV(rctx, fc.Args["file"].(graphql.Upload))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "admin")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5744,8 +6092,32 @@ func (ec *executionContext) _Mutation_TransactionUpdate(ctx context.Context, fie
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().TransactionUpdate(rctx, fc.Args["input"].(model.UpdateTransactionRequest))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().TransactionUpdate(rctx, fc.Args["input"].(model.UpdateTransactionRequest))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "admin")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Transaction); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/arvians-id/apriori/model.Transaction`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5813,8 +6185,32 @@ func (ec *executionContext) _Mutation_TransactionDelete(ctx context.Context, fie
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().TransactionDelete(rctx, fc.Args["number_transaction"].(string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().TransactionDelete(rctx, fc.Args["number_transaction"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "admin")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5868,8 +6264,32 @@ func (ec *executionContext) _Mutation_TransactionTruncate(ctx context.Context, f
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().TransactionTruncate(rctx)
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().TransactionTruncate(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "admin")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5912,8 +6332,32 @@ func (ec *executionContext) _Mutation_PaymentUpdateReceiptNumber(ctx context.Con
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().PaymentUpdateReceiptNumber(rctx, fc.Args["input"].(model.AddReceiptNumberRequest))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().PaymentUpdateReceiptNumber(rctx, fc.Args["input"].(model.AddReceiptNumberRequest))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "admin")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -5967,8 +6411,28 @@ func (ec *executionContext) _Mutation_PaymentPay(ctx context.Context, field grap
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().PaymentPay(rctx, fc.Args["input"].(model.GetPaymentTokenRequest))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().PaymentPay(rctx, fc.Args["input"].(model.GetPaymentTokenRequest))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.ApiKey == nil {
+				return nil, errors.New("directive apiKey is not implemented")
+			}
+			return ec.directives.ApiKey(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(map[string]interface{}); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be map[string]interface{}`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6066,8 +6530,32 @@ func (ec *executionContext) _Mutation_PaymentDelete(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().PaymentDelete(rctx, fc.Args["order_id"].(string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().PaymentDelete(rctx, fc.Args["order_id"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "admin")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6121,8 +6609,32 @@ func (ec *executionContext) _Mutation_CommentCreate(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().CommentCreate(rctx, fc.Args["input"].(model.CreateCommentRequest))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().CommentCreate(rctx, fc.Args["input"].(model.CreateCommentRequest))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "user")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Comment); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/arvians-id/apriori/model.Comment`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6194,8 +6706,28 @@ func (ec *executionContext) _Mutation_RajaOngkirCost(ctx context.Context, field 
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().RajaOngkirCost(rctx, fc.Args["input"].(model.GetDeliveryRequest))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().RajaOngkirCost(rctx, fc.Args["input"].(model.GetDeliveryRequest))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.ApiKey == nil {
+				return nil, errors.New("directive apiKey is not implemented")
+			}
+			return ec.directives.ApiKey(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(interface{}); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be interface{}`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6249,8 +6781,32 @@ func (ec *executionContext) _Mutation_NotificationMarkAll(ctx context.Context, f
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().NotificationMarkAll(rctx)
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().NotificationMarkAll(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "user")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6293,8 +6849,32 @@ func (ec *executionContext) _Mutation_NotificationMark(ctx context.Context, fiel
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().NotificationMark(rctx, fc.Args["id"].(int))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().NotificationMark(rctx, fc.Args["id"].(int))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "user")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6348,8 +6928,32 @@ func (ec *executionContext) _Mutation_AprioriCreate(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().AprioriCreate(rctx, fc.Args["input"].([]*model.GenerateCreateAprioriRequest))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().AprioriCreate(rctx, fc.Args["input"].([]*model.GenerateCreateAprioriRequest))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "admin")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6403,8 +7007,32 @@ func (ec *executionContext) _Mutation_AprioriUpdate(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().AprioriUpdate(rctx, fc.Args["input"].(model.UpdateAprioriRequest))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().AprioriUpdate(rctx, fc.Args["input"].(model.UpdateAprioriRequest))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "admin")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Apriori); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/arvians-id/apriori/model.Apriori`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6486,8 +7114,32 @@ func (ec *executionContext) _Mutation_AprioriDelete(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().AprioriDelete(rctx, fc.Args["code"].(string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().AprioriDelete(rctx, fc.Args["code"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "admin")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6546,14 +7198,14 @@ func (ec *executionContext) _Mutation_AprioriGenerate(ctx context.Context, field
 			return ec.resolvers.Mutation().AprioriGenerate(rctx, fc.Args["input"].(model.GenerateAprioriRequest))
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
-			roles, err := ec.unmarshalNString2string(ctx, "user")
+			roles, err := ec.unmarshalNString2string(ctx, "admin")
 			if err != nil {
 				return nil, err
 			}
 			if ec.directives.HasRole == nil {
 				return nil, errors.New("directive hasRole is not implemented")
 			}
-			return ec.directives.HasRole(ctx, nil, directive0, roles)
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
 		}
 
 		tmp, err := directive1(rctx)
@@ -6638,8 +7290,32 @@ func (ec *executionContext) _Mutation_AprioriUpdateStatus(ctx context.Context, f
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().AprioriUpdateStatus(rctx, fc.Args["code"].(string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().AprioriUpdateStatus(rctx, fc.Args["code"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "admin")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6693,8 +7369,32 @@ func (ec *executionContext) _Mutation_ProductCreate(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().ProductCreate(rctx, fc.Args["input"].(model.CreateProductRequest))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().ProductCreate(rctx, fc.Args["input"].(model.CreateProductRequest))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "admin")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Product); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/arvians-id/apriori/model.Product`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6772,8 +7472,32 @@ func (ec *executionContext) _Mutation_ProductUpdate(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().ProductUpdate(rctx, fc.Args["input"].(model.UpdateProductRequest))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().ProductUpdate(rctx, fc.Args["input"].(model.UpdateProductRequest))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "admin")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Product); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/arvians-id/apriori/model.Product`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -6851,8 +7575,32 @@ func (ec *executionContext) _Mutation_ProductDelete(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Mutation().ProductDelete(rctx, fc.Args["code"].(string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Mutation().ProductDelete(rctx, fc.Args["code"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "admin")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9275,8 +10023,28 @@ func (ec *executionContext) _Query_AuthToken(ctx context.Context, field graphql.
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().AuthToken(rctx)
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().AuthToken(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.ApiKey == nil {
+				return nil, errors.New("directive apiKey is not implemented")
+			}
+			return ec.directives.ApiKey(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(bool); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be bool`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9331,7 +10099,7 @@ func (ec *executionContext) _Query_UserFindAll(ctx context.Context, field graphq
 			if ec.directives.HasRole == nil {
 				return nil, errors.New("directive hasRole is not implemented")
 			}
-			return ec.directives.HasRole(ctx, nil, directive0, roles)
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
 		}
 
 		tmp, err := directive1(rctx)
@@ -9411,8 +10179,32 @@ func (ec *executionContext) _Query_UserProfile(ctx context.Context, field graphq
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().UserProfile(rctx)
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().UserProfile(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "user")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.User); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/arvians-id/apriori/model.User`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9479,8 +10271,32 @@ func (ec *executionContext) _Query_UserFindById(ctx context.Context, field graph
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().UserFindByID(rctx, fc.Args["id"].(int))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().UserFindByID(rctx, fc.Args["id"].(int))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "admin")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.User); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/arvians-id/apriori/model.User`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9558,8 +10374,28 @@ func (ec *executionContext) _Query_CategoryFindAll(ctx context.Context, field gr
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().CategoryFindAll(rctx)
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().CategoryFindAll(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.ApiKey == nil {
+				return nil, errors.New("directive apiKey is not implemented")
+			}
+			return ec.directives.ApiKey(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.Category); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/arvians-id/apriori/model.Category`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9612,8 +10448,32 @@ func (ec *executionContext) _Query_CategoryFindById(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().CategoryFindByID(rctx, fc.Args["id"].(int))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().CategoryFindByID(rctx, fc.Args["id"].(int))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "user")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Category); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/arvians-id/apriori/model.Category`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9677,8 +10537,32 @@ func (ec *executionContext) _Query_TransactionFindAll(ctx context.Context, field
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().TransactionFindAll(rctx)
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().TransactionFindAll(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "admin")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.Transaction); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/arvians-id/apriori/model.Transaction`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9735,8 +10619,32 @@ func (ec *executionContext) _Query_TransactionFindByNoTransaction(ctx context.Co
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().TransactionFindByNoTransaction(rctx, fc.Args["number_transaction"].(string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().TransactionFindByNoTransaction(rctx, fc.Args["number_transaction"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "admin")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Transaction); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/arvians-id/apriori/model.Transaction`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9804,8 +10712,32 @@ func (ec *executionContext) _Query_PaymentFindAll(ctx context.Context, field gra
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().PaymentFindAll(rctx)
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().PaymentFindAll(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "admin")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.Payment); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/arvians-id/apriori/model.Payment`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9896,8 +10828,32 @@ func (ec *executionContext) _Query_PaymentFindByOrderId(ctx context.Context, fie
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().PaymentFindByOrderID(rctx, fc.Args["order_id"].(string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().PaymentFindByOrderID(rctx, fc.Args["order_id"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "admin")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Payment); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/arvians-id/apriori/model.Payment`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -9999,8 +10955,32 @@ func (ec *executionContext) _Query_UserOrderFindAll(ctx context.Context, field g
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().UserOrderFindAll(rctx)
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().UserOrderFindAll(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "user")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.Payment); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/arvians-id/apriori/model.Payment`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10091,8 +11071,32 @@ func (ec *executionContext) _Query_UserOrderFindAllByUserId(ctx context.Context,
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().UserOrderFindAllByUserID(rctx)
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().UserOrderFindAllByUserID(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "user")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.UserOrder); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/arvians-id/apriori/model.UserOrder`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10155,8 +11159,32 @@ func (ec *executionContext) _Query_UserOrderFindAllById(ctx context.Context, fie
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().UserOrderFindAllByID(rctx, fc.Args["order_id"].(string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().UserOrderFindAllByID(rctx, fc.Args["order_id"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "user")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.UserOrder); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/arvians-id/apriori/model.UserOrder`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10230,8 +11258,32 @@ func (ec *executionContext) _Query_UserOrderFindById(ctx context.Context, field 
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().UserOrderFindByID(rctx, fc.Args["id"].(int))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().UserOrderFindByID(rctx, fc.Args["id"].(int))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "user")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.UserOrder); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/arvians-id/apriori/model.UserOrder`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10305,8 +11357,28 @@ func (ec *executionContext) _Query_CommentFindAllRatingByProductCode(ctx context
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().CommentFindAllRatingByProductCode(rctx, fc.Args["product_code"].(string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().CommentFindAllRatingByProductCode(rctx, fc.Args["product_code"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.ApiKey == nil {
+				return nil, errors.New("directive apiKey is not implemented")
+			}
+			return ec.directives.ApiKey(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.RatingFromComment); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/arvians-id/apriori/model.RatingFromComment`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10368,8 +11440,28 @@ func (ec *executionContext) _Query_CommentFindAllByProductCode(ctx context.Conte
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().CommentFindAllByProductCode(rctx, fc.Args["product_id"].(string), fc.Args["tags"].(string), fc.Args["ratings"].(string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().CommentFindAllByProductCode(rctx, fc.Args["product_id"].(string), fc.Args["tags"].(string), fc.Args["ratings"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.ApiKey == nil {
+				return nil, errors.New("directive apiKey is not implemented")
+			}
+			return ec.directives.ApiKey(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.Comment); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/arvians-id/apriori/model.Comment`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10441,8 +11533,28 @@ func (ec *executionContext) _Query_CommentFindByUserOrderId(ctx context.Context,
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().CommentFindByUserOrderID(rctx, fc.Args["user_order_id"].(int))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().CommentFindByUserOrderID(rctx, fc.Args["user_order_id"].(int))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.ApiKey == nil {
+				return nil, errors.New("directive apiKey is not implemented")
+			}
+			return ec.directives.ApiKey(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Comment); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/arvians-id/apriori/model.Comment`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10514,8 +11626,28 @@ func (ec *executionContext) _Query_CommentFindById(ctx context.Context, field gr
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().CommentFindByID(rctx, fc.Args["id"].(int))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().CommentFindByID(rctx, fc.Args["id"].(int))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.ApiKey == nil {
+				return nil, errors.New("directive apiKey is not implemented")
+			}
+			return ec.directives.ApiKey(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Comment); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/arvians-id/apriori/model.Comment`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10587,8 +11719,28 @@ func (ec *executionContext) _Query_RajaOngkirFindAll(ctx context.Context, field 
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().RajaOngkirFindAll(rctx, fc.Args["place"].(string), fc.Args["province"].(*string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().RajaOngkirFindAll(rctx, fc.Args["place"].(string), fc.Args["province"].(*string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.ApiKey == nil {
+				return nil, errors.New("directive apiKey is not implemented")
+			}
+			return ec.directives.ApiKey(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(interface{}); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be interface{}`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10642,8 +11794,32 @@ func (ec *executionContext) _Query_NotificationFindAll(ctx context.Context, fiel
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().NotificationFindAll(rctx)
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().NotificationFindAll(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "admin")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.Notification); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/arvians-id/apriori/model.Notification`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10704,8 +11880,32 @@ func (ec *executionContext) _Query_NotificationFindAllByUserId(ctx context.Conte
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().NotificationFindAllByUserID(rctx)
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().NotificationFindAllByUserID(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "user")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.Notification); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/arvians-id/apriori/model.Notification`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10766,8 +11966,28 @@ func (ec *executionContext) _Query_AprioriFindAll(ctx context.Context, field gra
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().AprioriFindAll(rctx)
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().AprioriFindAll(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.ApiKey == nil {
+				return nil, errors.New("directive apiKey is not implemented")
+			}
+			return ec.directives.ApiKey(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.Apriori); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/arvians-id/apriori/model.Apriori`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10838,8 +12058,28 @@ func (ec *executionContext) _Query_AprioriFindAllByCode(ctx context.Context, fie
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().AprioriFindAllByCode(rctx, fc.Args["code"].(string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().AprioriFindAllByCode(rctx, fc.Args["code"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.ApiKey == nil {
+				return nil, errors.New("directive apiKey is not implemented")
+			}
+			return ec.directives.ApiKey(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.Apriori); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/arvians-id/apriori/model.Apriori`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10921,8 +12161,28 @@ func (ec *executionContext) _Query_AprioriFindAllByActive(ctx context.Context, f
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().AprioriFindAllByActive(rctx)
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().AprioriFindAllByActive(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.ApiKey == nil {
+				return nil, errors.New("directive apiKey is not implemented")
+			}
+			return ec.directives.ApiKey(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.Apriori); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/arvians-id/apriori/model.Apriori`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -10993,8 +12253,28 @@ func (ec *executionContext) _Query_AprioriFindByCodeAndId(ctx context.Context, f
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().AprioriFindByCodeAndID(rctx, fc.Args["code"].(string), fc.Args["id"].(int))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().AprioriFindByCodeAndID(rctx, fc.Args["code"].(string), fc.Args["id"].(int))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.ApiKey == nil {
+				return nil, errors.New("directive apiKey is not implemented")
+			}
+			return ec.directives.ApiKey(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.ProductRecommendation); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/arvians-id/apriori/model.ProductRecommendation`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11068,8 +12348,32 @@ func (ec *executionContext) _Query_ProductFindAllByAdmin(ctx context.Context, fi
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().ProductFindAllByAdmin(rctx)
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().ProductFindAllByAdmin(rctx)
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			roles, err := ec.unmarshalNString2string(ctx, "admin")
+			if err != nil {
+				return nil, err
+			}
+			if ec.directives.HasRole == nil {
+				return nil, errors.New("directive hasRole is not implemented")
+			}
+			return ec.directives.HasRole(ctx, nil, directive0, roles, nil)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.Product); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/arvians-id/apriori/model.Product`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11136,8 +12440,28 @@ func (ec *executionContext) _Query_ProductFindAllSimilarCategory(ctx context.Con
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().ProductFindAllSimilarCategory(rctx, fc.Args["code"].(string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().ProductFindAllSimilarCategory(rctx, fc.Args["code"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.ApiKey == nil {
+				return nil, errors.New("directive apiKey is not implemented")
+			}
+			return ec.directives.ApiKey(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.Product); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/arvians-id/apriori/model.Product`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11215,8 +12539,28 @@ func (ec *executionContext) _Query_ProductFindAllByUser(ctx context.Context, fie
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().ProductFindAllByUser(rctx, fc.Args["search"].(*string), fc.Args["category"].(*string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().ProductFindAllByUser(rctx, fc.Args["search"].(*string), fc.Args["category"].(*string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.ApiKey == nil {
+				return nil, errors.New("directive apiKey is not implemented")
+			}
+			return ec.directives.ApiKey(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.Product); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/arvians-id/apriori/model.Product`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11294,8 +12638,28 @@ func (ec *executionContext) _Query_ProductFindAllRecommendation(ctx context.Cont
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().ProductFindAllRecommendation(rctx, fc.Args["code"].(string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().ProductFindAllRecommendation(rctx, fc.Args["code"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.ApiKey == nil {
+				return nil, errors.New("directive apiKey is not implemented")
+			}
+			return ec.directives.ApiKey(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.([]*model.ProductRecommendation); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be []*github.com/arvians-id/apriori/model.ProductRecommendation`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -11369,8 +12733,28 @@ func (ec *executionContext) _Query_ProductFindByCode(ctx context.Context, field 
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.Query().ProductFindByCode(rctx, fc.Args["code"].(string))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.Query().ProductFindByCode(rctx, fc.Args["code"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.ApiKey == nil {
+				return nil, errors.New("directive apiKey is not implemented")
+			}
+			return ec.directives.ApiKey(ctx, nil, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.Product); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/arvians-id/apriori/model.Product`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)

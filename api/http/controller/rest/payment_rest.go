@@ -39,16 +39,16 @@ func NewPaymentController(
 func (controller *PaymentController) Route(router *gin.Engine) *gin.Engine {
 	authorized := router.Group("/api", middleware.AuthJwtMiddleware())
 	{
-		authorized.GET("/payments", controller.FindAll)
-		authorized.GET("/payments/:order_id", controller.FindByOrderId)
-		authorized.PATCH("/payments/:order_id", controller.UpdateReceiptNumber)
+		authorized.GET("/payments", middleware.SetupXApiKeyMiddleware(), controller.FindAll)
+		authorized.GET("/payments/:order_id", middleware.SetupXApiKeyMiddleware(), controller.FindByOrderId)
+		authorized.PATCH("/payments/:order_id", middleware.SetupXApiKeyMiddleware(), controller.UpdateReceiptNumber)
 	}
 
 	unauthorized := router.Group("/api")
 	{
-		unauthorized.POST("/payments/pay", controller.Pay)
+		unauthorized.POST("/payments/pay", middleware.SetupXApiKeyMiddleware(), controller.Pay)
 		unauthorized.POST("/payments/notification", controller.Notification)
-		unauthorized.DELETE("/payments/:order_id", controller.Delete)
+		unauthorized.DELETE("/payments/:order_id", middleware.SetupXApiKeyMiddleware(), controller.Delete)
 	}
 
 	return router

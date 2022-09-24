@@ -120,6 +120,7 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 		}
 		// Schema directives
 		generatedConfig.Directives.Binding = directive.Binding
+		generatedConfig.Directives.ApiKey = directive.ApiKey
 		generatedConfig.Directives.HasRole = directive.HasRoles
 		h := handler.NewDefaultServer(generated.NewExecutableSchema(generatedConfig))
 		h.ServeHTTP(c.Writer, c.Request)
