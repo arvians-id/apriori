@@ -91,7 +91,7 @@
                             </div>
                           </div>
                         </div>
-                        <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                        <div class="col-12 col-md-6 col-lg-4">
                           <div class="card">
                             <div class="embed-responsive embed-responsive-16by9">
                               <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
@@ -103,7 +103,7 @@
                             </div>
                           </div>
                         </div>
-                        <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                        <div class="col-12 col-md-6 col-lg-4">
                           <div class="card">
                             <div class="embed-responsive embed-responsive-16by9">
                               <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
@@ -115,7 +115,7 @@
                             </div>
                           </div>
                         </div>
-                        <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                        <div class="col-12 col-md-6 col-lg-4">
                           <div class="card">
                             <div class="embed-responsive embed-responsive-16by9">
                               <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
@@ -127,7 +127,7 @@
                             </div>
                           </div>
                         </div>
-                        <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                        <div class="col-12 col-md-6 col-lg-4">
                           <div class="card">
                             <div class="embed-responsive embed-responsive-16by9">
                               <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
@@ -139,7 +139,7 @@
                             </div>
                           </div>
                         </div>
-                        <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                        <div class="col-12 col-md-6 col-lg-4">
                           <div class="card">
                             <div class="embed-responsive embed-responsive-16by9">
                               <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
@@ -151,7 +151,7 @@
                             </div>
                           </div>
                         </div>
-                        <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                        <div class="col-12 col-md-6 col-lg-4">
                           <div class="card">
                             <div class="embed-responsive embed-responsive-16by9">
                               <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
@@ -163,7 +163,7 @@
                             </div>
                           </div>
                         </div>
-                        <div class="col-12 col-md-6 col-lg-4 col-xl-3">
+                        <div class="col-12 col-md-6 col-lg-4">
                           <div class="card">
                             <div class="embed-responsive embed-responsive-16by9">
                               <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
@@ -235,7 +235,7 @@
                       </div>
                     </div>
                   </div>
-                  <div class="col-12 col-md-6 col-lg-3">
+                  <div class="col-12 col-md-6 col-lg-4">
                     <div class="card card-pricing border-0 mb-4">
                       <div class="embed-responsive embed-responsive-16by9">
                         <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
@@ -250,7 +250,7 @@
                       </div>
                     </div>
                   </div>
-                  <div class="col-12 col-md-6 col-lg-3">
+                  <div class="col-12 col-md-6 col-lg-4">
                     <div class="card card-pricing border-0 mb-4">
                       <div class="embed-responsive embed-responsive-16by9">
                         <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
@@ -265,7 +265,7 @@
                       </div>
                     </div>
                   </div>
-                  <div class="col-12 col-md-6 col-lg-3">
+                  <div class="col-12 col-md-6 col-lg-4">
                     <div class="card card-pricing border-0 mb-4">
                       <div class="embed-responsive embed-responsive-16by9">
                         <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
