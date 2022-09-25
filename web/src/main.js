@@ -6,10 +6,9 @@ import { createApolloProvider } from '@vue/apollo-option'
 import authHeader from "@/service/auth-header";
 
 const httpLink = createHttpLink({
-    uri: 'http://localhost:3000/query',
+    uri: process.env.VUE_APP_SERVICE_URL_GRAPHQL,
     headers: authHeader()
 })
-
 
 const apolloClient = new ApolloClient({
     link: httpLink,

@@ -15,7 +15,7 @@
           <div class="card">
             <!-- Card header -->
             <div class="card-header d-flex justify-content-between">
-              <h3 class="mb-0">Data Transaction {{isLoading}}</h3>
+              <h3 class="mb-0">Data Transaction</h3>
               <form @submit.prevent="truncate()" method="POST">
                 <button class="btn btn-danger btn-sm" type="submit">Clear Data</button>
               </form>
