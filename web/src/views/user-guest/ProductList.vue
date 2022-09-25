@@ -151,30 +151,6 @@
                             </div>
                           </div>
                         </div>
-                        <div class="col-12 col-md-6 col-lg-4">
-                          <div class="card">
-                            <div class="embed-responsive embed-responsive-16by9">
-                              <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
-                            </div>
-                            <div class="card-body">
-                              <p class="card-title mb-1">This is title</p>
-                              <p class="font-weight-bold">This is price of product</p>
-                              <p class="w-50 mb-0">this is icon</p>
-                            </div>
-                          </div>
-                        </div>
-                        <div class="col-12 col-md-6 col-lg-4">
-                          <div class="card">
-                            <div class="embed-responsive embed-responsive-16by9">
-                              <img class="card-img-top embed-responsive-item" src="//placekitten.com/300/200" alt="Preview Image">
-                            </div>
-                            <div class="card-body">
-                              <p class="card-title mb-1">This is title</p>
-                              <p class="font-weight-bold">This is price of product</p>
-                              <p class="w-50 mb-0">this is icon</p>
-                            </div>
-                          </div>
-                        </div>
                         <button class="btn btn-secondary d-block mx-auto px-5">This is button</button>
                       </div>
                     </div>
@@ -375,7 +351,7 @@ export default {
       carts: [],
       totalCart: 0,
       recommendation: [],
-      limitData: 8,
+      limitData: 6,
       totalData: 0,
       isLoading: true,
       isLoading2: true,
@@ -506,7 +482,7 @@ export default {
       });
     },
     loadMore(){
-      this.products = this.allProducts.slice(0, this.limitData += 8);
+      this.products = this.allProducts.slice(0, this.limitData += 6);
     },
     numberWithCommas(x) {
       return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");

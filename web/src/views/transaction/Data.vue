@@ -105,7 +105,6 @@ import Topbar from "@/components/admin/Topbar.vue"
 import Header from "@/components/admin/Header.vue"
 import Footer from "@/components/admin/Footer.vue"
 import authHeader from "@/service/auth-header";
-import gql from 'graphql-tag'
 
 export default {
   components: {
@@ -117,17 +116,6 @@ export default {
   mounted() {
     this.fetchData()
   },
-  apollo: {
-    transactions: gql`query {
-      transactions: TransactionFindAll {
-        no_transaction
-        customer_name
-        product_name
-        created_at
-        updated_at
-      }
-    }`,
-  },
   data: function () {
     return {
       transactions: [],
@@ -136,20 +124,17 @@ export default {
   },
   methods: {
      async fetchData() {
-      // await axios.get(`${process.env.VUE_APP_SERVICE_URL}/transactions`, { headers: authHeader() }).then((response) => {
-      //   this.transactions = response.data.data;
-      //  setTimeout(function(){
-      //    $('#datatable').DataTable();
-      //  }, 0);
-      // }).catch(error => {
-      //   if (error.response.status === 400 || error.response.status === 404) {
-      //     console.log(error.response.data.status)
-      //   }
-      // });
+      await axios.get(`${process.env.VUE_APP_SERVICE_URL}/transactions`, { headers: authHeader() }).then((response) => {
+        this.transactions = response.data.data;
+        setTimeout(function(){
+          $('#datatable').DataTable();
+        }, 0);
+      }).catch(error => {
+        if (error.response.status === 400 || error.response.status === 404) {
+          console.log(error.response.data.status)
+        }
+      });
 
-      setTimeout(function () {
-        $('#datatable').DataTable();
-      }, 0);
       this.isLoading = false;
     },
     submit(no_transaction) {

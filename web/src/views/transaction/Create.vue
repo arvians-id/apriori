@@ -50,27 +50,25 @@ import Topbar from "@/components/admin/Topbar.vue"
 import Header from "@/components/admin/Header.vue"
 import Footer from "@/components/admin/Footer.vue"
 import axios from "axios";
-import $ from "jquery";
 import authHeader from "@/service/auth-header";
+import gql from 'graphql-tag'
 
 export default {
+  apollo: {
+    products: gql`query {
+      products: ProductFindAllByAdmin {
+        id_product
+        name
+        created_at
+        updated_at
+      }
+    }`,
+  },
   components: {
     Footer,
     Sidebar,
     Header,
     Topbar
-  },
-  mounted() {
-    axios.get(`${process.env.VUE_APP_SERVICE_URL}/products`, { headers: authHeader() }).then((response) => {
-      this.products = response.data.data;
-      setTimeout(function(){
-        $('#datatable').DataTable();
-      }, 0);
-    }).catch(error => {
-      if (error.response.status === 400 || error.response.status === 404) {
-        console.log(error.response.data.status)
-      }
-    });
   },
   data: function () {
     return {
