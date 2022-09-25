@@ -9,11 +9,17 @@
     "start": "node server.js"
   },
   "dependencies": {
+    "@apollo/client": "^3.6.9",
+    "@vue/apollo-composable": "^4.0.0-alpha.19",
+    "@vue/apollo-option": "^4.0.0-alpha.20",
+    "apollo-link-context": "^1.0.20",
     "axios": "^0.27.2",
     "core-js": "^3.6.5",
     "datatables.net-dt": "^1.12.1",
     "dotenv": "^16.0.1",
     "express": "^4.18.1",
+    "graphql": "^16.6.0",
+    "graphql-tag": "^2.12.6",
     "jquery": "^3.6.0",
     "vue": "^3.0.0",
     "vue-nprogress": "^0.2.0",
