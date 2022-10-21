@@ -2,12 +2,12 @@ package setup
 
 import (
 	"database/sql"
+	"github.com/arvians-id/apriori/cmd/server"
 	"github.com/arvians-id/apriori/config"
-	"github.com/arvians-id/apriori/route"
 	"github.com/gin-gonic/gin"
 )
 
 func ModuleSetup(configuration config.Config) (*gin.Engine, *sql.DB) {
-	initialized, db := route.NewInitializedServer(configuration)
+	initialized, db := server.NewInitializedServer(configuration)
 	return initialized, db
 }

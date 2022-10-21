@@ -2,10 +2,10 @@ package scheduler
 
 import (
 	"context"
+	"github.com/arvians-id/apriori/cmd/server"
 	"github.com/arvians-id/apriori/config"
 	"github.com/arvians-id/apriori/helper"
 	repository "github.com/arvians-id/apriori/repository/postgres"
-	"github.com/arvians-id/apriori/route"
 	"log"
 )
 
@@ -17,7 +17,7 @@ func (scheduler *ClearTablePasswordResetsSchedule) Run() {
 
 	ctx := context.Background()
 	configuration := config.New()
-	db, err := route.NewInitializedDatabase(configuration)
+	db, err := server.NewInitializedDatabase(configuration)
 	if err != nil {
 		log.Fatalln(err)
 	}

@@ -351,7 +351,7 @@ export default {
           formData.append("courier_service", this.checkout.courier_service)
           formData.append("shipping_cost", this.totalCost)
 
-          axios.post(`${process.env.VUE_APP_SERVICE_URL}/payments/pay`, formData).then(response => {
+          axios.post(`${process.env.VUE_APP_SERVICE_URL}/payments/pay`, formData, { headers: authHeader() }).then(response => {
             window.snap.pay(response.data.data.token, {
               onSuccess: function(result) {
                 console.log(result)
