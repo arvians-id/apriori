@@ -3,6 +3,7 @@ package rest
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/arvians-id/apriori/cmd/library/cache"
 	"github.com/arvians-id/apriori/internal/http/middleware"
 	"github.com/arvians-id/apriori/internal/http/presenter/request"
 	response2 "github.com/arvians-id/apriori/internal/http/presenter/response"
@@ -17,18 +18,18 @@ import (
 type ProductController struct {
 	ProductService service.ProductService
 	StorageService service.StorageService
-	CacheService   service.CacheService
+	Redis          cache.Redis
 }
 
 func NewProductController(
 	productService *service.ProductService,
 	storageService *service.StorageService,
-	cacheService *service.CacheService,
+	redis *cache.Redis,
 ) *ProductController {
 	return &ProductController{
 		ProductService: *productService,
 		StorageService: *storageService,
-		CacheService:   *cacheService,
+		Redis:          *redis,
 	}
 }
 
@@ -109,7 +110,7 @@ func (controller *ProductController) FindAllRecommendation(c *gin.Context) {
 func (controller *ProductController) FindByCode(c *gin.Context) {
 	codeParam := c.Param("code")
 	key := fmt.Sprintf("product-%s", codeParam)
-	productCache, err := controller.CacheService.Get(c, key)
+	productCache, err := controller.Redis.Get(c, key)
 	if err == redis.Nil {
 		product, err := controller.ProductService.FindByCode(c.Request.Context(), codeParam)
 		if err != nil {
@@ -122,7 +123,7 @@ func (controller *ProductController) FindByCode(c *gin.Context) {
 			return
 		}
 
-		err = controller.CacheService.Set(c.Request.Context(), key, product)
+		err = controller.Redis.Set(c.Request.Context(), key, product)
 		if err != nil {
 			response2.ReturnErrorInternalServerError(c, err, nil)
 			return
@@ -206,7 +207,7 @@ func (controller *ProductController) Update(c *gin.Context) {
 	}
 
 	// delete previous cache
-	_ = controller.CacheService.Del(c.Request.Context(), fmt.Sprintf("product-%s", product.Code))
+	_ = controller.Redis.Del(c.Request.Context(), fmt.Sprintf("product-%s", product.Code))
 
 	response2.ReturnSuccessOK(c, "updated", product)
 }
@@ -225,7 +226,7 @@ func (controller *ProductController) Delete(c *gin.Context) {
 	}
 
 	// delete previous cache
-	_ = controller.CacheService.Del(c.Request.Context(), fmt.Sprintf("product-%s", codeParam))
+	_ = controller.Redis.Del(c.Request.Context(), fmt.Sprintf("product-%s", codeParam))
 
 	response2.ReturnSuccessOK(c, "deleted", nil)
 }

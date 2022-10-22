@@ -3,6 +3,7 @@ package rest
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/arvians-id/apriori/cmd/library/cache"
 	middleware2 "github.com/arvians-id/apriori/internal/http/middleware"
 	request2 "github.com/arvians-id/apriori/internal/http/presenter/request"
 	response2 "github.com/arvians-id/apriori/internal/http/presenter/response"
@@ -16,7 +17,7 @@ type PaymentController struct {
 	PaymentService      service.PaymentService
 	UserOrderService    service.UserOrderService
 	EmailService        service.EmailService
-	CacheService        service.CacheService
+	Redis               cache.Redis
 	NotificationService service.NotificationService
 }
 
@@ -24,15 +25,15 @@ func NewPaymentController(
 	paymentService *service.PaymentService,
 	userOrderService *service.UserOrderService,
 	emailService *service.EmailService,
-	cacheService *service.CacheService,
 	notificationService *service.NotificationService,
+	redis *cache.Redis,
 ) *PaymentController {
 	return &PaymentController{
 		PaymentService:      *paymentService,
 		UserOrderService:    *userOrderService,
 		EmailService:        *emailService,
-		CacheService:        *cacheService,
 		NotificationService: *notificationService,
+		Redis:               *redis,
 	}
 }
 
@@ -132,7 +133,7 @@ func (controller *PaymentController) Pay(c *gin.Context) {
 
 	// delete previous cache
 	key := fmt.Sprintf("user-order-payment-%v", requestToken.UserId)
-	_ = controller.CacheService.Del(c.Request.Context(), key)
+	_ = controller.Redis.Del(c.Request.Context(), key)
 
 	response2.ReturnSuccessOK(c, "OK", data)
 }
@@ -159,7 +160,7 @@ func (controller *PaymentController) Notification(c *gin.Context) {
 	key := fmt.Sprintf("user-order-id-%v", util.StrToInt(resArray["custom_field2"].(string)))
 	key2 := fmt.Sprintf("user-order-payment-%v", util.StrToInt(resArray["custom_field1"].(string)))
 	key3 := fmt.Sprintf("user-order-rate-%v", util.StrToInt(resArray["custom_field1"].(string)))
-	_ = controller.CacheService.Del(c.Request.Context(), key, key2, key3)
+	_ = controller.Redis.Del(c.Request.Context(), key, key2, key3)
 
 	response2.ReturnSuccessOK(c, "OK", nil)
 }

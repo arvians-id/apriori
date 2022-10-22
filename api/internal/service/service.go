@@ -6,7 +6,6 @@ import (
 	request2 "github.com/arvians-id/apriori/internal/http/presenter/request"
 	"github.com/arvians-id/apriori/internal/model"
 	"github.com/gin-gonic/gin"
-	"github.com/go-redis/redis/v8"
 	"github.com/golang-jwt/jwt"
 	"mime/multipart"
 	"sync"
@@ -23,14 +22,6 @@ type AprioriService interface {
 	UpdateStatus(ctx context.Context, code string) error
 	Delete(ctx context.Context, code string) error
 	Generate(ctx context.Context, request *request2.GenerateAprioriRequest) ([]*model.GenerateApriori, error)
-}
-
-type CacheService interface {
-	GetClient() (*redis.Client, error)
-	Get(ctx context.Context, key string) ([]byte, error)
-	Set(ctx context.Context, key string, value interface{}) error
-	Del(ctx context.Context, key ...string) error
-	FlushDB(ctx context.Context) error
 }
 
 type CategoryService interface {

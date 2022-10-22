@@ -238,7 +238,7 @@ func (r *mutationResolver) CategoryCreate(ctx context.Context, input model.Creat
 	}
 
 	// delete previous cache
-	_ = r.CacheService.Del(ctx, fmt.Sprintf("categories"))
+	_ = r.Redis.Del(ctx, fmt.Sprintf("categories"))
 
 	return category, nil
 }
@@ -254,7 +254,7 @@ func (r *mutationResolver) CategoryUpdate(ctx context.Context, input model.Updat
 	}
 
 	// delete previous cache
-	_ = r.CacheService.Del(ctx, fmt.Sprintf("categories"))
+	_ = r.Redis.Del(ctx, fmt.Sprintf("categories"))
 
 	return category, nil
 }
@@ -270,7 +270,7 @@ func (r *mutationResolver) CategoryDelete(ctx context.Context, id int) (bool, er
 	}
 
 	// delete previous cache
-	_ = r.CacheService.Del(ctx, fmt.Sprintf("categories"))
+	_ = r.Redis.Del(ctx, fmt.Sprintf("categories"))
 
 	return true, nil
 }
@@ -282,7 +282,7 @@ func (r *mutationResolver) TransactionCreate(ctx context.Context, input model.Cr
 	}
 
 	// delete previous cache
-	_ = r.CacheService.Del(ctx, "all-transaction")
+	_ = r.Redis.Del(ctx, "all-transaction")
 
 	return transaction, nil
 }
@@ -311,7 +311,7 @@ func (r *mutationResolver) TransactionCreateByCSV(ctx context.Context, file grap
 	}
 
 	// delete previous cache
-	_ = r.CacheService.Del(ctx, "all-transaction")
+	_ = r.Redis.Del(ctx, "all-transaction")
 
 	return true, nil
 }
@@ -327,7 +327,7 @@ func (r *mutationResolver) TransactionUpdate(ctx context.Context, input model.Up
 	}
 
 	// delete previous cache
-	_ = r.CacheService.Del(ctx, "all-transaction")
+	_ = r.Redis.Del(ctx, "all-transaction")
 
 	return transaction, nil
 }
@@ -343,7 +343,7 @@ func (r *mutationResolver) TransactionDelete(ctx context.Context, numberTransact
 	}
 
 	// delete previous cache
-	_ = r.CacheService.Del(ctx, "all-transaction")
+	_ = r.Redis.Del(ctx, "all-transaction")
 
 	return true, nil
 }
@@ -355,7 +355,7 @@ func (r *mutationResolver) TransactionTruncate(ctx context.Context) (bool, error
 	}
 
 	// delete previous cache
-	_ = r.CacheService.Del(ctx, "all-transaction")
+	_ = r.Redis.Del(ctx, "all-transaction")
 
 	return true, nil
 }
@@ -400,7 +400,7 @@ func (r *mutationResolver) PaymentPay(ctx context.Context, input model.GetPaymen
 
 	// delete previous cache
 	key := fmt.Sprintf("user-order-payment-%v", input.UserId)
-	_ = r.CacheService.Del(ctx, key)
+	_ = r.Redis.Del(ctx, key)
 
 	return data, nil
 }
@@ -430,7 +430,7 @@ func (r *mutationResolver) PaymentNotification(ctx context.Context) (bool, error
 	key := fmt.Sprintf("user-order-id-%v", util.StrToInt(resArray["custom_field2"].(string)))
 	key2 := fmt.Sprintf("user-order-payment-%v", util.StrToInt(resArray["custom_field1"].(string)))
 	key3 := fmt.Sprintf("user-order-rate-%v", util.StrToInt(resArray["custom_field1"].(string)))
-	_ = r.CacheService.Del(ginContext, key, key2, key3)
+	_ = r.Redis.Del(ginContext, key, key2, key3)
 
 	return true, nil
 }
@@ -589,14 +589,14 @@ func (r *mutationResolver) AprioriGenerate(ctx context.Context, input model.Gene
 		input.StartDate,
 		input.EndDate,
 	)
-	aprioriCache, err := r.CacheService.Get(ctx, key)
+	aprioriCache, err := r.Redis.Get(ctx, key)
 	if err == redis.Nil {
 		apriori, err := r.AprioriService.Generate(ctx, (*request.GenerateAprioriRequest)(&input))
 		if err != nil {
 			return nil, err
 		}
 
-		err = r.CacheService.Set(ctx, key, apriori)
+		err = r.Redis.Set(ctx, key, apriori)
 		if err != nil {
 			return nil, err
 		}
@@ -696,7 +696,7 @@ func (r *mutationResolver) ProductUpdate(ctx context.Context, input model.Update
 	}
 
 	// delete previous cache
-	_ = r.CacheService.Del(ctx, fmt.Sprintf("product-%s", product.Code))
+	_ = r.Redis.Del(ctx, fmt.Sprintf("product-%s", product.Code))
 
 	return product, nil
 }
@@ -711,7 +711,7 @@ func (r *mutationResolver) ProductDelete(ctx context.Context, code string) (bool
 	}
 
 	// delete previous cache
-	_ = r.CacheService.Del(ctx, fmt.Sprintf("product-%s", code))
+	_ = r.Redis.Del(ctx, fmt.Sprintf("product-%s", code))
 
 	return true, nil
 }

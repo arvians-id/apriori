@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/arvians-id/apriori/cmd/library/cache"
 	"github.com/arvians-id/apriori/internal/http/middleware"
 	response2 "github.com/arvians-id/apriori/internal/http/presenter/response"
 	"github.com/arvians-id/apriori/internal/model"
@@ -16,18 +17,18 @@ import (
 type UserOrderController struct {
 	PaymentService   service.PaymentService
 	UserOrderService service.UserOrderService
-	CacheService     service.CacheService
+	Redis            cache.Redis
 }
 
 func NewUserOrderController(
 	paymentService *service.PaymentService,
 	UserOrderService *service.UserOrderService,
-	cacheService *service.CacheService,
+	redis *cache.Redis,
 ) *UserOrderController {
 	return &UserOrderController{
 		PaymentService:   *paymentService,
 		UserOrderService: *UserOrderService,
-		CacheService:     *cacheService,
+		Redis:            *redis,
 	}
 }
 
@@ -51,7 +52,7 @@ func (controller *UserOrderController) FindAll(c *gin.Context) {
 	}
 
 	key := fmt.Sprintf("user-order-payment-%v", int(id.(float64)))
-	paymentsCache, err := controller.CacheService.Get(c, key)
+	paymentsCache, err := controller.Redis.Get(c, key)
 	if err == redis.Nil {
 		payments, err := controller.PaymentService.FindAllByUserId(c.Request.Context(), int(id.(float64)))
 		if err != nil {
@@ -59,7 +60,7 @@ func (controller *UserOrderController) FindAll(c *gin.Context) {
 			return
 		}
 
-		err = controller.CacheService.Set(c.Request.Context(), key, payments)
+		err = controller.Redis.Set(c.Request.Context(), key, payments)
 		if err != nil {
 			response2.ReturnErrorInternalServerError(c, err, nil)
 			return
@@ -90,7 +91,7 @@ func (controller *UserOrderController) FindAllByUserId(c *gin.Context) {
 	}
 
 	key := fmt.Sprintf("user-order-rate-%v", int(id.(float64)))
-	userOrdersCache, err := controller.CacheService.Get(c, key)
+	userOrdersCache, err := controller.Redis.Get(c, key)
 	if err == redis.Nil {
 		userOrders, err := controller.UserOrderService.FindAllByUserId(c.Request.Context(), int(id.(float64)))
 		if err != nil {
@@ -98,7 +99,7 @@ func (controller *UserOrderController) FindAllByUserId(c *gin.Context) {
 			return
 		}
 
-		err = controller.CacheService.Set(c.Request.Context(), key, userOrders)
+		err = controller.Redis.Set(c.Request.Context(), key, userOrders)
 		if err != nil {
 			response2.ReturnErrorInternalServerError(c, err, nil)
 			return
@@ -124,7 +125,7 @@ func (controller *UserOrderController) FindAllByUserId(c *gin.Context) {
 func (controller *UserOrderController) FindAllById(c *gin.Context) {
 	orderIdParam := c.Param("order_id")
 	key := fmt.Sprintf("user-order-id-%v", orderIdParam)
-	userOrdersCache, err := controller.CacheService.Get(c, key)
+	userOrdersCache, err := controller.Redis.Get(c, key)
 	if err == redis.Nil {
 		payment, err := controller.PaymentService.FindByOrderId(c.Request.Context(), orderIdParam)
 		if err != nil {
@@ -142,7 +143,7 @@ func (controller *UserOrderController) FindAllById(c *gin.Context) {
 			return
 		}
 
-		err = controller.CacheService.Set(c.Request.Context(), key, userOrder)
+		err = controller.Redis.Set(c.Request.Context(), key, userOrder)
 		if err != nil {
 			response2.ReturnErrorInternalServerError(c, err, nil)
 			return

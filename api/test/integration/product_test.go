@@ -6,9 +6,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/arvians-id/apriori/cmd/config"
+	"github.com/arvians-id/apriori/cmd/library/cache"
 	"github.com/arvians-id/apriori/internal/model"
 	"github.com/arvians-id/apriori/internal/repository/postgres"
-	"github.com/arvians-id/apriori/internal/service"
 	"github.com/arvians-id/apriori/test/setup"
 	"net/http"
 	"net/http/httptest"
@@ -77,8 +77,8 @@ var _ = Describe("Product API", func() {
 		_, db := setup.ModuleSetup(configuration)
 		defer db.Close()
 
-		productCache := service.NewCacheService(configuration)
-		_ = productCache.FlushDB(context.Background())
+		cacheService := cache.NewCacheService(configuration)
+		_ = cacheService.FlushDB(context.Background())
 
 		err := setup.TearDownTest(db)
 		if err != nil {

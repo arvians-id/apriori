@@ -2,6 +2,7 @@ package rest
 
 import (
 	"encoding/json"
+	"github.com/arvians-id/apriori/cmd/library/cache"
 	"github.com/arvians-id/apriori/internal/http/middleware"
 	"github.com/arvians-id/apriori/internal/http/presenter/request"
 	response2 "github.com/arvians-id/apriori/internal/http/presenter/response"
@@ -16,18 +17,18 @@ import (
 type TransactionController struct {
 	TransactionService service.TransactionService
 	StorageService     service.StorageService
-	CacheService       service.CacheService
+	Redis              cache.Redis
 }
 
 func NewTransactionController(
 	transactionService *service.TransactionService,
 	storageService *service.StorageService,
-	cacheService *service.CacheService,
+	redis *cache.Redis,
 ) *TransactionController {
 	return &TransactionController{
 		TransactionService: *transactionService,
 		StorageService:     *storageService,
-		CacheService:       *cacheService,
+		Redis:              *redis,
 	}
 }
 
@@ -47,7 +48,7 @@ func (controller *TransactionController) Route(router *gin.Engine) *gin.Engine {
 }
 
 func (controller *TransactionController) FindAll(c *gin.Context) {
-	transactionCache, err := controller.CacheService.Get(c, "all-transaction")
+	transactionCache, err := controller.Redis.Get(c, "all-transaction")
 	if err == redis.Nil {
 		transaction, err := controller.TransactionService.FindAll(c.Request.Context())
 		if err != nil {
@@ -55,7 +56,7 @@ func (controller *TransactionController) FindAll(c *gin.Context) {
 			return
 		}
 
-		err = controller.CacheService.Set(c.Request.Context(), "all-transaction", transaction)
+		err = controller.Redis.Set(c.Request.Context(), "all-transaction", transaction)
 		if err != nil {
 			response2.ReturnErrorInternalServerError(c, err, nil)
 			return
@@ -109,7 +110,7 @@ func (controller *TransactionController) Create(c *gin.Context) {
 	}
 
 	// delete previous cache
-	_ = controller.CacheService.Del(c.Request.Context(), "all-transaction")
+	_ = controller.Redis.Del(c.Request.Context(), "all-transaction")
 
 	response2.ReturnSuccessOK(c, "created", transaction)
 }
@@ -142,7 +143,7 @@ func (controller *TransactionController) CreateByCSV(c *gin.Context) {
 	}
 
 	// delete previous cache
-	_ = controller.CacheService.Del(c.Request.Context(), "all-transaction")
+	_ = controller.Redis.Del(c.Request.Context(), "all-transaction")
 
 	response2.ReturnSuccessOK(c, "created", nil)
 }
@@ -169,7 +170,7 @@ func (controller *TransactionController) Update(c *gin.Context) {
 	}
 
 	// delete previous cache
-	_ = controller.CacheService.Del(c.Request.Context(), "all-transaction")
+	_ = controller.Redis.Del(c.Request.Context(), "all-transaction")
 
 	response2.ReturnSuccessOK(c, "updated", transaction)
 }
@@ -188,7 +189,7 @@ func (controller *TransactionController) Delete(c *gin.Context) {
 	}
 
 	// delete previous cache
-	_ = controller.CacheService.Del(c.Request.Context(), "all-transaction")
+	_ = controller.Redis.Del(c.Request.Context(), "all-transaction")
 
 	response2.ReturnSuccessOK(c, "deleted", nil)
 }
@@ -201,7 +202,7 @@ func (controller *TransactionController) Truncate(c *gin.Context) {
 	}
 
 	// delete previous cache
-	_ = controller.CacheService.Del(c.Request.Context(), "all-transaction")
+	_ = controller.Redis.Del(c.Request.Context(), "all-transaction")
 
 	response2.ReturnSuccessOK(c, "deleted", nil)
 }

@@ -93,7 +93,7 @@ func (r *queryResolver) ProductFindAllRecommendation(ctx context.Context, code s
 
 func (r *queryResolver) ProductFindByCode(ctx context.Context, code string) (*model.Product, error) {
 	key := fmt.Sprintf("product-%s", code)
-	productCache, err := r.CacheService.Get(ctx, key)
+	productCache, err := r.Redis.Get(ctx, key)
 	if err == redis.Nil {
 		product, err := r.ProductService.FindByCode(ctx, code)
 		if err != nil {
@@ -103,7 +103,7 @@ func (r *queryResolver) ProductFindByCode(ctx context.Context, code string) (*mo
 			return nil, err
 		}
 
-		err = r.CacheService.Set(ctx, key, product)
+		err = r.Redis.Set(ctx, key, product)
 		if err != nil {
 			return nil, err
 		}
@@ -178,14 +178,14 @@ func (r *queryResolver) UserFindByID(ctx context.Context, id int) (*model.User, 
 }
 
 func (r *queryResolver) CategoryFindAll(ctx context.Context) ([]*model.Category, error) {
-	categoriesCache, err := r.CacheService.Get(ctx, "categories")
+	categoriesCache, err := r.Redis.Get(ctx, "categories")
 	if err == redis.Nil {
 		categories, err := r.CategoryService.FindAll(ctx)
 		if err != nil {
 			return nil, err
 		}
 
-		err = r.CacheService.Set(ctx, "categories", categories)
+		err = r.Redis.Set(ctx, "categories", categories)
 		if err != nil {
 			return nil, err
 		}
@@ -218,14 +218,14 @@ func (r *queryResolver) CategoryFindByID(ctx context.Context, id int) (*model.Ca
 }
 
 func (r *queryResolver) TransactionFindAll(ctx context.Context) ([]*model.Transaction, error) {
-	transactionCache, err := r.CacheService.Get(ctx, "all-transaction")
+	transactionCache, err := r.Redis.Get(ctx, "all-transaction")
 	if err == redis.Nil {
 		transaction, err := r.TransactionService.FindAll(ctx)
 		if err != nil {
 			return nil, err
 		}
 
-		err = r.CacheService.Set(ctx, "all-transaction", transaction)
+		err = r.Redis.Set(ctx, "all-transaction", transaction)
 		if err != nil {
 			return nil, err
 		}
@@ -372,14 +372,14 @@ func (r *queryResolver) UserOrderFindAll(ctx context.Context) ([]*model.Payment,
 	}
 
 	key := fmt.Sprintf("user-order-payment-%v", int(id.(float64)))
-	paymentsCache, err := r.CacheService.Get(ginContext, key)
+	paymentsCache, err := r.Redis.Get(ginContext, key)
 	if err == redis.Nil {
 		payments, err := r.PaymentService.FindAllByUserId(ginContext, int(id.(float64)))
 		if err != nil {
 			return nil, err
 		}
 
-		err = r.CacheService.Set(ginContext, key, payments)
+		err = r.Redis.Set(ginContext, key, payments)
 		if err != nil {
 			return nil, err
 		}
@@ -410,14 +410,14 @@ func (r *queryResolver) UserOrderFindAllByUserID(ctx context.Context) ([]*model.
 	}
 
 	key := fmt.Sprintf("user-order-rate-%v", int(id.(float64)))
-	userOrdersCache, err := r.CacheService.Get(ginContext, key)
+	userOrdersCache, err := r.Redis.Get(ginContext, key)
 	if err == redis.Nil {
 		userOrders, err := r.UserOrderService.FindAllByUserId(ginContext, int(id.(float64)))
 		if err != nil {
 			return nil, err
 		}
 
-		err = r.CacheService.Set(ginContext, key, userOrders)
+		err = r.Redis.Set(ginContext, key, userOrders)
 		if err != nil {
 			return nil, err
 		}
@@ -443,7 +443,7 @@ func (r *queryResolver) UserOrderFindAllByID(ctx context.Context, orderID string
 	}
 
 	key := fmt.Sprintf("user-order-id-%v", orderID)
-	userOrdersCache, err := r.CacheService.Get(ginContext, key)
+	userOrdersCache, err := r.Redis.Get(ginContext, key)
 	if err == redis.Nil {
 		payment, err := r.PaymentService.FindByOrderId(ginContext, orderID)
 		if err != nil {
@@ -458,7 +458,7 @@ func (r *queryResolver) UserOrderFindAllByID(ctx context.Context, orderID string
 			return nil, err
 		}
 
-		err = r.CacheService.Set(ginContext, key, userOrder)
+		err = r.Redis.Set(ginContext, key, userOrder)
 		if err != nil {
 			return nil, err
 		}

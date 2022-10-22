@@ -3,6 +3,7 @@ package rest
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/arvians-id/apriori/cmd/library/cache"
 	"github.com/arvians-id/apriori/internal/http/middleware"
 	"github.com/arvians-id/apriori/internal/http/presenter/request"
 	response2 "github.com/arvians-id/apriori/internal/http/presenter/response"
@@ -17,18 +18,18 @@ import (
 type AprioriController struct {
 	AprioriService service.AprioriService
 	StorageService service.StorageService
-	CacheService   service.CacheService
+	Redis          cache.Redis
 }
 
 func NewAprioriController(
 	aprioriService service.AprioriService,
 	storageService *service.StorageService,
-	cacheService *service.CacheService,
+	redis *cache.Redis,
 ) *AprioriController {
 	return &AprioriController{
 		AprioriService: aprioriService,
 		StorageService: *storageService,
-		CacheService:   *cacheService,
+		Redis:          *redis,
 	}
 }
 
@@ -222,7 +223,7 @@ func (controller *AprioriController) Generate(c *gin.Context) {
 		requestGenerate.StartDate,
 		requestGenerate.EndDate,
 	)
-	aprioriCache, err := controller.CacheService.Get(c, key)
+	aprioriCache, err := controller.Redis.Get(c, key)
 	if err == redis.Nil {
 		apriori, err := controller.AprioriService.Generate(c.Request.Context(), &requestGenerate)
 		if err != nil {
@@ -230,7 +231,7 @@ func (controller *AprioriController) Generate(c *gin.Context) {
 			return
 		}
 
-		err = controller.CacheService.Set(c.Request.Context(), key, apriori)
+		err = controller.Redis.Set(c.Request.Context(), key, apriori)
 		if err != nil {
 			response2.ReturnErrorInternalServerError(c, err, nil)
 			return

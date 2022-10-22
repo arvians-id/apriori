@@ -3,6 +3,7 @@ package server
 import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/arvians-id/apriori/cmd/library/cache"
 	directive2 "github.com/arvians-id/apriori/internal/http/controller/graph/directive"
 	"github.com/arvians-id/apriori/internal/http/controller/graph/generated"
 	"github.com/arvians-id/apriori/internal/http/controller/graph/resolver"
@@ -14,7 +15,7 @@ import (
 func NewInitializedMainRoute(
 	router *gin.Engine,
 	aprioriService service.AprioriService,
-	cacheService service.CacheService,
+	redisLibrary *cache.Redis,
 	categoryService service.CategoryService,
 	commentService service.CommentService,
 	emailService service.EmailService,
@@ -46,7 +47,7 @@ func NewInitializedMainRoute(
 		generatedConfig := generated.Config{
 			Resolvers: &resolver.Resolver{
 				AprioriService:       aprioriService,
-				CacheService:         cacheService,
+				Redis:                redisLibrary,
 				CategoryService:      categoryService,
 				CommentService:       commentService,
 				EmailService:         emailService,

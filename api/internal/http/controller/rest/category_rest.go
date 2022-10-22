@@ -3,6 +3,7 @@ package rest
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/arvians-id/apriori/cmd/library/cache"
 	"github.com/arvians-id/apriori/internal/http/middleware"
 	"github.com/arvians-id/apriori/internal/http/presenter/request"
 	response2 "github.com/arvians-id/apriori/internal/http/presenter/response"
@@ -15,16 +16,16 @@ import (
 
 type CategoryController struct {
 	CategoryService service.CategoryService
-	CacheService    service.CacheService
+	Redis           cache.Redis
 }
 
 func NewCategoryController(
 	categoryService *service.CategoryService,
-	cacheService *service.CacheService,
+	redis *cache.Redis,
 ) *CategoryController {
 	return &CategoryController{
 		CategoryService: *categoryService,
-		CacheService:    *cacheService,
+		Redis:           *redis,
 	}
 }
 
@@ -46,7 +47,7 @@ func (controller *CategoryController) Route(router *gin.Engine) *gin.Engine {
 }
 
 func (controller *CategoryController) FindAll(c *gin.Context) {
-	categoriesCache, err := controller.CacheService.Get(c.Request.Context(), "categories")
+	categoriesCache, err := controller.Redis.Get(c.Request.Context(), "categories")
 	if err == redis.Nil {
 		categories, err := controller.CategoryService.FindAll(c.Request.Context())
 		if err != nil {
@@ -54,7 +55,7 @@ func (controller *CategoryController) FindAll(c *gin.Context) {
 			return
 		}
 
-		err = controller.CacheService.Set(c.Request.Context(), "categories", categories)
+		err = controller.Redis.Set(c.Request.Context(), "categories", categories)
 		if err != nil {
 			response2.ReturnErrorInternalServerError(c, err, nil)
 			return
@@ -107,7 +108,7 @@ func (controller *CategoryController) Create(c *gin.Context) {
 	}
 
 	// delete previous cache
-	_ = controller.CacheService.Del(c.Request.Context(), fmt.Sprintf("categories"))
+	_ = controller.Redis.Del(c.Request.Context(), fmt.Sprintf("categories"))
 
 	response2.ReturnSuccessOK(c, "OK", category)
 }
@@ -132,7 +133,7 @@ func (controller *CategoryController) Update(c *gin.Context) {
 	}
 
 	// delete previous cache
-	_ = controller.CacheService.Del(c.Request.Context(), fmt.Sprintf("categories"))
+	_ = controller.Redis.Del(c.Request.Context(), fmt.Sprintf("categories"))
 
 	response2.ReturnSuccessOK(c, "OK", category)
 }
@@ -151,7 +152,7 @@ func (controller *CategoryController) Delete(c *gin.Context) {
 	}
 
 	// delete previous cache
-	_ = controller.CacheService.Del(c.Request.Context(), fmt.Sprintf("categories"))
+	_ = controller.Redis.Del(c.Request.Context(), fmt.Sprintf("categories"))
 
 	response2.ReturnSuccessOK(c, "OK", nil)
 }

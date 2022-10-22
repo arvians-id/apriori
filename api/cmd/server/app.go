@@ -3,14 +3,13 @@ package server
 import (
 	"database/sql"
 	"github.com/arvians-id/apriori/cmd/config"
+	"github.com/arvians-id/apriori/cmd/library/cache"
 	"github.com/arvians-id/apriori/internal/http/controller/rest"
 	"github.com/arvians-id/apriori/internal/http/middleware"
 	"github.com/arvians-id/apriori/internal/repository/postgres"
 	"github.com/arvians-id/apriori/internal/service"
 	"github.com/gin-gonic/gin"
-	"io"
 	"log"
-	"os"
 )
 
 func NewInitializedDatabase(configuration config.Config) (*sql.DB, error) {
@@ -24,8 +23,8 @@ func NewInitializedDatabase(configuration config.Config) (*sql.DB, error) {
 
 func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	// Write log to file
-	f, _ := os.Create("gin.log")
-	gin.DefaultWriter = io.MultiWriter(f, os.Stdout)
+	//f, _ := os.Create("gin.log")
+	//gin.DefaultWriter = io.MultiWriter(f, os.Stdout)
 
 	// Setup Configuration
 	router := gin.Default()
@@ -35,6 +34,9 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	// Setup Library
+	redisLibrary := cache.NewCacheService(configuration)
 
 	// Setup Repository
 	userRepository := postgres.NewUserRepository()
@@ -60,19 +62,18 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	aprioriService := service.NewAprioriService(&transactionRepository, storageService, &productRepository, &aprioriRepository, db)
 	paymentService := service.NewPaymentService(configuration, &paymentRepository, &userOrderRepository, &transactionRepository, &notificationService, db)
 	userOrderService := service.NewUserOrderService(&paymentRepository, &userOrderRepository, &userRepository, db)
-	cacheService := service.NewCacheService(configuration)
 	categoryService := service.NewCategoryService(&categoryRepository, db)
 	commentService := service.NewCommentService(&commentRepository, &productRepository, db)
 
 	// Setup Controller
 	userController := rest.NewUserController(&userService)
 	authController := rest.NewAuthController(&userService, &jwtService, &emailService, &passwordResetService)
-	productController := rest.NewProductController(&productService, &storageService, &cacheService)
-	transactionController := rest.NewTransactionController(&transactionService, &storageService, &cacheService)
-	aprioriController := rest.NewAprioriController(aprioriService, &storageService, &cacheService)
-	paymentController := rest.NewPaymentController(&paymentService, &userOrderService, &emailService, &cacheService, &notificationService)
-	userOrderController := rest.NewUserOrderController(&paymentService, &userOrderService, &cacheService)
-	categoryController := rest.NewCategoryController(&categoryService, &cacheService)
+	productController := rest.NewProductController(&productService, &storageService, redisLibrary)
+	transactionController := rest.NewTransactionController(&transactionService, &storageService, redisLibrary)
+	aprioriController := rest.NewAprioriController(aprioriService, &storageService, redisLibrary)
+	paymentController := rest.NewPaymentController(&paymentService, &userOrderService, &emailService, &notificationService, redisLibrary)
+	userOrderController := rest.NewUserOrderController(&paymentService, &userOrderService, redisLibrary)
+	categoryController := rest.NewCategoryController(&categoryService, redisLibrary)
 	commentController := rest.NewCommentController(&commentService)
 	rajaOngkirController := rest.NewRajaOngkirController()
 	notificationController := rest.NewNotificationController(&notificationService)
@@ -86,7 +87,7 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	// Main Route
 	NewInitializedMainRoute(router,
 		aprioriService,
-		cacheService,
+		redisLibrary,
 		categoryService,
 		commentService,
 		emailService,
