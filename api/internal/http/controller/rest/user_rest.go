@@ -4,7 +4,7 @@ import (
 	"errors"
 	"github.com/arvians-id/apriori/internal/http/middleware"
 	"github.com/arvians-id/apriori/internal/http/presenter/request"
-	response2 "github.com/arvians-id/apriori/internal/http/presenter/response"
+	"github.com/arvians-id/apriori/internal/http/presenter/response"
 	"github.com/arvians-id/apriori/internal/service"
 	"github.com/arvians-id/apriori/util"
 	"github.com/gin-gonic/gin"
@@ -38,126 +38,126 @@ func (controller *UserController) Route(router *gin.Engine) *gin.Engine {
 func (controller *UserController) Profile(c *gin.Context) {
 	id, isExist := c.Get("id_user")
 	if !isExist {
-		response2.ReturnErrorUnauthorized(c, errors.New("unauthorized"), nil)
+		response.ReturnErrorUnauthorized(c, errors.New("unauthorized"), nil)
 		return
 	}
 
 	user, err := controller.UserService.FindById(c.Request.Context(), int(id.(float64)))
 	if err != nil {
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response2.ReturnSuccessOK(c, "OK", user)
+	response.ReturnSuccessOK(c, "OK", user)
 }
 
 func (controller *UserController) UpdateProfile(c *gin.Context) {
 	var requestUpdate request.UpdateUserRequest
 	err := c.ShouldBindJSON(&requestUpdate)
 	if err != nil {
-		response2.ReturnErrorBadRequest(c, err, nil)
+		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
 	id, isExist := c.Get("id_user")
 	if !isExist {
-		response2.ReturnErrorUnauthorized(c, errors.New("unauthorized"), nil)
+		response.ReturnErrorUnauthorized(c, errors.New("unauthorized"), nil)
 		return
 	}
 
 	requestUpdate.IdUser = int(id.(float64))
 	user, err := controller.UserService.Update(c.Request.Context(), &requestUpdate)
 	if err != nil {
-		if err.Error() == response2.ErrorNotFound {
-			response2.ReturnErrorNotFound(c, err, nil)
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
 			return
 		}
 
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response2.ReturnSuccessOK(c, "updated", user)
+	response.ReturnSuccessOK(c, "updated", user)
 }
 
 func (controller *UserController) FindAll(c *gin.Context) {
 	users, err := controller.UserService.FindAll(c.Request.Context())
 	if err != nil {
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response2.ReturnSuccessOK(c, "OK", users)
+	response.ReturnSuccessOK(c, "OK", users)
 }
 
 func (controller *UserController) FindById(c *gin.Context) {
 	idParam := util.StrToInt(c.Param("id"))
 	user, err := controller.UserService.FindById(c.Request.Context(), idParam)
 	if err != nil {
-		if err.Error() == response2.ErrorNotFound {
-			response2.ReturnErrorNotFound(c, err, nil)
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
 			return
 		}
 
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response2.ReturnSuccessOK(c, "OK", user)
+	response.ReturnSuccessOK(c, "OK", user)
 }
 
 func (controller *UserController) Create(c *gin.Context) {
 	var requestCreate request.CreateUserRequest
 	err := c.ShouldBindJSON(&requestCreate)
 	if err != nil {
-		response2.ReturnErrorBadRequest(c, err, nil)
+		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
 	user, err := controller.UserService.Create(c.Request.Context(), &requestCreate)
 	if err != nil {
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response2.ReturnSuccessOK(c, "created", user)
+	response.ReturnSuccessOK(c, "created", user)
 }
 
 func (controller *UserController) Update(c *gin.Context) {
 	var requestUpdate request.UpdateUserRequest
 	err := c.ShouldBindJSON(&requestUpdate)
 	if err != nil {
-		response2.ReturnErrorBadRequest(c, err, nil)
+		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
 	requestUpdate.IdUser = util.StrToInt(c.Param("id"))
 	user, err := controller.UserService.Update(c.Request.Context(), &requestUpdate)
 	if err != nil {
-		if err.Error() == response2.ErrorNotFound {
-			response2.ReturnErrorNotFound(c, err, nil)
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
 			return
 		}
 
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response2.ReturnSuccessOK(c, "updated", user)
+	response.ReturnSuccessOK(c, "updated", user)
 }
 
 func (controller *UserController) Delete(c *gin.Context) {
 	idParam := util.StrToInt(c.Param("id"))
 	err := controller.UserService.Delete(c.Request.Context(), idParam)
 	if err != nil {
-		if err.Error() == response2.ErrorNotFound {
-			response2.ReturnErrorNotFound(c, err, nil)
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
 			return
 		}
 
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response2.ReturnSuccessOK(c, "deleted", nil)
+	response.ReturnSuccessOK(c, "deleted", nil)
 }

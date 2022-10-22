@@ -12,7 +12,6 @@ import (
 	"github.com/arvians-id/apriori/internal/http/presenter/response"
 	"github.com/arvians-id/apriori/internal/model"
 	"github.com/arvians-id/apriori/util"
-	"github.com/go-redis/redis/v8"
 	"github.com/veritrans/go-midtrans"
 	"io"
 	"net/http"
@@ -237,9 +236,6 @@ func (r *mutationResolver) CategoryCreate(ctx context.Context, input model.Creat
 		return nil, err
 	}
 
-	// delete previous cache
-	_ = r.Redis.Del(ctx, fmt.Sprintf("categories"))
-
 	return category, nil
 }
 
@@ -252,9 +248,6 @@ func (r *mutationResolver) CategoryUpdate(ctx context.Context, input model.Updat
 
 		return nil, err
 	}
-
-	// delete previous cache
-	_ = r.Redis.Del(ctx, fmt.Sprintf("categories"))
 
 	return category, nil
 }
@@ -269,9 +262,6 @@ func (r *mutationResolver) CategoryDelete(ctx context.Context, id int) (bool, er
 		return false, err
 	}
 
-	// delete previous cache
-	_ = r.Redis.Del(ctx, fmt.Sprintf("categories"))
-
 	return true, nil
 }
 
@@ -280,9 +270,6 @@ func (r *mutationResolver) TransactionCreate(ctx context.Context, input model.Cr
 	if err != nil {
 		return nil, err
 	}
-
-	// delete previous cache
-	_ = r.Redis.Del(ctx, "all-transaction")
 
 	return transaction, nil
 }
@@ -310,9 +297,6 @@ func (r *mutationResolver) TransactionCreateByCSV(ctx context.Context, file grap
 		return false, err
 	}
 
-	// delete previous cache
-	_ = r.Redis.Del(ctx, "all-transaction")
-
 	return true, nil
 }
 
@@ -325,9 +309,6 @@ func (r *mutationResolver) TransactionUpdate(ctx context.Context, input model.Up
 
 		return nil, err
 	}
-
-	// delete previous cache
-	_ = r.Redis.Del(ctx, "all-transaction")
 
 	return transaction, nil
 }
@@ -342,9 +323,6 @@ func (r *mutationResolver) TransactionDelete(ctx context.Context, numberTransact
 		return false, err
 	}
 
-	// delete previous cache
-	_ = r.Redis.Del(ctx, "all-transaction")
-
 	return true, nil
 }
 
@@ -353,9 +331,6 @@ func (r *mutationResolver) TransactionTruncate(ctx context.Context) (bool, error
 	if err != nil {
 		return false, nil
 	}
-
-	// delete previous cache
-	_ = r.Redis.Del(ctx, "all-transaction")
 
 	return true, nil
 }
@@ -398,10 +373,6 @@ func (r *mutationResolver) PaymentPay(ctx context.Context, input model.GetPaymen
 		return nil, err
 	}
 
-	// delete previous cache
-	key := fmt.Sprintf("user-order-payment-%v", input.UserId)
-	_ = r.Redis.Del(ctx, key)
-
 	return data, nil
 }
 
@@ -425,12 +396,6 @@ func (r *mutationResolver) PaymentNotification(ctx context.Context) (bool, error
 	if err != nil {
 		return false, err
 	}
-
-	// delete previous cache
-	key := fmt.Sprintf("user-order-id-%v", util.StrToInt(resArray["custom_field2"].(string)))
-	key2 := fmt.Sprintf("user-order-payment-%v", util.StrToInt(resArray["custom_field1"].(string)))
-	key3 := fmt.Sprintf("user-order-rate-%v", util.StrToInt(resArray["custom_field1"].(string)))
-	_ = r.Redis.Del(ginContext, key, key2, key3)
 
 	return true, nil
 }
@@ -580,39 +545,12 @@ func (r *mutationResolver) AprioriDelete(ctx context.Context, code string) (bool
 }
 
 func (r *mutationResolver) AprioriGenerate(ctx context.Context, input model.GenerateAprioriRequest) ([]*model.GenerateApriori, error) {
-	key := fmt.Sprintf(
-		"%v%v%v%v%s%s",
-		input.MinimumDiscount,
-		input.MaximumDiscount,
-		input.MinimumSupport,
-		input.MinimumConfidence,
-		input.StartDate,
-		input.EndDate,
-	)
-	aprioriCache, err := r.Redis.Get(ctx, key)
-	if err == redis.Nil {
-		apriori, err := r.AprioriService.Generate(ctx, (*request.GenerateAprioriRequest)(&input))
-		if err != nil {
-			return nil, err
-		}
-
-		err = r.Redis.Set(ctx, key, apriori)
-		if err != nil {
-			return nil, err
-		}
-
-		return apriori, nil
-	} else if err != nil {
-		return nil, err
-	}
-
-	var aprioriCacheResponses []*model.GenerateApriori
-	err = json.Unmarshal(aprioriCache, &aprioriCacheResponses)
+	apriori, err := r.AprioriService.Generate(ctx, (*request.GenerateAprioriRequest)(&input))
 	if err != nil {
 		return nil, err
 	}
 
-	return aprioriCacheResponses, nil
+	return apriori, nil
 }
 
 func (r *mutationResolver) AprioriUpdateStatus(ctx context.Context, code string) (bool, error) {
@@ -695,9 +633,6 @@ func (r *mutationResolver) ProductUpdate(ctx context.Context, input model.Update
 		return nil, err
 	}
 
-	// delete previous cache
-	_ = r.Redis.Del(ctx, fmt.Sprintf("product-%s", product.Code))
-
 	return product, nil
 }
 
@@ -709,9 +644,6 @@ func (r *mutationResolver) ProductDelete(ctx context.Context, code string) (bool
 		}
 		return false, err
 	}
-
-	// delete previous cache
-	_ = r.Redis.Del(ctx, fmt.Sprintf("product-%s", code))
 
 	return true, nil
 }

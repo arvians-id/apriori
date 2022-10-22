@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"github.com/arvians-id/apriori/internal/http/middleware"
-	request2 "github.com/arvians-id/apriori/internal/http/presenter/request"
-	response2 "github.com/arvians-id/apriori/internal/http/presenter/response"
+	"github.com/arvians-id/apriori/internal/http/presenter/request"
+	"github.com/arvians-id/apriori/internal/http/presenter/response"
 	"github.com/arvians-id/apriori/internal/service"
 	"github.com/gin-gonic/gin"
 	"net/http"
@@ -56,26 +56,26 @@ func (controller *AuthController) Route(router *gin.Engine) *gin.Engine {
 }
 
 func (controller *AuthController) Login(c *gin.Context) {
-	var requestCredential request2.GetUserCredentialRequest
+	var requestCredential request.GetUserCredentialRequest
 	err := c.ShouldBindJSON(&requestCredential)
 	if err != nil {
-		response2.ReturnErrorBadRequest(c, err, nil)
+		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
 	user, err := controller.UserService.FindByEmail(c.Request.Context(), &requestCredential)
 	if err != nil {
-		if err.Error() == response2.ErrorNotFound {
-			response2.ReturnErrorNotFound(c, err, nil)
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
 			return
 		}
 
-		if err.Error() == response2.WrongPassword {
-			response2.ReturnErrorBadRequest(c, err, nil)
+		if err.Error() == response.WrongPassword {
+			response.ReturnErrorBadRequest(c, err, nil)
 			return
 		}
 
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
@@ -83,7 +83,7 @@ func (controller *AuthController) Login(c *gin.Context) {
 	expirationTime := time.Now().Add(time.Duration(expiredTimeAccess) * 24 * time.Hour)
 	token, err := controller.JwtService.GenerateToken(user.IdUser, user.Role, expirationTime)
 	if err != nil {
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
@@ -95,23 +95,23 @@ func (controller *AuthController) Login(c *gin.Context) {
 		HttpOnly: true,
 	})
 
-	response2.ReturnSuccessOK(c, "OK", gin.H{
+	response.ReturnSuccessOK(c, "OK", gin.H{
 		"access_token":  token.AccessToken,
 		"refresh_token": token.RefreshToken,
 	})
 }
 
 func (controller *AuthController) Refresh(c *gin.Context) {
-	var requestToken request2.GetRefreshTokenRequest
+	var requestToken request.GetRefreshTokenRequest
 	err := c.ShouldBindJSON(&requestToken)
 	if err != nil {
-		response2.ReturnErrorBadRequest(c, err, nil)
+		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
 	token, err := controller.JwtService.RefreshToken(requestToken.RefreshToken)
 	if err != nil {
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
@@ -125,86 +125,86 @@ func (controller *AuthController) Refresh(c *gin.Context) {
 		HttpOnly: true,
 	})
 
-	response2.ReturnSuccessOK(c, "OK", gin.H{
+	response.ReturnSuccessOK(c, "OK", gin.H{
 		"access_token":  token.AccessToken,
 		"refresh_token": token.RefreshToken,
 	})
 }
 
 func (controller *AuthController) Register(c *gin.Context) {
-	var requestCreate request2.CreateUserRequest
+	var requestCreate request.CreateUserRequest
 	err := c.ShouldBindJSON(&requestCreate)
 	if err != nil {
-		response2.ReturnErrorBadRequest(c, err, nil)
+		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
 	user, err := controller.UserService.Create(c.Request.Context(), &requestCreate)
 	if err != nil {
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response2.ReturnSuccessOK(c, "created", user)
+	response.ReturnSuccessOK(c, "created", user)
 }
 
 func (controller *AuthController) ForgotPassword(c *gin.Context) {
-	var requestCreate request2.CreatePasswordResetRequest
+	var requestCreate request.CreatePasswordResetRequest
 	err := c.ShouldBindJSON(&requestCreate)
 	if err != nil {
-		response2.ReturnErrorBadRequest(c, err, nil)
+		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
 	result, err := controller.PasswordResetService.CreateOrUpdateByEmail(c.Request.Context(), requestCreate.Email)
 	if err != nil {
-		if err.Error() == response2.ErrorNotFound {
-			response2.ReturnErrorNotFound(c, err, nil)
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
 			return
 		}
 
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
 	message := fmt.Sprintf("%s/auth/reset-password?signature=%v", os.Getenv("APP_URL_FE"), result.Token)
 	err = controller.EmailService.SendEmailWithText(result.Email, "Forgot Password", &message)
 	if err != nil {
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response2.ReturnSuccessOK(c, "mail sent successfully", gin.H{
+	response.ReturnSuccessOK(c, "mail sent successfully", gin.H{
 		"signature": result.Token,
 	})
 }
 
 func (controller *AuthController) VerifyResetPassword(c *gin.Context) {
-	var requestUpdate request2.UpdateResetPasswordUserRequest
+	var requestUpdate request.UpdateResetPasswordUserRequest
 	err := c.ShouldBindJSON(&requestUpdate)
 	if err != nil {
-		response2.ReturnErrorBadRequest(c, err, nil)
+		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
 	requestUpdate.Token = c.Query("signature")
 	err = controller.PasswordResetService.Verify(c.Request.Context(), &requestUpdate)
 	if err != nil {
-		if err.Error() == response2.ErrorNotFound {
-			response2.ReturnErrorNotFound(c, err, nil)
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
 			return
 		}
 
-		if err.Error() == response2.VerificationExpired {
-			response2.ReturnErrorBadRequest(c, err, nil)
+		if err.Error() == response.VerificationExpired {
+			response.ReturnErrorBadRequest(c, err, nil)
 			return
 		}
 
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response2.ReturnSuccessOK(c, "updated", nil)
+	response.ReturnSuccessOK(c, "updated", nil)
 }
 
 func (controller *AuthController) Logout(c *gin.Context) {
@@ -216,15 +216,15 @@ func (controller *AuthController) Logout(c *gin.Context) {
 		HttpOnly: true,
 	})
 
-	response2.ReturnSuccessOK(c, "OK", nil)
+	response.ReturnSuccessOK(c, "OK", nil)
 }
 
 func (controller *AuthController) Token(c *gin.Context) {
 	_, isExist := c.Get("id_user")
 	if !isExist {
-		response2.ReturnErrorUnauthorized(c, errors.New("unauthorized"), nil)
+		response.ReturnErrorUnauthorized(c, errors.New("unauthorized"), nil)
 		return
 	}
 
-	response2.ReturnSuccessOK(c, "OK", nil)
+	response.ReturnSuccessOK(c, "OK", nil)
 }

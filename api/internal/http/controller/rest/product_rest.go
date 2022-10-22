@@ -1,16 +1,12 @@
 package rest
 
 import (
-	"encoding/json"
 	"fmt"
-	"github.com/arvians-id/apriori/cmd/library/cache"
 	"github.com/arvians-id/apriori/internal/http/middleware"
 	"github.com/arvians-id/apriori/internal/http/presenter/request"
-	response2 "github.com/arvians-id/apriori/internal/http/presenter/response"
-	"github.com/arvians-id/apriori/internal/model"
+	"github.com/arvians-id/apriori/internal/http/presenter/response"
 	"github.com/arvians-id/apriori/internal/service"
 	"github.com/gin-gonic/gin"
-	"github.com/go-redis/redis/v8"
 	"os"
 	"strings"
 )
@@ -18,18 +14,12 @@ import (
 type ProductController struct {
 	ProductService service.ProductService
 	StorageService service.StorageService
-	Redis          cache.Redis
 }
 
-func NewProductController(
-	productService *service.ProductService,
-	storageService *service.StorageService,
-	redis *cache.Redis,
-) *ProductController {
+func NewProductController(productService *service.ProductService, storageService *service.StorageService) *ProductController {
 	return &ProductController{
 		ProductService: *productService,
 		StorageService: *storageService,
-		Redis:          *redis,
 	}
 }
 
@@ -56,27 +46,27 @@ func (controller *ProductController) Route(router *gin.Engine) *gin.Engine {
 func (controller *ProductController) FindAllByAdmin(c *gin.Context) {
 	products, err := controller.ProductService.FindAllByAdmin(c.Request.Context())
 	if err != nil {
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response2.ReturnSuccessOK(c, "OK", products)
+	response.ReturnSuccessOK(c, "OK", products)
 }
 
 func (controller *ProductController) FindAllSimilarCategory(c *gin.Context) {
 	codeParam := c.Param("code")
 	products, err := controller.ProductService.FindAllBySimilarCategory(c.Request.Context(), codeParam)
 	if err != nil {
-		if err.Error() == response2.ErrorNotFound {
-			response2.ReturnErrorNotFound(c, err, nil)
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
 			return
 		}
 
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response2.ReturnSuccessOK(c, "OK", products)
+	response.ReturnSuccessOK(c, "OK", products)
 }
 
 func (controller *ProductController) FindAllByUser(c *gin.Context) {
@@ -84,73 +74,50 @@ func (controller *ProductController) FindAllByUser(c *gin.Context) {
 	categoryQuery := strings.ToLower(c.Query("category"))
 	products, err := controller.ProductService.FindAll(c.Request.Context(), searchQuery, categoryQuery)
 	if err != nil {
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response2.ReturnSuccessOK(c, "OK", products)
+	response.ReturnSuccessOK(c, "OK", products)
 }
 
 func (controller *ProductController) FindAllRecommendation(c *gin.Context) {
 	codeParam := c.Param("code")
 	products, err := controller.ProductService.FindAllRecommendation(c.Request.Context(), codeParam)
 	if err != nil {
-		if err.Error() == response2.ErrorNotFound {
-			response2.ReturnErrorNotFound(c, err, nil)
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
 			return
 		}
 
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response2.ReturnSuccessOK(c, "OK", products)
+	response.ReturnSuccessOK(c, "OK", products)
 }
 
 func (controller *ProductController) FindByCode(c *gin.Context) {
 	codeParam := c.Param("code")
-	key := fmt.Sprintf("product-%s", codeParam)
-	productCache, err := controller.Redis.Get(c, key)
-	if err == redis.Nil {
-		product, err := controller.ProductService.FindByCode(c.Request.Context(), codeParam)
-		if err != nil {
-			if err.Error() == response2.ErrorNotFound {
-				response2.ReturnErrorNotFound(c, err, nil)
-				return
-			}
-
-			response2.ReturnErrorInternalServerError(c, err, nil)
-			return
-		}
-
-		err = controller.Redis.Set(c.Request.Context(), key, product)
-		if err != nil {
-			response2.ReturnErrorInternalServerError(c, err, nil)
-			return
-		}
-
-		response2.ReturnSuccessOK(c, "OK", product)
-		return
-	} else if err != nil {
-		response2.ReturnErrorInternalServerError(c, err, nil)
-		return
-	}
-
-	var productCacheResponse model.Product
-	err = json.Unmarshal(productCache, &productCacheResponse)
+	product, err := controller.ProductService.FindByCode(c.Request.Context(), codeParam)
 	if err != nil {
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
+			return
+		}
+
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response2.ReturnSuccessOK(c, "OK", productCacheResponse)
+	response.ReturnSuccessOK(c, "OK", product)
 }
 
 func (controller *ProductController) Create(c *gin.Context) {
 	var requestCreate request.CreateProductRequest
 	err := c.ShouldBind(&requestCreate)
 	if err != nil {
-		response2.ReturnErrorBadRequest(c, err, nil)
+		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
@@ -159,7 +126,7 @@ func (controller *ProductController) Create(c *gin.Context) {
 	if err == nil {
 		pathName, err := controller.StorageService.UploadFileS3(file, header)
 		if err != nil {
-			response2.ReturnErrorInternalServerError(c, err, nil)
+			response.ReturnErrorInternalServerError(c, err, nil)
 			return
 		}
 		filePath = pathName
@@ -168,18 +135,18 @@ func (controller *ProductController) Create(c *gin.Context) {
 	requestCreate.Image = filePath
 	product, err := controller.ProductService.Create(c.Request.Context(), &requestCreate)
 	if err != nil {
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response2.ReturnSuccessOK(c, "created", product)
+	response.ReturnSuccessOK(c, "created", product)
 }
 
 func (controller *ProductController) Update(c *gin.Context) {
 	var requestUpdate request.UpdateProductRequest
 	err := c.ShouldBind(&requestUpdate)
 	if err != nil {
-		response2.ReturnErrorBadRequest(c, err, nil)
+		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
@@ -187,7 +154,7 @@ func (controller *ProductController) Update(c *gin.Context) {
 	if err == nil {
 		pathName, err := controller.StorageService.UploadFileS3(file, header)
 		if err != nil {
-			response2.ReturnErrorInternalServerError(c, err, nil)
+			response.ReturnErrorInternalServerError(c, err, nil)
 			return
 		}
 
@@ -197,36 +164,30 @@ func (controller *ProductController) Update(c *gin.Context) {
 	requestUpdate.Code = c.Param("code")
 	product, err := controller.ProductService.Update(c.Request.Context(), &requestUpdate)
 	if err != nil {
-		if err.Error() == response2.ErrorNotFound {
-			response2.ReturnErrorNotFound(c, err, nil)
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
 			return
 		}
 
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	// delete previous cache
-	_ = controller.Redis.Del(c.Request.Context(), fmt.Sprintf("product-%s", product.Code))
-
-	response2.ReturnSuccessOK(c, "updated", product)
+	response.ReturnSuccessOK(c, "updated", product)
 }
 
 func (controller *ProductController) Delete(c *gin.Context) {
 	codeParam := c.Param("code")
 	err := controller.ProductService.Delete(c.Request.Context(), codeParam)
 	if err != nil {
-		if err.Error() == response2.ErrorNotFound {
-			response2.ReturnErrorNotFound(c, err, nil)
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
 			return
 		}
 
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	// delete previous cache
-	_ = controller.Redis.Del(c.Request.Context(), fmt.Sprintf("product-%s", codeParam))
-
-	response2.ReturnSuccessOK(c, "deleted", nil)
+	response.ReturnSuccessOK(c, "deleted", nil)
 }

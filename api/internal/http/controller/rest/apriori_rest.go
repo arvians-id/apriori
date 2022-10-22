@@ -1,35 +1,25 @@
 package rest
 
 import (
-	"encoding/json"
-	"fmt"
-	"github.com/arvians-id/apriori/cmd/library/cache"
 	"github.com/arvians-id/apriori/internal/http/middleware"
 	"github.com/arvians-id/apriori/internal/http/presenter/request"
-	response2 "github.com/arvians-id/apriori/internal/http/presenter/response"
+	"github.com/arvians-id/apriori/internal/http/presenter/response"
 	"github.com/arvians-id/apriori/internal/model"
 	"github.com/arvians-id/apriori/internal/service"
 	"github.com/arvians-id/apriori/util"
 	"github.com/gin-gonic/gin"
-	"github.com/go-redis/redis/v8"
 	"strings"
 )
 
 type AprioriController struct {
 	AprioriService service.AprioriService
 	StorageService service.StorageService
-	Redis          cache.Redis
 }
 
-func NewAprioriController(
-	aprioriService service.AprioriService,
-	storageService *service.StorageService,
-	redis *cache.Redis,
-) *AprioriController {
+func NewAprioriController(aprioriService service.AprioriService, storageService *service.StorageService) *AprioriController {
 	return &AprioriController{
 		AprioriService: aprioriService,
 		StorageService: *storageService,
-		Redis:          *redis,
 	}
 }
 
@@ -57,42 +47,42 @@ func (controller *AprioriController) Route(router *gin.Engine) *gin.Engine {
 func (controller *AprioriController) FindAll(c *gin.Context) {
 	apriories, err := controller.AprioriService.FindAll(c.Request.Context())
 	if err != nil {
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response2.ReturnSuccessOK(c, "OK", apriories)
+	response.ReturnSuccessOK(c, "OK", apriories)
 }
 
 func (controller *AprioriController) FindAllByActive(c *gin.Context) {
 	apriories, err := controller.AprioriService.FindAllByActive(c.Request.Context())
 	if err != nil {
-		if err.Error() == response2.ErrorNotFound {
-			response2.ReturnErrorNotFound(c, err, nil)
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
 			return
 		}
 
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response2.ReturnSuccessOK(c, "OK", apriories)
+	response.ReturnSuccessOK(c, "OK", apriories)
 }
 
 func (controller *AprioriController) FindAllByCode(c *gin.Context) {
 	codeParam := c.Param("code")
 	apriories, err := controller.AprioriService.FindAllByCode(c.Request.Context(), codeParam)
 	if err != nil {
-		if err.Error() == response2.ErrorNotFound {
-			response2.ReturnErrorNotFound(c, err, nil)
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
 			return
 		}
 
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response2.ReturnSuccessOK(c, "OK", apriories)
+	response.ReturnSuccessOK(c, "OK", apriories)
 }
 
 func (controller *AprioriController) FindByCodeAndId(c *gin.Context) {
@@ -100,16 +90,16 @@ func (controller *AprioriController) FindByCodeAndId(c *gin.Context) {
 	idParam := util.StrToInt(c.Param("id"))
 	apriori, err := controller.AprioriService.FindByCodeAndId(c.Request.Context(), codeParam, idParam)
 	if err != nil {
-		if err.Error() == response2.ErrorNotFound {
-			response2.ReturnErrorNotFound(c, err, nil)
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
 			return
 		}
 
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response2.ReturnSuccessOK(c, "OK", apriori)
+	response.ReturnSuccessOK(c, "OK", apriori)
 }
 
 func (controller *AprioriController) Update(c *gin.Context) {
@@ -121,7 +111,7 @@ func (controller *AprioriController) Update(c *gin.Context) {
 	if err == nil {
 		pathName, err := controller.StorageService.UploadFileS3(file, header)
 		if err != nil {
-			response2.ReturnErrorInternalServerError(c, err, nil)
+			response.ReturnErrorInternalServerError(c, err, nil)
 			return
 		}
 		filePath = pathName
@@ -134,39 +124,39 @@ func (controller *AprioriController) Update(c *gin.Context) {
 	requestUpdate.Image = filePath
 	apriories, err := controller.AprioriService.Update(c.Request.Context(), &requestUpdate)
 	if err != nil {
-		if err.Error() == response2.ErrorNotFound {
-			response2.ReturnErrorNotFound(c, err, nil)
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
 			return
 		}
 
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response2.ReturnSuccessOK(c, "OK", apriories)
+	response.ReturnSuccessOK(c, "OK", apriories)
 }
 
 func (controller *AprioriController) UpdateStatus(c *gin.Context) {
 	codeParam := c.Param("code")
 	err := controller.AprioriService.UpdateStatus(c.Request.Context(), codeParam)
 	if err != nil {
-		if err.Error() == response2.ErrorNotFound {
-			response2.ReturnErrorNotFound(c, err, nil)
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
 			return
 		}
 
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response2.ReturnSuccessOK(c, "OK", nil)
+	response.ReturnSuccessOK(c, "OK", nil)
 }
 
 func (controller *AprioriController) Create(c *gin.Context) {
 	var generateRequests []*model.GenerateApriori
 	err := c.ShouldBindJSON(&generateRequests)
 	if err != nil {
-		response2.ReturnErrorBadRequest(c, err, nil)
+		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
@@ -184,72 +174,41 @@ func (controller *AprioriController) Create(c *gin.Context) {
 
 	err = controller.AprioriService.Create(c.Request.Context(), aprioriRequests)
 	if err != nil {
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response2.ReturnSuccessOK(c, "OK", nil)
+	response.ReturnSuccessOK(c, "OK", nil)
 }
 func (controller *AprioriController) Delete(c *gin.Context) {
 	codeParam := c.Param("code")
 	err := controller.AprioriService.Delete(c.Request.Context(), codeParam)
 	if err != nil {
-		if err.Error() == response2.ErrorNotFound {
-			response2.ReturnErrorNotFound(c, err, nil)
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
 			return
 		}
 
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response2.ReturnSuccessOK(c, "OK", nil)
+	response.ReturnSuccessOK(c, "OK", nil)
 
 }
 func (controller *AprioriController) Generate(c *gin.Context) {
 	var requestGenerate request.GenerateAprioriRequest
 	err := c.ShouldBindJSON(&requestGenerate)
 	if err != nil {
-		response2.ReturnErrorBadRequest(c, err, nil)
+		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
-	key := fmt.Sprintf(
-		"%v%v%v%v%s%s",
-		requestGenerate.MinimumDiscount,
-		requestGenerate.MaximumDiscount,
-		requestGenerate.MinimumSupport,
-		requestGenerate.MinimumConfidence,
-		requestGenerate.StartDate,
-		requestGenerate.EndDate,
-	)
-	aprioriCache, err := controller.Redis.Get(c, key)
-	if err == redis.Nil {
-		apriori, err := controller.AprioriService.Generate(c.Request.Context(), &requestGenerate)
-		if err != nil {
-			response2.ReturnErrorInternalServerError(c, err, nil)
-			return
-		}
-
-		err = controller.Redis.Set(c.Request.Context(), key, apriori)
-		if err != nil {
-			response2.ReturnErrorInternalServerError(c, err, nil)
-			return
-		}
-
-		response2.ReturnSuccessOK(c, "OK", apriori)
-		return
-	} else if err != nil {
-		response2.ReturnErrorInternalServerError(c, err, nil)
-		return
-	}
-
-	var aprioriCacheResponses []model.GenerateApriori
-	err = json.Unmarshal(aprioriCache, &aprioriCacheResponses)
+	apriori, err := controller.AprioriService.Generate(c.Request.Context(), &requestGenerate)
 	if err != nil {
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response2.ReturnSuccessOK(c, "OK", aprioriCacheResponses)
+	response.ReturnSuccessOK(c, "OK", apriori)
 }

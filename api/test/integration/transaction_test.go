@@ -6,7 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/arvians-id/apriori/cmd/config"
-	"github.com/arvians-id/apriori/cmd/library/cache"
+	"github.com/arvians-id/apriori/cmd/library/redis"
 	"github.com/arvians-id/apriori/internal/model"
 	"github.com/arvians-id/apriori/internal/repository/postgres"
 	"github.com/arvians-id/apriori/test/setup"
@@ -80,7 +80,7 @@ var _ = Describe("Transaction API", func() {
 		_, db := setup.ModuleSetup(configuration)
 		defer db.Close()
 
-		cacheService := cache.NewCacheService(configuration)
+		cacheService := redis.NewCacheService(configuration)
 		_ = cacheService.FlushDB(context.Background())
 
 		err := setup.TearDownTest(db)

@@ -4,12 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/arvians-id/apriori/internal/http/controller/graph/generated"
 	"github.com/arvians-id/apriori/internal/http/middleware"
 	"github.com/arvians-id/apriori/internal/http/presenter/response"
 	"github.com/arvians-id/apriori/internal/model"
-	"github.com/go-redis/redis/v8"
 	"io"
 	"net/http"
 	"os"
@@ -92,34 +90,15 @@ func (r *queryResolver) ProductFindAllRecommendation(ctx context.Context, code s
 }
 
 func (r *queryResolver) ProductFindByCode(ctx context.Context, code string) (*model.Product, error) {
-	key := fmt.Sprintf("product-%s", code)
-	productCache, err := r.Redis.Get(ctx, key)
-	if err == redis.Nil {
-		product, err := r.ProductService.FindByCode(ctx, code)
-		if err != nil {
-			if err.Error() == response.ErrorNotFound {
-				return nil, errors.New(response.ResponseErrorNotFound)
-			}
-			return nil, err
-		}
-
-		err = r.Redis.Set(ctx, key, product)
-		if err != nil {
-			return nil, err
-		}
-
-		return product, nil
-	} else if err != nil {
-		return nil, err
-	}
-
-	var productCacheResponse model.Product
-	err = json.Unmarshal(productCache, &productCacheResponse)
+	product, err := r.ProductService.FindByCode(ctx, code)
 	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			return nil, errors.New(response.ResponseErrorNotFound)
+		}
 		return nil, err
 	}
 
-	return &productCacheResponse, nil
+	return product, nil
 }
 
 func (r *queryResolver) AuthToken(ctx context.Context) (bool, error) {
@@ -178,30 +157,12 @@ func (r *queryResolver) UserFindByID(ctx context.Context, id int) (*model.User, 
 }
 
 func (r *queryResolver) CategoryFindAll(ctx context.Context) ([]*model.Category, error) {
-	categoriesCache, err := r.Redis.Get(ctx, "categories")
-	if err == redis.Nil {
-		categories, err := r.CategoryService.FindAll(ctx)
-		if err != nil {
-			return nil, err
-		}
-
-		err = r.Redis.Set(ctx, "categories", categories)
-		if err != nil {
-			return nil, err
-		}
-
-		return categories, nil
-	} else if err != nil {
-		return nil, err
-	}
-
-	var categoryCacheResponses []*model.Category
-	err = json.Unmarshal(categoriesCache, &categoryCacheResponses)
+	categories, err := r.CategoryService.FindAll(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return categoryCacheResponses, nil
+	return categories, nil
 }
 
 func (r *queryResolver) CategoryFindByID(ctx context.Context, id int) (*model.Category, error) {
@@ -218,30 +179,12 @@ func (r *queryResolver) CategoryFindByID(ctx context.Context, id int) (*model.Ca
 }
 
 func (r *queryResolver) TransactionFindAll(ctx context.Context) ([]*model.Transaction, error) {
-	transactionCache, err := r.Redis.Get(ctx, "all-transaction")
-	if err == redis.Nil {
-		transaction, err := r.TransactionService.FindAll(ctx)
-		if err != nil {
-			return nil, err
-		}
-
-		err = r.Redis.Set(ctx, "all-transaction", transaction)
-		if err != nil {
-			return nil, err
-		}
-
-		return transaction, nil
-	} else if err != nil {
-		return nil, err
-	}
-
-	var transactionCacheResponses []*model.Transaction
-	err = json.Unmarshal(transactionCache, &transactionCacheResponses)
+	transaction, err := r.TransactionService.FindAll(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return transactionCacheResponses, nil
+	return transaction, nil
 }
 
 func (r *queryResolver) TransactionFindByNoTransaction(ctx context.Context, numberTransaction string) (*model.Transaction, error) {
@@ -371,31 +314,12 @@ func (r *queryResolver) UserOrderFindAll(ctx context.Context) ([]*model.Payment,
 		return nil, errors.New("unauthorized")
 	}
 
-	key := fmt.Sprintf("user-order-payment-%v", int(id.(float64)))
-	paymentsCache, err := r.Redis.Get(ginContext, key)
-	if err == redis.Nil {
-		payments, err := r.PaymentService.FindAllByUserId(ginContext, int(id.(float64)))
-		if err != nil {
-			return nil, err
-		}
-
-		err = r.Redis.Set(ginContext, key, payments)
-		if err != nil {
-			return nil, err
-		}
-
-		return payments, nil
-	} else if err != nil {
-		return nil, err
-	}
-
-	var paymentCacheResponses []*model.Payment
-	err = json.Unmarshal(paymentsCache, &paymentCacheResponses)
+	payments, err := r.PaymentService.FindAllByUserId(ginContext, int(id.(float64)))
 	if err != nil {
 		return nil, err
 	}
 
-	return paymentCacheResponses, nil
+	return payments, nil
 }
 
 func (r *queryResolver) UserOrderFindAllByUserID(ctx context.Context) ([]*model.UserOrder, error) {
@@ -409,31 +333,12 @@ func (r *queryResolver) UserOrderFindAllByUserID(ctx context.Context) ([]*model.
 		return nil, errors.New("unauthorized")
 	}
 
-	key := fmt.Sprintf("user-order-rate-%v", int(id.(float64)))
-	userOrdersCache, err := r.Redis.Get(ginContext, key)
-	if err == redis.Nil {
-		userOrders, err := r.UserOrderService.FindAllByUserId(ginContext, int(id.(float64)))
-		if err != nil {
-			return nil, err
-		}
-
-		err = r.Redis.Set(ginContext, key, userOrders)
-		if err != nil {
-			return nil, err
-		}
-
-		return userOrders, nil
-	} else if err != nil {
-		return nil, err
-	}
-
-	var userOrderCacheResponses []*model.UserOrder
-	err = json.Unmarshal(userOrdersCache, &userOrderCacheResponses)
+	userOrders, err := r.UserOrderService.FindAllByUserId(ginContext, int(id.(float64)))
 	if err != nil {
 		return nil, err
 	}
 
-	return userOrderCacheResponses, nil
+	return userOrders, nil
 }
 
 func (r *queryResolver) UserOrderFindAllByID(ctx context.Context, orderID string) ([]*model.UserOrder, error) {
@@ -442,39 +347,20 @@ func (r *queryResolver) UserOrderFindAllByID(ctx context.Context, orderID string
 		return nil, err
 	}
 
-	key := fmt.Sprintf("user-order-id-%v", orderID)
-	userOrdersCache, err := r.Redis.Get(ginContext, key)
-	if err == redis.Nil {
-		payment, err := r.PaymentService.FindByOrderId(ginContext, orderID)
-		if err != nil {
-			if err.Error() == response.ErrorNotFound {
-				return nil, errors.New(response.ResponseErrorNotFound)
-			}
-
-			return nil, err
-		}
-		userOrder, err := r.UserOrderService.FindAllByPayloadId(ginContext, payment.IdPayload)
-		if err != nil {
-			return nil, err
+	payment, err := r.PaymentService.FindByOrderId(ginContext, orderID)
+	if err != nil {
+		if err.Error() == response.ErrorNotFound {
+			return nil, errors.New(response.ResponseErrorNotFound)
 		}
 
-		err = r.Redis.Set(ginContext, key, userOrder)
-		if err != nil {
-			return nil, err
-		}
-
-		return userOrder, nil
-	} else if err != nil {
 		return nil, err
 	}
-
-	var userOrderCacheResponses []*model.UserOrder
-	err = json.Unmarshal(userOrdersCache, &userOrderCacheResponses)
+	userOrder, err := r.UserOrderService.FindAllByPayloadId(ginContext, payment.IdPayload)
 	if err != nil {
 		return nil, err
 	}
 
-	return userOrderCacheResponses, nil
+	return userOrder, nil
 }
 
 func (r *queryResolver) UserOrderFindByID(ctx context.Context, id int) (*model.UserOrder, error) {

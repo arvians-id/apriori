@@ -2,13 +2,10 @@ package rest
 
 import (
 	"encoding/json"
-	"fmt"
-	"github.com/arvians-id/apriori/cmd/library/cache"
-	middleware2 "github.com/arvians-id/apriori/internal/http/middleware"
-	request2 "github.com/arvians-id/apriori/internal/http/presenter/request"
-	response2 "github.com/arvians-id/apriori/internal/http/presenter/response"
+	"github.com/arvians-id/apriori/internal/http/middleware"
+	"github.com/arvians-id/apriori/internal/http/presenter/request"
+	"github.com/arvians-id/apriori/internal/http/presenter/response"
 	"github.com/arvians-id/apriori/internal/service"
-	"github.com/arvians-id/apriori/util"
 	"github.com/gin-gonic/gin"
 	"github.com/veritrans/go-midtrans"
 )
@@ -17,7 +14,6 @@ type PaymentController struct {
 	PaymentService      service.PaymentService
 	UserOrderService    service.UserOrderService
 	EmailService        service.EmailService
-	Redis               cache.Redis
 	NotificationService service.NotificationService
 }
 
@@ -26,30 +22,28 @@ func NewPaymentController(
 	userOrderService *service.UserOrderService,
 	emailService *service.EmailService,
 	notificationService *service.NotificationService,
-	redis *cache.Redis,
 ) *PaymentController {
 	return &PaymentController{
 		PaymentService:      *paymentService,
 		UserOrderService:    *userOrderService,
 		EmailService:        *emailService,
 		NotificationService: *notificationService,
-		Redis:               *redis,
 	}
 }
 
 func (controller *PaymentController) Route(router *gin.Engine) *gin.Engine {
-	authorized := router.Group("/api", middleware2.AuthJwtMiddleware())
+	authorized := router.Group("/api", middleware.AuthJwtMiddleware())
 	{
-		authorized.GET("/payments", middleware2.SetupXApiKeyMiddleware(), controller.FindAll)
-		authorized.GET("/payments/:order_id", middleware2.SetupXApiKeyMiddleware(), controller.FindByOrderId)
-		authorized.PATCH("/payments/:order_id", middleware2.SetupXApiKeyMiddleware(), controller.UpdateReceiptNumber)
+		authorized.GET("/payments", middleware.SetupXApiKeyMiddleware(), controller.FindAll)
+		authorized.GET("/payments/:order_id", middleware.SetupXApiKeyMiddleware(), controller.FindByOrderId)
+		authorized.PATCH("/payments/:order_id", middleware.SetupXApiKeyMiddleware(), controller.UpdateReceiptNumber)
 	}
 
 	unauthorized := router.Group("/api")
 	{
-		unauthorized.POST("/payments/pay", middleware2.SetupXApiKeyMiddleware(), controller.Pay)
+		unauthorized.POST("/payments/pay", middleware.SetupXApiKeyMiddleware(), controller.Pay)
 		unauthorized.POST("/payments/notification", controller.Notification)
-		unauthorized.DELETE("/payments/:order_id", middleware2.SetupXApiKeyMiddleware(), controller.Delete)
+		unauthorized.DELETE("/payments/:order_id", middleware.SetupXApiKeyMiddleware(), controller.Delete)
 	}
 
 	return router
@@ -58,11 +52,11 @@ func (controller *PaymentController) Route(router *gin.Engine) *gin.Engine {
 func (controller *PaymentController) FindAll(c *gin.Context) {
 	payments, err := controller.PaymentService.FindAll(c.Request.Context())
 	if err != nil {
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response2.ReturnSuccessOK(c, "OK", payments)
+	response.ReturnSuccessOK(c, "OK", payments)
 }
 
 func (controller *PaymentController) FindByOrderId(c *gin.Context) {
@@ -70,79 +64,75 @@ func (controller *PaymentController) FindByOrderId(c *gin.Context) {
 
 	payment, err := controller.PaymentService.FindByOrderId(c.Request.Context(), orderIdParam)
 	if err != nil {
-		if err.Error() == response2.ErrorNotFound {
-			response2.ReturnErrorNotFound(c, err, nil)
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
 			return
 		}
 
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response2.ReturnSuccessOK(c, "OK", payment)
+	response.ReturnSuccessOK(c, "OK", payment)
 }
 
 func (controller *PaymentController) UpdateReceiptNumber(c *gin.Context) {
-	var requestPayment request2.AddReceiptNumberRequest
+	var requestPayment request.AddReceiptNumberRequest
 	err := c.ShouldBindJSON(&requestPayment)
 	if err != nil {
-		response2.ReturnErrorBadRequest(c, err, nil)
+		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
 	requestPayment.OrderId = c.Param("order_id")
 	payment, err := controller.PaymentService.UpdateReceiptNumber(c.Request.Context(), &requestPayment)
 	if err != nil {
-		if err.Error() == response2.ErrorNotFound {
-			response2.ReturnErrorNotFound(c, err, nil)
+		if err.Error() == response.ErrorNotFound {
+			response.ReturnErrorNotFound(c, err, nil)
 			return
 		}
 
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
 	// Notification
-	var notificationRequest request2.CreateNotificationRequest
+	var notificationRequest request.CreateNotificationRequest
 	notificationRequest.UserId = payment.UserId
 	notificationRequest.Title = "Receipt number arrived"
 	notificationRequest.Description = "Your receipt number has been entered by the admin"
 	notificationRequest.URL = "product"
 	err = controller.NotificationService.Create(c.Request.Context(), &notificationRequest).WithSendMail()
 	if err != nil {
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response2.ReturnSuccessOK(c, "OK", nil)
+	response.ReturnSuccessOK(c, "OK", nil)
 }
 
 func (controller *PaymentController) Pay(c *gin.Context) {
-	var requestToken request2.GetPaymentTokenRequest
+	var requestToken request.GetPaymentTokenRequest
 	err := c.ShouldBind(&requestToken)
 	if err != nil {
-		response2.ReturnErrorBadRequest(c, err, nil)
+		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
 	data, err := controller.PaymentService.GetToken(c.Request.Context(), &requestToken)
 	if err != nil {
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	// delete previous cache
-	key := fmt.Sprintf("user-order-payment-%v", requestToken.UserId)
-	_ = controller.Redis.Del(c.Request.Context(), key)
-
-	response2.ReturnSuccessOK(c, "OK", data)
+	response.ReturnSuccessOK(c, "OK", data)
 }
 
 func (controller *PaymentController) Notification(c *gin.Context) {
 	var payload midtrans.ChargeReqWithMap
 	err := c.BindJSON(&payload)
 	if err != nil {
-		response2.ReturnErrorBadRequest(c, err, nil)
+		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
@@ -152,26 +142,20 @@ func (controller *PaymentController) Notification(c *gin.Context) {
 
 	err = controller.PaymentService.CreateOrUpdate(c.Request.Context(), resArray)
 	if err != nil {
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	// delete previous cache
-	key := fmt.Sprintf("user-order-id-%v", util.StrToInt(resArray["custom_field2"].(string)))
-	key2 := fmt.Sprintf("user-order-payment-%v", util.StrToInt(resArray["custom_field1"].(string)))
-	key3 := fmt.Sprintf("user-order-rate-%v", util.StrToInt(resArray["custom_field1"].(string)))
-	_ = controller.Redis.Del(c.Request.Context(), key, key2, key3)
-
-	response2.ReturnSuccessOK(c, "OK", nil)
+	response.ReturnSuccessOK(c, "OK", nil)
 }
 
 func (controller *PaymentController) Delete(c *gin.Context) {
 	orderIdParam := c.Param("order_id")
 	err := controller.PaymentService.Delete(c.Request.Context(), orderIdParam)
 	if err != nil {
-		response2.ReturnErrorInternalServerError(c, err, nil)
+		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response2.ReturnSuccessOK(c, "OK", nil)
+	response.ReturnSuccessOK(c, "OK", nil)
 }
