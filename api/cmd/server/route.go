@@ -3,10 +3,10 @@ package server
 import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
-	"github.com/arvians-id/apriori/http/controller/graph/directive"
-	"github.com/arvians-id/apriori/http/controller/graph/generated"
-	"github.com/arvians-id/apriori/http/controller/graph/resolver"
-	"github.com/arvians-id/apriori/service"
+	directive2 "github.com/arvians-id/apriori/internal/http/controller/graph/directive"
+	"github.com/arvians-id/apriori/internal/http/controller/graph/generated"
+	"github.com/arvians-id/apriori/internal/http/controller/graph/resolver"
+	"github.com/arvians-id/apriori/internal/service"
 	"github.com/gin-gonic/gin"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
@@ -62,9 +62,9 @@ func NewInitializedMainRoute(
 			},
 		}
 		// Schema directives
-		generatedConfig.Directives.Binding = directive.Binding
-		generatedConfig.Directives.ApiKey = directive.ApiKey
-		generatedConfig.Directives.HasRole = directive.HasRoles
+		generatedConfig.Directives.Binding = directive2.Binding
+		generatedConfig.Directives.ApiKey = directive2.ApiKey
+		generatedConfig.Directives.HasRole = directive2.HasRoles
 		h := handler.NewDefaultServer(generated.NewExecutableSchema(generatedConfig))
 		h.ServeHTTP(c.Writer, c.Request)
 	})

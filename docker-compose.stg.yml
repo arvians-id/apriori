@@ -11,7 +11,7 @@ services:
     expose:
       - "5432"
     volumes:
-      - ./api/database/migration/postgres/postgres-data:/var/lib/postgresql/data
+      - ./api/database/postgres/postgres-data:/var/lib/postgresql/data
     networks:
       - thesis
     restart: always
@@ -24,7 +24,7 @@ services:
   migrate:
     image: migrate/migrate
     volumes:
-      - ./api/database/migration/postgres:/migrations
+      - ./api/database/postgres/migration:/migrations
     command: ["-path", "/migrations", "-database", "postgres://root:root@apriori-db-1:5432/apriori?sslmode=disable", "-verbose", "up"]
     depends_on:
       - db
@@ -35,8 +35,8 @@ services:
     ports:
       - "3000:3000"
     volumes:
-      - ./api/database/grafana/grafana-data:/var/lib/grafana
-      - ./api/database/grafana/grafana-data:/etc/grafana/provisioning/datasources
+      - ./api/cmd/library/grafana/grafana-data:/var/lib/grafana
+      - ./api/cmd/library/grafana/grafana-data:/etc/grafana/provisioning/datasources
     environment:
       - GF_SECURITY_ADMIN_USER=admin
       - GF_SECURITY_ADMIN_PASSWORD=Rahasia123
@@ -47,8 +47,8 @@ services:
   prometheus:
     image: prom/prometheus:v2.27.1
     volumes:
-      - ./api/database/prometheus:/etc/prometheus/
-      - ./api/database/prometheus/prometheus-data:/prometheus
+      - ./api/cmd/library/prometheus:/etc/prometheus/
+      - ./api/cmd/library/prometheus/prometheus-data:/prometheus
     command:
       - '--config.file=/etc/prometheus/prometheus.yml'
       - '--storage.tsdb.path=/prometheus'

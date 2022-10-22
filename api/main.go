@@ -1,16 +1,16 @@
 package main
 
 import (
-	"github.com/arvians-id/apriori/cmd"
+	"github.com/arvians-id/apriori/cmd/config"
+	"github.com/arvians-id/apriori/cmd/library/scheduler"
+	"github.com/arvians-id/apriori/cmd/library/seed"
 	"github.com/arvians-id/apriori/cmd/server"
-	"github.com/arvians-id/apriori/config"
-	"github.com/arvians-id/apriori/scheduler"
 	"log"
 )
 
 func main() {
 	// Command Line
-	cmd.Execute()
+	seed.Execute()
 
 	// Scheduler
 	scheduler.Execute()

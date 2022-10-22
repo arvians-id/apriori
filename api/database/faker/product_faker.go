@@ -3,9 +3,9 @@ package faker
 import (
 	"context"
 	"fmt"
-	"github.com/arvians-id/apriori/helper"
-	"github.com/arvians-id/apriori/http/controller/rest/request"
-	"github.com/arvians-id/apriori/service"
+	"github.com/arvians-id/apriori/internal/http/presenter/request"
+	"github.com/arvians-id/apriori/internal/service"
+	"github.com/arvians-id/apriori/util"
 	"github.com/brianvoe/gofakeit/v6"
 	"os"
 )
@@ -31,7 +31,7 @@ func NewProductFaker() *ProductFaker {
 }
 
 func (p *ProductFaker) SetDefault() *ProductFaker {
-	p.Product.Code = helper.RandomString(5)
+	p.Product.Code = util.RandomString(5)
 	p.Product.Name = gofakeit.CarModel()
 	p.Product.Price = int(gofakeit.Price(10000, 100000))
 	return p

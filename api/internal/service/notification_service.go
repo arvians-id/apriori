@@ -1,0 +1,149 @@
+package service
+
+import (
+	"context"
+	"database/sql"
+	"fmt"
+	"github.com/arvians-id/apriori/internal/http/presenter/request"
+	"github.com/arvians-id/apriori/internal/model"
+	"github.com/arvians-id/apriori/internal/repository"
+	"github.com/arvians-id/apriori/util"
+	"strings"
+	"time"
+)
+
+type NotificationServiceImpl struct {
+	NotificationRepository repository.NotificationRepository
+	UserRepository         repository.UserRepository
+	Notification           *model.Notification
+	EmailService           EmailService
+	Error                  error
+	DB                     *sql.DB
+}
+
+func NewNotificationService(notificationRepository *repository.NotificationRepository, userRepository *repository.UserRepository, emailService *EmailService, db *sql.DB) NotificationService {
+	return &NotificationServiceImpl{
+		NotificationRepository: *notificationRepository,
+		UserRepository:         *userRepository,
+		EmailService:           *emailService,
+		DB:                     db,
+	}
+}
+
+func (service *NotificationServiceImpl) FindAll(ctx context.Context) ([]*model.Notification, error) {
+	tx, err := service.DB.Begin()
+	if err != nil {
+		return nil, err
+	}
+	defer util.CommitOrRollback(tx)
+
+	notifications, err := service.NotificationRepository.FindAll(ctx, tx)
+	if err != nil {
+		return nil, err
+	}
+
+	return notifications, nil
+}
+
+func (service *NotificationServiceImpl) FindAllByUserId(ctx context.Context, userId int) ([]*model.Notification, error) {
+	tx, err := service.DB.Begin()
+	if err != nil {
+		return nil, err
+	}
+	defer util.CommitOrRollback(tx)
+
+	notifications, err := service.NotificationRepository.FindAllByUserId(ctx, tx, userId)
+	if err != nil {
+		return nil, err
+	}
+
+	return notifications, nil
+}
+
+func (service *NotificationServiceImpl) Create(ctx context.Context, request *request.CreateNotificationRequest) *NotificationServiceImpl {
+	tx, err := service.DB.Begin()
+	if err != nil {
+		service.Error = err
+		return nil
+	}
+	defer util.CommitOrRollback(tx)
+
+	timeNow, err := time.Parse(util.TimeFormat, time.Now().Format(util.TimeFormat))
+	if err != nil {
+		service.Error = err
+		return nil
+	}
+
+	notificationRequest := model.Notification{
+		UserId:      request.UserId,
+		Title:       strings.Title(request.Title),
+		Description: &request.Description,
+		URL:         &request.URL,
+		IsRead:      false,
+		CreatedAt:   timeNow,
+	}
+
+	notificationResponse, err := service.NotificationRepository.Create(ctx, tx, &notificationRequest)
+	if err != nil {
+		service.Error = err
+		return nil
+	}
+
+	user, err := service.UserRepository.FindById(ctx, tx, notificationResponse.UserId)
+	if err != nil {
+		service.Error = err
+		return nil
+	}
+
+	notificationRequest.User = &model.User{
+		Name:  user.Name,
+		Email: user.Email,
+	}
+
+	service.Notification = &notificationRequest
+	return service
+}
+
+func (service *NotificationServiceImpl) MarkAll(ctx context.Context, userId int) error {
+	tx, err := service.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer util.CommitOrRollback(tx)
+
+	err = service.NotificationRepository.MarkAll(ctx, tx, userId)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (service *NotificationServiceImpl) Mark(ctx context.Context, id int) error {
+	tx, err := service.DB.Begin()
+	if err != nil {
+		return err
+	}
+	defer util.CommitOrRollback(tx)
+
+	err = service.NotificationRepository.Mark(ctx, tx, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (service *NotificationServiceImpl) WithSendMail() error {
+	err := service.EmailService.SendEmailWithText(
+		service.Notification.User.Email,
+		service.Notification.Title,
+		service.Notification.Description,
+	)
+	if err != nil || service.Error != nil {
+		errors := fmt.Errorf("error: %s %s", err.Error(), service.Error.Error())
+		return errors
+	}
+
+	return nil
+}

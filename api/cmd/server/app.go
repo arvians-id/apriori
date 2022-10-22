@@ -2,11 +2,11 @@ package server
 
 import (
 	"database/sql"
-	"github.com/arvians-id/apriori/config"
-	"github.com/arvians-id/apriori/http/controller/rest"
-	"github.com/arvians-id/apriori/http/middleware"
-	repository "github.com/arvians-id/apriori/repository/postgres"
-	"github.com/arvians-id/apriori/service"
+	"github.com/arvians-id/apriori/cmd/config"
+	"github.com/arvians-id/apriori/internal/http/controller/rest"
+	"github.com/arvians-id/apriori/internal/http/middleware"
+	"github.com/arvians-id/apriori/internal/repository/postgres"
+	"github.com/arvians-id/apriori/internal/service"
 	"github.com/gin-gonic/gin"
 	"io"
 	"log"
@@ -37,16 +37,16 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	}
 
 	// Setup Repository
-	userRepository := repository.NewUserRepository()
-	passwordRepository := repository.NewPasswordResetRepository()
-	productRepository := repository.NewProductRepository()
-	transactionRepository := repository.NewTransactionRepository()
-	aprioriRepository := repository.NewAprioriRepository()
-	paymentRepository := repository.NewPaymentRepository()
-	userOrderRepository := repository.NewUserOrderRepository()
-	categoryRepository := repository.NewCategoryRepository()
-	commentRepository := repository.NewCommentRepository()
-	notificationRepository := repository.NewNotificationRepository()
+	userRepository := postgres.NewUserRepository()
+	passwordRepository := postgres.NewPasswordResetRepository()
+	productRepository := postgres.NewProductRepository()
+	transactionRepository := postgres.NewTransactionRepository()
+	aprioriRepository := postgres.NewAprioriRepository()
+	paymentRepository := postgres.NewPaymentRepository()
+	userOrderRepository := postgres.NewUserOrderRepository()
+	categoryRepository := postgres.NewCategoryRepository()
+	commentRepository := postgres.NewCommentRepository()
+	notificationRepository := postgres.NewNotificationRepository()
 
 	// Setup Service
 	storageService := service.NewStorageService(configuration)

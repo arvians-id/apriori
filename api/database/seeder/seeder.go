@@ -3,7 +3,7 @@ package seeder
 import (
 	"fmt"
 	"github.com/arvians-id/apriori/database/faker"
-	"github.com/arvians-id/apriori/service"
+	"github.com/arvians-id/apriori/internal/service"
 	"time"
 )
 
