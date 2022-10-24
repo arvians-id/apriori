@@ -8,6 +8,7 @@ import (
 	"github.com/arvians-id/apriori/internal/model"
 	"github.com/arvians-id/apriori/internal/repository"
 	"github.com/arvians-id/apriori/util"
+	"log"
 	"math"
 	"os"
 	"strings"
@@ -41,12 +42,14 @@ func NewAprioriService(
 func (service *AprioriServiceImpl) FindAll(ctx context.Context) ([]*model.Apriori, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
+		log.Println("[AprioriService][FindAll] problem in db transaction, err: ", err.Error())
 		return nil, err
 	}
 	defer util.CommitOrRollback(tx)
 
 	apriories, err := service.AprioriRepository.FindAll(ctx, tx)
 	if err != nil {
+		log.Println("[AprioriService][FindAll] problem in getting from repository, err: ", err.Error())
 		return nil, err
 	}
 
@@ -56,12 +59,14 @@ func (service *AprioriServiceImpl) FindAll(ctx context.Context) ([]*model.Aprior
 func (service *AprioriServiceImpl) FindAllByActive(ctx context.Context) ([]*model.Apriori, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
+		log.Println("[AprioriService][FindAllByActive] problem in db transaction, err: ", err.Error())
 		return nil, err
 	}
 	defer util.CommitOrRollback(tx)
 
 	apriories, err := service.AprioriRepository.FindAllByActive(ctx, tx)
 	if err != nil {
+		log.Println("[AprioriService][FindAllByActive][FindAllByActive] problem in getting from repository, err: ", err.Error())
 		return nil, err
 	}
 
@@ -71,12 +76,14 @@ func (service *AprioriServiceImpl) FindAllByActive(ctx context.Context) ([]*mode
 func (service *AprioriServiceImpl) FindAllByCode(ctx context.Context, code string) ([]*model.Apriori, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
+		log.Println("[AprioriService][FindAllByCode] problem in db transaction, err: ", err.Error())
 		return nil, err
 	}
 	defer util.CommitOrRollback(tx)
 
 	apriories, err := service.AprioriRepository.FindAllByCode(ctx, tx, code)
 	if err != nil {
+		log.Println("[AprioriService][FindAllByCode][FindAllByCode] problem in getting from repository, err: ", err.Error())
 		return nil, err
 	}
 
@@ -86,12 +93,14 @@ func (service *AprioriServiceImpl) FindAllByCode(ctx context.Context, code strin
 func (service *AprioriServiceImpl) FindByCodeAndId(ctx context.Context, code string, id int) (*model.ProductRecommendation, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
+		log.Println("[AprioriService][FindByCodeAndId] problem in db transaction, err: ", err.Error())
 		return nil, err
 	}
 	defer util.CommitOrRollback(tx)
 
 	apriori, err := service.AprioriRepository.FindByCodeAndId(ctx, tx, code, id)
 	if err != nil {
+		log.Println("[AprioriService][FindByCodeAndId][FindByCodeAndId] problem in getting from repository, err: ", err.Error())
 		return nil, err
 	}
 
@@ -119,26 +128,28 @@ func (service *AprioriServiceImpl) FindByCodeAndId(ctx context.Context, code str
 func (service *AprioriServiceImpl) Create(ctx context.Context, requests []*request.CreateAprioriRequest) error {
 	tx, err := service.DB.Begin()
 	if err != nil {
+		log.Println("[AprioriService][Create] problem in db transaction, err: ", err.Error())
 		return err
 	}
 	defer util.CommitOrRollback(tx)
 
-	timeNow, _ := time.Parse(util.TimeFormat, time.Now().Format(util.TimeFormat))
+	timeNow, err := time.Parse(util.TimeFormat, time.Now().Format(util.TimeFormat))
 	if err != nil {
+		log.Println("[AprioriService][Create] problem in parsing to time, err: ", err.Error())
 		return err
 	}
 
 	var aprioriRequests []*model.Apriori
 	code := util.RandomString(10)
-	for _, request := range requests {
+	for _, requestItem := range requests {
 		image := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/assets/%s", os.Getenv("AWS_BUCKET"), os.Getenv("AWS_REGION"), "no-image.png")
 		aprioriRequests = append(aprioriRequests, &model.Apriori{
 			Code:       code,
-			Item:       request.Item,
-			Discount:   request.Discount,
-			Support:    request.Support,
-			Confidence: request.Confidence,
-			RangeDate:  request.RangeDate,
+			Item:       requestItem.Item,
+			Discount:   requestItem.Discount,
+			Support:    requestItem.Support,
+			Confidence: requestItem.Confidence,
+			RangeDate:  requestItem.RangeDate,
 			IsActive:   false,
 			Image:      &image,
 			CreatedAt:  timeNow,
@@ -147,6 +158,7 @@ func (service *AprioriServiceImpl) Create(ctx context.Context, requests []*reque
 
 	err = service.AprioriRepository.Create(ctx, tx, aprioriRequests)
 	if err != nil {
+		log.Println("[AprioriService][Create][Create] problem in getting from repository, err: ", err.Error())
 		return err
 	}
 
@@ -156,12 +168,14 @@ func (service *AprioriServiceImpl) Create(ctx context.Context, requests []*reque
 func (service *AprioriServiceImpl) Update(ctx context.Context, request *request.UpdateAprioriRequest) (*model.Apriori, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
+		log.Println("[AprioriService][Update] problem in db transaction, err: ", err.Error())
 		return nil, err
 	}
 	defer util.CommitOrRollback(tx)
 
 	apriori, err := service.AprioriRepository.FindByCodeAndId(ctx, tx, request.Code, request.IdApriori)
 	if err != nil {
+		log.Println("[AprioriService][Update][FindByCodeAndId] problem in getting from repository, err: ", err.Error())
 		return nil, err
 	}
 
@@ -175,6 +189,7 @@ func (service *AprioriServiceImpl) Update(ctx context.Context, request *request.
 
 	_, err = service.AprioriRepository.Update(ctx, tx, apriori)
 	if err != nil {
+		log.Println("[AprioriService][Update][Update] problem in getting from repository, err: ", err.Error())
 		return nil, err
 	}
 
@@ -184,17 +199,20 @@ func (service *AprioriServiceImpl) Update(ctx context.Context, request *request.
 func (service *AprioriServiceImpl) UpdateStatus(ctx context.Context, code string) error {
 	tx, err := service.DB.Begin()
 	if err != nil {
+		log.Println("[AprioriService][UpdateStatus] problem in db transaction, err: ", err.Error())
 		return err
 	}
 	defer util.CommitOrRollback(tx)
 
 	apriories, err := service.AprioriRepository.FindAllByCode(ctx, tx, code)
 	if err != nil {
+		log.Println("[AprioriService][UpdateStatus][FindAllByCode] problem in getting from repository, err: ", err.Error())
 		return err
 	}
 
 	err = service.AprioriRepository.UpdateAllStatus(ctx, tx, false)
 	if err != nil {
+		log.Println("[AprioriService][UpdateStatus][UpdateAllStatus] problem in getting from repository, err: ", err.Error())
 		return err
 	}
 
@@ -205,6 +223,7 @@ func (service *AprioriServiceImpl) UpdateStatus(ctx context.Context, code string
 
 	err = service.AprioriRepository.UpdateStatusByCode(ctx, tx, apriories[0].Code, status)
 	if err != nil {
+		log.Println("[AprioriService][UpdateStatus][UpdateStatusByCode] problem in getting from repository, err: ", err.Error())
 		return err
 	}
 
@@ -214,17 +233,20 @@ func (service *AprioriServiceImpl) UpdateStatus(ctx context.Context, code string
 func (service *AprioriServiceImpl) Delete(ctx context.Context, code string) error {
 	tx, err := service.DB.Begin()
 	if err != nil {
+		log.Println("[AprioriService][Delete] problem in db transaction, err: ", err.Error())
 		return err
 	}
 	defer util.CommitOrRollback(tx)
 
 	apriories, err := service.AprioriRepository.FindAllByCode(ctx, tx, code)
 	if err != nil {
+		log.Println("[AprioriService][Delete][FindAllByCode] problem in getting from repository, err: ", err.Error())
 		return err
 	}
 
 	err = service.AprioriRepository.Delete(ctx, tx, apriories[0].Code)
 	if err != nil {
+		log.Println("[AprioriService][Delete][Delete] problem in getting from repository, err: ", err.Error())
 		return err
 	}
 
@@ -234,15 +256,16 @@ func (service *AprioriServiceImpl) Delete(ctx context.Context, code string) erro
 func (service *AprioriServiceImpl) Generate(ctx context.Context, request *request.GenerateAprioriRequest) ([]*model.GenerateApriori, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
+		log.Println("[AprioriService][Generate] problem in db transaction, err: ", err.Error())
 		return nil, err
 	}
 	defer util.CommitOrRollback(tx)
 
 	var apriori []*model.GenerateApriori
-
 	// Get all transaction from database
 	transactionsSet, err := service.TransactionRepository.FindAllItemSet(ctx, tx, request.StartDate, request.EndDate)
 	if err != nil {
+		log.Println("[AprioriService][Generate][FindAllItemSet] problem in getting from repository, err: ", err.Error())
 		return nil, err
 	}
 

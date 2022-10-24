@@ -23,12 +23,13 @@ func (repository *CommentRepositoryImpl) FindAllRatingByProductCode(ctx context.
 			  ORDER BY rating DESC`
 	rows, err := tx.QueryContext(ctx, query, productCode)
 	if err != nil {
+		log.Println("[CommentRepository][FindAllRatingByProductCode] problem querying to db, err: ", err.Error())
 		return nil, err
 	}
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
 		if err != nil {
-			log.Println(err)
+			log.Println("[CommentRepository][FindAllRatingByProductCode] problem closing query from db, err: ", err.Error())
 			return
 		}
 	}(rows)
@@ -42,6 +43,7 @@ func (repository *CommentRepositoryImpl) FindAllRatingByProductCode(ctx context.
 			&rating.ResultComment,
 		)
 		if err != nil {
+			log.Println("[CommentRepository][FindAllRatingByProductCode] problem with scanning db row, err: ", err.Error())
 			return nil, err
 		}
 
@@ -61,12 +63,13 @@ func (repository *CommentRepositoryImpl) FindAllByProductCode(ctx context.Contex
 			  ORDER BY c.id_comment DESC`
 	rows, err := tx.QueryContext(ctx, query, productCode, "%"+rating+"%", "%("+tags+")%")
 	if err != nil {
+		log.Println("[CommentRepository][FindAllByProductCode] problem querying to db, err: ", err.Error())
 		return nil, err
 	}
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
 		if err != nil {
-			log.Println(err)
+			log.Println("[CommentRepository][FindAllByProductCode] problem closing query from db, err: ", err.Error())
 			return
 		}
 	}(rows)
@@ -92,6 +95,7 @@ func (repository *CommentRepositoryImpl) FindAllByProductCode(ctx context.Contex
 			&comment.UserOrder.Payment.User.Name,
 		)
 		if err != nil {
+			log.Println("[CommentRepository][FindAllByProductCode] problem with scanning db row, err: ", err.Error())
 			return nil, err
 		}
 
@@ -129,6 +133,7 @@ func (repository *CommentRepositoryImpl) FindById(ctx context.Context, tx *sql.T
 		&comment.UserOrder.Payment.User.Name,
 	)
 	if err != nil {
+		log.Println("[CommentRepository][FindById] problem with scanning db row, err: ", err.Error())
 		return nil, err
 	}
 
@@ -163,6 +168,7 @@ func (repository *CommentRepositoryImpl) FindByUserOrderId(ctx context.Context, 
 		&comment.UserOrder.Payment.User.Name,
 	)
 	if err != nil {
+		log.Println("[CommentRepository][FindByUserOrderId] problem with scanning db row, err: ", err.Error())
 		return nil, err
 	}
 
@@ -186,6 +192,7 @@ func (repository *CommentRepositoryImpl) Create(ctx context.Context, tx *sql.Tx,
 	)
 	err := row.Scan(&id)
 	if err != nil {
+		log.Println("[CommentRepository][Create] problem with scanning db row, err: ", err.Error())
 		return nil, err
 	}
 

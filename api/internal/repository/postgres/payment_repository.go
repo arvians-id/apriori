@@ -22,12 +22,13 @@ func (repository *PaymentRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx
 			  ORDER BY payloads.settlement_time DESC, payloads.bank_type DESC`
 	rows, err := tx.QueryContext(ctx, query)
 	if err != nil {
+		log.Println("[PaymentRepository][FindAll] problem querying to db, err: ", err.Error())
 		return nil, err
 	}
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
 		if err != nil {
-			log.Println(err)
+			log.Println("[PaymentRepository][FindAll] problem closing query from db, err: ", err.Error())
 			return
 		}
 	}(rows)
@@ -62,6 +63,7 @@ func (repository *PaymentRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx
 			&payment.User.Name,
 		)
 		if err != nil {
+			log.Println("[PaymentRepository][FindAll] problem with scanning db row, err: ", err.Error())
 			return nil, err
 		}
 
@@ -77,12 +79,13 @@ func (repository *PaymentRepositoryImpl) FindAllByUserId(ctx context.Context, tx
 			  ORDER BY settlement_time DESC, bank_type DESC`
 	rows, err := tx.QueryContext(ctx, query, userId)
 	if err != nil {
+		log.Println("[PaymentRepository][FindAllByUserId] problem querying to db, err: ", err.Error())
 		return nil, err
 	}
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
 		if err != nil {
-			log.Println(err)
+			log.Println("[PaymentRepository][FindAllByUserId] problem closing query from db, err: ", err.Error())
 			return
 		}
 	}(rows)
@@ -114,6 +117,7 @@ func (repository *PaymentRepositoryImpl) FindAllByUserId(ctx context.Context, tx
 			&payment.CourierService,
 		)
 		if err != nil {
+			log.Println("[PaymentRepository][FindAllByUserId] problem with scanning db row, err: ", err.Error())
 			return nil, err
 		}
 
@@ -152,6 +156,7 @@ func (repository *PaymentRepositoryImpl) FindByOrderId(ctx context.Context, tx *
 		&payment.CourierService,
 	)
 	if err != nil {
+		log.Println("[PaymentRepository][FindByOrderId] problem with scanning db row, err: ", err.Error())
 		return nil, err
 	}
 
@@ -188,6 +193,7 @@ func (repository *PaymentRepositoryImpl) Create(ctx context.Context, tx *sql.Tx,
 	)
 	err := row.Scan(&id)
 	if err != nil {
+		log.Println("[PaymentRepository][Create] problem with scanning db row, err: ", err.Error())
 		return nil, err
 	}
 
@@ -237,6 +243,7 @@ func (repository *PaymentRepositoryImpl) Update(ctx context.Context, tx *sql.Tx,
 		payment.OrderId,
 	)
 	if err != nil {
+		log.Println("[PaymentRepository][Update] problem querying to db, err: ", err.Error())
 		return err
 	}
 
@@ -247,6 +254,7 @@ func (repository *PaymentRepositoryImpl) UpdateReceiptNumber(ctx context.Context
 	query := `UPDATE payloads SET receipt_number = $1 WHERE order_id = $2`
 	_, err := tx.ExecContext(ctx, query, payment.ReceiptNumber, payment.OrderId)
 	if err != nil {
+		log.Println("[PaymentRepository][UpdateReceiptNumber] problem querying to db, err: ", err.Error())
 		return err
 	}
 
@@ -257,6 +265,7 @@ func (repository *PaymentRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx,
 	query := "DELETE FROM payloads WHERE order_id = $1"
 	_, err := tx.ExecContext(ctx, query, orderId)
 	if err != nil {
+		log.Println("[PaymentRepository][Delete] problem querying to db, err: ", err.Error())
 		return err
 	}
 

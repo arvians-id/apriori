@@ -8,6 +8,7 @@ import (
 	"github.com/arvians-id/apriori/internal/http/presenter/response"
 	"github.com/arvians-id/apriori/internal/service"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -79,7 +80,13 @@ func (controller *AuthController) Login(c *gin.Context) {
 		return
 	}
 
-	expiredTimeAccess, _ := strconv.Atoi(os.Getenv("JWT_ACCESS_EXPIRED_TIME"))
+	expiredTimeAccess, err := strconv.Atoi(os.Getenv("JWT_ACCESS_EXPIRED_TIME"))
+	if err != nil {
+		log.Println("[AuthController][Login] problem in conversion string to integer, err: ", err.Error())
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
 	expirationTime := time.Now().Add(time.Duration(expiredTimeAccess) * 24 * time.Hour)
 	token, err := controller.JwtService.GenerateToken(user.IdUser, user.Role, expirationTime)
 	if err != nil {
@@ -115,7 +122,13 @@ func (controller *AuthController) Refresh(c *gin.Context) {
 		return
 	}
 
-	expiredTimeAccess, _ := strconv.Atoi(os.Getenv("JWT_ACCESS_EXPIRED_TIME"))
+	expiredTimeAccess, err := strconv.Atoi(os.Getenv("JWT_ACCESS_EXPIRED_TIME"))
+	if err != nil {
+		log.Println("[AuthController][Login] problem in conversion string to integer, err: ", err.Error())
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
 	expirationTime := time.Now().Add(time.Duration(expiredTimeAccess) * 24 * time.Hour)
 	http.SetCookie(c.Writer, &http.Cookie{
 		Name:     "token",

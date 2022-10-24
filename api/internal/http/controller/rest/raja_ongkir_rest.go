@@ -6,6 +6,7 @@ import (
 	"github.com/arvians-id/apriori/internal/http/presenter/request"
 	"github.com/arvians-id/apriori/internal/http/presenter/response"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -33,16 +34,29 @@ func (controller *RajaOngkirController) FindAll(c *gin.Context) {
 	}
 
 	url := "https://api.rajaongkir.com/starter/" + placeParam
-	req, _ := http.NewRequest("GET", url, nil)
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		log.Println("[RajaOngkirController][FindAll] problem on request to raja ongkir, err: ", err.Error())
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
 	req.Header.Add("key", os.Getenv("RAJA_ONGKIR_SECRET_KEY"))
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
-	res, _ := http.DefaultClient.Do(req)
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Println("[RajaOngkirController][FindAll] problem on send http request to raja ongkir, err: ", err.Error())
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
 	defer res.Body.Close()
 
 	var rajaOngkirModel interface{}
-	err := json.NewDecoder(res.Body).Decode(&rajaOngkirModel)
+	err = json.NewDecoder(res.Body).Decode(&rajaOngkirModel)
 	if err != nil {
+		log.Println("[RajaOngkirController][FindAll] unable to decode data err: ", err.Error())
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
@@ -68,16 +82,29 @@ func (controller *RajaOngkirController) GetCost(c *gin.Context) {
 		requestDelivery.Courier,
 	)
 	data := strings.NewReader(payload)
-	req, _ := http.NewRequest("POST", "https://api.rajaongkir.com/starter/cost", data)
+	req, err := http.NewRequest("POST", "https://api.rajaongkir.com/starter/cost", data)
+	if err != nil {
+		log.Println("[RajaOngkirController][GetCost] problem on request to raja ongkir, err: ", err.Error())
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
 	req.Header.Add("key", os.Getenv("RAJA_ONGKIR_SECRET_KEY"))
 	req.Header.Add("Content-Type", "application/x-www-form-urlencoded")
 
-	res, _ := http.DefaultClient.Do(req)
+	res, err := http.DefaultClient.Do(req)
+	if err != nil {
+		log.Println("[RajaOngkirController][GetCost] problem on send http request to raja ongkir, err: ", err.Error())
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
 	defer res.Body.Close()
 
 	var rajaOngkirModel interface{}
 	err = json.NewDecoder(res.Body).Decode(&rajaOngkirModel)
 	if err != nil {
+		log.Println("[RajaOngkirController][GetCost] unable to decode data err: ", err.Error())
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}

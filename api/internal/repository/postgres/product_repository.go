@@ -19,12 +19,13 @@ func (repository *ProductRepositoryImpl) FindAllByAdmin(ctx context.Context, tx 
 	query := "SELECT * FROM products ORDER BY id_product DESC"
 	rows, err := tx.QueryContext(ctx, query)
 	if err != nil {
+		log.Println("[ProductRepository][FindAllByAdmin] problem querying to db, err: ", err.Error())
 		return nil, err
 	}
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
 		if err != nil {
-			log.Println(err)
+			log.Println("[ProductRepository][FindAllByAdmin] problem closing query from db, err: ", err.Error())
 			return
 		}
 	}(rows)
@@ -46,6 +47,7 @@ func (repository *ProductRepositoryImpl) FindAllByAdmin(ctx context.Context, tx 
 			&product.UpdatedAt,
 		)
 		if err != nil {
+			log.Println("[ProductRepository][FindAllByAdmin] problem with scanning db row, err: ", err.Error())
 			return nil, err
 		}
 
@@ -61,12 +63,13 @@ func (repository *ProductRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx
 			  ORDER BY id_product DESC`
 	rows, err := tx.QueryContext(ctx, query, "%"+search+"%", "%"+category+"%")
 	if err != nil {
+		log.Println("[ProductRepository][FindAll] problem querying to db, err: ", err.Error())
 		return nil, err
 	}
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
 		if err != nil {
-			log.Println(err)
+			log.Println("[ProductRepository][FindAll] problem closing query from db, err: ", err.Error())
 			return
 		}
 	}(rows)
@@ -88,6 +91,7 @@ func (repository *ProductRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx
 			&product.UpdatedAt,
 		)
 		if err != nil {
+			log.Println("[ProductRepository][FindAll] problem with scanning db row, err: ", err.Error())
 			return nil, err
 		}
 
@@ -103,12 +107,13 @@ func (repository *ProductRepositoryImpl) FindAllBySimilarCategory(ctx context.Co
 			  ORDER BY random() DESC LIMIT 4`
 	rows, err := tx.QueryContext(ctx, query, "%("+category+")%")
 	if err != nil {
+		log.Println("[ProductRepository][FindAllBySimilarCategory] problem querying to db, err: ", err.Error())
 		return nil, err
 	}
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
 		if err != nil {
-			log.Println(err)
+			log.Println("[ProductRepository][FindAllBySimilarCategory] problem closing query from db, err: ", err.Error())
 			return
 		}
 	}(rows)
@@ -130,6 +135,7 @@ func (repository *ProductRepositoryImpl) FindAllBySimilarCategory(ctx context.Co
 			&product.UpdatedAt,
 		)
 		if err != nil {
+			log.Println("[ProductRepository][FindAllBySimilarCategory] problem with scanning db row, err: ", err.Error())
 			return nil, err
 		}
 
@@ -158,6 +164,7 @@ func (repository *ProductRepositoryImpl) FindById(ctx context.Context, tx *sql.T
 		&product.UpdatedAt,
 	)
 	if err != nil {
+		log.Println("[ProductRepository][FindById] problem with scanning db row, err: ", err.Error())
 		return nil, err
 	}
 
@@ -183,6 +190,7 @@ func (repository *ProductRepositoryImpl) FindByName(ctx context.Context, tx *sql
 		&product.UpdatedAt,
 	)
 	if err != nil {
+		log.Println("[ProductRepository][FindByName] problem with scanning db row, err: ", err.Error())
 		return nil, err
 	}
 
@@ -208,6 +216,7 @@ func (repository *ProductRepositoryImpl) FindByCode(ctx context.Context, tx *sql
 		&product.UpdatedAt,
 	)
 	if err != nil {
+		log.Println("[ProductRepository][FindByCode] problem with scanning db row, err: ", err.Error())
 		return nil, err
 	}
 
@@ -234,6 +243,7 @@ func (repository *ProductRepositoryImpl) Create(ctx context.Context, tx *sql.Tx,
 	)
 	err := row.Scan(&id)
 	if err != nil {
+		log.Println("[ProductRepository][Create] problem with scanning db row, err: ", err.Error())
 		return nil, err
 	}
 
@@ -267,6 +277,7 @@ func (repository *ProductRepositoryImpl) Update(ctx context.Context, tx *sql.Tx,
 		product.Code,
 	)
 	if err != nil {
+		log.Println("[ProductRepository][Update] problem querying to db, err: ", err.Error())
 		return nil, err
 	}
 
@@ -277,6 +288,7 @@ func (repository *ProductRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx,
 	query := "DELETE FROM products WHERE code = $1"
 	_, err := tx.ExecContext(ctx, query, code)
 	if err != nil {
+		log.Println("[ProductRepository][Delete] problem querying to db, err: ", err.Error())
 		return err
 	}
 

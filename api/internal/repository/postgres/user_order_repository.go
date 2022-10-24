@@ -19,12 +19,13 @@ func (repository *UserOrderRepositoryImpl) FindAllByPayloadId(ctx context.Contex
 	query := "SELECT * FROM user_orders WHERE payload_id = $1"
 	rows, err := tx.QueryContext(ctx, query, payloadId)
 	if err != nil {
+		log.Println("[UserOrderRepository][FindAllByPayloadId] problem querying to db, err: ", err.Error())
 		return nil, err
 	}
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
 		if err != nil {
-			log.Println(err)
+			log.Println("[UserOrderRepository][FindAllByPayloadId] problem closing query from db, err: ", err.Error())
 			return
 		}
 	}(rows)
@@ -43,6 +44,7 @@ func (repository *UserOrderRepositoryImpl) FindAllByPayloadId(ctx context.Contex
 			&userOrder.TotalPriceItem,
 		)
 		if err != nil {
+			log.Println("[UserOrderRepository][FindAllByPayloadId] problem with scanning db row, err: ", err.Error())
 			return nil, err
 		}
 
@@ -70,12 +72,13 @@ func (repository *UserOrderRepositoryImpl) FindAllByUserId(ctx context.Context, 
 			  ORDER BY uo.id_order DESC`
 	rows, err := tx.QueryContext(ctx, query, userId)
 	if err != nil {
+		log.Println("[UserOrderRepository][FindAllByUserId] problem querying to db, err: ", err.Error())
 		return nil, err
 	}
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
 		if err != nil {
-			log.Println(err)
+			log.Println("[UserOrderRepository][FindAllByUserId] problem closing query from db, err: ", err.Error())
 			return
 		}
 	}(rows)
@@ -98,6 +101,7 @@ func (repository *UserOrderRepositoryImpl) FindAllByUserId(ctx context.Context, 
 			&userOrder.Payment.TransactionStatus,
 		)
 		if err != nil {
+			log.Println("[UserOrderRepository][FindAllByUserId] problem with scanning db row, err: ", err.Error())
 			return nil, err
 		}
 
@@ -123,6 +127,7 @@ func (repository *UserOrderRepositoryImpl) FindById(ctx context.Context, tx *sql
 		&userOrder.TotalPriceItem,
 	)
 	if err != nil {
+		log.Println("[UserOrderRepository][FindById] problem with scanning db row, err: ", err.Error())
 		return nil, err
 	}
 
@@ -145,6 +150,7 @@ func (repository *UserOrderRepositoryImpl) Create(ctx context.Context, tx *sql.T
 	)
 	err := row.Scan(&id)
 	if err != nil {
+		log.Println("[UserOrderRepository][Create] problem with scanning db row, err: ", err.Error())
 		return nil, err
 	}
 

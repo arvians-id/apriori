@@ -19,12 +19,13 @@ func (repository *CategoryRepositoryImpl) FindAll(ctx context.Context, tx *sql.T
 	query := "SELECT * FROM categories ORDER BY id_category DESC"
 	rows, err := tx.QueryContext(ctx, query)
 	if err != nil {
+		log.Println("[CategoryRepository][FindAll] problem querying to db, err: ", err.Error())
 		return nil, err
 	}
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
 		if err != nil {
-			log.Println(err)
+			log.Println("[CategoryRepository][FindAll] problem closing query from db, err: ", err.Error())
 			return
 		}
 	}(rows)
@@ -34,6 +35,7 @@ func (repository *CategoryRepositoryImpl) FindAll(ctx context.Context, tx *sql.T
 		var category model.Category
 		err := rows.Scan(&category.IdCategory, &category.Name, &category.CreatedAt, &category.UpdatedAt)
 		if err != nil {
+			log.Println("[CategoryRepository][FindAll] problem with scanning db row, err: ", err.Error())
 			return nil, err
 		}
 
@@ -50,6 +52,7 @@ func (repository *CategoryRepositoryImpl) FindById(ctx context.Context, tx *sql.
 	var category model.Category
 	err := row.Scan(&category.IdCategory, &category.Name, &category.CreatedAt, &category.UpdatedAt)
 	if err != nil {
+		log.Println("[CategoryRepository][FindById] problem with scanning db row, err: ", err.Error())
 		return nil, err
 	}
 
@@ -62,6 +65,7 @@ func (repository *CategoryRepositoryImpl) Create(ctx context.Context, tx *sql.Tx
 	row := tx.QueryRowContext(ctx, query, category.Name, category.CreatedAt, category.UpdatedAt)
 	err := row.Scan(&id)
 	if err != nil {
+		log.Println("[CategoryRepository][Create] problem with scanning db row, err: ", err.Error())
 		return nil, err
 	}
 
@@ -74,6 +78,7 @@ func (repository *CategoryRepositoryImpl) Update(ctx context.Context, tx *sql.Tx
 	query := "UPDATE categories SET name = $1, updated_at = $2 WHERE id_category = $3"
 	_, err := tx.ExecContext(ctx, query, category.Name, category.UpdatedAt, category.IdCategory)
 	if err != nil {
+		log.Println("[CategoryRepository][Update] problem with scanning db row, err: ", err.Error())
 		return nil, err
 	}
 
@@ -84,6 +89,7 @@ func (repository *CategoryRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx
 	query := "DELETE FROM categories WHERE id_category = $1"
 	_, err := tx.ExecContext(ctx, query, id)
 	if err != nil {
+		log.Println("[CategoryRepository][Delete] problem with scanning db row, err: ", err.Error())
 		return err
 	}
 

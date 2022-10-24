@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt"
+	"log"
 	"os"
 	"strconv"
 	"time"
@@ -46,7 +47,11 @@ func getRefreshSecretKey() string {
 func (service *JwtServiceImpl) GenerateToken(id int, role int, expirationTime time.Time) (*TokenDetails, error) {
 	tokens := &TokenDetails{}
 	tokens.AtExpires = expirationTime.Unix()
-	expiredTimeRefresh, _ := strconv.Atoi(os.Getenv("JWT_REFRESH_EXPIRED_TIME"))
+	expiredTimeRefresh, err := strconv.Atoi(os.Getenv("JWT_REFRESH_EXPIRED_TIME"))
+	if err != nil {
+		log.Println("[JWTService][GenerateToken] problem in conversion string to integer, err: ", err.Error())
+		return nil, err
+	}
 	tokens.RtExpires = time.Now().Add(time.Duration(expiredTimeRefresh) * 24 * time.Hour).Unix()
 
 	// Access token
@@ -61,6 +66,7 @@ func (service *JwtServiceImpl) GenerateToken(id int, role int, expirationTime ti
 	tokenAt := jwt.NewWithClaims(service.jwtSigningMethod, accessToken)
 	signedAt, err := tokenAt.SignedString([]byte(service.accessSecretKey))
 	if err != nil {
+		log.Println("[JWTService][GenerateToken] problem in first signed string, err: ", err.Error())
 		return nil, err
 	}
 	tokens.AccessToken = signedAt
@@ -77,6 +83,7 @@ func (service *JwtServiceImpl) GenerateToken(id int, role int, expirationTime ti
 	tokenRt := jwt.NewWithClaims(service.jwtSigningMethod, refreshToken)
 	signedRt, err := tokenRt.SignedString([]byte(service.refreshSecretKey))
 	if err != nil {
+		log.Println("[JWTService][GenerateToken] problem in second signed string, err: ", err.Error())
 		return nil, err
 	}
 	tokens.RefreshToken = signedRt
@@ -89,22 +96,24 @@ func (service *JwtServiceImpl) RefreshToken(refreshToken string) (*TokenDetails,
 		method, ok := token.Method.(*jwt.SigningMethodHMAC)
 		if !ok {
 			str := fmt.Sprintf("unexpected signing method %v", token.Header["alg"])
+			log.Println("[JWTService][RefreshToken] problem in refresh token, err: ", str)
 			return nil, errors.New(str)
 		} else if method != service.jwtSigningMethod {
 			str := fmt.Sprintf("unexpected signing method %v", token.Header["alg"])
+			log.Println("[JWTService][RefreshToken] problem in refresh token, err: ", str)
 			return nil, errors.New(str)
 		}
-
 		return []byte(service.refreshSecretKey), nil
 	})
-
 	if err != nil {
+		log.Println("[JWTService][RefreshToken] problem in parsing token, err: ", err.Error())
 		return nil, err
 	}
 
 	// Check if token is expired
 	claims, ok := token.Claims.(jwt.MapClaims)
 	if !ok && !token.Valid {
+		log.Println("[JWTService][RefreshToken] problem in token expired, err: ", err.Error())
 		return nil, errors.New("invalid token")
 	}
 
@@ -116,9 +125,15 @@ func (service *JwtServiceImpl) RefreshToken(refreshToken string) (*TokenDetails,
 	// --
 
 	// Create new pairs of refresh and access tokens
-	expiredTimeAccess, _ := strconv.Atoi(os.Getenv("JWT_ACCESS_EXPIRED_TIME"))
+	expiredTimeAccess, err := strconv.Atoi(os.Getenv("JWT_ACCESS_EXPIRED_TIME"))
+	if err != nil {
+		log.Println("[JWTService][RefreshToken] problem in conversion string to integer, err: ", err.Error())
+		return nil, err
+	}
+
 	tokens, err := service.GenerateToken(id, role, time.Now().Add(time.Duration(expiredTimeAccess)*24*time.Hour))
 	if err != nil {
+		log.Println("[JWTService][RefreshToken] problem in getting generate token, err: ", err.Error())
 		return nil, err
 	}
 
@@ -131,15 +146,15 @@ func (service *JwtServiceImpl) RefreshToken(refreshToken string) (*TokenDetails,
 func (service *JwtServiceImpl) ValidateToken(token string) (*jwt.Token, error) {
 	return jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		method, ok := token.Method.(*jwt.SigningMethodHMAC)
-
 		if !ok {
 			str := fmt.Sprintf("unexpected signing method %v", token.Header["alg"])
+			log.Println("[JWTService][ValidateToken] problem in validating token, err: ", str)
 			return nil, errors.New(str)
 		} else if method != service.jwtSigningMethod {
 			str := fmt.Sprintf("unexpected signing method %v", token.Header["alg"])
+			log.Println("[JWTService][ValidateToken] problem in validating token, err: ", str)
 			return nil, errors.New(str)
 		}
-
 		return []byte(service.accessSecretKey), nil
 	})
 }

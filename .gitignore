@@ -6,7 +6,6 @@ node_modules
 .env.test
 gin-bin.exe
 /api/.env.test
-docker-compose.yml
 
 # local env files
 .env.local

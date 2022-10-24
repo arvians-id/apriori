@@ -24,12 +24,13 @@ func (repository *AprioriRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx
 			  ORDER BY created_at DESC`
 	rows, err := tx.QueryContext(ctx, query)
 	if err != nil {
+		log.Println("[AprioriRepository][FindAll] problem querying to db, err: ", err.Error())
 		return nil, err
 	}
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
 		if err != nil {
-			log.Println(err)
+			log.Println("[AprioriRepository][FindAll] problem closing query from db, err: ", err.Error())
 			return
 		}
 	}(rows)
@@ -39,6 +40,7 @@ func (repository *AprioriRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx
 		var apriori model.Apriori
 		err := rows.Scan(&apriori.Code, &apriori.RangeDate, &apriori.CreatedAt, &apriori.IsActive)
 		if err != nil {
+			log.Println("[AprioriRepository][FindAll] problem with scanning db row, err: ", err.Error())
 			return nil, err
 		}
 
@@ -52,12 +54,13 @@ func (repository *AprioriRepositoryImpl) FindAllByActive(ctx context.Context, tx
 	query := `SELECT * FROM apriories WHERE is_active = true ORDER BY discount DESC`
 	rows, err := tx.QueryContext(ctx, query)
 	if err != nil {
+		log.Println("[AprioriRepository][FindAllByActive] problem querying to db, err: ", err.Error())
 		return nil, err
 	}
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
 		if err != nil {
-			log.Println(err)
+			log.Println("[AprioriRepository][FindAllByActive] problem closing query from db, err: ", err.Error())
 			return
 		}
 	}(rows)
@@ -79,6 +82,7 @@ func (repository *AprioriRepositoryImpl) FindAllByActive(ctx context.Context, tx
 			&apriori.CreatedAt,
 		)
 		if err != nil {
+			log.Println("[AprioriRepository][FindAllByActive] problem with scanning db row, err: ", err.Error())
 			return nil, err
 		}
 
@@ -86,6 +90,7 @@ func (repository *AprioriRepositoryImpl) FindAllByActive(ctx context.Context, tx
 	}
 
 	if apriories == nil {
+		log.Println("[AprioriRepository][FindAllByActive] no rows in result set")
 		return nil, errors.New(response.ErrorNotFound)
 	}
 
@@ -96,12 +101,13 @@ func (repository *AprioriRepositoryImpl) FindAllByCode(ctx context.Context, tx *
 	query := `SELECT * FROM apriories WHERE code = $1`
 	rows, err := tx.QueryContext(ctx, query, code)
 	if err != nil {
+		log.Println("[AprioriRepository][FindAllByCode] problem querying to db, err: ", err.Error())
 		return nil, err
 	}
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
 		if err != nil {
-			log.Println(err)
+			log.Println("[AprioriRepository][FindAllByCode] problem closing query from db, err: ", err.Error())
 			return
 		}
 	}(rows)
@@ -123,6 +129,7 @@ func (repository *AprioriRepositoryImpl) FindAllByCode(ctx context.Context, tx *
 			&apriori.CreatedAt,
 		)
 		if err != nil {
+			log.Println("[AprioriRepository][FindAllByCode] problem with scanning db row, err: ", err.Error())
 			return nil, err
 		}
 
@@ -130,6 +137,7 @@ func (repository *AprioriRepositoryImpl) FindAllByCode(ctx context.Context, tx *
 	}
 
 	if apriories == nil {
+		log.Println("[AprioriRepository][FindAllByCode] no rows in result set")
 		return nil, errors.New(response.ErrorNotFound)
 	}
 
@@ -155,6 +163,7 @@ func (repository *AprioriRepositoryImpl) FindByCodeAndId(ctx context.Context, tx
 		&apriori.CreatedAt,
 	)
 	if err != nil {
+		log.Println("[AprioriRepository][FindByCodeAndId] problem with scanning db row, err: ", err.Error())
 		return nil, err
 	}
 
@@ -179,6 +188,7 @@ func (repository *AprioriRepositoryImpl) Create(ctx context.Context, tx *sql.Tx,
 			apriori.CreatedAt,
 		)
 		if err != nil {
+			log.Println("[AprioriRepository][Create] problem querying to db, err: ", err.Error())
 			return err
 		}
 	}
@@ -190,6 +200,7 @@ func (repository *AprioriRepositoryImpl) Update(ctx context.Context, tx *sql.Tx,
 	query := `UPDATE apriories SET description = $1, image = $2 WHERE code = $3 AND id_apriori = $4`
 	_, err := tx.ExecContext(ctx, query, apriori.Description, apriori.Image, apriori.Code, apriori.IdApriori)
 	if err != nil {
+		log.Println("[AprioriRepository][Update] problem querying to db, err: ", err.Error())
 		return nil, err
 	}
 
@@ -200,6 +211,7 @@ func (repository *AprioriRepositoryImpl) UpdateAllStatus(ctx context.Context, tx
 	query := `UPDATE apriories SET is_active = $1`
 	_, err := tx.ExecContext(ctx, query, status)
 	if err != nil {
+		log.Println("[AprioriRepository][UpdateAllStatus] problem querying to db, err: ", err.Error())
 		return err
 	}
 
@@ -210,6 +222,7 @@ func (repository *AprioriRepositoryImpl) UpdateStatusByCode(ctx context.Context,
 	query := `UPDATE apriories SET is_active = $1 WHERE code = $2`
 	_, err := tx.ExecContext(ctx, query, status, code)
 	if err != nil {
+		log.Println("[AprioriRepository][UpdateStatusByCode] problem querying to db, err: ", err.Error())
 		return err
 	}
 
@@ -220,6 +233,7 @@ func (repository *AprioriRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx,
 	query := `DELETE FROM apriories WHERE code = $1`
 	_, err := tx.ExecContext(ctx, query, code)
 	if err != nil {
+		log.Println("[AprioriRepository][Delete] problem querying to db, err: ", err.Error())
 		return err
 	}
 

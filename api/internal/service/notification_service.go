@@ -8,6 +8,7 @@ import (
 	"github.com/arvians-id/apriori/internal/model"
 	"github.com/arvians-id/apriori/internal/repository"
 	"github.com/arvians-id/apriori/util"
+	"log"
 	"strings"
 	"time"
 )
@@ -33,12 +34,14 @@ func NewNotificationService(notificationRepository *repository.NotificationRepos
 func (service *NotificationServiceImpl) FindAll(ctx context.Context) ([]*model.Notification, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
+		log.Println("[NotificationService][FindAll] problem in db transaction, err: ", err.Error())
 		return nil, err
 	}
 	defer util.CommitOrRollback(tx)
 
 	notifications, err := service.NotificationRepository.FindAll(ctx, tx)
 	if err != nil {
+		log.Println("[NotificationService][FindAll][FindAll] problem in getting from repository, err: ", err.Error())
 		return nil, err
 	}
 
@@ -48,12 +51,14 @@ func (service *NotificationServiceImpl) FindAll(ctx context.Context) ([]*model.N
 func (service *NotificationServiceImpl) FindAllByUserId(ctx context.Context, userId int) ([]*model.Notification, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
+		log.Println("[NotificationService][FindAllByUserId] problem in db transaction, err: ", err.Error())
 		return nil, err
 	}
 	defer util.CommitOrRollback(tx)
 
 	notifications, err := service.NotificationRepository.FindAllByUserId(ctx, tx, userId)
 	if err != nil {
+		log.Println("[NotificationService][FindAllByUserId][FindAllByUserId] problem in getting from repository, err: ", err.Error())
 		return nil, err
 	}
 
@@ -63,6 +68,7 @@ func (service *NotificationServiceImpl) FindAllByUserId(ctx context.Context, use
 func (service *NotificationServiceImpl) Create(ctx context.Context, request *request.CreateNotificationRequest) *NotificationServiceImpl {
 	tx, err := service.DB.Begin()
 	if err != nil {
+		log.Println("[NotificationService][Create] problem in db transaction, err: ", err.Error())
 		service.Error = err
 		return nil
 	}
@@ -70,6 +76,7 @@ func (service *NotificationServiceImpl) Create(ctx context.Context, request *req
 
 	timeNow, err := time.Parse(util.TimeFormat, time.Now().Format(util.TimeFormat))
 	if err != nil {
+		log.Println("[NotificationService][Create] problem in parsing to time, err: ", err.Error())
 		service.Error = err
 		return nil
 	}
@@ -85,12 +92,14 @@ func (service *NotificationServiceImpl) Create(ctx context.Context, request *req
 
 	notificationResponse, err := service.NotificationRepository.Create(ctx, tx, &notificationRequest)
 	if err != nil {
+		log.Println("[NotificationService][Create][Create] problem in getting from repository, err: ", err.Error())
 		service.Error = err
 		return nil
 	}
 
 	user, err := service.UserRepository.FindById(ctx, tx, notificationResponse.UserId)
 	if err != nil {
+		log.Println("[NotificationService][Create][FindById] problem in getting from repository, err: ", err.Error())
 		service.Error = err
 		return nil
 	}
@@ -107,12 +116,14 @@ func (service *NotificationServiceImpl) Create(ctx context.Context, request *req
 func (service *NotificationServiceImpl) MarkAll(ctx context.Context, userId int) error {
 	tx, err := service.DB.Begin()
 	if err != nil {
+		log.Println("[NotificationService][MarkAll] problem in db transaction, err: ", err.Error())
 		return err
 	}
 	defer util.CommitOrRollback(tx)
 
 	err = service.NotificationRepository.MarkAll(ctx, tx, userId)
 	if err != nil {
+		log.Println("[NotificationService][Create][MarkAll] problem in getting from repository, err: ", err.Error())
 		return err
 	}
 
@@ -122,12 +133,14 @@ func (service *NotificationServiceImpl) MarkAll(ctx context.Context, userId int)
 func (service *NotificationServiceImpl) Mark(ctx context.Context, id int) error {
 	tx, err := service.DB.Begin()
 	if err != nil {
+		log.Println("[NotificationService][Mark] problem in db transaction, err: ", err.Error())
 		return err
 	}
 	defer util.CommitOrRollback(tx)
 
 	err = service.NotificationRepository.Mark(ctx, tx, id)
 	if err != nil {
+		log.Println("[NotificationService][Create][Mark] problem in getting from repository, err: ", err.Error())
 		return err
 	}
 
@@ -141,6 +154,7 @@ func (service *NotificationServiceImpl) WithSendMail() error {
 		service.Notification.Description,
 	)
 	if err != nil || service.Error != nil {
+		log.Println("[NotificationService][WithSendMail] problem in sending email, err: ", err.Error())
 		errors := fmt.Errorf("error: %s %s", err.Error(), service.Error.Error())
 		return errors
 	}

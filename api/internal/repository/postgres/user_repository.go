@@ -19,12 +19,13 @@ func (repository *UserRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) (
 	query := "SELECT * FROM users ORDER BY id_user DESC"
 	rows, err := tx.QueryContext(ctx, query)
 	if err != nil {
+		log.Println("[UserRepository][FindAll] problem querying to db, err: ", err.Error())
 		return nil, err
 	}
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
 		if err != nil {
-			log.Println(err)
+			log.Println("[UserRepository][FindAll] problem closing query from db, err: ", err.Error())
 			return
 		}
 	}(rows)
@@ -44,6 +45,7 @@ func (repository *UserRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx) (
 			&user.UpdatedAt,
 		)
 		if err != nil {
+			log.Println("[UserRepository][FindAll] problem with scanning db row, err: ", err.Error())
 			return nil, err
 		}
 
@@ -70,6 +72,7 @@ func (repository *UserRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, 
 		&user.UpdatedAt,
 	)
 	if err != nil {
+		log.Println("[UserRepository][FindById] problem with scanning db row, err: ", err.Error())
 		return nil, err
 	}
 
@@ -93,6 +96,7 @@ func (repository *UserRepositoryImpl) FindByEmail(ctx context.Context, tx *sql.T
 		&user.UpdatedAt,
 	)
 	if err != nil {
+		log.Println("[UserRepository][FindByEmail] problem with scanning db row, err: ", err.Error())
 		return nil, err
 	}
 
@@ -116,6 +120,7 @@ func (repository *UserRepositoryImpl) Create(ctx context.Context, tx *sql.Tx, us
 	)
 	err := row.Scan(&id)
 	if err != nil {
+		log.Println("[UserRepository][Create] problem with scanning db row, err: ", err.Error())
 		return nil, err
 	}
 
@@ -138,6 +143,7 @@ func (repository *UserRepositoryImpl) Update(ctx context.Context, tx *sql.Tx, us
 		user.IdUser,
 	)
 	if err != nil {
+		log.Println("[UserRepository][Update] problem querying to db, err: ", err.Error())
 		return nil, err
 	}
 
@@ -148,6 +154,7 @@ func (repository *UserRepositoryImpl) UpdatePassword(ctx context.Context, tx *sq
 	query := "UPDATE users SET password = $1, updated_at = $2 WHERE email = $3"
 	_, err := tx.ExecContext(ctx, query, user.Password, user.UpdatedAt, user.Email)
 	if err != nil {
+		log.Println("[UserRepository][UpdatePassword] problem querying to db, err: ", err.Error())
 		return err
 	}
 
@@ -158,6 +165,7 @@ func (repository *UserRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, id
 	query := "DELETE FROM users WHERE id_user = $1"
 	_, err := tx.ExecContext(ctx, query, id)
 	if err != nil {
+		log.Println("[UserRepository][Delete] problem querying to db, err: ", err.Error())
 		return err
 	}
 

@@ -7,6 +7,7 @@ import (
 	"github.com/arvians-id/apriori/internal/model"
 	"github.com/arvians-id/apriori/internal/repository"
 	"github.com/arvians-id/apriori/util"
+	"log"
 	"strings"
 	"time"
 )
@@ -32,12 +33,14 @@ func NewTransactionService(
 func (service *TransactionServiceImpl) FindAll(ctx context.Context) ([]*model.Transaction, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
+		log.Println("[TransactionService][FindAll] problem in db transaction, err: ", err.Error())
 		return nil, err
 	}
 	defer util.CommitOrRollback(tx)
 
 	transactions, err := service.TransactionRepository.FindAll(ctx, tx)
 	if err != nil {
+		log.Println("[TransactionService][FindAll][FindAll] problem in getting from repository, err: ", err.Error())
 		return nil, err
 	}
 
@@ -47,12 +50,14 @@ func (service *TransactionServiceImpl) FindAll(ctx context.Context) ([]*model.Tr
 func (service *TransactionServiceImpl) FindByNoTransaction(ctx context.Context, noTransaction string) (*model.Transaction, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
+		log.Println("[TransactionService][FindByNoTransaction] problem in db transaction, err: ", err.Error())
 		return nil, err
 	}
 	defer util.CommitOrRollback(tx)
 
 	transaction, err := service.TransactionRepository.FindByNoTransaction(ctx, tx, noTransaction)
 	if err != nil {
+		log.Println("[TransactionService][FindByNoTransaction][FindByNoTransaction] problem in getting from repository, err: ", err.Error())
 		return nil, err
 	}
 
@@ -62,12 +67,14 @@ func (service *TransactionServiceImpl) FindByNoTransaction(ctx context.Context, 
 func (service *TransactionServiceImpl) Create(ctx context.Context, request *request.CreateTransactionRequest) (*model.Transaction, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
+		log.Println("[TransactionService][Create] problem in db transaction, err: ", err.Error())
 		return nil, err
 	}
 	defer util.CommitOrRollback(tx)
 
 	timeNow, err := time.Parse(util.TimeFormat, time.Now().Format(util.TimeFormat))
 	if err != nil {
+		log.Println("[TransactionService][Create] problem in parsing to time, err: ", err.Error())
 		return nil, err
 	}
 
@@ -81,6 +88,7 @@ func (service *TransactionServiceImpl) Create(ctx context.Context, request *requ
 
 	transaction, err := service.TransactionRepository.Create(ctx, tx, &transactionRequest)
 	if err != nil {
+		log.Println("[TransactionService][Create][Create] problem in getting from repository, err: ", err.Error())
 		return nil, err
 	}
 
@@ -90,6 +98,7 @@ func (service *TransactionServiceImpl) Create(ctx context.Context, request *requ
 func (service *TransactionServiceImpl) CreateByCsv(ctx context.Context, data [][]string) error {
 	tx, err := service.DB.Begin()
 	if err != nil {
+		log.Println("[TransactionService][CreateByCsv] problem in db transaction, err: ", err.Error())
 		return err
 	}
 	defer util.CommitOrRollback(tx)
@@ -108,6 +117,7 @@ func (service *TransactionServiceImpl) CreateByCsv(ctx context.Context, data [][
 
 	err = service.TransactionRepository.CreateByCsv(ctx, tx, transactions)
 	if err != nil {
+		log.Println("[TransactionService][CreateByCsv][CreateByCsv] problem in getting from repository, err: ", err.Error())
 		return err
 	}
 
@@ -117,6 +127,7 @@ func (service *TransactionServiceImpl) CreateByCsv(ctx context.Context, data [][
 func (service *TransactionServiceImpl) Update(ctx context.Context, request *request.UpdateTransactionRequest) (*model.Transaction, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
+		log.Println("[TransactionService][Update] problem in db transaction, err: ", err.Error())
 		return nil, err
 	}
 	defer util.CommitOrRollback(tx)
@@ -124,11 +135,13 @@ func (service *TransactionServiceImpl) Update(ctx context.Context, request *requ
 	// Find Transaction by number transaction
 	transaction, err := service.TransactionRepository.FindByNoTransaction(ctx, tx, request.NoTransaction)
 	if err != nil {
+		log.Println("[TransactionService][Update][FindByNoTransaction] problem in getting from repository, err: ", err.Error())
 		return nil, err
 	}
 
 	timeNow, err := time.Parse(util.TimeFormat, time.Now().Format(util.TimeFormat))
 	if err != nil {
+		log.Println("[TransactionService][Update] problem in parsing to time, err: ", err.Error())
 		return nil, err
 	}
 
@@ -139,6 +152,7 @@ func (service *TransactionServiceImpl) Update(ctx context.Context, request *requ
 
 	_, err = service.TransactionRepository.Update(ctx, tx, transaction)
 	if err != nil {
+		log.Println("[TransactionService][Update][Update] problem in getting from repository, err: ", err.Error())
 		return nil, err
 	}
 
@@ -148,17 +162,20 @@ func (service *TransactionServiceImpl) Update(ctx context.Context, request *requ
 func (service *TransactionServiceImpl) Delete(ctx context.Context, noTransaction string) error {
 	tx, err := service.DB.Begin()
 	if err != nil {
+		log.Println("[TransactionService][Delete] problem in db transaction, err: ", err.Error())
 		return err
 	}
 	defer util.CommitOrRollback(tx)
 
 	transaction, err := service.TransactionRepository.FindByNoTransaction(ctx, tx, noTransaction)
 	if err != nil {
+		log.Println("[TransactionService][Delete][FindByNoTransaction] problem in getting from repository, err: ", err.Error())
 		return err
 	}
 
 	err = service.TransactionRepository.Delete(ctx, tx, transaction.NoTransaction)
 	if err != nil {
+		log.Println("[TransactionService][Delete][Delete] problem in getting from repository, err: ", err.Error())
 		return err
 	}
 
@@ -168,12 +185,14 @@ func (service *TransactionServiceImpl) Delete(ctx context.Context, noTransaction
 func (service *TransactionServiceImpl) Truncate(ctx context.Context) error {
 	tx, err := service.DB.Begin()
 	if err != nil {
+		log.Println("[TransactionService][Truncate] problem in db transaction, err: ", err.Error())
 		return err
 	}
 	defer util.CommitOrRollback(tx)
 
 	err = service.TransactionRepository.Truncate(ctx, tx)
 	if err != nil {
+		log.Println("[TransactionService][Truncate][Truncate] problem in getting from repository, err: ", err.Error())
 		return err
 	}
 

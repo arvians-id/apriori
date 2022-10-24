@@ -19,12 +19,13 @@ func (repository *NotificationRepositoryImpl) FindAll(ctx context.Context, tx *s
 	query := `SELECT n.*, u.name, u.email FROM notifications n LEFT JOIN users u ON u.id_user = n.user_id ORDER BY n.created_at DESC`
 	rows, err := tx.QueryContext(ctx, query)
 	if err != nil {
+		log.Println("[NotificationRepository][FindAll] problem querying to db, err: ", err.Error())
 		return nil, err
 	}
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
 		if err != nil {
-			log.Println(err)
+			log.Println("[NotificationRepository][FindAll] problem closing query from db, err: ", err.Error())
 			return
 		}
 	}(rows)
@@ -46,6 +47,7 @@ func (repository *NotificationRepositoryImpl) FindAll(ctx context.Context, tx *s
 			&notification.User.Email,
 		)
 		if err != nil {
+			log.Println("[NotificationRepository][FindAll] problem with scanning db row, err: ", err.Error())
 			return nil, err
 		}
 
@@ -59,12 +61,13 @@ func (repository *NotificationRepositoryImpl) FindAllByUserId(ctx context.Contex
 	query := `SELECT * FROM notifications WHERE user_id = $1 ORDER BY created_at DESC`
 	rows, err := tx.QueryContext(ctx, query, userId)
 	if err != nil {
+		log.Println("[NotificationRepository][FindAllByUserId] problem querying to db, err: ", err.Error())
 		return nil, err
 	}
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
 		if err != nil {
-			log.Println(err)
+			log.Println("[NotificationRepository][FindAllByUserId] problem closing query from db, err: ", err.Error())
 			return
 		}
 	}(rows)
@@ -82,6 +85,7 @@ func (repository *NotificationRepositoryImpl) FindAllByUserId(ctx context.Contex
 			&notification.CreatedAt,
 		)
 		if err != nil {
+			log.Println("[NotificationRepository][FindAllByUserId] problem with scanning db row, err: ", err.Error())
 			return nil, err
 		}
 
@@ -106,6 +110,7 @@ func (repository *NotificationRepositoryImpl) Create(ctx context.Context, tx *sq
 	)
 	err := row.Scan(&id)
 	if err != nil {
+		log.Println("[NotificationRepository][Create] problem with scanning db row, err: ", err.Error())
 		return nil, err
 	}
 
@@ -118,6 +123,7 @@ func (repository *NotificationRepositoryImpl) Mark(ctx context.Context, tx *sql.
 	query := `UPDATE notifications SET is_read = TRUE WHERE id_notification = $1`
 	_, err := tx.ExecContext(ctx, query, id)
 	if err != nil {
+		log.Println("[NotificationRepository][Mark] problem querying to db, err: ", err.Error())
 		return err
 	}
 
@@ -128,6 +134,7 @@ func (repository *NotificationRepositoryImpl) MarkAll(ctx context.Context, tx *s
 	query := `UPDATE notifications SET is_read = TRUE WHERE user_id = $1`
 	_, err := tx.ExecContext(ctx, query, userId)
 	if err != nil {
+		log.Println("[NotificationRepository][MarkAll] problem querying to db, err: ", err.Error())
 		return err
 	}
 

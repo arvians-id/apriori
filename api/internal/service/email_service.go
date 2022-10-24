@@ -24,7 +24,8 @@ func (service *EmailServiceImpl) SendEmailWithText(toEmail string, subject strin
 
 		port, err := strconv.Atoi(os.Getenv("MAIL_PORT"))
 		if err != nil {
-			log.Fatal(err)
+			log.Println("[EmailService][SendEmailWithText] problem in conversion string to integer, err: ", err.Error())
+			return
 		}
 		dialer := gomail.NewDialer(
 			os.Getenv("MAIL_HOST"),
@@ -35,7 +36,8 @@ func (service *EmailServiceImpl) SendEmailWithText(toEmail string, subject strin
 
 		err = dialer.DialAndSend(mailer)
 		if err != nil {
-			log.Fatal(err)
+			log.Println("[EmailService][SendEmailWithText] problem in mail sender, err: ", err.Error())
+			return
 		}
 	}()
 

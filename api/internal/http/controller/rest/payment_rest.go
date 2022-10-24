@@ -8,6 +8,7 @@ import (
 	"github.com/arvians-id/apriori/internal/service"
 	"github.com/gin-gonic/gin"
 	"github.com/veritrans/go-midtrans"
+	"log"
 )
 
 type PaymentController struct {
@@ -136,9 +137,20 @@ func (controller *PaymentController) Notification(c *gin.Context) {
 		return
 	}
 
-	encode, _ := json.Marshal(payload)
+	encode, err := json.Marshal(payload)
+	if err != nil {
+		log.Println("[PaymentController][Notification] unable to marshal json, err: ", err.Error())
+		response.ReturnErrorBadRequest(c, err, nil)
+		return
+	}
+
 	resArray := make(map[string]interface{})
 	err = json.Unmarshal(encode, &resArray)
+	if err != nil {
+		log.Println("[PaymentController][Notification] unable to unmarshal json, err: ", err.Error())
+		response.ReturnErrorBadRequest(c, err, nil)
+		return
+	}
 
 	err = controller.PaymentService.CreateOrUpdate(c.Request.Context(), resArray)
 	if err != nil {

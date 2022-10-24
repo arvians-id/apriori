@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"github.com/arvians-id/apriori/internal/model"
 	"github.com/arvians-id/apriori/internal/repository"
+	"log"
 )
 
 type PasswordResetRepositoryImpl struct {
@@ -20,6 +21,7 @@ func (repository *PasswordResetRepositoryImpl) FindByEmailAndToken(ctx context.C
 
 	err := row.Scan(&passwordReset.Email, &passwordReset.Token, &passwordReset.Expired)
 	if err != nil {
+		log.Println("[PasswordResetRepository][FindByEmailAndToken] problem with scanning db row, err: ", err.Error())
 		return nil, err
 	}
 
@@ -34,6 +36,7 @@ func (repository *PasswordResetRepositoryImpl) FindByEmail(ctx context.Context, 
 	var passwordReset model.PasswordReset
 	err := row.Scan(&passwordReset.Email, &passwordReset.Token, &passwordReset.Expired)
 	if err != nil {
+		log.Println("[PasswordResetRepository][FindByEmail] problem with scanning db row, err: ", err.Error())
 		return nil, err
 	}
 
@@ -44,6 +47,7 @@ func (repository *PasswordResetRepositoryImpl) Create(ctx context.Context, tx *s
 	query := "INSERT INTO password_resets (email,token,expired) VALUES($1,$2,$3)"
 	_, err := tx.ExecContext(ctx, query, passwordReset.Email, passwordReset.Token, passwordReset.Expired)
 	if err != nil {
+		log.Println("[PasswordResetRepository][Create] problem querying to db, err: ", err.Error())
 		return nil, err
 	}
 
@@ -54,6 +58,7 @@ func (repository *PasswordResetRepositoryImpl) Update(ctx context.Context, tx *s
 	query := "UPDATE password_resets SET token = $1, expired = $2 WHERE email = $3"
 	_, err := tx.ExecContext(ctx, query, passwordReset.Token, passwordReset.Expired, passwordReset.Email)
 	if err != nil {
+		log.Println("[PasswordResetRepository][Update] problem querying to db, err: ", err.Error())
 		return nil, err
 	}
 
@@ -64,6 +69,7 @@ func (repository *PasswordResetRepositoryImpl) Delete(ctx context.Context, tx *s
 	query := "DELETE FROM password_resets WHERE email = $1"
 	_, err := tx.ExecContext(ctx, query, email)
 	if err != nil {
+		log.Println("[PasswordResetRepository][Delete] problem querying to db, err: ", err.Error())
 		return err
 	}
 
@@ -74,6 +80,7 @@ func (repository *PasswordResetRepositoryImpl) Truncate(ctx context.Context, tx 
 	query := `DELETE FROM password_resets`
 	_, err := tx.ExecContext(ctx, query)
 	if err != nil {
+		log.Println("[PasswordResetRepository][Truncate] problem querying to db, err: ", err.Error())
 		return err
 	}
 

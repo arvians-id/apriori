@@ -57,11 +57,13 @@ func (service *StorageServiceImpl) UploadFile(c *gin.Context, image *multipart.F
 
 		path, err := util.GetPath("/assets/", newFileNames)
 		if err != nil {
-			log.Fatal(err)
+			log.Println("[StorageService][UploadFile] problem in getting path, err: ", err.Error())
+			return
 		}
 		err = c.SaveUploadedFile(image, path)
 		if err != nil {
-			log.Fatal(err)
+			log.Println("[StorageService][UploadFile] problem in uploading file, err: ", err.Error())
+			return
 		}
 		newFileName <- newFileNames
 	}()
@@ -77,7 +79,8 @@ func (service *StorageServiceImpl) WaitUploadFileS3(file multipart.File, header 
 
 		sess, err := service.ConnectToAWS()
 		if err != nil {
-			log.Fatal(err)
+			log.Println("[StorageService][WaitUploadFileS3] problem in connecting to aws, err: ", err.Error())
+			return
 		}
 		headerFileName := strings.Split(header.Filename, ".")
 		fileNames := util.RandomString(10) + "." + headerFileName[len(headerFileName)-1]
@@ -94,7 +97,8 @@ func (service *StorageServiceImpl) WaitUploadFileS3(file multipart.File, header 
 		})
 
 		if err != nil {
-			log.Fatal(err)
+			log.Println("[StorageService][WaitUploadFileS3] problem in uploading to s3, err: ", err.Error())
+			return
 		}
 	}()
 
@@ -107,7 +111,8 @@ func (service *StorageServiceImpl) UploadFileS3(file multipart.File, header *mul
 	go func() {
 		sess, err := service.ConnectToAWS()
 		if err != nil {
-			log.Fatal(err)
+			log.Println("[StorageService][UploadFileS3] problem in connecting to aws, err: ", err.Error())
+			return
 		}
 		headerFileName := strings.Split(header.Filename, ".")
 		fileNames := util.RandomString(10) + "." + headerFileName[len(headerFileName)-1]
@@ -124,7 +129,8 @@ func (service *StorageServiceImpl) UploadFileS3(file multipart.File, header *mul
 		})
 
 		if err != nil {
-			log.Fatal(err)
+			log.Println("[StorageService][UploadFileS3] problem in uploading to s3, err: ", err.Error())
+			return
 		}
 	}()
 
@@ -135,24 +141,28 @@ func (service *StorageServiceImpl) UploadFileS3(file multipart.File, header *mul
 func (service *StorageServiceImpl) UploadFileS3GraphQL(fileUpload graphql.Upload, initFileName string) (string, error) {
 	sess, err := service.ConnectToAWS()
 	if err != nil {
+		log.Println("[StorageService][UploadFileS3GraphQL] problem in connecting to aws, err: ", err.Error())
 		return "", err
 	}
 
 	// Read the file
 	stream, err := ioutil.ReadAll(fileUpload.File)
 	if err != nil {
+		log.Println("[StorageService][UploadFileS3GraphQL] problem in reading data, err: ", err.Error())
 		return "", err
 	}
 
 	// then write it to a file
 	err = ioutil.WriteFile(initFileName, stream, 0644)
 	if err != nil {
+		log.Println("[StorageService][UploadFileS3GraphQL] problem in writing to file, err: ", err.Error())
 		return "", err
 	}
 
 	// Open the file
 	file, err := os.Open(initFileName)
 	if err != nil {
+		log.Println("[StorageService][UploadFileS3GraphQL] problem in opening file, err: ", err.Error())
 		return "", err
 	}
 	defer file.Close()
@@ -172,6 +182,7 @@ func (service *StorageServiceImpl) UploadFileS3GraphQL(fileUpload graphql.Upload
 		Body:   fileBytes,
 	})
 	if err != nil {
+		log.Println("[StorageService][UploadFileS3GraphQL] problem in uploading to s3, err: ", err.Error())
 		return "", err
 	}
 

@@ -11,6 +11,7 @@ import (
 	"github.com/arvians-id/apriori/internal/repository"
 	"github.com/arvians-id/apriori/util"
 	"golang.org/x/crypto/bcrypt"
+	"log"
 	"strconv"
 	"time"
 )
@@ -36,6 +37,7 @@ func NewPasswordResetService(
 func (service *PasswordResetServiceImpl) CreateOrUpdateByEmail(ctx context.Context, email string) (*model.PasswordReset, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
+		log.Println("[PasswordResetService][CreateOrUpdateByEmail] problem in db transaction, err: ", err.Error())
 		return nil, err
 	}
 	defer util.CommitOrRollback(tx)
@@ -53,6 +55,7 @@ func (service *PasswordResetServiceImpl) CreateOrUpdateByEmail(ctx context.Conte
 	// Check if email is exists in table users
 	user, err := service.UserRepository.FindByEmail(ctx, tx, email)
 	if err != nil {
+		log.Println("[NotificationService][CreateOrUpdateByEmail][FindByEmail] problem in getting from repository, err: ", err.Error())
 		return nil, err
 	}
 
@@ -62,6 +65,7 @@ func (service *PasswordResetServiceImpl) CreateOrUpdateByEmail(ctx context.Conte
 		// Create new data if not exists
 		passwordReset, err := service.PasswordResetRepository.Create(ctx, tx, &passwordResetRequest)
 		if err != nil {
+			log.Println("[NotificationService][CreateOrUpdateByEmail][Create] problem in getting from repository, err: ", err.Error())
 			return nil, err
 		}
 
@@ -71,6 +75,7 @@ func (service *PasswordResetServiceImpl) CreateOrUpdateByEmail(ctx context.Conte
 	// Update data if exists
 	passwordReset, err := service.PasswordResetRepository.Update(ctx, tx, &passwordResetRequest)
 	if err != nil {
+		log.Println("[NotificationService][CreateOrUpdateByEmail][Update] problem in getting from repository, err: ", err.Error())
 		return nil, err
 	}
 
@@ -80,6 +85,7 @@ func (service *PasswordResetServiceImpl) CreateOrUpdateByEmail(ctx context.Conte
 func (service *PasswordResetServiceImpl) Verify(ctx context.Context, request *request.UpdateResetPasswordUserRequest) error {
 	tx, err := service.DB.Begin()
 	if err != nil {
+		log.Println("[PasswordResetService][Verify] problem in db transaction, err: ", err.Error())
 		return err
 	}
 	defer util.CommitOrRollback(tx)
@@ -92,6 +98,7 @@ func (service *PasswordResetServiceImpl) Verify(ctx context.Context, request *re
 
 	reset, err := service.PasswordResetRepository.FindByEmailAndToken(ctx, tx, &passwordResetRequest)
 	if err != nil {
+		log.Println("[NotificationService][Verify][FindByEmailAndToken] problem in getting from repository, err: ", err.Error())
 		return err
 	}
 
@@ -99,9 +106,10 @@ func (service *PasswordResetServiceImpl) Verify(ctx context.Context, request *re
 	now := time.Now()
 
 	// if expired
-	if now.Unix() > int64(reset.Expired) {
+	if now.Unix() > reset.Expired {
 		err := service.PasswordResetRepository.Delete(ctx, tx, reset.Email)
 		if err != nil {
+			log.Println("[NotificationService][Verify][Delete] problem in getting from repository, err: ", err.Error())
 			return err
 		}
 
@@ -112,17 +120,20 @@ func (service *PasswordResetServiceImpl) Verify(ctx context.Context, request *re
 	// Check if email is exists in table users
 	user, err := service.UserRepository.FindByEmail(ctx, tx, reset.Email)
 	if err != nil {
+		log.Println("[NotificationService][Verify][FindByEmail] problem in getting from repository, err: ", err.Error())
 		return err
 	}
 
 	// Update the password
 	timeNow, err := time.Parse(util.TimeFormat, now.Format(util.TimeFormat))
 	if err != nil {
+		log.Println("[NotificationService][Verify] problem in parsing to time, err: ", err.Error())
 		return err
 	}
 
 	password, err := bcrypt.GenerateFromPassword([]byte(request.Password), bcrypt.DefaultCost)
 	if err != nil {
+		log.Println("[NotificationService][Verify] problem in generating password hashed, err: ", err.Error())
 		return err
 	}
 
@@ -131,12 +142,14 @@ func (service *PasswordResetServiceImpl) Verify(ctx context.Context, request *re
 
 	err = service.UserRepository.UpdatePassword(ctx, tx, user)
 	if err != nil {
+		log.Println("[NotificationService][Verify][UpdatePassword] problem in getting from repository, err: ", err.Error())
 		return err
 	}
 
 	// Delete data from table password_reset
 	err = service.PasswordResetRepository.Delete(ctx, tx, user.Email)
 	if err != nil {
+		log.Println("[NotificationService][Verify][Delete] problem in getting from repository, err: ", err.Error())
 		return err
 	}
 

@@ -21,12 +21,13 @@ func (repository *TransactionRepositoryImpl) FindAllItemSet(ctx context.Context,
 			  WHERE DATE(created_at) >= $1 AND DATE(created_at) <= $2`
 	rows, err := tx.QueryContext(ctx, query, startDate, endDate)
 	if err != nil {
+		log.Println("[TransactionRepository][FindAllItemSet] problem querying to db, err: ", err.Error())
 		return nil, err
 	}
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
 		if err != nil {
-			log.Println(err)
+			log.Println("[TransactionRepository][FindAllItemSet] problem closing query from db, err: ", err.Error())
 			return
 		}
 	}(rows)
@@ -44,6 +45,7 @@ func (repository *TransactionRepositoryImpl) FindAllItemSet(ctx context.Context,
 		)
 
 		if err != nil {
+			log.Println("[TransactionRepository][FindAllItemSet] problem with scanning db row, err: ", err.Error())
 			return nil, err
 		}
 
@@ -57,12 +59,13 @@ func (repository *TransactionRepositoryImpl) FindAll(ctx context.Context, tx *sq
 	query := `SELECT * FROM transactions ORDER BY id_transaction DESC`
 	rows, err := tx.QueryContext(ctx, query)
 	if err != nil {
+		log.Println("[TransactionRepository][FindAll] problem querying to db, err: ", err.Error())
 		return nil, err
 	}
 	defer func(rows *sql.Rows) {
 		err := rows.Close()
 		if err != nil {
-			log.Println(err)
+			log.Println("[TransactionRepository][FindAll] problem closing query from db, err: ", err.Error())
 			return
 		}
 	}(rows)
@@ -79,6 +82,7 @@ func (repository *TransactionRepositoryImpl) FindAll(ctx context.Context, tx *sq
 			&transaction.UpdatedAt,
 		)
 		if err != nil {
+			log.Println("[TransactionRepository][FindAll] problem with scanning db row, err: ", err.Error())
 			return nil, err
 		}
 
@@ -102,6 +106,7 @@ func (repository *TransactionRepositoryImpl) FindByNoTransaction(ctx context.Con
 		&transaction.UpdatedAt,
 	)
 	if err != nil {
+		log.Println("[TransactionRepository][FindByNoTransaction] problem with scanning db row, err: ", err.Error())
 		return nil, err
 	}
 
@@ -122,6 +127,7 @@ func (repository *TransactionRepositoryImpl) CreateByCsv(ctx context.Context, tx
 			transaction.UpdatedAt,
 		)
 		if err != nil {
+			log.Println("[TransactionRepository][CreateByCsv] problem querying to db, err: ", err.Error())
 			return err
 		}
 	}
@@ -143,6 +149,7 @@ func (repository *TransactionRepositoryImpl) Create(ctx context.Context, tx *sql
 	)
 	err := row.Scan(&id)
 	if err != nil {
+		log.Println("[TransactionRepository][Create] problem with scanning db row, err: ", err.Error())
 		return nil, err
 	}
 
@@ -162,6 +169,7 @@ func (repository *TransactionRepositoryImpl) Update(ctx context.Context, tx *sql
 		transaction.NoTransaction,
 	)
 	if err != nil {
+		log.Println("[TransactionRepository][Update] problem querying to db, err: ", err.Error())
 		return nil, err
 	}
 
@@ -172,6 +180,7 @@ func (repository *TransactionRepositoryImpl) Delete(ctx context.Context, tx *sql
 	query := "DELETE FROM transactions WHERE no_transaction = $1"
 	_, err := tx.ExecContext(ctx, query, noTransaction)
 	if err != nil {
+		log.Println("[TransactionRepository][Delete] problem querying to db, err: ", err.Error())
 		return err
 	}
 
@@ -182,6 +191,7 @@ func (repository *TransactionRepositoryImpl) Truncate(ctx context.Context, tx *s
 	query := `DELETE FROM transactions`
 	_, err := tx.ExecContext(ctx, query)
 	if err != nil {
+		log.Println("[TransactionRepository][Truncate] problem querying to db, err: ", err.Error())
 		return err
 	}
 

@@ -33,6 +33,7 @@ func NewCategoryCacheService(categoryRepository *repository.CategoryRepository, 
 func (cache *CategoryCacheServiceImpl) FindAll(ctx context.Context) ([]*model.Category, error) {
 	tx, err := cache.DB.Begin()
 	if err != nil {
+		log.Println("[CategoryCacheService][FindAll] problem in db transaction, err: ", err.Error())
 		return nil, err
 	}
 	defer util.CommitOrRollback(tx)
@@ -42,6 +43,7 @@ func (cache *CategoryCacheServiceImpl) FindAll(ctx context.Context) ([]*model.Ca
 		var categories []*model.Category
 		err = json.Unmarshal(categoriesCache, &categories)
 		if err != nil {
+			log.Println("[CategoryCacheService][FindAll] unable to unmarshal json, err: ", err.Error())
 			return nil, err
 		}
 
@@ -50,11 +52,13 @@ func (cache *CategoryCacheServiceImpl) FindAll(ctx context.Context) ([]*model.Ca
 
 	categories, err := cache.CategoryRepository.FindAll(ctx, tx)
 	if err != nil {
+		log.Println("[CategoryCacheService][FindAll][FindAll] problem in getting from repository, err: ", err.Error())
 		return nil, err
 	}
 
 	err = cache.Redis.Set(ctx, "categories", categories)
 	if err != nil {
+		log.Println("[CategoryCacheService][FindAll][Set] unable to set value to redis cache, err: ", err.Error())
 		return nil, err
 	}
 
@@ -64,6 +68,7 @@ func (cache *CategoryCacheServiceImpl) FindAll(ctx context.Context) ([]*model.Ca
 func (cache *CategoryCacheServiceImpl) FindById(ctx context.Context, id int) (*model.Category, error) {
 	tx, err := cache.DB.Begin()
 	if err != nil {
+		log.Println("[CategoryCacheService][FindById] problem in db transaction, err: ", err.Error())
 		return nil, err
 	}
 	defer util.CommitOrRollback(tx)
@@ -74,6 +79,7 @@ func (cache *CategoryCacheServiceImpl) FindById(ctx context.Context, id int) (*m
 		var category model.Category
 		err = json.Unmarshal(categoryCache, &category)
 		if err != nil {
+			log.Println("[CategoryCacheService][FindById] unable to unmarshal json, err: ", err.Error())
 			return nil, err
 		}
 
@@ -82,11 +88,13 @@ func (cache *CategoryCacheServiceImpl) FindById(ctx context.Context, id int) (*m
 
 	category, err := cache.CategoryRepository.FindById(ctx, tx, id)
 	if err != nil {
+		log.Println("[CategoryCacheService][FindById][FindById] problem in getting from repository, err: ", err.Error())
 		return nil, err
 	}
 
 	err = cache.Redis.Set(ctx, key, category)
 	if err != nil {
+		log.Println("[CategoryCacheService][FindById][Set] unable to set value to redis cache, err: ", err.Error())
 		return nil, err
 	}
 
@@ -96,12 +104,14 @@ func (cache *CategoryCacheServiceImpl) FindById(ctx context.Context, id int) (*m
 func (cache *CategoryCacheServiceImpl) Create(ctx context.Context, request *request.CreateCategoryRequest) (*model.Category, error) {
 	tx, err := cache.DB.Begin()
 	if err != nil {
+		log.Println("[CategoryCacheService][Create] problem in db transaction, err: ", err.Error())
 		return nil, err
 	}
 	defer util.CommitOrRollback(tx)
 
 	timeNow, err := time.Parse(util.TimeFormat, time.Now().Format(util.TimeFormat))
 	if err != nil {
+		log.Println("[CategoryCacheService][Create] problem in parsing to time, err: ", err.Error())
 		return nil, err
 	}
 
@@ -113,12 +123,13 @@ func (cache *CategoryCacheServiceImpl) Create(ctx context.Context, request *requ
 
 	category, err := cache.CategoryRepository.Create(ctx, tx, &categoryRequest)
 	if err != nil {
+		log.Println("[CategoryCacheService][Create][Create] problem in getting from repository, err: ", err.Error())
 		return nil, err
 	}
 
 	err = cache.Redis.Del(ctx, "categories")
 	if err != nil {
-		log.Println(err)
+		log.Println("[CategoryCacheService][Create][Del] unable to deleting specific key cache, err: ", err.Error())
 	}
 
 	return category, nil
@@ -128,17 +139,20 @@ func (cache *CategoryCacheServiceImpl) Create(ctx context.Context, request *requ
 func (cache *CategoryCacheServiceImpl) Update(ctx context.Context, request *request.UpdateCategoryRequest) (*model.Category, error) {
 	tx, err := cache.DB.Begin()
 	if err != nil {
+		log.Println("[CategoryCacheService][Update] problem in db transaction, err: ", err.Error())
 		return nil, err
 	}
 	defer util.CommitOrRollback(tx)
 
 	category, err := cache.CategoryRepository.FindById(ctx, tx, request.IdCategory)
 	if err != nil {
+		log.Println("[CategoryCacheService][Update][FindById] problem in getting from repository, err: ", err.Error())
 		return nil, err
 	}
 
 	timeNow, err := time.Parse(util.TimeFormat, time.Now().Format(util.TimeFormat))
 	if err != nil {
+		log.Println("[CategoryCacheService][Update] problem in parsing to time, err: ", err.Error())
 		return nil, err
 	}
 	category.Name = util.UpperWords(request.Name)
@@ -146,13 +160,14 @@ func (cache *CategoryCacheServiceImpl) Update(ctx context.Context, request *requ
 
 	_, err = cache.CategoryRepository.Update(ctx, tx, category)
 	if err != nil {
+		log.Println("[CategoryCacheService][Update][Update] problem in getting from repository, err: ", err.Error())
 		return nil, err
 	}
 
 	key := fmt.Sprintf("category:%d", category.IdCategory)
 	err = cache.Redis.Del(ctx, "categories", key)
 	if err != nil {
-		log.Println(err)
+		log.Println("[CategoryCacheService][Update][Del] unable to deleting specific key cache, err: ", err.Error())
 	}
 
 	return category, nil
@@ -161,24 +176,27 @@ func (cache *CategoryCacheServiceImpl) Update(ctx context.Context, request *requ
 func (cache *CategoryCacheServiceImpl) Delete(ctx context.Context, id int) error {
 	tx, err := cache.DB.Begin()
 	if err != nil {
+		log.Println("[CategoryCacheService][Delete] problem in db transaction, err: ", err.Error())
 		return err
 	}
 	defer util.CommitOrRollback(tx)
 
 	category, err := cache.CategoryRepository.FindById(ctx, tx, id)
 	if err != nil {
+		log.Println("[CategoryCacheService][Delete][FindById] problem in getting from repository, err: ", err.Error())
 		return err
 	}
 
 	err = cache.CategoryRepository.Delete(ctx, tx, category.IdCategory)
 	if err != nil {
+		log.Println("[CategoryCacheService][Delete][Delete] problem in getting from repository, err: ", err.Error())
 		return err
 	}
 
 	key := fmt.Sprintf("category:%d", category.IdCategory)
 	err = cache.Redis.Del(ctx, "categories", key)
 	if err != nil {
-		log.Println(err)
+		log.Println("[CategoryCacheService][Delete][Del] unable to deleting specific key cache, err: ", err.Error())
 	}
 
 	return nil

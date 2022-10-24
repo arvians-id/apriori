@@ -7,6 +7,7 @@ import (
 	"github.com/arvians-id/apriori/internal/model"
 	"github.com/arvians-id/apriori/internal/repository"
 	"github.com/arvians-id/apriori/util"
+	"log"
 	"strings"
 	"time"
 )
@@ -35,12 +36,14 @@ func NewProductService(
 func (service *ProductServiceImpl) FindAllByAdmin(ctx context.Context) ([]*model.Product, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
+		log.Println("[ProductService][FindAllByAdmin] problem in db transaction, err: ", err.Error())
 		return nil, err
 	}
 	defer util.CommitOrRollback(tx)
 
 	products, err := service.ProductRepository.FindAllByAdmin(ctx, tx)
 	if err != nil {
+		log.Println("[ProductService][FindAllByAdmin][FindAllByAdmin] problem in getting from repository, err: ", err.Error())
 		return nil, err
 	}
 
@@ -50,12 +53,14 @@ func (service *ProductServiceImpl) FindAllByAdmin(ctx context.Context) ([]*model
 func (service *ProductServiceImpl) FindAll(ctx context.Context, search string, category string) ([]*model.Product, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
+		log.Println("[ProductService][FindAll] problem in db transaction, err: ", err.Error())
 		return nil, err
 	}
 	defer util.CommitOrRollback(tx)
 
 	products, err := service.ProductRepository.FindAll(ctx, tx, search, category)
 	if err != nil {
+		log.Println("[ProductService][FindAll][FindAll] problem in getting from repository, err: ", err.Error())
 		return nil, err
 	}
 
@@ -65,12 +70,14 @@ func (service *ProductServiceImpl) FindAll(ctx context.Context, search string, c
 func (service *ProductServiceImpl) FindAllBySimilarCategory(ctx context.Context, code string) ([]*model.Product, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
+		log.Println("[ProductService][FindAllBySimilarCategory] problem in db transaction, err: ", err.Error())
 		return nil, err
 	}
 	defer util.CommitOrRollback(tx)
 
 	product, err := service.ProductRepository.FindByCode(ctx, tx, code)
 	if err != nil {
+		log.Println("[ProductService][FindAllBySimilarCategory][FindByCode] problem in getting from repository, err: ", err.Error())
 		return nil, err
 	}
 
@@ -78,6 +85,7 @@ func (service *ProductServiceImpl) FindAllBySimilarCategory(ctx context.Context,
 	categoryString := strings.Join(categoryArray, "|")
 	productCategories, err := service.ProductRepository.FindAllBySimilarCategory(ctx, tx, categoryString)
 	if err != nil {
+		log.Println("[ProductService][FindAllBySimilarCategory][FindAllBySimilarCategory] problem in getting from repository, err: ", err.Error())
 		return nil, err
 	}
 
@@ -94,17 +102,20 @@ func (service *ProductServiceImpl) FindAllBySimilarCategory(ctx context.Context,
 func (service *ProductServiceImpl) FindAllRecommendation(ctx context.Context, code string) ([]*model.ProductRecommendation, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
+		log.Println("[ProductService][FindAllRecommendation] problem in db transaction, err: ", err.Error())
 		return nil, err
 	}
 	defer util.CommitOrRollback(tx)
 
 	product, err := service.ProductRepository.FindByCode(ctx, tx, code)
 	if err != nil {
+		log.Println("[ProductService][FindAllRecommendation][FindByCode] problem in getting from repository, err: ", err.Error())
 		return nil, err
 	}
 
 	apriories, err := service.AprioriRepository.FindAllByActive(ctx, tx)
 	if err != nil {
+		log.Println("[ProductService][FindAllRecommendation][FindAllByActive] problem in getting from repository, err: ", err.Error())
 		return nil, err
 	}
 
@@ -143,12 +154,14 @@ func (service *ProductServiceImpl) FindAllRecommendation(ctx context.Context, co
 func (service *ProductServiceImpl) FindByCode(ctx context.Context, code string) (*model.Product, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
+		log.Println("[ProductService][FindByCode] problem in db transaction, err: ", err.Error())
 		return nil, err
 	}
 	defer util.CommitOrRollback(tx)
 
 	productResponse, err := service.ProductRepository.FindByCode(ctx, tx, code)
 	if err != nil {
+		log.Println("[ProductService][FindByCode][FindByCode] problem in getting from repository, err: ", err.Error())
 		return nil, err
 	}
 
@@ -158,12 +171,14 @@ func (service *ProductServiceImpl) FindByCode(ctx context.Context, code string) 
 func (service *ProductServiceImpl) Create(ctx context.Context, request *request.CreateProductRequest) (*model.Product, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
+		log.Println("[ProductService][Create] problem in db transaction, err: ", err.Error())
 		return nil, err
 	}
 	defer util.CommitOrRollback(tx)
 
 	timeNow, err := time.Parse(util.TimeFormat, time.Now().Format(util.TimeFormat))
 	if err != nil {
+		log.Println("[ProductService][Create] problem in parsing to time, err: ", err.Error())
 		return nil, err
 	}
 	if request.Image == "" {
@@ -185,6 +200,7 @@ func (service *ProductServiceImpl) Create(ctx context.Context, request *request.
 
 	productResponse, err := service.ProductRepository.Create(ctx, tx, &productRequest)
 	if err != nil {
+		log.Println("[ProductService][Create][Create] problem in getting from repository, err: ", err.Error())
 		return nil, err
 	}
 
@@ -194,17 +210,20 @@ func (service *ProductServiceImpl) Create(ctx context.Context, request *request.
 func (service *ProductServiceImpl) Update(ctx context.Context, request *request.UpdateProductRequest) (*model.Product, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
+		log.Println("[ProductService][Update] problem in db transaction, err: ", err.Error())
 		return nil, err
 	}
 	defer util.CommitOrRollback(tx)
 
 	product, err := service.ProductRepository.FindByCode(ctx, tx, request.Code)
 	if err != nil {
+		log.Println("[ProductService][Update][FindByCode] problem in getting from repository, err: ", err.Error())
 		return nil, err
 	}
 
 	timeNow, err := time.Parse(util.TimeFormat, time.Now().Format(util.TimeFormat))
 	if err != nil {
+		log.Println("[ProductService][Update] problem in parsing to time, err: ", err.Error())
 		return nil, err
 	}
 
@@ -221,6 +240,7 @@ func (service *ProductServiceImpl) Update(ctx context.Context, request *request.
 
 	productResponse, err := service.ProductRepository.Update(ctx, tx, product)
 	if err != nil {
+		log.Println("[ProductService][Update][Update] problem in getting from repository, err: ", err.Error())
 		return nil, err
 	}
 
@@ -230,17 +250,20 @@ func (service *ProductServiceImpl) Update(ctx context.Context, request *request.
 func (service *ProductServiceImpl) Delete(ctx context.Context, code string) error {
 	tx, err := service.DB.Begin()
 	if err != nil {
+		log.Println("[ProductService][Delete] problem in db transaction, err: ", err.Error())
 		return err
 	}
 	defer util.CommitOrRollback(tx)
 
 	product, err := service.ProductRepository.FindByCode(ctx, tx, code)
 	if err != nil {
+		log.Println("[ProductService][Delete][FindByCode] problem in getting from repository, err: ", err.Error())
 		return err
 	}
 
 	err = service.ProductRepository.Delete(ctx, tx, product.Code)
 	if err != nil {
+		log.Println("[ProductService][Delete][FindByCode] problem in getting from repository, err: ", err.Error())
 		return err
 	}
 
