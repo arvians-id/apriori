@@ -59,12 +59,12 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 
 	// Setup Service
 	storageService := service.NewStorageService(configuration)
-	userService := service.NewUserService(&userRepository, db)
+	userService := cache.NewUserCacheService(&userRepository, redisLibrary, db)
 	jwtService := service.NewJwtService()
 	emailService := service.NewEmailService()
 	notificationService := service.NewNotificationService(&notificationRepository, &userRepository, &emailService, db)
 	passwordResetService := service.NewPasswordResetService(&passwordRepository, &userRepository, db)
-	productService := service.NewProductService(&productRepository, &storageService, &aprioriRepository, db)
+	productService := cache.NewProductCacheService(&productRepository, &storageService, &aprioriRepository, redisLibrary, db)
 	transactionService := service.NewTransactionService(&transactionRepository, &productRepository, db)
 	aprioriService := service.NewAprioriService(&transactionRepository, storageService, &productRepository, &aprioriRepository, db)
 	paymentService := service.NewPaymentService(configuration, &paymentRepository, &userOrderRepository, &transactionRepository, &notificationService, db)

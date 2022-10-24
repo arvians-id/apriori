@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/arvians-id/apriori/cmd/config"
+	"github.com/arvians-id/apriori/cmd/library/redis"
 	"github.com/arvians-id/apriori/internal/model"
 	repository "github.com/arvians-id/apriori/internal/repository/postgres"
 	"github.com/arvians-id/apriori/test/setup"
@@ -79,6 +80,9 @@ var _ = Describe("User API", func() {
 		// Setup Configuration
 		_, db := setup.ModuleSetup(configuration)
 		defer db.Close()
+
+		cacheService := redis.NewCacheService(configuration)
+		_ = cacheService.FlushDB(context.Background())
 
 		err := setup.TearDownTest(db)
 		if err != nil {
