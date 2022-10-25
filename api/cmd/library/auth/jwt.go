@@ -1,4 +1,4 @@
-package service
+package auth
 
 import (
 	"errors"
@@ -23,14 +23,14 @@ type TokenDetails struct {
 	RtExpires    int64
 }
 
-type JwtServiceImpl struct {
+type JsonWebToken struct {
 	accessSecretKey  string
 	refreshSecretKey string
 	jwtSigningMethod jwt.SigningMethod
 }
 
-func NewJwtService() JwtService {
-	return &JwtServiceImpl{
+func NewJsonWebToken() *JsonWebToken {
+	return &JsonWebToken{
 		accessSecretKey:  getAccessSecretKey(),
 		refreshSecretKey: getRefreshSecretKey(),
 		jwtSigningMethod: jwt.SigningMethodHS256,
@@ -44,7 +44,7 @@ func getRefreshSecretKey() string {
 	return os.Getenv("JWT_SECRET_REFRESH_KEY")
 }
 
-func (service *JwtServiceImpl) GenerateToken(id int, role int, expirationTime time.Time) (*TokenDetails, error) {
+func (auth *JsonWebToken) GenerateToken(id int, role int, expirationTime time.Time) (*TokenDetails, error) {
 	tokens := &TokenDetails{}
 	tokens.AtExpires = expirationTime.Unix()
 	expiredTimeRefresh, err := strconv.Atoi(os.Getenv("JWT_REFRESH_EXPIRED_TIME"))
@@ -63,8 +63,8 @@ func (service *JwtServiceImpl) GenerateToken(id int, role int, expirationTime ti
 		},
 	}
 
-	tokenAt := jwt.NewWithClaims(service.jwtSigningMethod, accessToken)
-	signedAt, err := tokenAt.SignedString([]byte(service.accessSecretKey))
+	tokenAt := jwt.NewWithClaims(auth.jwtSigningMethod, accessToken)
+	signedAt, err := tokenAt.SignedString([]byte(auth.accessSecretKey))
 	if err != nil {
 		log.Println("[JWTService][GenerateToken] problem in first signed string, err: ", err.Error())
 		return nil, err
@@ -80,8 +80,8 @@ func (service *JwtServiceImpl) GenerateToken(id int, role int, expirationTime ti
 		},
 	}
 
-	tokenRt := jwt.NewWithClaims(service.jwtSigningMethod, refreshToken)
-	signedRt, err := tokenRt.SignedString([]byte(service.refreshSecretKey))
+	tokenRt := jwt.NewWithClaims(auth.jwtSigningMethod, refreshToken)
+	signedRt, err := tokenRt.SignedString([]byte(auth.refreshSecretKey))
 	if err != nil {
 		log.Println("[JWTService][GenerateToken] problem in second signed string, err: ", err.Error())
 		return nil, err
@@ -91,19 +91,19 @@ func (service *JwtServiceImpl) GenerateToken(id int, role int, expirationTime ti
 	return tokens, nil
 }
 
-func (service *JwtServiceImpl) RefreshToken(refreshToken string) (*TokenDetails, error) {
+func (auth *JsonWebToken) RefreshToken(refreshToken string) (*TokenDetails, error) {
 	token, err := jwt.Parse(refreshToken, func(token *jwt.Token) (interface{}, error) {
 		method, ok := token.Method.(*jwt.SigningMethodHMAC)
 		if !ok {
 			str := fmt.Sprintf("unexpected signing method %v", token.Header["alg"])
 			log.Println("[JWTService][RefreshToken] problem in refresh token, err: ", str)
 			return nil, errors.New(str)
-		} else if method != service.jwtSigningMethod {
+		} else if method != auth.jwtSigningMethod {
 			str := fmt.Sprintf("unexpected signing method %v", token.Header["alg"])
 			log.Println("[JWTService][RefreshToken] problem in refresh token, err: ", str)
 			return nil, errors.New(str)
 		}
-		return []byte(service.refreshSecretKey), nil
+		return []byte(auth.refreshSecretKey), nil
 	})
 	if err != nil {
 		log.Println("[JWTService][RefreshToken] problem in parsing token, err: ", err.Error())
@@ -131,7 +131,7 @@ func (service *JwtServiceImpl) RefreshToken(refreshToken string) (*TokenDetails,
 		return nil, err
 	}
 
-	tokens, err := service.GenerateToken(id, role, time.Now().Add(time.Duration(expiredTimeAccess)*24*time.Hour))
+	tokens, err := auth.GenerateToken(id, role, time.Now().Add(time.Duration(expiredTimeAccess)*24*time.Hour))
 	if err != nil {
 		log.Println("[JWTService][RefreshToken] problem in getting generate token, err: ", err.Error())
 		return nil, err
@@ -143,18 +143,18 @@ func (service *JwtServiceImpl) RefreshToken(refreshToken string) (*TokenDetails,
 	return tokens, nil
 }
 
-func (service *JwtServiceImpl) ValidateToken(token string) (*jwt.Token, error) {
+func (auth *JsonWebToken) ValidateToken(token string) (*jwt.Token, error) {
 	return jwt.Parse(token, func(token *jwt.Token) (interface{}, error) {
 		method, ok := token.Method.(*jwt.SigningMethodHMAC)
 		if !ok {
 			str := fmt.Sprintf("unexpected signing method %v", token.Header["alg"])
 			log.Println("[JWTService][ValidateToken] problem in validating token, err: ", str)
 			return nil, errors.New(str)
-		} else if method != service.jwtSigningMethod {
+		} else if method != auth.jwtSigningMethod {
 			str := fmt.Sprintf("unexpected signing method %v", token.Header["alg"])
 			log.Println("[JWTService][ValidateToken] problem in validating token, err: ", str)
 			return nil, errors.New(str)
 		}
-		return []byte(service.accessSecretKey), nil
+		return []byte(auth.accessSecretKey), nil
 	})
 }

@@ -2,10 +2,10 @@ package seed
 
 import (
 	"fmt"
-	config2 "github.com/arvians-id/apriori/cmd/config"
+	"github.com/arvians-id/apriori/cmd/config"
 	"github.com/arvians-id/apriori/database/seeder"
 	"github.com/arvians-id/apriori/internal/repository/postgres"
-	service2 "github.com/arvians-id/apriori/internal/service"
+	"github.com/arvians-id/apriori/internal/service"
 	"github.com/spf13/cobra"
 )
 
@@ -69,16 +69,15 @@ func init() {
 
 func productSeeder(totalSeeds int) error {
 	// Setup Configuration
-	configuration := config2.New()
-	db, err := config2.NewPostgreSQL(configuration)
+	configuration := config.New()
+	db, err := config.NewPostgreSQL(configuration)
 	if err != nil {
 		return err
 	}
 
 	productRepository := postgres.NewProductRepository()
 	aprioriRepository := postgres.NewAprioriRepository()
-	storageService := service2.NewStorageService(configuration)
-	productService := service2.NewProductService(&productRepository, &storageService, &aprioriRepository, db)
+	productService := service.NewProductService(&productRepository, &aprioriRepository, db)
 
 	seeder.RegisterSeeder(productService, totalSeeds)
 

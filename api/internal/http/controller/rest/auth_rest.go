@@ -3,6 +3,7 @@ package rest
 import (
 	"errors"
 	"fmt"
+	"github.com/arvians-id/apriori/cmd/library/auth"
 	"github.com/arvians-id/apriori/internal/http/middleware"
 	"github.com/arvians-id/apriori/internal/http/presenter/request"
 	"github.com/arvians-id/apriori/internal/http/presenter/response"
@@ -18,22 +19,22 @@ import (
 
 type AuthController struct {
 	UserService          service.UserService
-	JwtService           service.JwtService
 	EmailService         service.EmailService
 	PasswordResetService service.PasswordResetService
+	Jwt                  auth.JsonWebToken
 }
 
 func NewAuthController(
 	userService *service.UserService,
-	jwtService *service.JwtService,
 	emailService *service.EmailService,
 	passwordResetService *service.PasswordResetService,
+	jwt *auth.JsonWebToken,
 ) *AuthController {
 	return &AuthController{
 		UserService:          *userService,
-		JwtService:           *jwtService,
 		EmailService:         *emailService,
 		PasswordResetService: *passwordResetService,
+		Jwt:                  *jwt,
 	}
 }
 
@@ -88,7 +89,7 @@ func (controller *AuthController) Login(c *gin.Context) {
 	}
 
 	expirationTime := time.Now().Add(time.Duration(expiredTimeAccess) * 24 * time.Hour)
-	token, err := controller.JwtService.GenerateToken(user.IdUser, user.Role, expirationTime)
+	token, err := controller.Jwt.GenerateToken(user.IdUser, user.Role, expirationTime)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
@@ -116,7 +117,7 @@ func (controller *AuthController) Refresh(c *gin.Context) {
 		return
 	}
 
-	token, err := controller.JwtService.RefreshToken(requestToken.RefreshToken)
+	token, err := controller.Jwt.RefreshToken(requestToken.RefreshToken)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return

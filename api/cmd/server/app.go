@@ -5,6 +5,8 @@ import (
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
 	"github.com/arvians-id/apriori/cmd/config"
+	"github.com/arvians-id/apriori/cmd/library/auth"
+	"github.com/arvians-id/apriori/cmd/library/aws"
 	"github.com/arvians-id/apriori/cmd/library/redis"
 	directive2 "github.com/arvians-id/apriori/internal/http/controller/graph/directive"
 	"github.com/arvians-id/apriori/internal/http/controller/graph/generated"
@@ -44,6 +46,8 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 
 	// Setup Library
 	redisLibrary := redis.NewCacheService(configuration)
+	storageLibrary := aws.NewStorageS3(configuration)
+	jwtLibrary := auth.NewJsonWebToken()
 
 	// Setup Repository
 	userRepository := postgres.NewUserRepository()
@@ -58,26 +62,24 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 	notificationRepository := postgres.NewNotificationRepository()
 
 	// Setup Service
-	storageService := service.NewStorageService(configuration)
 	userService := cache.NewUserCacheService(&userRepository, redisLibrary, db)
-	jwtService := service.NewJwtService()
 	emailService := service.NewEmailService()
 	notificationService := service.NewNotificationService(&notificationRepository, &userRepository, &emailService, db)
 	passwordResetService := service.NewPasswordResetService(&passwordRepository, &userRepository, db)
-	productService := cache.NewProductCacheService(&productRepository, &storageService, &aprioriRepository, redisLibrary, db)
+	productService := cache.NewProductCacheService(&productRepository, &aprioriRepository, redisLibrary, db)
 	transactionService := service.NewTransactionService(&transactionRepository, &productRepository, db)
-	aprioriService := service.NewAprioriService(&transactionRepository, storageService, &productRepository, &aprioriRepository, db)
-	paymentService := service.NewPaymentService(configuration, &paymentRepository, &userOrderRepository, &transactionRepository, &notificationService, db)
+	aprioriService := service.NewAprioriService(&transactionRepository, &productRepository, &aprioriRepository, db)
+	paymentService := service.NewPaymentService(configuration, &paymentRepository, &userOrderRepository, &transactionRepository, db)
 	userOrderService := service.NewUserOrderService(&paymentRepository, &userOrderRepository, &userRepository, db)
 	categoryService := cache.NewCategoryCacheService(&categoryRepository, redisLibrary, db)
 	commentService := service.NewCommentService(&commentRepository, &productRepository, db)
 
 	// Setup Controller
 	userController := rest.NewUserController(&userService)
-	authController := rest.NewAuthController(&userService, &jwtService, &emailService, &passwordResetService)
-	productController := rest.NewProductController(&productService, &storageService)
-	transactionController := rest.NewTransactionController(&transactionService, &storageService)
-	aprioriController := rest.NewAprioriController(aprioriService, &storageService)
+	authController := rest.NewAuthController(&userService, &emailService, &passwordResetService, jwtLibrary)
+	productController := rest.NewProductController(&productService, storageLibrary)
+	transactionController := rest.NewTransactionController(&transactionService, storageLibrary)
+	aprioriController := rest.NewAprioriController(aprioriService, storageLibrary)
 	paymentController := rest.NewPaymentController(&paymentService, &userOrderService, &emailService, &notificationService)
 	userOrderController := rest.NewUserOrderController(&paymentService, &userOrderService)
 	categoryController := rest.NewCategoryController(&categoryService)
@@ -97,15 +99,15 @@ func NewInitializedServer(configuration config.Config) (*gin.Engine, *sql.DB) {
 		categoryService,
 		commentService,
 		emailService,
-		jwtService,
 		notificationService,
 		passwordResetService,
 		paymentService,
 		productService,
-		storageService,
 		transactionService,
 		userOrderService,
 		userService,
+		storageLibrary,
+		jwtLibrary,
 	)
 
 	// REST API Route
@@ -132,15 +134,15 @@ func NewInitializedMainRoute(
 	categoryService service.CategoryService,
 	commentService service.CommentService,
 	emailService service.EmailService,
-	jwtService service.JwtService,
 	notificationService service.NotificationService,
 	passwordResetService service.PasswordResetService,
 	paymentService service.PaymentService,
 	productService service.ProductService,
-	storageService service.StorageService,
 	transactionService service.TransactionService,
 	userOrderService service.UserOrderService,
 	userService service.UserService,
+	storageS3Library *aws.StorageS3,
+	jwtLibrary *auth.JsonWebToken,
 ) {
 	router.GET("/", func(c *gin.Context) {
 		c.JSON(200, gin.H{
@@ -163,15 +165,15 @@ func NewInitializedMainRoute(
 				CategoryService:      categoryService,
 				CommentService:       commentService,
 				EmailService:         emailService,
-				JwtService:           jwtService,
 				NotificationService:  notificationService,
 				PasswordResetService: passwordResetService,
 				PaymentService:       paymentService,
 				ProductService:       productService,
-				StorageService:       storageService,
 				TransactionService:   transactionService,
 				UserOrderService:     userOrderService,
 				UserService:          userService,
+				StorageS3:            storageS3Library,
+				Jwt:                  jwtLibrary,
 			},
 		}
 		// Schema directives

@@ -50,7 +50,7 @@ func (r *mutationResolver) AuthLogin(ctx context.Context, input model.GetUserCre
 
 	expiredTimeAccess, _ := strconv.Atoi(os.Getenv("JWT_ACCESS_EXPIRED_TIME"))
 	expirationTime := time.Now().Add(time.Duration(expiredTimeAccess) * 24 * time.Hour)
-	token, err := r.JwtService.GenerateToken(user.IdUser, user.Role, expirationTime)
+	token, err := r.Jwt.GenerateToken(user.IdUser, user.Role, expirationTime)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +84,7 @@ func (r *mutationResolver) AuthRefresh(ctx context.Context, input model.GetRefre
 		return nil, err
 	}
 
-	token, err := r.JwtService.RefreshToken(input.RefreshToken)
+	token, err := r.Jwt.RefreshToken(input.RefreshToken)
 	if err != nil {
 		return nil, err
 	}
@@ -276,7 +276,7 @@ func (r *mutationResolver) TransactionCreate(ctx context.Context, input model.Cr
 
 func (r *mutationResolver) TransactionCreateByCSV(ctx context.Context, file graphql.Upload) (bool, error) {
 	initFileName := fmt.Sprintf("%v-%s", file.Size, file.Filename)
-	fileNameGenerated, err := r.StorageService.UploadFileS3GraphQL(file, initFileName)
+	fileNameGenerated, err := r.StorageS3.UploadFileS3GraphQL(file, initFileName)
 	if err != nil {
 		return false, err
 	}
@@ -392,9 +392,21 @@ func (r *mutationResolver) PaymentNotification(ctx context.Context) (bool, error
 	resArray := make(map[string]interface{})
 	err = json.Unmarshal(encode, &resArray)
 
-	err = r.PaymentService.CreateOrUpdate(ginContext, resArray)
+	isSettlement, err := r.PaymentService.CreateOrUpdate(ginContext, resArray)
 	if err != nil {
 		return false, err
+	}
+
+	if isSettlement {
+		var notificationRequest request.CreateNotificationRequest
+		notificationRequest.UserId = util.StrToInt(resArray["custom_field1"].(string))
+		notificationRequest.Title = "Transaction Successfully"
+		notificationRequest.Description = "You have successfully made a payment. Thank you for shopping at Ryzy Shop"
+		notificationRequest.URL = "product"
+		err = r.NotificationService.Create(ginContext, &notificationRequest).WithSendMail()
+		if err != nil {
+			return false, err
+		}
 	}
 
 	return true, nil
@@ -501,7 +513,7 @@ func (r *mutationResolver) AprioriUpdate(ctx context.Context, input model.Update
 	var fileName string
 	if input.Image.Filename != "" {
 		initFileName := fmt.Sprintf("%v-%s", input.Image.Size, input.Image.Filename)
-		fileNameGenerated, err := r.StorageService.UploadFileS3GraphQL(input.Image, initFileName)
+		fileNameGenerated, err := r.StorageS3.UploadFileS3GraphQL(input.Image, initFileName)
 		if err != nil {
 			return nil, err
 		}
@@ -570,7 +582,7 @@ func (r *mutationResolver) ProductCreate(ctx context.Context, input model.Create
 	fileName := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/assets/%s", os.Getenv("AWS_BUCKET"), os.Getenv("AWS_REGION"), "no-image.png")
 	if input.Image.Filename != "" {
 		initFileName := fmt.Sprintf("%v-%s", input.Image.Size, input.Image.Filename)
-		fileNameGenerated, err := r.StorageService.UploadFileS3GraphQL(input.Image, initFileName)
+		fileNameGenerated, err := r.StorageS3.UploadFileS3GraphQL(input.Image, initFileName)
 		if err != nil {
 			return nil, err
 		}
@@ -603,7 +615,7 @@ func (r *mutationResolver) ProductUpdate(ctx context.Context, input model.Update
 	var fileName string
 	if input.Image.Filename != "" {
 		initFileName := fmt.Sprintf("%v-%s", input.Image.Size, input.Image.Filename)
-		fileNameGenerated, err := r.StorageService.UploadFileS3GraphQL(input.Image, initFileName)
+		fileNameGenerated, err := r.StorageS3.UploadFileS3GraphQL(input.Image, initFileName)
 		if err != nil {
 			return nil, err
 		}

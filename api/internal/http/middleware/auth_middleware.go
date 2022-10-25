@@ -1,8 +1,8 @@
 package middleware
 
 import (
+	"github.com/arvians-id/apriori/cmd/library/auth"
 	"github.com/arvians-id/apriori/internal/http/presenter/response"
-	"github.com/arvians-id/apriori/internal/service"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"net/http"
@@ -24,8 +24,8 @@ func AuthJwtMiddleware() gin.HandlerFunc {
 
 		tokenString := strings.Replace(authorizationHeader, "Bearer ", "", -1)
 
-		jwtService := service.NewJwtService()
-		token, err := jwtService.ValidateToken(tokenString)
+		jwtLibrary := auth.NewJsonWebToken()
+		token, err := jwtLibrary.ValidateToken(tokenString)
 		if err != nil {
 			c.JSON(http.StatusUnauthorized, response.WebResponse{
 				Code:   http.StatusUnauthorized,

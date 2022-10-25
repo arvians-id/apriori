@@ -6,6 +6,7 @@ import (
 	"github.com/arvians-id/apriori/internal/http/presenter/request"
 	"github.com/arvians-id/apriori/internal/http/presenter/response"
 	"github.com/arvians-id/apriori/internal/service"
+	"github.com/arvians-id/apriori/util"
 	"github.com/gin-gonic/gin"
 	"github.com/veritrans/go-midtrans"
 	"log"
@@ -152,10 +153,23 @@ func (controller *PaymentController) Notification(c *gin.Context) {
 		return
 	}
 
-	err = controller.PaymentService.CreateOrUpdate(c.Request.Context(), resArray)
+	isSettlement, err := controller.PaymentService.CreateOrUpdate(c.Request.Context(), resArray)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
+	}
+
+	if isSettlement {
+		var notificationRequest request.CreateNotificationRequest
+		notificationRequest.UserId = util.StrToInt(resArray["custom_field1"].(string))
+		notificationRequest.Title = "Transaction Successfully"
+		notificationRequest.Description = "You have successfully made a payment. Thank you for shopping at Ryzy Shop"
+		notificationRequest.URL = "product"
+		err = controller.NotificationService.Create(c.Request.Context(), &notificationRequest).WithSendMail()
+		if err != nil {
+			response.ReturnErrorInternalServerError(c, err, nil)
+			return
+		}
 	}
 
 	response.ReturnSuccessOK(c, "OK", nil)

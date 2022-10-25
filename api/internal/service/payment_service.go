@@ -24,7 +24,6 @@ type PaymentServiceImpl struct {
 	PaymentRepository     repository.PaymentRepository
 	UserOrderRepository   repository.UserOrderRepository
 	TransactionRepository repository.TransactionRepository
-	NotificationService   NotificationService
 	DB                    *sql.DB
 }
 
@@ -33,7 +32,6 @@ func NewPaymentService(
 	paymentRepository *repository.PaymentRepository,
 	userOrderRepository *repository.UserOrderRepository,
 	transactionRepository *repository.TransactionRepository,
-	notificationService *NotificationService,
 	db *sql.DB,
 ) PaymentService {
 	midClient := midtrans.NewClient()
@@ -48,7 +46,6 @@ func NewPaymentService(
 		PaymentRepository:     *paymentRepository,
 		UserOrderRepository:   *userOrderRepository,
 		TransactionRepository: *transactionRepository,
-		NotificationService:   *notificationService,
 		DB:                    db,
 	}
 }
@@ -110,11 +107,11 @@ func (service *PaymentServiceImpl) FindByOrderId(ctx context.Context, orderId st
 	return payment, nil
 }
 
-func (service *PaymentServiceImpl) CreateOrUpdate(ctx context.Context, requestPayment map[string]interface{}) error {
+func (service *PaymentServiceImpl) CreateOrUpdate(ctx context.Context, requestPayment map[string]interface{}) (bool, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		log.Println("[PaymentService][CreateOrUpdate] problem in db transaction, err: ", err.Error())
-		return err
+		return false, err
 	}
 	defer util.CommitOrRollback(tx)
 
@@ -153,7 +150,7 @@ func (service *PaymentServiceImpl) CreateOrUpdate(ctx context.Context, requestPa
 	checkTransaction, err := service.PaymentRepository.FindByOrderId(ctx, tx, requestPayment["order_id"].(string))
 	if err != nil {
 		log.Println("[PaymentService][CreateOrUpdate][FindByOrderId] problem in getting from repository, err: ", err.Error())
-		return err
+		return false, err
 	}
 
 	checkTransaction.UserId = util.StrToInt(requestPayment["custom_field1"].(string))
@@ -177,20 +174,20 @@ func (service *PaymentServiceImpl) CreateOrUpdate(ctx context.Context, requestPa
 		err := service.PaymentRepository.Update(ctx, tx, checkTransaction)
 		if err != nil {
 			log.Println("[PaymentService][CreateOrUpdate][Update] problem in getting from repository, err: ", err.Error())
-			return err
+			return false, err
 		}
 
 		if requestPayment["transaction_status"].(string) == "settlement" {
 			timeNow, err := time.Parse(util.TimeFormat, time.Now().Format(util.TimeFormat))
 			if err != nil {
 				log.Println("[PaymentService][CreateOrUpdate] problem in parsing to time, err: ", err.Error())
-				return err
+				return false, err
 			}
 
 			userOrder, err := service.UserOrderRepository.FindAllByPayloadId(ctx, tx, requestPayment["custom_field2"].(string))
 			if err != nil {
 				log.Println("[PaymentService][CreateOrUpdate][FindAllByPayloadId] problem in getting from repository, err: ", err.Error())
-				return err
+				return false, err
 			}
 
 			var productName []string
@@ -209,23 +206,14 @@ func (service *PaymentServiceImpl) CreateOrUpdate(ctx context.Context, requestPa
 			_, err = service.TransactionRepository.Create(ctx, tx, &transaction)
 			if err != nil {
 				log.Println("[PaymentService][CreateOrUpdate][TransactionCreate] problem in getting from repository, err: ", err.Error())
-				return err
+				return false, err
 			}
 
-			var notificationRequest request2.CreateNotificationRequest
-			notificationRequest.UserId = checkTransaction.UserId
-			notificationRequest.Title = "Transaction Successfully"
-			notificationRequest.Description = "You have successfully made a payment. Thank you for shopping at Ryzy Shop"
-			notificationRequest.URL = "product"
-			err = service.NotificationService.Create(ctx, &notificationRequest).WithSendMail()
-			if err != nil {
-				log.Println("[PaymentService][CreateOrUpdate][NotificationCreate] problem in getting from repository, err: ", err.Error())
-				return err
-			}
+			return true, nil
 		}
 	}
 
-	return nil
+	return false, nil
 }
 
 func (service *PaymentServiceImpl) UpdateReceiptNumber(ctx context.Context, request *request2.AddReceiptNumberRequest) (*model.Payment, error) {

@@ -19,13 +19,11 @@ type AprioriServiceImpl struct {
 	TransactionRepository repository.TransactionRepository
 	AprioriRepository     repository.AprioriRepository
 	ProductRepository     repository.ProductRepository
-	StorageService        StorageService
 	DB                    *sql.DB
 }
 
 func NewAprioriService(
 	transactionRepository *repository.TransactionRepository,
-	storageService StorageService,
 	productRepository *repository.ProductRepository,
 	aprioriRepository *repository.AprioriRepository,
 	db *sql.DB,
@@ -33,7 +31,6 @@ func NewAprioriService(
 	return &AprioriServiceImpl{
 		TransactionRepository: *transactionRepository,
 		AprioriRepository:     *aprioriRepository,
-		StorageService:        storageService,
 		ProductRepository:     *productRepository,
 		DB:                    db,
 	}

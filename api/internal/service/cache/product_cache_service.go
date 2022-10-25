@@ -20,14 +20,12 @@ import (
 type ProductCacheServiceImpl struct {
 	ProductRepository repository.ProductRepository
 	AprioriRepository repository.AprioriRepository
-	StorageService    service.StorageService
 	Redis             redisLibrary.Redis
 	DB                *sql.DB
 }
 
 func NewProductCacheService(
 	productRepository *repository.ProductRepository,
-	storageService *service.StorageService,
 	aprioriRepository *repository.AprioriRepository,
 	redis *redisLibrary.Redis,
 	db *sql.DB,
@@ -35,7 +33,6 @@ func NewProductCacheService(
 	return &ProductCacheServiceImpl{
 		ProductRepository: *productRepository,
 		AprioriRepository: *aprioriRepository,
-		StorageService:    *storageService,
 		Redis:             *redis,
 		DB:                db,
 	}

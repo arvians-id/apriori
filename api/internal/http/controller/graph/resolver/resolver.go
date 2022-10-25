@@ -3,6 +3,8 @@ package resolver
 //go:generate go run github.com/99designs/gqlgen generate
 
 import (
+	"github.com/arvians-id/apriori/cmd/library/auth"
+	"github.com/arvians-id/apriori/cmd/library/aws"
 	"github.com/arvians-id/apriori/internal/service"
 )
 
@@ -11,13 +13,13 @@ type Resolver struct {
 	CategoryService      service.CategoryService
 	CommentService       service.CommentService
 	EmailService         service.EmailService
-	JwtService           service.JwtService
 	NotificationService  service.NotificationService
 	PasswordResetService service.PasswordResetService
 	PaymentService       service.PaymentService
 	ProductService       service.ProductService
-	StorageService       service.StorageService
 	TransactionService   service.TransactionService
 	UserOrderService     service.UserOrderService
 	UserService          service.UserService
+	StorageS3            *aws.StorageS3
+	Jwt                  *auth.JsonWebToken
 }

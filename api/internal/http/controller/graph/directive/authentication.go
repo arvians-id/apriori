@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/arvians-id/apriori/cmd/library/auth"
 	"github.com/arvians-id/apriori/internal/http/middleware"
-	"github.com/arvians-id/apriori/internal/service"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
 	"os"
@@ -20,8 +20,8 @@ func IsAuthenticated(c *gin.Context) (jwt.Claims, error) {
 
 	tokenString := strings.Replace(authorizationHeader, "Bearer ", "", -1)
 
-	jwtService := service.NewJwtService()
-	token, err := jwtService.ValidateToken(tokenString)
+	jwtLibrary := auth.NewJsonWebToken()
+	token, err := jwtLibrary.ValidateToken(tokenString)
 	if err != nil {
 		return nil, err
 	}

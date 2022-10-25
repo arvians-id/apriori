@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"github.com/arvians-id/apriori/cmd/library/aws"
 	"github.com/arvians-id/apriori/internal/http/middleware"
 	"github.com/arvians-id/apriori/internal/http/presenter/request"
 	"github.com/arvians-id/apriori/internal/http/presenter/response"
@@ -13,13 +14,13 @@ import (
 
 type AprioriController struct {
 	AprioriService service.AprioriService
-	StorageService service.StorageService
+	StorageS3      aws.StorageS3
 }
 
-func NewAprioriController(aprioriService service.AprioriService, storageService *service.StorageService) *AprioriController {
+func NewAprioriController(aprioriService service.AprioriService, storageS3 *aws.StorageS3) *AprioriController {
 	return &AprioriController{
 		AprioriService: aprioriService,
-		StorageService: *storageService,
+		StorageS3:      *storageS3,
 	}
 }
 
@@ -109,7 +110,7 @@ func (controller *AprioriController) Update(c *gin.Context) {
 	file, header, err := c.Request.FormFile("image")
 	filePath := ""
 	if err == nil {
-		pathName, err := controller.StorageService.UploadFileS3(file, header)
+		pathName, err := controller.StorageS3.UploadFileS3(file, header)
 		if err != nil {
 			response.ReturnErrorInternalServerError(c, err, nil)
 			return

@@ -15,20 +15,17 @@ import (
 type ProductServiceImpl struct {
 	ProductRepository repository.ProductRepository
 	AprioriRepository repository.AprioriRepository
-	StorageService    StorageService
 	DB                *sql.DB
 }
 
 func NewProductService(
 	productRepository *repository.ProductRepository,
-	storageService *StorageService,
 	aprioriRepository *repository.AprioriRepository,
 	db *sql.DB,
 ) ProductService {
 	return &ProductServiceImpl{
 		ProductRepository: *productRepository,
 		AprioriRepository: *aprioriRepository,
-		StorageService:    *storageService,
 		DB:                db,
 	}
 }

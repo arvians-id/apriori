@@ -1,6 +1,7 @@
 package rest
 
 import (
+	"github.com/arvians-id/apriori/cmd/library/aws"
 	"github.com/arvians-id/apriori/internal/http/middleware"
 	"github.com/arvians-id/apriori/internal/http/presenter/request"
 	"github.com/arvians-id/apriori/internal/http/presenter/response"
@@ -12,13 +13,13 @@ import (
 
 type TransactionController struct {
 	TransactionService service.TransactionService
-	StorageService     service.StorageService
+	StorageS3          aws.StorageS3
 }
 
-func NewTransactionController(transactionService *service.TransactionService, storageService *service.StorageService) *TransactionController {
+func NewTransactionController(transactionService *service.TransactionService, storageS3 *aws.StorageS3) *TransactionController {
 	return &TransactionController{
 		TransactionService: *transactionService,
-		StorageService:     *storageService,
+		StorageS3:          *storageS3,
 	}
 }
 
@@ -88,7 +89,7 @@ func (controller *TransactionController) CreateByCSV(c *gin.Context) {
 	}
 
 	var wg sync.WaitGroup
-	pathName, err := controller.StorageService.WaitUploadFileS3(file, header, &wg)
+	pathName, err := controller.StorageS3.WaitUploadFileS3(file, header, &wg)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
