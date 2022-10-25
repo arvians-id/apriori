@@ -17,11 +17,6 @@ at the same time giving discounts on large datasets using an Apriori Algorithm.
  - Cache : [AWS ElastiCache Redis](https://aws.amazon.com/elasticache)
  - Monitoring : [Prometheus](https://prometheus.io) and [Grafana](https://grafana.com)
 
-## Preview
-
-- [Preview Website](http://apriori-frontend.herokuapp.com)
-- [Preview API](http://13.212.123.4:8080)
-
 ## Authors
 
 - [@arvians-id](https://www.github.com/arvians-id)
