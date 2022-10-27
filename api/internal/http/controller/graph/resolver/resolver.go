@@ -5,6 +5,7 @@ package resolver
 import (
 	"github.com/arvians-id/apriori/cmd/library/auth"
 	"github.com/arvians-id/apriori/cmd/library/aws"
+	"github.com/arvians-id/apriori/cmd/library/messaging"
 	"github.com/arvians-id/apriori/internal/service"
 )
 
@@ -22,4 +23,5 @@ type Resolver struct {
 	UserService          service.UserService
 	StorageS3            *aws.StorageS3
 	Jwt                  *auth.JsonWebToken
+	Producer             *messaging.Producer
 }

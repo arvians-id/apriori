@@ -285,7 +285,6 @@ func (cache *ProductCacheServiceImpl) Create(ctx context.Context, request *reque
 	err = cache.Redis.Del(ctx, "products:all", "products:admin", "products:similar")
 	if err != nil {
 		log.Println("[ProductCacheService][Create][Del] unable to deleting specific key cache, err: ", err.Error())
-		return nil, err
 	}
 
 	return productResponse, nil
@@ -331,13 +330,12 @@ func (cache *ProductCacheServiceImpl) Update(ctx context.Context, request *reque
 	err = cache.Redis.Del(ctx, "products:all", "products:admin", "products:similar", fmt.Sprintf("product:%s", request.Code))
 	if err != nil {
 		log.Println("[ProductCacheService][Update][Del] unable to deleting specific key cache, err: ", err.Error())
-		return nil, err
 	}
 
 	return productResponse, nil
 }
 
-func (cache *ProductCacheServiceImpl) Delete(ctx context.Context, code string) error {
+func (cache *ProductCacheServiceImpl) Delete(ctx context.Context, code string) (err error) {
 	tx, err := cache.DB.Begin()
 	if err != nil {
 		log.Println("[ProductCacheService][Delete] problem in db transaction, err: ", err.Error())
@@ -360,7 +358,6 @@ func (cache *ProductCacheServiceImpl) Delete(ctx context.Context, code string) e
 	err = cache.Redis.Del(ctx, "products:all", "products:admin", "products:similar", fmt.Sprintf("product:%s", code))
 	if err != nil {
 		log.Println("[ProductCacheService][Delete][Del] unable to deleting specific key cache, err: ", err.Error())
-		return nil
 	}
 
 	return nil

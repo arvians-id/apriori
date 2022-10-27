@@ -200,7 +200,6 @@ func (cache *UserCacheServiceImpl) Create(ctx context.Context, request *request.
 	err = cache.Redis.Del(ctx, "users")
 	if err != nil {
 		log.Println("[UserCacheService][Create][Del] unable to deleting specific key cache, err: ", err.Error())
-		return nil, err
 	}
 
 	return user, nil
@@ -259,7 +258,6 @@ func (cache *UserCacheServiceImpl) Update(ctx context.Context, request *request.
 	err = cache.Redis.Del(ctx, "users", key1, key2)
 	if err != nil {
 		log.Println("[UserCacheService][Update][Del] unable to deleting specific key cache, err: ", err.Error())
-		return nil, err
 	}
 
 	return user, nil
@@ -292,7 +290,6 @@ func (cache *UserCacheServiceImpl) Delete(ctx context.Context, id int) error {
 	err = cache.Redis.Del(ctx, "users")
 	if err != nil {
 		log.Println("[UserCacheService][Delete][Del] unable to deleting specific key cache, err: ", err.Error())
-		return nil
 	}
 
 	return nil

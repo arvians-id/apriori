@@ -4,9 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"github.com/arvians-id/apriori/cmd/library/auth"
+	"github.com/arvians-id/apriori/cmd/library/messaging"
 	"github.com/arvians-id/apriori/internal/http/middleware"
 	"github.com/arvians-id/apriori/internal/http/presenter/request"
 	"github.com/arvians-id/apriori/internal/http/presenter/response"
+	"github.com/arvians-id/apriori/internal/model"
 	"github.com/arvians-id/apriori/internal/service"
 	"github.com/gin-gonic/gin"
 	"log"
@@ -19,22 +21,22 @@ import (
 
 type AuthController struct {
 	UserService          service.UserService
-	EmailService         service.EmailService
 	PasswordResetService service.PasswordResetService
 	Jwt                  auth.JsonWebToken
+	Producer             messaging.Producer
 }
 
 func NewAuthController(
 	userService *service.UserService,
-	emailService *service.EmailService,
 	passwordResetService *service.PasswordResetService,
 	jwt *auth.JsonWebToken,
+	producer *messaging.Producer,
 ) *AuthController {
 	return &AuthController{
 		UserService:          *userService,
-		EmailService:         *emailService,
 		PasswordResetService: *passwordResetService,
 		Jwt:                  *jwt,
+		Producer:             *producer,
 	}
 }
 
@@ -182,7 +184,12 @@ func (controller *AuthController) ForgotPassword(c *gin.Context) {
 	}
 
 	message := fmt.Sprintf("%s/auth/reset-password?signature=%v", os.Getenv("APP_URL_FE"), result.Token)
-	err = controller.EmailService.SendEmailWithText(result.Email, "Forgot Password", &message)
+	emailService := model.EmailService{
+		ToEmail: result.Email,
+		Subject: "Forgot Password",
+		Message: message,
+	}
+	err = controller.Producer.Publish("mail_topic", emailService)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return

@@ -21,42 +21,43 @@ services:
       - "6379:6379"
     networks:
       - thesis
-  migrate:
-    image: migrate/migrate
-    volumes:
-      - ./api/database/postgres/migration:/migrations
-    command: ["-path", "/migrations", "-database", "postgres://root:root@apriori-db-1:5432/apriori?sslmode=disable", "-verbose", "up"]
-    depends_on:
-      - db
+  nsqlookupd:
+    image: nsqio/nsq
+    ports:
+      - "4160:4160"
+      - "4161:4161"
+    command: /nsqlookupd
     networks:
       - thesis
-  grafana:
-    image: grafana/grafana:latest
+  nsqd:
+    image: nsqio/nsq
     ports:
-      - "3000:3000"
-    volumes:
-      - ./api/cmd/library/grafana/grafana-data:/var/lib/grafana
-      - ./api/cmd/library/grafana/grafana-data:/etc/grafana/provisioning/datasources
-    environment:
-      - GF_SECURITY_ADMIN_USER=admin
-      - GF_SECURITY_ADMIN_PASSWORD=Rahasia123
+      - "4150:4150"
+      - "4151:4151"
     depends_on:
-      - prometheus
+      - nsqlookupd
+    command: /nsqd -lookupd-tcp-address=nsqlookupd:4160 -broadcast-address=nsqd
     networks:
       - thesis
-  prometheus:
-    image: prom/prometheus:v2.27.1
-    volumes:
-      - ./api/cmd/library/prometheus:/etc/prometheus/
-      - ./api/cmd/library/prometheus/prometheus-data:/prometheus
-    command:
-      - '--config.file=/etc/prometheus/prometheus.yml'
-      - '--storage.tsdb.path=/prometheus'
-      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
-      - '--web.console.templates=/usr/share/prometheus/consoles'
+  nsqadmin:
+    image: nsqio/nsq
     ports:
-      - "9090:9090"
+      - "4171:4171"
+    depends_on:
+      - nsqlookupd
+      - nsqd
+    command: /nsqadmin -lookupd-http-address=nsqlookupd:4161
+    networks:
+      - thesis
+  messagebroker:
+    build: ./message
+    env_file:
+      - ./message/.env
+    ports:
+      - "8082:8080"
     restart: always
+    depends_on:
+      - nsqlookupd
     networks:
       - thesis
 

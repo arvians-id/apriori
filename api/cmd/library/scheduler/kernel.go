@@ -25,11 +25,9 @@ var (
 func Execute() {
 	schedule := gron.New()
 
-	var sendEmailNewsletter SendEmailNewsletterSchedule
 	var clearTablePasswordResets ClearTablePasswordResetsSchedule
 	var example ExampleSchedule
 
-	schedule.Add(daily, &sendEmailNewsletter)
 	schedule.Add(daily, &clearTablePasswordResets)
 	schedule.Add(daily, &example)
 

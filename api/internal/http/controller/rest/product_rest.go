@@ -3,11 +3,14 @@ package rest
 import (
 	"fmt"
 	"github.com/arvians-id/apriori/cmd/library/aws"
+	"github.com/arvians-id/apriori/cmd/library/messaging"
 	"github.com/arvians-id/apriori/internal/http/middleware"
 	"github.com/arvians-id/apriori/internal/http/presenter/request"
 	"github.com/arvians-id/apriori/internal/http/presenter/response"
 	"github.com/arvians-id/apriori/internal/service"
+	"github.com/arvians-id/apriori/util"
 	"github.com/gin-gonic/gin"
+	"log"
 	"os"
 	"strings"
 )
@@ -15,12 +18,14 @@ import (
 type ProductController struct {
 	ProductService service.ProductService
 	StorageS3      aws.StorageS3
+	Producer       messaging.Producer
 }
 
-func NewProductController(productService *service.ProductService, storageS3 *aws.StorageS3) *ProductController {
+func NewProductController(productService *service.ProductService, storageS3 *aws.StorageS3, producer *messaging.Producer) *ProductController {
 	return &ProductController{
 		ProductService: *productService,
 		StorageS3:      *storageS3,
+		Producer:       *producer,
 	}
 }
 
@@ -79,6 +84,19 @@ func (controller *ProductController) FindAllByUser(c *gin.Context) {
 		return
 	}
 
+	type Test struct {
+		Message string
+	}
+
+	testService := Test{
+		Message: "Test",
+	}
+	err = controller.Producer.Publish("storage_topic", testService)
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
 	response.ReturnSuccessOK(c, "OK", products)
 }
 
@@ -115,32 +133,37 @@ func (controller *ProductController) FindByCode(c *gin.Context) {
 }
 
 func (controller *ProductController) Create(c *gin.Context) {
+	file, header, err := c.Request.FormFile("image")
+	filePath := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/assets/%s", os.Getenv("AWS_BUCKET"), os.Getenv("AWS_REGION"), "no-image.png")
+	if err == nil {
+		headerFileName := strings.Split(header.Filename, ".")
+		fileName := util.RandomString(10) + "." + headerFileName[len(headerFileName)-1]
+		filePath = fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", os.Getenv("AWS_BUCKET"), os.Getenv("AWS_REGION"), fileName)
+
+		go func() {
+			var errorUpload error
+			errorUpload = controller.StorageS3.UploadFileS3Test(file, fileName, header.Header.Get("Content-Type"))
+			if errorUpload != nil {
+				log.Println("[Product][Create][UploadFileS3Test] error upload file S3, err: ", errorUpload)
+			}
+		}()
+	}
+
 	var requestCreate request.CreateProductRequest
-	err := c.ShouldBind(&requestCreate)
+	err = c.ShouldBind(&requestCreate)
 	if err != nil {
 		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
-	file, header, err := c.Request.FormFile("image")
-	filePath := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/assets/%s", os.Getenv("AWS_BUCKET"), os.Getenv("AWS_REGION"), "no-image.png")
-	if err == nil {
-		pathName, err := controller.StorageS3.UploadFileS3(file, header)
-		if err != nil {
-			response.ReturnErrorInternalServerError(c, err, nil)
-			return
-		}
-		filePath = pathName
-	}
-
 	requestCreate.Image = filePath
-	product, err := controller.ProductService.Create(c.Request.Context(), &requestCreate)
+	_, err = controller.ProductService.Create(c.Request.Context(), &requestCreate)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
 
-	response.ReturnSuccessOK(c, "created", product)
+	response.ReturnSuccessOK(c, "created", nil)
 }
 
 func (controller *ProductController) Update(c *gin.Context) {

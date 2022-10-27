@@ -2,9 +2,11 @@ package rest
 
 import (
 	"encoding/json"
+	"github.com/arvians-id/apriori/cmd/library/messaging"
 	"github.com/arvians-id/apriori/internal/http/middleware"
 	"github.com/arvians-id/apriori/internal/http/presenter/request"
 	"github.com/arvians-id/apriori/internal/http/presenter/response"
+	"github.com/arvians-id/apriori/internal/model"
 	"github.com/arvians-id/apriori/internal/service"
 	"github.com/arvians-id/apriori/util"
 	"github.com/gin-gonic/gin"
@@ -15,21 +17,24 @@ import (
 type PaymentController struct {
 	PaymentService      service.PaymentService
 	UserOrderService    service.UserOrderService
-	EmailService        service.EmailService
 	NotificationService service.NotificationService
+	UserService         service.UserService
+	Producer            messaging.Producer
 }
 
 func NewPaymentController(
 	paymentService *service.PaymentService,
 	userOrderService *service.UserOrderService,
-	emailService *service.EmailService,
 	notificationService *service.NotificationService,
+	userService *service.UserService,
+	producer *messaging.Producer,
 ) *PaymentController {
 	return &PaymentController{
 		PaymentService:      *paymentService,
 		UserOrderService:    *userOrderService,
-		EmailService:        *emailService,
 		NotificationService: *notificationService,
+		UserService:         *userService,
+		Producer:            *producer,
 	}
 }
 
@@ -98,13 +103,31 @@ func (controller *PaymentController) UpdateReceiptNumber(c *gin.Context) {
 		return
 	}
 
-	// Notification
-	var notificationRequest request.CreateNotificationRequest
-	notificationRequest.UserId = payment.UserId
-	notificationRequest.Title = "Receipt number arrived"
-	notificationRequest.Description = "Your receipt number has been entered by the admin"
-	notificationRequest.URL = "product"
-	err = controller.NotificationService.Create(c.Request.Context(), &notificationRequest).WithSendMail()
+	// Send Notification
+	notification, err := controller.NotificationService.Create(c.Request.Context(), &request.CreateNotificationRequest{
+		UserId:      payment.UserId,
+		Title:       "Receipt number arrived",
+		Description: "Your receipt number had been entered by admin",
+		URL:         "product",
+	})
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	user, err := controller.UserService.FindById(c.Request.Context(), payment.UserId)
+	if err != nil {
+		response.ReturnErrorInternalServerError(c, err, nil)
+		return
+	}
+
+	// Send Email
+	emailService := model.EmailService{
+		ToEmail: user.Email,
+		Subject: notification.Title,
+		Message: *notification.Description,
+	}
+	err = controller.Producer.Publish("mail_topic", emailService)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
@@ -160,12 +183,32 @@ func (controller *PaymentController) Notification(c *gin.Context) {
 	}
 
 	if isSettlement {
-		var notificationRequest request.CreateNotificationRequest
-		notificationRequest.UserId = util.StrToInt(resArray["custom_field1"].(string))
-		notificationRequest.Title = "Transaction Successfully"
-		notificationRequest.Description = "You have successfully made a payment. Thank you for shopping at Ryzy Shop"
-		notificationRequest.URL = "product"
-		err = controller.NotificationService.Create(c.Request.Context(), &notificationRequest).WithSendMail()
+		idUser := util.StrToInt(resArray["custom_field1"].(string))
+		// Send Notification
+		notification, err := controller.NotificationService.Create(c.Request.Context(), &request.CreateNotificationRequest{
+			UserId:      idUser,
+			Title:       "Transaction Successfully",
+			Description: "You have successfully made a payment. Thank you for shopping at Ryzy Shop",
+			URL:         "product",
+		})
+		if err != nil {
+			response.ReturnErrorInternalServerError(c, err, nil)
+			return
+		}
+
+		user, err := controller.UserService.FindById(c.Request.Context(), idUser)
+		if err != nil {
+			response.ReturnErrorInternalServerError(c, err, nil)
+			return
+		}
+
+		// Send Email
+		emailService := model.EmailService{
+			ToEmail: user.Email,
+			Subject: notification.Title,
+			Message: *notification.Description,
+		}
+		err = controller.Producer.Publish("mail_topic", emailService)
 		if err != nil {
 			response.ReturnErrorInternalServerError(c, err, nil)
 			return

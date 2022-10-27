@@ -348,18 +348,29 @@ func (r *mutationResolver) PaymentUpdateReceiptNumber(ctx context.Context, input
 		return false, err
 	}
 
-	// Notification
-	var notificationRequest model.CreateNotificationRequest
-	notificationRequest.UserId = payment.UserId
-	notificationRequest.Title = "Receipt number arrived"
-	notificationRequest.Description = "Your receipt number has been entered by the admin"
-	notificationRequest.URL = "product"
-	err = r.NotificationService.Create(ctx, &request.CreateNotificationRequest{
-		UserId:      notificationRequest.UserId,
-		Title:       notificationRequest.Title,
-		Description: notificationRequest.Description,
-		URL:         notificationRequest.URL,
-	}).WithSendMail()
+	// Send Notification
+	notification, err := r.NotificationService.Create(ctx, &request.CreateNotificationRequest{
+		UserId:      payment.UserId,
+		Title:       "Receipt number arrived",
+		Description: "Your receipt number had been entered by admin",
+		URL:         "product",
+	})
+	if err != nil {
+		return false, err
+	}
+
+	user, err := r.UserService.FindById(ctx, payment.UserId)
+	if err != nil {
+		return false, err
+	}
+
+	// Send Email
+	emailService := model.EmailService{
+		ToEmail: user.Email,
+		Subject: notification.Title,
+		Message: *notification.Description,
+	}
+	err = r.Producer.Publish("mail_topic", emailService)
 	if err != nil {
 		return false, err
 	}
@@ -398,12 +409,30 @@ func (r *mutationResolver) PaymentNotification(ctx context.Context) (bool, error
 	}
 
 	if isSettlement {
-		var notificationRequest request.CreateNotificationRequest
-		notificationRequest.UserId = util.StrToInt(resArray["custom_field1"].(string))
-		notificationRequest.Title = "Transaction Successfully"
-		notificationRequest.Description = "You have successfully made a payment. Thank you for shopping at Ryzy Shop"
-		notificationRequest.URL = "product"
-		err = r.NotificationService.Create(ginContext, &notificationRequest).WithSendMail()
+		idUser := util.StrToInt(resArray["custom_field1"].(string))
+		// Send Notification
+		notification, err := r.NotificationService.Create(ginContext, &request.CreateNotificationRequest{
+			UserId:      idUser,
+			Title:       "Transaction Successfully",
+			Description: "You have successfully made a payment. Thank you for shopping at Ryzy Shop",
+			URL:         "product",
+		})
+		if err != nil {
+			return false, err
+		}
+
+		user, err := r.UserService.FindById(ginContext, idUser)
+		if err != nil {
+			return false, err
+		}
+
+		// Send Email
+		emailService := model.EmailService{
+			ToEmail: user.Email,
+			Subject: notification.Title,
+			Message: *notification.Description,
+		}
+		err = r.Producer.Publish("mail_topic", emailService)
 		if err != nil {
 			return false, err
 		}

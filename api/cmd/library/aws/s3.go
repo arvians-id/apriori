@@ -132,6 +132,29 @@ func (storageS3 *StorageS3) UploadFileS3(file multipart.File, header *multipart.
 	return filePath, nil
 }
 
+func (storageS3 *StorageS3) UploadFileS3Test(file multipart.File, fileName string, contentType string) error {
+	sess, err := storageS3.ConnectToAWS()
+	if err != nil {
+		return err
+	}
+
+	_, err = s3.New(sess).PutObject(&s3.PutObjectInput{
+		Bucket:               aws.String(storageS3.MyBucket),
+		ACL:                  aws.String("public-read"),
+		Key:                  aws.String(fileName),
+		Body:                 file,
+		ContentType:          aws.String(contentType),
+		ContentDisposition:   aws.String("attachment"),
+		ServerSideEncryption: aws.String("AES256"),
+	})
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (storageS3 *StorageS3) UploadFileS3GraphQL(fileUpload graphql.Upload, initFileName string) (string, error) {
 	sess, err := storageS3.ConnectToAWS()
 	if err != nil {

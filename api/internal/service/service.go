@@ -93,8 +93,7 @@ type UserService interface {
 type NotificationService interface {
 	FindAll(ctx context.Context) ([]*model.Notification, error)
 	FindAllByUserId(ctx context.Context, userId int) ([]*model.Notification, error)
-	Create(ctx context.Context, request *request2.CreateNotificationRequest) *NotificationServiceImpl
+	Create(ctx context.Context, request *request2.CreateNotificationRequest) (*model.Notification, error)
 	MarkAll(ctx context.Context, userId int) error
 	Mark(ctx context.Context, id int) error
-	WithSendMail() error
 }
