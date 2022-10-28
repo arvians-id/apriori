@@ -8,7 +8,6 @@ import (
 	"github.com/arvians-id/apriori/internal/service"
 	"github.com/arvians-id/apriori/util"
 	"github.com/gin-gonic/gin"
-	"sync"
 )
 
 type TransactionController struct {
@@ -88,15 +87,14 @@ func (controller *TransactionController) CreateByCSV(c *gin.Context) {
 		return
 	}
 
-	var wg sync.WaitGroup
-	pathName, err := controller.StorageS3.WaitUploadFileS3(file, header, &wg)
+	filePath, fileName := util.GetPathAWS(header.Filename)
+	err = controller.StorageS3.UploadToAWS(file, fileName, header.Header.Get("Content-Type"))
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
-	wg.Wait()
 
-	data, err := util.OpenCsvFile(pathName)
+	data, err := util.OpenCsvFile(filePath)
 	if err != nil {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
@@ -107,6 +105,10 @@ func (controller *TransactionController) CreateByCSV(c *gin.Context) {
 		response.ReturnErrorInternalServerError(c, err, nil)
 		return
 	}
+
+	defer func(StorageS3 *aws.StorageS3, filePath string) {
+		_ = StorageS3.DeleteFromAWS(filePath)
+	}(&controller.StorageS3, filePath)
 
 	response.ReturnSuccessOK(c, "created", nil)
 }

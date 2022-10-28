@@ -1,0 +1,17 @@
+{
+	"ulid": "01GGEM3TF695EXK8FC46KP5JX3",
+	"minTime": 1666924931335,
+	"maxTime": 1666929600000,
+	"stats": {
+		"numSamples": 28670,
+		"numSeries": 113,
+		"numChunks": 178
+	},
+	"compaction": {
+		"level": 1,
+		"sources": [
+			"01GGEM3TF695EXK8FC46KP5JX3"
+		]
+	},
+	"version": 1
+}

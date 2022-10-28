@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"database/sql"
+	"github.com/arvians-id/apriori/cmd/library/aws"
 	"github.com/arvians-id/apriori/internal/http/presenter/request"
 	"github.com/arvians-id/apriori/internal/model"
 	"github.com/arvians-id/apriori/internal/repository"
@@ -15,17 +16,20 @@ import (
 type ProductServiceImpl struct {
 	ProductRepository repository.ProductRepository
 	AprioriRepository repository.AprioriRepository
+	StorageS3         aws.StorageS3
 	DB                *sql.DB
 }
 
 func NewProductService(
 	productRepository *repository.ProductRepository,
 	aprioriRepository *repository.AprioriRepository,
+	storageS3 *aws.StorageS3,
 	db *sql.DB,
 ) ProductService {
 	return &ProductServiceImpl{
 		ProductRepository: *productRepository,
 		AprioriRepository: *aprioriRepository,
+		StorageS3:         *storageS3,
 		DB:                db,
 	}
 }
@@ -232,6 +236,7 @@ func (service *ProductServiceImpl) Update(ctx context.Context, request *request.
 	product.Mass = request.Mass
 	product.UpdatedAt = timeNow
 	if request.Image != "" {
+		_ = service.StorageS3.DeleteFromAWS(*product.Image)
 		product.Image = &request.Image
 	}
 
@@ -263,6 +268,8 @@ func (service *ProductServiceImpl) Delete(ctx context.Context, code string) erro
 		log.Println("[ProductService][Delete][FindByCode] problem in getting from repository, err: ", err.Error())
 		return err
 	}
+
+	_ = service.StorageS3.DeleteFromAWS(*product.Image)
 
 	return nil
 }

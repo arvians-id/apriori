@@ -9,6 +9,7 @@ import (
 	"github.com/arvians-id/apriori/internal/service"
 	"github.com/arvians-id/apriori/util"
 	"github.com/gin-gonic/gin"
+	"log"
 	"strings"
 )
 
@@ -108,14 +109,16 @@ func (controller *AprioriController) Update(c *gin.Context) {
 	idParam := util.StrToInt(c.Param("id"))
 	description := c.PostForm("description")
 	file, header, err := c.Request.FormFile("image")
-	filePath := ""
+	var filePath string
 	if err == nil {
-		pathName, err := controller.StorageS3.UploadFileS3(file, header)
-		if err != nil {
-			response.ReturnErrorInternalServerError(c, err, nil)
-			return
-		}
-		filePath = pathName
+		path, fileName := util.GetPathAWS(header.Filename)
+		go func() {
+			err = controller.StorageS3.UploadToAWS(file, fileName, header.Header.Get("Content-Type"))
+			if err != nil {
+				log.Println("[Product][Create][UploadFileS3Test] error upload file S3, err: ", err.Error())
+			}
+		}()
+		filePath = path
 	}
 
 	var requestUpdate request.UpdateAprioriRequest

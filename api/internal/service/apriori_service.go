@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"fmt"
+	"github.com/arvians-id/apriori/cmd/library/aws"
 	"github.com/arvians-id/apriori/internal/http/presenter/request"
 	"github.com/arvians-id/apriori/internal/model"
 	"github.com/arvians-id/apriori/internal/repository"
@@ -19,6 +20,7 @@ type AprioriServiceImpl struct {
 	TransactionRepository repository.TransactionRepository
 	AprioriRepository     repository.AprioriRepository
 	ProductRepository     repository.ProductRepository
+	StorageS3             aws.StorageS3
 	DB                    *sql.DB
 }
 
@@ -26,12 +28,14 @@ func NewAprioriService(
 	transactionRepository *repository.TransactionRepository,
 	productRepository *repository.ProductRepository,
 	aprioriRepository *repository.AprioriRepository,
+	storageS3 *aws.StorageS3,
 	db *sql.DB,
 ) AprioriService {
 	return &AprioriServiceImpl{
 		TransactionRepository: *transactionRepository,
 		AprioriRepository:     *aprioriRepository,
 		ProductRepository:     *productRepository,
+		StorageS3:             *storageS3,
 		DB:                    db,
 	}
 }
@@ -178,6 +182,7 @@ func (service *AprioriServiceImpl) Update(ctx context.Context, request *request.
 
 	image := apriori.Image
 	if request.Image != "" {
+		_ = service.StorageS3.DeleteFromAWS(*apriori.Image)
 		image = &request.Image
 	}
 
@@ -245,6 +250,10 @@ func (service *AprioriServiceImpl) Delete(ctx context.Context, code string) erro
 	if err != nil {
 		log.Println("[AprioriService][Delete][Delete] problem in getting from repository, err: ", err.Error())
 		return err
+	}
+
+	for _, apriori := range apriories {
+		_ = service.StorageS3.DeleteFromAWS(*apriori.Image)
 	}
 
 	return nil

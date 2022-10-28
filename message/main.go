@@ -18,26 +18,27 @@ const (
 )
 
 func main() {
-	handlerMessage := handler.NewConsumer()
+	mailHandler := handler.NewMailService()
 	mailConsumer := messaging.ConsumerConfig{
 		Topic:         topicMail,
 		Channel:       channelMail,
 		LookupAddress: "nsqlookupd:4161",
 		MaxAttempts:   10,
 		MaxInFlight:   100,
-		Handler:       handlerMessage.SendEmailWithText,
+		Handler:       mailHandler.SendEmailWithText,
 	}
 
 	mail := messaging.NewConsumer(mailConsumer)
 	mail.Run()
 
+	storageHandler := handler.NewStorageService()
 	storageConsumer := messaging.ConsumerConfig{
 		Topic:         topicStorage,
 		Channel:       channelStorage,
 		LookupAddress: "nsqlookupd:4161",
 		MaxAttempts:   10,
 		MaxInFlight:   100,
-		Handler:       handlerMessage.Test,
+		Handler:       storageHandler.UploadToAWS,
 	}
 
 	storage := messaging.NewConsumer(storageConsumer)

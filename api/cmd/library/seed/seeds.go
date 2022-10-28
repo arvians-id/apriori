@@ -3,6 +3,7 @@ package seed
 import (
 	"fmt"
 	"github.com/arvians-id/apriori/cmd/config"
+	"github.com/arvians-id/apriori/cmd/library/aws"
 	"github.com/arvians-id/apriori/database/seeder"
 	"github.com/arvians-id/apriori/internal/repository/postgres"
 	"github.com/arvians-id/apriori/internal/service"
@@ -77,7 +78,8 @@ func productSeeder(totalSeeds int) error {
 
 	productRepository := postgres.NewProductRepository()
 	aprioriRepository := postgres.NewAprioriRepository()
-	productService := service.NewProductService(&productRepository, &aprioriRepository, db)
+	storageLibrary := aws.NewStorageS3(configuration)
+	productService := service.NewProductService(&productRepository, &aprioriRepository, storageLibrary, db)
 
 	seeder.RegisterSeeder(productService, totalSeeds)
 

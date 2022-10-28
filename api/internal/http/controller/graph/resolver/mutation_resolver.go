@@ -6,6 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/99designs/gqlgen/graphql"
+	"github.com/arvians-id/apriori/cmd/library/aws"
 	"github.com/arvians-id/apriori/internal/http/controller/graph/generated"
 	"github.com/arvians-id/apriori/internal/http/middleware"
 	"github.com/arvians-id/apriori/internal/http/presenter/request"
@@ -276,7 +277,7 @@ func (r *mutationResolver) TransactionCreate(ctx context.Context, input model.Cr
 
 func (r *mutationResolver) TransactionCreateByCSV(ctx context.Context, file graphql.Upload) (bool, error) {
 	initFileName := fmt.Sprintf("%v-%s", file.Size, file.Filename)
-	fileNameGenerated, err := r.StorageS3.UploadFileS3GraphQL(file, initFileName)
+	fileNameGenerated, err := r.StorageS3.UploadToAWS2(file, initFileName)
 	if err != nil {
 		return false, err
 	}
@@ -296,6 +297,10 @@ func (r *mutationResolver) TransactionCreateByCSV(ctx context.Context, file grap
 	if err != nil {
 		return false, err
 	}
+
+	defer func(StorageS3 *aws.StorageS3, filePath string) {
+		_ = StorageS3.DeleteFromAWS(filePath)
+	}(r.StorageS3, fileNameGenerated)
 
 	return true, nil
 }
@@ -542,7 +547,7 @@ func (r *mutationResolver) AprioriUpdate(ctx context.Context, input model.Update
 	var fileName string
 	if input.Image.Filename != "" {
 		initFileName := fmt.Sprintf("%v-%s", input.Image.Size, input.Image.Filename)
-		fileNameGenerated, err := r.StorageS3.UploadFileS3GraphQL(input.Image, initFileName)
+		fileNameGenerated, err := r.StorageS3.UploadToAWS2(input.Image, initFileName)
 		if err != nil {
 			return nil, err
 		}
@@ -611,7 +616,7 @@ func (r *mutationResolver) ProductCreate(ctx context.Context, input model.Create
 	fileName := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/assets/%s", os.Getenv("AWS_BUCKET"), os.Getenv("AWS_REGION"), "no-image.png")
 	if input.Image.Filename != "" {
 		initFileName := fmt.Sprintf("%v-%s", input.Image.Size, input.Image.Filename)
-		fileNameGenerated, err := r.StorageS3.UploadFileS3GraphQL(input.Image, initFileName)
+		fileNameGenerated, err := r.StorageS3.UploadToAWS2(input.Image, initFileName)
 		if err != nil {
 			return nil, err
 		}
@@ -644,7 +649,7 @@ func (r *mutationResolver) ProductUpdate(ctx context.Context, input model.Update
 	var fileName string
 	if input.Image.Filename != "" {
 		initFileName := fmt.Sprintf("%v-%s", input.Image.Size, input.Image.Filename)
-		fileNameGenerated, err := r.StorageS3.UploadFileS3GraphQL(input.Image, initFileName)
+		fileNameGenerated, err := r.StorageS3.UploadToAWS2(input.Image, initFileName)
 		if err != nil {
 			return nil, err
 		}

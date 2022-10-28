@@ -5,6 +5,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/arvians-id/apriori/cmd/library/aws"
 	redisLibrary "github.com/arvians-id/apriori/cmd/library/redis"
 	"github.com/arvians-id/apriori/internal/http/presenter/request"
 	"github.com/arvians-id/apriori/internal/model"
@@ -21,6 +22,7 @@ type ProductCacheServiceImpl struct {
 	ProductRepository repository.ProductRepository
 	AprioriRepository repository.AprioriRepository
 	Redis             redisLibrary.Redis
+	StorageS3         aws.StorageS3
 	DB                *sql.DB
 }
 
@@ -28,12 +30,14 @@ func NewProductCacheService(
 	productRepository *repository.ProductRepository,
 	aprioriRepository *repository.AprioriRepository,
 	redis *redisLibrary.Redis,
+	storageS3 *aws.StorageS3,
 	db *sql.DB,
 ) service.ProductService {
 	return &ProductCacheServiceImpl{
 		ProductRepository: *productRepository,
 		AprioriRepository: *aprioriRepository,
 		Redis:             *redis,
+		StorageS3:         *storageS3,
 		DB:                db,
 	}
 }
@@ -318,6 +322,7 @@ func (cache *ProductCacheServiceImpl) Update(ctx context.Context, request *reque
 	product.Mass = request.Mass
 	product.UpdatedAt = timeNow
 	if request.Image != "" {
+		_ = cache.StorageS3.DeleteFromAWS(*product.Image)
 		product.Image = &request.Image
 	}
 
@@ -354,6 +359,8 @@ func (cache *ProductCacheServiceImpl) Delete(ctx context.Context, code string) (
 		log.Println("[ProductCacheService][Delete][Delete] problem in getting from repository, err: ", err.Error())
 		return err
 	}
+
+	_ = cache.StorageS3.DeleteFromAWS(*product.Image)
 
 	err = cache.Redis.Del(ctx, "products:all", "products:admin", "products:similar", fmt.Sprintf("product:%s", code))
 	if err != nil {

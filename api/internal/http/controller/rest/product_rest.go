@@ -3,7 +3,6 @@ package rest
 import (
 	"fmt"
 	"github.com/arvians-id/apriori/cmd/library/aws"
-	"github.com/arvians-id/apriori/cmd/library/messaging"
 	"github.com/arvians-id/apriori/internal/http/middleware"
 	"github.com/arvians-id/apriori/internal/http/presenter/request"
 	"github.com/arvians-id/apriori/internal/http/presenter/response"
@@ -18,14 +17,12 @@ import (
 type ProductController struct {
 	ProductService service.ProductService
 	StorageS3      aws.StorageS3
-	Producer       messaging.Producer
 }
 
-func NewProductController(productService *service.ProductService, storageS3 *aws.StorageS3, producer *messaging.Producer) *ProductController {
+func NewProductController(productService *service.ProductService, storageS3 *aws.StorageS3) *ProductController {
 	return &ProductController{
 		ProductService: *productService,
 		StorageS3:      *storageS3,
-		Producer:       *producer,
 	}
 }
 
@@ -84,19 +81,6 @@ func (controller *ProductController) FindAllByUser(c *gin.Context) {
 		return
 	}
 
-	type Test struct {
-		Message string
-	}
-
-	testService := Test{
-		Message: "Test",
-	}
-	err = controller.Producer.Publish("storage_topic", testService)
-	if err != nil {
-		response.ReturnErrorInternalServerError(c, err, nil)
-		return
-	}
-
 	response.ReturnSuccessOK(c, "OK", products)
 }
 
@@ -136,17 +120,14 @@ func (controller *ProductController) Create(c *gin.Context) {
 	file, header, err := c.Request.FormFile("image")
 	filePath := fmt.Sprintf("https://%s.s3.%s.amazonaws.com/assets/%s", os.Getenv("AWS_BUCKET"), os.Getenv("AWS_REGION"), "no-image.png")
 	if err == nil {
-		headerFileName := strings.Split(header.Filename, ".")
-		fileName := util.RandomString(10) + "." + headerFileName[len(headerFileName)-1]
-		filePath = fmt.Sprintf("https://%s.s3.%s.amazonaws.com/%s", os.Getenv("AWS_BUCKET"), os.Getenv("AWS_REGION"), fileName)
-
+		path, fileName := util.GetPathAWS(header.Filename)
 		go func() {
-			var errorUpload error
-			errorUpload = controller.StorageS3.UploadFileS3Test(file, fileName, header.Header.Get("Content-Type"))
-			if errorUpload != nil {
-				log.Println("[Product][Create][UploadFileS3Test] error upload file S3, err: ", errorUpload)
+			err = controller.StorageS3.UploadToAWS(file, fileName, header.Header.Get("Content-Type"))
+			if err != nil {
+				log.Println("[Product][Create][UploadFileS3Test] error upload file S3, err: ", err.Error())
 			}
 		}()
+		filePath = path
 	}
 
 	var requestCreate request.CreateProductRequest
@@ -167,24 +148,27 @@ func (controller *ProductController) Create(c *gin.Context) {
 }
 
 func (controller *ProductController) Update(c *gin.Context) {
+	file, header, err := c.Request.FormFile("image")
+	var filePath string
+	if err == nil {
+		path, fileName := util.GetPathAWS(header.Filename)
+		go func() {
+			err = controller.StorageS3.UploadToAWS(file, fileName, header.Header.Get("Content-Type"))
+			if err != nil {
+				log.Println("[Product][Create][UploadFileS3Test] error upload file S3, err: ", err.Error())
+			}
+		}()
+		filePath = path
+	}
+
 	var requestUpdate request.UpdateProductRequest
-	err := c.ShouldBind(&requestUpdate)
+	err = c.ShouldBind(&requestUpdate)
 	if err != nil {
 		response.ReturnErrorBadRequest(c, err, nil)
 		return
 	}
 
-	file, header, err := c.Request.FormFile("image")
-	if err == nil {
-		pathName, err := controller.StorageS3.UploadFileS3(file, header)
-		if err != nil {
-			response.ReturnErrorInternalServerError(c, err, nil)
-			return
-		}
-
-		requestUpdate.Image = pathName
-	}
-
+	requestUpdate.Image = filePath
 	requestUpdate.Code = c.Param("code")
 	product, err := controller.ProductService.Update(c.Request.Context(), &requestUpdate)
 	if err != nil {
